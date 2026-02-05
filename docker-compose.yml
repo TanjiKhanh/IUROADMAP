@@ -1,63 +1,119 @@
-version: '3.8'
+version: "3.8"
+
+networks:
+  gupjob-net:
+    driver: bridge
 
 services:
-  # --- 1. API GATEWAY ---
-  api-gateway:
-    build: ./services/api-gateway
-    container_name: gupjob_api_gateway
-    ports:
-      - "8000:8080"  # Máy thật gọi 8000 -> vào container 8080
+  # =========================================
+  # 1. DATABASE
+  # =========================================
+  postgres:
+    image: postgres:15
+    container_name: gupjob-postgres
     environment:
-      - PORT=8080
-      - NODE_ENV=development
-      - AUTH_SERVICE_URL=http://auth-service:3000
-      - ADMIN_SERVICE_URL=http://admin-service:4100
-      - USER_SERVICE_URL=http://user-service:4000
-      - JWT_SECRET=supersecret_dev_key
-    depends_on:
-      - auth-service
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -q"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
     networks:
-      - gupjob-network
+      - gupjob-net
 
-  # --- 2. AUTH SERVICE ---
-  auth-service:
-    build: ./services/auth
-    container_name: gupjob_auth_service
+  redis:
+    image: redis:alpine
+    container_name: gupjob-redis
     ports:
-      - "3001:3000" # Map cổng 3001 máy thật để test trực tiếp nếu cần
-    environment:
-      - PORT=3000
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://gupjob:gupjob_pass@postgres:5432/gupjob_dev?schema=public
-      - JWT_SECRET=supersecret_dev_key
-      - MAIL_HOST=smtp.gmail.com
-      - MAIL_PORT=587
-      - MAIL_USER=hoangkhanh27122005@gmail.com
-      - MAIL_PASS=qaaywkfhalucdepi
-      - MAIL_FROM=GupJob <hoangkhanh27122005@gmail.com>
+      - "${REDIS_PORT}:6379"
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - gupjob-net
+
+  adminer:
+    image: adminer
+    container_name: gupjob-adminer
+    restart: unless-stopped
+    ports:
+      - "${ADMINER_PORT}:8080"
     depends_on:
       - postgres
     networks:
-      - gupjob-network
+      - gupjob-net
 
-  # --- 3. DATABASE (PostgreSQL) ---
-  postgres:
-    image: postgres:15
-    container_name: gupjob_postgres
+  # =========================================
+  # 2. CORE SERVICES
+  # =========================================
+  auth:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    container_name: gupjob-auth
     environment:
-      POSTGRES_USER: gupjob
-      POSTGRES_PASSWORD: gupjob_pass
-      POSTGRES_DB: gupjob_dev
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      PORT: 3000
     ports:
-      - "5432:5432" # Để bạn chạy npx prisma migrate từ máy thật
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
     networks:
-      - gupjob-network
+      - gupjob-net
 
-networks:
-  gupjob-network:
-    driver: bridge
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: gupjob-api-gateway
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      AUTH_SERVICE_URL: http://auth:3000
+      ADMIN_SERVICE_URL: http://admin-service:4100
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth
+      - admin-service
+    restart: unless-stopped
+    networks:
+      - gupjob-net
+
+  # =========================================
+  # 3. BUSINESS LOGIC SERVICES
+  # =========================================
+  admin-service:
+    build:
+      context: ./services/admin-service
+      dockerfile: Dockerfile
+    container_name: gupjob-admin
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
+      PORT: 4100
+    ports:
+      - "4100:4100"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - gupjob-net
 
 volumes:
-  postgres_data:
+  pgdata:

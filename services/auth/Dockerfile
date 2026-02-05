@@ -8,7 +8,7 @@ COPY package*.json ./
 # Cài đặt OpenSSL và thư viện tương thích cho Alpine
 RUN apk add --no-cache openssl libc6-compat
 
-RUN npm install
+RUN npm install --legacy-peer-deps --silent
 
 COPY . .
 
