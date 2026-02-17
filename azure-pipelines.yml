@@ -3,8 +3,12 @@ trigger:
     include:
       - main
       - release/*
-      - feature/*/BE-* # Triggers on Backend features
+      - feature/*/BE-*
       - feature/*/be-*
+      - feature/*/FE-*
+      - feature/*/fe-*
+      - feature/*/DB-*
+      - feature/*/db-*
 
 variables:
   - group: gupjob-secrets  # <--- MAKE SURE YOU CREATED THIS IN LIBRARY
