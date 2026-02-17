@@ -101,45 +101,45 @@ stages:
 # ---------------------------------------------------------
 # STAGE 3: DEPLOY (SSH to VM)
 # ---------------------------------------------------------
-- stage: Deploy
-  displayName: Deploy to VM
-  dependsOn: BuildAndPush
-  # Only deploy if previous stages passed AND it is the 'main' branch
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-  jobs:
-  - job: DeployToVM
-    displayName: Deploy via SSH
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - checkout: self
+# - stage: Deploy
+#   displayName: Deploy to VM
+#   dependsOn: BuildAndPush
+#   # Only deploy if previous stages passed AND it is the 'main' branch
+#   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+#   jobs:
+#   - job: DeployToVM
+#     displayName: Deploy via SSH
+#     pool:
+#       vmImage: 'ubuntu-latest'
+#     steps:
+#     - checkout: self
     
-    # 1. Copy the docker-compose.yml to the Server
-    - task: CopyFilesOverSSH@0
-      displayName: 'Copy Compose File'
-      inputs:
-        sshEndpoint: 'SSH-Deploy-Connection' # <--- MUST MATCH SERVICE CONNECTION NAME
-        contents: 'docker-compose.yml'       # Must exist in your repo root
-        targetFolder: '/home/$(VM_USER)/gupjob-deploy'
-        readyTimeout: '20000'
+#     # 1. Copy the docker-compose.yml to the Server
+#     - task: CopyFilesOverSSH@0
+#       displayName: 'Copy Compose File'
+#       inputs:
+#         sshEndpoint: 'SSH-Deploy-Connection' # <--- MUST MATCH SERVICE CONNECTION NAME
+#         contents: 'docker-compose.yml'       # Must exist in your repo root
+#         targetFolder: '/home/$(VM_USER)/gupjob-deploy'
+#         readyTimeout: '20000'
 
-    # 2. Run Docker Compose on the Server
-    - task: SSH@0
-      displayName: 'Run Deployment Commands'
-      inputs:
-        sshEndpoint: 'SSH-Deploy-Connection'
-        runOptions: 'inline'
-        inline: |
-          set -e
-          cd /home/$(VM_USER)/gupjob-deploy
+#     # 2. Run Docker Compose on the Server
+#     - task: SSH@0
+#       displayName: 'Run Deployment Commands'
+#       inputs:
+#         sshEndpoint: 'SSH-Deploy-Connection'
+#         runOptions: 'inline'
+#         inline: |
+#           set -e
+#           cd /home/$(VM_USER)/gupjob-deploy
           
-          echo "Logging into ACR..."
-          echo $(ACR_PASSWORD) | docker login $(ACR_REGISTRY) -u $(ACR_NAME) --password-stdin
+#           echo "Logging into ACR..."
+#           echo $(ACR_PASSWORD) | docker login $(ACR_REGISTRY) -u $(ACR_NAME) --password-stdin
           
-          echo "Pulling latest images..."
-          docker compose pull
+#           echo "Pulling latest images..."
+#           docker compose pull
           
-          echo "Restarting services..."
-          docker compose up -d --remove-orphans
+#           echo "Restarting services..."
+#           docker compose up -d --remove-orphans
           
-          echo "Deployment Complete!"
+#           echo "Deployment Complete!"
