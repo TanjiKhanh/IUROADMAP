@@ -147,12 +147,6 @@ const getDepartmentSlug = (interest: string) => {
         password: formData.password,
         name: formData.fullName,
         role: backendRole,  
-        jobPriority: formData.priorityJob, 
-        currentSituation: formData.currentSituation,
-        careerGoals: formData.careerGoals,
-        interests: formData.interests,
-        departmentSlug: departmentSlug,
-        primaryGoalNextYear: formData.primaryGoalNextYear
       };
 
       console.log("Submitting Payload:", payload); // 🔍 Debug Log

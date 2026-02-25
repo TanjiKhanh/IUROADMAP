@@ -11,11 +11,6 @@ export interface RegisterPayload {
   password: string;
   name: string;
   role: string;
-  jobPriority?: string;
-  currentSituation?: string;
-  careerGoals?: string[];
-  interests?: string[];
-  primaryGoalNextYear?: string;
 }
 
 export const authService = {

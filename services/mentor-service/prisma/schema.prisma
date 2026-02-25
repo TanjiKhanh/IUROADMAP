@@ -11,32 +11,31 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Mentor {
-  id             Int       @id @default(autoincrement())
-  name           String
-  email          String    @unique
-  // departmentSlug ties to admin-service Department.slug (no DB relation)
-  departmentSlug String?  
-  bio            String?
-  rating         Float?    @default(0)
-  skills         Json?     // array of skill tags e.g. ["frontend","react"]
-  hourlyRate     Float?    
-  isActive       Boolean   @default(true)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  availabilities MentorAvailability[]
+enum MentorApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
-model MentorAvailability {
-  id         Int     @id @default(autoincrement())
-  mentorId   Int
-  mentor     Mentor  @relation(fields: [mentorId], references: [id], onDelete: Cascade)
-  weekday    Int     // 0-6
-  startTime  String  // "09:00"
-  endTime    String  // "17:00"
-  timezone   String?
-  createdAt  DateTime @default(now())
+model MentorProfile {
+  userId         Int      @id
+  bio            Json?
+  hourlyRate     Decimal? @db.Decimal(10,2)
+  approvalStatus MentorApprovalStatus @default(PENDING)
+  cvUrl          String?
+  linkedinUrl    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
 
-  @@index([mentorId])
+model MentorVerificationRequest {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  documents   Json     // array of { url, filename, contentType }
+  summary     String?
+  status      MentorApprovalStatus @default(PENDING) // PENDING | APPROVED | REJECTED
+  submittedAt DateTime @default(now())
+  reviewedBy  Int?
+  reviewedAt  DateTime?
+  reviewNote  String?
 }

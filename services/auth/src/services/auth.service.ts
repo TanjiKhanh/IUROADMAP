@@ -73,49 +73,18 @@ export class AuthService {
     if (dto.role === 'COMPANY') dbRole = Role.COMPANY;
     if (dto.role === 'ADMIN') dbRole = Role.ADMIN;
 
-    // 4. Prepare Profile Data
-    const profileData = {
-      currentSituation: dto.currentSituation,
-      careerGoals: dto.careerGoals,
-      interests: dto.interests,
-      primaryGoalNextYear: dto.primaryGoalNextYear,
-      departmentSlug: dto.departmentSlug,
-      registeredAt: new Date().toISOString(),
-    };
-
-    //5 Find Department ID from Slug (if any)
-    const dept = await this.adminClientService.getDepartment(dto.departmentSlug);
-    if (!dept) {
-      throw new BadRequestException('Invalid department slug');
-    }
-    const deptId = dept ? dept.id : null;
-
-    // 6. Create User
+    // 4. Create User
     const created = await this.usersService.createUser({
       email: dto.email,
       password: hashed,
-      name: dto.name,
       role: dbRole,
-      departmentId: deptId,
-      jobPriority: dto.jobPriority || null,
-      // Save JSON profile into DB
-      profile: profileData,
     } as any);
 
-    // 7. Auto-Enroll User to Default Courses
-    try {
-      await this.userClientService.enrollUser(dto.jobPriority, this.createAccessToken(created));
-
-    } catch (error) {
-      this.logger.error(`Auto-enrollment failed for user ${dto.email}: ${error.message}`);
-    }
-
-    // 8. Return Safe User Data (without password)
+    // 5. Return Safe User Data (without password)
     const { password, ...safe } = (created as any);
 
     return {
       ...safe,
-      ...profileData, 
     };
   }
 
@@ -138,9 +107,6 @@ export class AuthService {
       email: user.email, 
       name: user.name, 
       role: user.role,
-      deptId: user.departmentId,
-      job: user.jobPriority,
-      profile: user.profile 
     };
 
     return { 
@@ -258,9 +224,6 @@ async resetPassword(dto: ResetPasswordDto) {
       email: user.email, 
       name: user.name, 
       role: user.role,
-      deptId: user.departmentId,
-      job: user.jobPriority,
-      profile: user.profile
     };
 
     return { 

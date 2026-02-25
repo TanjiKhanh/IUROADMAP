@@ -28,12 +28,6 @@ model User {
   name         String?
   role         Role       @default(STUDENT)
 
-  // Extended profile data (storing interests, goals, current situation, etc.)
-  // JSON type allows us to store flexible array/object structures sent down from the frontend.
-  profile      Json?
-
-  departmentId Int?       // Optional - Maps to Admin Service Department ID (assigned later by Admin)
-  jobPriority  String?    // e.g., "frontend-dev", "data-scientist" (Maps to Roadmap Slug)
 
   // Forgot Password
   resetPasswordToken   String?

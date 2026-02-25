@@ -1,0 +1,145 @@
+trigger:
+  branches:
+    include:
+      - main
+      - release/*
+      - feature/*/BE-* # Triggers on Backend features
+      - feature/*/be-*
+
+variables:
+  - group: gupjob-secrets  # <--- MAKE SURE YOU CREATED THIS IN LIBRARY
+  - name: ACR_REGISTRY
+    value: '$(ACR_NAME).azurecr.io'
+  - name: imageTag
+    value: '$(Build.BuildId)'
+
+stages:
+# ---------------------------------------------------------
+# STAGE 1: TEST (Unit Tests)
+# ---------------------------------------------------------
+- stage: BuildAndTest
+  displayName: Build & Test
+  jobs:
+  - job: Test
+    displayName: Run Unit Tests
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
+    - script: |
+        set -e
+        echo "Starting Tests..."
+        # Loop through all service folders
+        for d in services/*; do
+          if [ -f "$d/package.json" ]; then
+            echo "---------------------------------"
+            echo "Testing Service: $d"
+            pushd $d
+            npm ci
+            # Only run if 'test' script exists in package.json
+            if grep -q "\"test\"" package.json; then
+              npm test || { echo "Tests failed in $d"; exit 1; }
+            else
+              echo "No test script found in $d, skipping."
+            fi
+            popd
+          fi
+        done
+      displayName: 'Install Dependencies & Run Tests'
+
+# ---------------------------------------------------------
+# STAGE 2: BUILD & PUSH (Docker)
+# ---------------------------------------------------------
+- stage: BuildAndPush
+  displayName: Build Docker Images
+  dependsOn: BuildAndTest
+  jobs:
+  - job: BuildPush
+    displayName: Build & Push to ACR
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    - task: Docker@2
+      displayName: Login to ACR
+      inputs:
+        command: login
+        containerRegistry: 'ACR-ServiceConnection' # <--- MUST MATCH SERVICE CONNECTION NAME
+
+    - script: |
+        set -e
+        ACR='$(ACR_REGISTRY)'
+        TAG='$(imageTag)'
+        
+        echo "Building and Pushing to: $ACR with Tag: $TAG"
+
+        # Function to build and push standardizing the logic
+        build_and_push () {
+          SERVICE_NAME=$1
+          FOLDER_PATH=$2
+          
+          echo "Building $SERVICE_NAME..."
+          docker build -t $ACR/$SERVICE_NAME:$TAG $FOLDER_PATH
+          docker push $ACR/$SERVICE_NAME:$TAG
+          
+          # Also push 'latest' tag
+          docker tag $ACR/$SERVICE_NAME:$TAG $ACR/$SERVICE_NAME:latest
+          docker push $ACR/$SERVICE_NAME:latest
+        }
+
+        # --- BUILD LIST ---
+        build_and_push "gupjob-auth" "services/auth"
+        build_and_push "gupjob-api-gateway" "services/api-gateway"
+        build_and_push "gupjob-admin" "services/admin-service"
+        # Add more services here as you create them
+
+      displayName: 'Build & Push All Images'
+
+# ---------------------------------------------------------
+# STAGE 3: DEPLOY (SSH to VM)
+# ---------------------------------------------------------
+- stage: Deploy
+  displayName: Deploy to VM
+  dependsOn: BuildAndPush
+  # Only deploy if previous stages passed AND it is the 'main' branch
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - job: DeployToVM
+    displayName: Deploy via SSH
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - checkout: self
+    
+    # 1. Copy the docker-compose.yml to the Server
+    - task: CopyFilesOverSSH@0
+      displayName: 'Copy Compose File'
+      inputs:
+        sshEndpoint: 'SSH-Deploy-Connection' # <--- MUST MATCH SERVICE CONNECTION NAME
+        contents: 'docker-compose.yml'       # Must exist in your repo root
+        targetFolder: '/home/$(VM_USER)/gupjob-deploy'
+        readyTimeout: '20000'
+
+    # 2. Run Docker Compose on the Server
+    - task: SSH@0
+      displayName: 'Run Deployment Commands'
+      inputs:
+        sshEndpoint: 'SSH-Deploy-Connection'
+        runOptions: 'inline'
+        inline: |
+          set -e
+          cd /home/$(VM_USER)/gupjob-deploy
+          
+          echo "Logging into ACR..."
+          echo $(ACR_PASSWORD) | docker login $(ACR_REGISTRY) -u $(ACR_NAME) --password-stdin
+          
+          echo "Pulling latest images..."
+          docker compose pull
+          
+          echo "Restarting services..."
+          docker compose up -d --remove-orphans
+          
+          echo "Deployment Complete!"

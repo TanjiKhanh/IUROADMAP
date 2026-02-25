@@ -1,25 +1,33 @@
-# Example Dockerfile for a NestJS service (admin-service / roadmap)
-# Adjust the WORKDIR and package manager commands according to your project.
-
-FROM node:18-alpine AS deps
+# services/admin/Dockerfile
+# Multi-stage Dockerfile for Admin service (NestJS + Prisma)
+FROM node:18-bullseye-slim AS builder
+ENV NODE_ENV=development
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --silent
 
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 build-essential git ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY package*.json ./
+COPY prisma ./prisma/
+RUN npm ci
+RUN npx prisma generate || true
+
 COPY . .
-# Build TypeScript
-RUN npm install -g typescript@~4 --silent && \
-	npm run build
+RUN npm run build
 
-FROM node:18-alpine AS runner
-WORKDIR /app
+FROM node:18-bullseye-slim AS runner
 ENV NODE_ENV=production
+WORKDIR /app
+
+RUN useradd --user-group --create-home --shell /bin/false appuser
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
-COPY --from=deps /app/node_modules ./node_modules
-# copy package.json in case scripts or metadata are needed
-COPY package.json ./
-EXPOSE 4100
+COPY --from=builder /app/prisma ./prisma
+
+USER appuser
+
+EXPOSE 3000
 CMD ["node", "dist/main.js"]
