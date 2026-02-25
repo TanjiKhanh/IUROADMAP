@@ -219,7 +219,7 @@ If you use a package manager workspace (pnpm/npm workspaces), you can run script
 - API Gateway: 8080  
 - Auth Service: 3000  
 - Admin Service: 4100  
-- User Service: 4000  
+- User Service: 4000   
 - Postgres: 5432  
 - Redis: 6379
 
