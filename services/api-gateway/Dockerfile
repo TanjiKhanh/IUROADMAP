@@ -1,23 +1,33 @@
-# Sử dụng Node 18
-FROM node:18-alpine
-
-# Tạo thư mục làm việc
+# services/api-gateway/Dockerfile
+# Multi-stage Dockerfile for the API Gateway (NestJS)
+FROM node:18-bullseye-slim AS builder
+ENV NODE_ENV=development
 WORKDIR /app
 
-# Copy package.json
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 build-essential git ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY package*.json ./
+# If gateway does not use Prisma, you can remove COPY prisma
+RUN npm ci
+RUN npx prisma generate || true
 
-# Cài đặt thư viện
-RUN npm install
-
-# --- FIX LỖI: Cài thêm ts-node-dev vào toàn cục (Global) để chắc chắn chạy được ---
-RUN npm install -g ts-node-dev typescript
-
-# Copy code nguồn
 COPY . .
+RUN npm run build
 
-# Mở cổng 8080
-EXPOSE 8080
+FROM node:18-bullseye-slim AS runner
+ENV NODE_ENV=production
+WORKDIR /app
 
-# Chạy lệnh khởi động
-CMD ["npm", "run", "start:dev"]
+RUN useradd --user-group --create-home --shell /bin/false appuser
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+
+USER appuser
+
+EXPOSE 3000
+CMD ["node", "dist/main.js"]

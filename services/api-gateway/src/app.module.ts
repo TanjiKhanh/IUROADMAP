@@ -1,11 +1,54 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod, Logger } from '@nestjs/common';
+import fetch from 'node-fetch';
 import { AuthMiddleware } from './common/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from './common/middlewares/role.middleware';
 import { createServiceProxy } from './utils/proxy.util';
 
+// controllers & guards we add for testing
+import { GatewayController } from './gateway.controller';
+import { JwtAuthGuard } from './common/guards/jwt.guard';
+
 @Module({
   // Providers ensure NestJS creates these as managed singletons
-  providers: [AuthMiddleware, AdminRoleMiddleware],
+  providers: [
+    AuthMiddleware,
+    AdminRoleMiddleware,
+    JwtAuthGuard,
+    // default clients (will be overridden in tests)
+    {
+      provide: 'AUTH_CLIENT',
+      useFactory: () => {
+        // simple fetch-based implementation for runtime
+        return {
+          login: async (payload: any) => {
+            const target = process.env.AUTH_SERVICE_URL || 'http://localhost:3000';
+            const res = await fetch(`${target}/auth/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            return res.json();
+          },
+        };
+      },
+    },
+    {
+      provide: 'ADMIN_CLIENT',
+      useFactory: () => {
+        return {
+          getInfo: async ({ headers }: any) => {
+            const target = process.env.ADMIN_SERVICE_URL || 'http://localhost:4100';
+            const res = await fetch(`${target}/admin/info`, {
+              method: 'GET',
+              headers,
+            });
+            return res.json();
+          },
+        };
+      },
+    },
+  ],
+  controllers: [GatewayController],
 })
 export class AppModule implements NestModule {
   private readonly logger = new Logger('APIGateway');
