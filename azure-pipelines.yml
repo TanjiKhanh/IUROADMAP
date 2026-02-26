@@ -64,50 +64,50 @@ stages:
 # ---------------------------------------------------------
 # STAGE 2: BUILD & PUSH (Docker)
 # ---------------------------------------------------------
-- stage: BuildAndPush
-  displayName: Build Docker Images
-  dependsOn: BuildAndTest
-  jobs:
-  - job: BuildPush
-    displayName: Build & Push to ACR
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - checkout: self
-    - task: Docker@2
-      displayName: Login to ACR
-      inputs:
-        command: login
-        containerRegistry: 'ACR-ServiceConnection' # <--- MUST MATCH SERVICE CONNECTION NAME
+# - stage: BuildAndPush
+#   displayName: Build Docker Images
+#   dependsOn: BuildAndTest
+#   jobs:
+#   - job: BuildPush
+#     displayName: Build & Push to ACR
+#     pool:
+#       vmImage: 'ubuntu-latest'
+#     steps:
+#     - checkout: self
+#     - task: Docker@2
+#       displayName: Login to ACR
+#       inputs:
+#         command: login
+#         containerRegistry: 'ACR-ServiceConnection' # <--- MUST MATCH SERVICE CONNECTION NAME
 
-    - script: |
-        set -e
-        ACR='$(ACR_REGISTRY)'
-        TAG='$(imageTag)'
+#     - script: |
+#         set -e
+#         ACR='$(ACR_REGISTRY)'
+#         TAG='$(imageTag)'
         
-        echo "Building and Pushing to: $ACR with Tag: $TAG"
+#         echo "Building and Pushing to: $ACR with Tag: $TAG"
 
-        # Function to build and push standardizing the logic
-        build_and_push () {
-          SERVICE_NAME=$1
-          FOLDER_PATH=$2
+#         # Function to build and push standardizing the logic
+#         build_and_push () {
+#           SERVICE_NAME=$1
+#           FOLDER_PATH=$2
           
-          echo "Building $SERVICE_NAME..."
-          docker build -t $ACR/$SERVICE_NAME:$TAG $FOLDER_PATH
-          docker push $ACR/$SERVICE_NAME:$TAG
+#           echo "Building $SERVICE_NAME..."
+#           docker build -t $ACR/$SERVICE_NAME:$TAG $FOLDER_PATH
+#           docker push $ACR/$SERVICE_NAME:$TAG
           
-          # Also push 'latest' tag
-          docker tag $ACR/$SERVICE_NAME:$TAG $ACR/$SERVICE_NAME:latest
-          docker push $ACR/$SERVICE_NAME:latest
-        }
+#           # Also push 'latest' tag
+#           docker tag $ACR/$SERVICE_NAME:$TAG $ACR/$SERVICE_NAME:latest
+#           docker push $ACR/$SERVICE_NAME:latest
+#         }
 
-        # --- BUILD LIST ---
-        build_and_push "gupjob-auth" "services/auth"
-        build_and_push "gupjob-api-gateway" "services/api-gateway"
-        build_and_push "gupjob-admin" "services/admin-service"
-        # Add more services here as you create them
+#         # --- BUILD LIST ---
+#         build_and_push "gupjob-auth" "services/auth"
+#         build_and_push "gupjob-api-gateway" "services/api-gateway"
+#         build_and_push "gupjob-admin" "services/admin-service"
+#         # Add more services here as you create them
 
-      displayName: 'Build & Push All Images'
+#       displayName: 'Build & Push All Images'
 
 # ---------------------------------------------------------
 # STAGE 3: DEPLOY (SSH to VM)
