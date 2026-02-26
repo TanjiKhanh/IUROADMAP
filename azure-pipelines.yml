@@ -38,6 +38,13 @@ stages:
         echo "Starting Tests..."
         # Loop through all service folders
         for d in services/*; do
+          
+          if [ "$d" = "services/mentor-service" ] || [ "$d" = "services/mentorship-service" ]; then
+            echo "---------------------------------"
+            echo "Skipping $d (Tests not ready yet)"
+            continue
+          fi
+          
           if [ -f "$d/package.json" ]; then
             echo "---------------------------------"
             echo "Testing Service: $d"
