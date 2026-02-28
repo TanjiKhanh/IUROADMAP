@@ -18,8 +18,16 @@ enum Role {
   STUDENT
   MENTOR
   ADMIN
-  COMPANY
 }
+
+
+enum AccountStatus {
+  PENDING_APPROVAL 
+  ACTIVE           // Students start here, Mentors get upgraded to here
+  BANNED           // For users who violate rules; can be manually set by Admins  
+  REJECTED      
+}
+
 
 model User {
   id           Int        @id @default(autoincrement())
@@ -27,6 +35,7 @@ model User {
   password String
   name         String?
   role         Role       @default(STUDENT)
+  status    AccountStatus @default(ACTIVE)
 
 
   // Forgot Password
