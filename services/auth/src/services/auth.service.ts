@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException, ConflictException, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -6,18 +6,22 @@ import { randomBytes } from 'crypto';
 import { MailerService } from '@nestjs-modules/mailer';
 
 // 👇 IMPORT YOUR DTOS
-import { RegisterDto } from '../dto/register.dto';
+import { LearnerRegisterDto } from '../dto/learner-register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { ForgotPasswordDto, ResetPasswordDto } from '../dto/forgot-password.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 // IMPORT ADMIN CLIENT  
 import { AdminClientService } from '../external/admin-client/admin-client.service';
-import { Role } from '@prisma/client';
+import { AccountStatus, Role } from '@prisma/client';
 
 // IMPORT USER CLIENT
 import { UserClientService } from '../external/user-client/user-client.service';
 
+
+// IMPORT MENTOR CLIENT
+import { MentorClientService } from '../external/mentor-client/mentor-client.service';
+import { MentorRegisterDto } from 'src/dto/mentor-register.dto';
 @Injectable()
 export class AuthService {
 
@@ -31,6 +35,7 @@ export class AuthService {
     private prisma: PrismaService,
     private adminClientService: AdminClientService,
     private userClientService: UserClientService,
+    private mentorClientService: MentorClientService
   ) {}
 
   // HELPER: CREATE TOKENS
@@ -56,8 +61,8 @@ export class AuthService {
     return { refreshToken: `${userId}.${plain}`, expiresAt: expires };
   }
 
-  // 2. REGISTER 
-  async register(dto: RegisterDto) { 
+  // 2.1 REGISTER LEARNER
+  async registerLearner(dto: LearnerRegisterDto) { 
     // 1. Check Email
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {
@@ -67,25 +72,60 @@ export class AuthService {
     // 2. Hash Password
     const hashed = await bcrypt.hash(dto.password, 10);
 
-    // 3. Map Role
-    let dbRole: Role = Role.STUDENT; // Default
-    if (dto.role === 'MENTOR') dbRole = Role.MENTOR;
-    if (dto.role === 'COMPANY') dbRole = Role.COMPANY;
-    if (dto.role === 'ADMIN') dbRole = Role.ADMIN;
 
-    // 4. Create User
+    // 3. Create User
     const created = await this.usersService.createUser({
       email: dto.email,
-      password: hashed,
-      role: dbRole,
+      password: hashed, 
+      role: dto.role, 
+      name: dto.name,
+      status: AccountStatus.ACTIVE
     } as any);
 
-    // 5. Return Safe User Data (without password)
+    // 4. Return Safe User Data (without password)
     const { password, ...safe } = (created as any);
 
     return {
       ...safe,
     };
+  }
+
+
+
+  // 2.2 REGITER MENTOR
+  async registerMentor(dto: MentorRegisterDto) {
+    // 1. Check Email
+    const existing = await this.usersService.findByEmail(dto.email);
+    if (existing) {
+      throw new ConflictException('User already exists');
+    }
+
+    // 2. Hash Password
+    const hashed = await bcrypt.hash(dto.password, 10);
+
+    // 3. Create User with MENTOR Role
+    const created = await this.usersService.createUser({
+      email: dto.email,
+      password: hashed,
+      role: dto.role, // MENTOR
+      name: dto.name,
+      status: AccountStatus.PENDING_APPROVAL
+    } as any);
+
+    // 4. Create Mentor Profile in User Service 
+    
+    await this.mentorClientService.createMentorProfile(created.id, {
+      cvUrl: dto.cvUrl,
+      linkedinUrl: dto.linkedinUrl,
+      industry: dto.industry,
+      skills: dto.skills
+    });
+      
+
+
+    const { password, ...safe } = created;
+    return safe;
+
   }
 
   // =========================================

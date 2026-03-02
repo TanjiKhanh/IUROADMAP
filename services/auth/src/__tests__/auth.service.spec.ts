@@ -73,18 +73,21 @@ describe('AuthService (unit)', () => {
 
     mailerServiceMock = { sendMail: jest.fn() };
 
-    // Construct service with mocks. AuthService constructor expects (usersService, jwtService, mailerService, prisma, adminClient, userClient)
+    const mentorClientServiceMock = {
+      createMentorProfile: jest.fn(),
+    } as any;
+
+    // Construct service with mocks. AuthService constructor expects (usersService, jwtService, mailerService, prisma, adminClient, userClient, mentorClientService)
     authService = new AuthService(
       usersServiceMock,
       jwtServiceMock as JwtService,
       mailerServiceMock,
-      // prisma + other external clients are not used by the exercised methods, pass minimal stubs
       {} as any,
       {} as any,
       {} as any,
+      mentorClientServiceMock,
     );
   });
-
   afterEach(() => jest.resetAllMocks());
 
   describe('login', () => {

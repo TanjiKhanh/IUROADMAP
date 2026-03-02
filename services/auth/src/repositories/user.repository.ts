@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, User, RefreshToken } from '@prisma/client';
+import { Prisma, User, RefreshToken, AccountStatus, Role } from '@prisma/client';
 
 @Injectable()
 export class UsersRepository {
@@ -85,7 +85,35 @@ export class UsersRepository {
     });
   }
 
-  async findAll(): Promise<User[]> {
-    return this.prisma.user.findMany();
+  async findAll(
+    filters: { role?: Role; status?: AccountStatus; search?: string },
+    skip: number,
+    take: number
+  ): Promise<{ data: User[]; total: number }> {
+    
+    // 1. Build the dynamic WHERE clause
+    const where: Prisma.UserWhereInput = {};
+    if (filters?.role) where.role = filters.role;
+    if (filters?.status) where.status = filters.status;
+    if (filters?.search) {
+      where.OR = [
+        { email: { contains: filters.search, mode: 'insensitive' } },
+        { name: { contains: filters.search, mode: 'insensitive' } },
+      ];
+    }
+
+    // 2. Run both queries simultaneously
+    const [data, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        skip, // How many records to skip
+        take, // How many records to return
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.user.count({ where }), // Total count matching the filters
+    ]);
+
+    return { data, total };
   }
+
 }

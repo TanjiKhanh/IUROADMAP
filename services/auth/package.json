@@ -11,7 +11,8 @@
     "prisma:dbpush": "prisma db push",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "test:e2e": "cross-env AUTH_DATABASE_URL=postgresql://gupjob:gupjob_pass@localhost:5432/gupjob_test_db?schema=public jest --config ./src/__tests__/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
@@ -38,15 +39,20 @@
   },
   "devDependencies": {
     "@nestjs/testing": "^11.1.9",
+    "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/jest": "^29.0.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^18.19.130",
     "@types/nodemailer": "^7.0.4",
     "@types/passport-jwt": "^3.0.6",
+    "cross-env": "^10.1.0",
     "jest": "^29.5.0",
     "ts-jest": "^29.0.5",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   }
 }

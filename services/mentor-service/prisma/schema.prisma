@@ -11,31 +11,27 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum MentorApprovalStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
 
 model MentorProfile {
   userId         Int      @id
   bio            Json?
-  hourlyRate     Decimal? @db.Decimal(10,2)
-  approvalStatus MentorApprovalStatus @default(PENDING)
   cvUrl          String?
   linkedinUrl    String?
+  industry        String?  // For recommendation engine (e.g., "BUSINESS_ANALYTICS", "MARKETING")
+  skills         String[] // list of skills (kept for compatibility with auth service payloads)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
 
-model MentorVerificationRequest {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  documents   Json     // array of { url, filename, contentType }
-  summary     String?
-  status      MentorApprovalStatus @default(PENDING) // PENDING | APPROVED | REJECTED
-  submittedAt DateTime @default(now())
-  reviewedBy  Int?
-  reviewedAt  DateTime?
-  reviewNote  String?
+
+
+model MentorSkill {
+  id         Int      @id @default(autoincrement())
+  mentorId   Int
+  skillName  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([mentorId])
 }
+

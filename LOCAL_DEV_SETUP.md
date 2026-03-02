@@ -220,6 +220,7 @@ If you use a package manager workspace (pnpm/npm workspaces), you can run script
 - Auth Service: 3000  
 - Admin Service: 4100  
 - User Service: 4000   
+- Mentor Service: 4200
 - Postgres: 5432  
 - Redis: 6379
 
