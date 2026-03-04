@@ -18,6 +18,7 @@ model MentorProfile {
   cvUrl          String?
   linkedinUrl    String?
   industry        String?  // For recommendation engine (e.g., "BUSINESS_ANALYTICS", "MARKETING")
+  skills         String[] // list of skills (kept for compatibility with auth service payloads)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
