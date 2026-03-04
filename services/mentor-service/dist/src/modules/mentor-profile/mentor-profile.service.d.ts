@@ -1,4 +1,4 @@
-import { MentorProfileRepository } from './mentor-profile.repository';
+import { MentorProfileRepository } from '../repositories/mentor-profile.repository';
 import { CreateMentorProfileDto } from './dto/create-mentor-profile.dto';
 import { UpdateMentorProfileDto } from './dto/update-mentor-profile.dto';
 import { MentorProfileResponseDto } from './dto/mentor-profile-response.dto';

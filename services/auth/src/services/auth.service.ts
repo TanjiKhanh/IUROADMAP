@@ -118,7 +118,8 @@ export class AuthService {
       cvUrl: dto.cvUrl,
       linkedinUrl: dto.linkedinUrl,
       industry: dto.industry,
-      skills: dto.skills
+      skills: dto.skills,
+      bio: dto.bio
     });
       
 

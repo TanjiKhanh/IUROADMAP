@@ -1,343 +1,808 @@
-# GUPJOB — AI-Powered Career Ecosystem
+# IUROADMAP — AI-Powered Career Roadmap Platform
 
-GUPJOB is an interactive career guidance platform that helps students and professionals master technical skills using visual roadmaps. The platform includes an interactive roadmap viewer for learners and a drag-and-drop roadmap designer for admins. It is built with React (Vite) on the frontend and NestJS + Prisma + PostgreSQL on the backend. Redis is used optionally for caching roadmap shapes and summaries.
+**IUROADMAP** is a comprehensive career guidance and mentorship platform that empowers students and professionals to master technical skills through interactive visual roadmaps, progress tracking, and AI-assisted mentorship. Built with a modern microservices architecture combining React (Vite) frontend with a multi-service NestJS backend, Docker, and PostgreSQL.
 
-> 🚀 Interactive visual roadmaps, progress tracking, and a rich resource drawer — all in one place.
+> 🚀 Interactive visual roadmaps, real-time mentorship, comprehensive progress tracking, and AI-powered career guidance — all in one scalable platform.
 
 ---
 
-## Table of contents
+## Table of Contents
 
-- [Key features](#key-features)
-- [Screenshots](#screenshots)
-- [Tech stack](#tech-stack)
-- [System architecture & patterns](#system-architecture--patterns)
-- [Repository structure](#repository-structure)
-- [Getting started (local dev)](#getting-started-local-dev)
+- [Key Features](#key-features)
+- [Project Overview](#project-overview)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Repository Structure](#repository-structure)
+- [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Backend setup](#backend-setup)
-  - [Frontend setup](#frontend-setup)
-  - [Environment variables](#environment-variables)
-  - [Database & Prisma migrations](#database--prisma-migrations)
-  - [Starting services](#starting-services)
-- [Running tests](#running-tests)
-- [Deployment notes](#deployment-notes)
-- [API examples & conventions](#api-examples--conventions)
-- [Caching & cache invalidation patterns](#caching--cache-invalidation-patterns)
-- [UX / Frontend guidance (React Flow)](#ux--frontend-guidance-react-flow)
+  - [Local Development Setup](#local-development-setup)
+  - [Environment Configuration](#environment-configuration)
+  - [Database Setup](#database-setup)
+  - [Running All Services](#running-all-services)
+- [Services Guide](#services-guide)
+- [Testing](#testing)
+- [Database & Migrations](#database--migrations)
+- [API Conventions](#api-conventions)
+- [Deployment](#deployment)
+- [Development Workflow](#development-workflow)
 - [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
 - [License](#license)
 - [Maintainer](#maintainer)
 
 ---
 
-## Key features
+## Key Features
 
-For learners
-- Interactive visual roadmaps (React Flow)
-- Click a node to open a resource drawer (Markdown, links, videos)
-- Track progress (Available → In Progress → Completed)
-- Personalized notes & resource saves
+### For Learners
+- 📊 **Interactive Visual Roadmaps** — React Flow-based graph visualization of learning paths
+- 📚 **Resource Drawer** — Markdown content, external links, and video resources
+- ✅ **Progress Tracking** — Track nodes (Available → In Progress → Completed)
+- 📝 **Personalized Notes** — Save notes and resources per roadmap
+- 🎯 **Guided Learning** — Step-by-step progression through skills
 
-For admins
-- Visual roadmap designer (drag & drop)
-- Course & roadmap management in dashboard
-- Edit node content (Markdown) and snapshot layouts
+### For Mentors
+- 💬 **Mentorship Connections** — Connect with learners for 1-on-1 guidance
+- 📋 **Profile Management** — Showcase expertise, skills, and experience
+- 🏆 **Endorsements** — Build credibility through learner feedback
+- 📈 **Career Guidance** — Provide personalized learning recommendations
 
-Other
-- Read-phase lazy loading of heavy Markdown content
-- Redis caching for roadmap shapes and summaries
-- PostgreSQL + Prisma for persistent storage
+### For Admins
+- 🎨 **Roadmap Designer** — Drag-and-drop interface to create/edit learning paths
+- 🔧 **Content Management** — Manage courses, resources, and learning materials
+- 👥 **User Management** — Approve mentors, manage learner accounts
+- 📊 **Analytics** — Track learner engagement and progress metrics
 
----
-
-## Screenshots
-
-Replace the placeholders with actual images from `/docs` or your screenshots.
-
-- Interactive Learning Map (image_496a03.jpg)
-- Resource Drawer (image_479c2e.png)
-- Admin Roadmap Designer (image_3bb706.jpg)
-
----
-
-## Tech stack
-
-Frontend
-- React (Vite)
-- React Flow (graph visualization)
-- React Router v6
-- react-markdown (render Markdown resources)
-- Styling: CSS Modules + Styled Components
-
-Backend
-- NestJS (Node)
-- PostgreSQL
-- Prisma (ORM)
-- Redis (caching, optional)
-- RESTful API
-
-Dev tools
-- Node.js v18+
-- pnpm / npm / yarn
+### Platform
+- 🔐 **JWT Authentication** — Secure service-to-service and user authentication
+- ⚡ **Microservices Architecture** — Independent, scalable services
+- 🗄️ **PostgreSQL + Prisma** — Type-safe ORM with migrations
+- 🐳 **Docker & Kubernetes** — Production-ready containerization
+- 🧪 **Comprehensive Testing** — Unit, integration, and E2E tests
 
 ---
 
-## System architecture & patterns
+## Project Overview
 
-- Two main services:
-  - Admin Service: stores roadmap structure (nodes & edges), node contents, versions.
-  - User Service: stores user enrollments and overlays (user-specific node status / notes). It does NOT store node layout; it references Admin resources by slug/id.
-- Cache keys are versioned to avoid stale responses:
-  - `roadmap:summary:{slug}:{version}`
-  - `roadmap:nodes:{slug}:{version}`
-- Enroll flow snapshots the roadmap's `totalNodes` and `version` at enrollment time to guarantee stable progress calculation.
-- Read phase: Master node shapes are cached; heavy content (Markdown) is lazy-loaded on node click.
-- Write phase: status updates are optimistic on the client; backend reconciles and updates progress.
+IUROADMAP is built as a **microservices monorepo** with clear separation of concerns:
 
----
-
-## Repository structure (suggested)
-
-- /backend — NestJS server (APIs, Prisma)
-  - src/
-    - modules/
-      - admin/
-      - user/
-      - auth/
-    - main.ts
-  - prisma/
-- /frontend — React app (Vite)
-  - src/
-    - pages/
-      - dashboard/
-      - roadmap/
-    - components/
-      - roadmap/
-        - RoadMapNode.tsx
-    - services/
-      - user.service.ts
-      - admin.service.ts
-    - styles/
-- /docs — screenshots & design assets
-- README.md
+```
+Learners                    Mentors                 Admins
+   ↓                           ↓                       ↓
+   └───────────── API Gateway ───────────┬───────────┘
+                       ↓
+        ┌──────────────┼──────────────┬────────────────┐
+        ↓              ↓              ↓                ↓
+    Auth Service  Admin Service  Mentor Service  User Service
+        ↓              ↓              ↓                ↓
+        └──────────────┼──────────────┴────────────────┘
+                       ↓
+                 PostgreSQL Database
+```
 
 ---
 
-## Getting started (local dev)
+## Architecture
+
+### Microservices Approach
+- **API Gateway** (`api-gateway`): Single entry point, request routing, rate limiting
+- **Auth Service** (`auth`): User authentication, JWT generation, password reset
+- **Admin Service** (`admin-service`): Roadmap/course management, content ownership
+- **Mentor Service** (`mentor-service`): Mentor profiles, skills, availability
+- **User Service** (`user-service`): Learner data, enrollments, progress tracking
+- **Mentorship Service** (`mentorship-service`): Connection management, messaging
+
+### Data Flow
+1. **Frontend** → **API Gateway** (single HTTP entry point)
+2. **API Gateway** routes to appropriate **microservice**
+3. **Services** communicate via **HTTP/gRPC** or **event messaging** (optional)
+4. **Services** persist to **shared PostgreSQL** database (Prisma ORM)
+5. **Services** cache frequently-accessed data (Redis optional)
+
+### Benefits
+- ✅ Independent deployment and scaling
+- ✅ Language/framework agility (all NestJS currently)
+- ✅ Clear ownership boundaries
+- ✅ Fault isolation
+
+---
+
+## Tech Stack
+
+### Frontend
+- **React 18** (Vite for build)
+- **React Flow** — Graph visualization
+- **React Router v6** — Client-side routing
+- **TypeScript** — Type safety
+- **CSS Modules + Styled Components** — Component styling
+- **Axios** — HTTP client
+
+### Backend Services
+- **NestJS 10** — Node.js framework (all services)
+- **TypeScript** — Strict type checking
+- **Prisma 5** — ORM with migrations
+- **PostgreSQL** — Primary database
+- **Redis** (optional) — Caching layer
+- **JWT** — Authentication tokens
+- **Class Validator** — DTO validation
+
+### Infrastructure
+- **Docker** — Containerization
+- **Docker Compose** — Local orchestration
+- **Kubernetes** — Production orchestration
+- **Terraform** (optional) — Infrastructure as Code
+- **Nginx** — Reverse proxy (production)
+
+### Development & Testing
+- **Jest** — Unit & E2E testing framework
+- **Supertest** — HTTP assertion library
+- **ts-jest** — TypeScript support for Jest
+- **ESLint** — Code linting
+- **Prettier** — Code formatting
+
+---
+
+## Repository Structure
+
+```
+IUROADMAP (monorepo root)
+├── frontend/                    # React Vite SPA
+│   ├── src/
+│   │   ├── auth/               # Authentication context & guards
+│   │   ├── components/         # React components (layouts, UI, roadmap)
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── pages/              # Route pages (admin, learner, mentor, public)
+│   │   ├── routes/             # Route definitions
+│   │   ├── services/           # API client services
+│   │   ├── styles/             # Global & component styles
+│   │   ├── types/              # TypeScript type definitions
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── vite.config.ts
+│
+├── services/                    # Backend microservices
+│   ├── api-gateway/            # API Gateway (request routing)
+│   │   ├── src/
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   │
+│   ├── auth/                   # Authentication Service
+│   │   ├── src/
+│   │   │   ├── controllers/    # Route handlers
+│   │   │   ├── services/       # Business logic
+│   │   │   ├── dto/            # Data transfer objects
+│   │   │   ├── guards/         # Auth guards (JWT)
+│   │   │   ├── prisma/         # Database client
+│   │   │   └── __tests__/      # Test suites
+│   │   ├── package.json
+│   │   ├── jest.config.js
+│   │   └── prisma/
+│   │       ├── schema.prisma
+│   │       └── migrations/
+│   │
+│   ├── admin-service/          # Admin & Roadmap Management
+│   │   ├── src/
+│   │   ├── package.json
+│   │   └── prisma/
+│   │
+│   ├── mentor-service/         # Mentor Profiles
+│   │   ├── src/
+│   │   │   └── modules/mentor-profile/
+│   │   │       ├── controllers/
+│   │   │       ├── services/
+│   │   │       ├── repositories/
+│   │   │       ├── dto/
+│   │   │       └── __tests__/   # Comprehensive unit & E2E tests
+│   │   ├── package.json
+│   │   ├── jest.config.js
+│   │   └── prisma/
+│   │
+│   ├── mentorship-service/     # Mentorship Connections
+│   │   ├── src/
+│   │   ├── package.json
+│   │   └── prisma/
+│   │
+│   └── user-service/           # User & Progress Tracking
+│       ├── src/
+│       ├── package.json
+│       └── prisma/
+│
+├── libs/                        # Shared Libraries
+│   └── shared-db/              # Shared database & Prisma setup
+│       ├── prisma/
+│       │   ├── schema.prisma
+│       │   └── migrations/
+│       └── src/
+│
+├── packages/                    # Shared Packages
+│   ├── contracts/              # API contracts (OpenAPI specs)
+│   ├── shared/                 # Shared utilities & types
+│   └── package.json
+│
+├── infra/                       # Infrastructure Code
+│   ├── docker/                 # Dockerfiles & Docker config
+│   ├── docker-compose.yml      # Local development compose
+│   ├── helm/                   # Kubernetes Helm charts
+│   ├── k8s/                    # Kubernetes manifests
+│   └── terraform/              # Terraform IaC
+│
+├── scripts/                     # Development scripts
+│   ├── bootstrap.sh            # Install all dependencies
+│   ├── dev-start.sh            # Start all services
+│   ├── setup-local.sh          # Local setup script
+│   └── seed/                   # Database seed scripts
+│
+├── tests/                       # Shared test suites
+│   ├── contract-tests/         # API contract tests (Postman)
+│   ├── e2e/                    # End-to-end tests
+│   └── unit/                   # Unit test examples
+│
+├── docs/                        # Documentation
+│   ├── architecture.md         # System design
+│   ├── api-design.md           # API guidelines
+│   ├── azure-devops-ci.md      # CI/CD setup
+│   ├── FORGOT_PASSWORD_REVIEW.md
+│   └── adrs/                   # Architecture Decision Records
+│       └── 0001-monolith-vs-microservices.md
+│
+├── docker-compose.yml          # Production compose (alternative)
+├── package.json                # Root workspace config
+├── CONVENTION.md               # Code conventions
+├── LOCAL_DEV_SETUP.md          # Detailed local setup
+├── README.md                   # This file
+├── azure-pipelines.yml         # CI/CD pipeline
+├── run-all.ps1                 # PowerShell startup script
+├── start-all.bat               # Batch startup script
+└── .gitignore
+
+```
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- PostgreSQL (local or container)
-- Redis (optional, for caching)
-- pnpm or npm
+Ensure you have the following installed:
 
-### Backend setup
+- **Node.js** 18.x or higher
+- **npm** 9.x or higher (or `pnpm`/`yarn`)
+- **PostgreSQL** 14+ (local or Docker)
+- **Redis** (optional, for caching)
+- **Docker & Docker Compose** (for containerized setup)
+- **Git**
 
-1. Install dependencies
+**Check versions:**
+```bash
+node --version   # v18.x.x or higher
+npm --version    # 9.x.x or higher
+psql --version   # psql (PostgreSQL) 14+
+```
+
+### Local Development Setup
+
+#### 1. Clone & Install Dependencies
 
 ```bash
-cd backend
+# Clone the repository
+git clone https://github.com/yourusername/IUROADMAP.git
+cd IUROADMAP
+
+# Install root workspace dependencies
 npm install
-# or pnpm install
+
+# Install all service dependencies
+npm install --workspaces
+
+# Or use the bootstrap script
+bash scripts/bootstrap.sh
 ```
 
-2. Copy env example
+#### 2. Environment Configuration
 
+Create `.env` files for each service. Use `.env.example` files as templates:
+
+**Root `.env`** (if needed):
 ```bash
-cp .env.example .env
-# Edit .env and provide DATABASE_URL, REDIS_URL, JWT secrets etc.
+NODE_ENV=development
 ```
 
-3. Run Prisma migrations & generate client
+**services/auth/.env**:
+```env
+NODE_ENV=development
+DATABASE_URL=postgresql://user:password@localhost:5432/gupjob
+JWT_SECRET=your-secret-key-change-in-production
+JWT_EXPIRE=15m
+REFRESH_TOKEN_SECRET=your-refresh-secret
+REFRESH_TOKEN_EXPIRE=30d
+PORT=4000
+MENTOR_SERVICE_API_KEY=internal-api-key
+
+# Email settings (for password reset)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+```
+
+**services/mentor-service/.env**:
+```env
+NODE_ENV=development
+DATABASE_URL=postgresql://user:password@localhost:5432/gupjob
+JWT_SECRET=your-secret-key
+PORT=4200
+```
+
+**frontend/.env**:
+```env
+VITE_API_URL=http://localhost:3000
+VITE_AUTH_SERVICE_URL=http://localhost:4000
+VITE_ADMIN_SERVICE_URL=http://localhost:4100
+VITE_MENTOR_SERVICE_URL=http://localhost:4200
+```
+
+**Full configuration guide:** See [LOCAL_DEV_SETUP.md](LOCAL_DEV_SETUP.md)
+
+#### 3. Database Setup
 
 ```bash
+# Navigate to shared database directory
+cd libs/shared-db
+
+# Generate Prisma client
 npx prisma generate
-npx prisma migrate dev --name init
+
+# Run all migrations
+npx prisma migrate deploy
+
+# (Optional) Seed test data
+npx prisma db seed
+
+# (Optional) Open Prisma Studio (GUI)
+npx prisma studio
 ```
 
-4. Start backend (dev)
+#### 4. Start All Services
+
+**Option A: Using NPM workspaces**
+```bash
+# Terminal 1: Start all services in watch mode
+npm run dev --workspaces
+
+# Terminal 2: Start frontend
+cd frontend && npm run dev
+```
+
+**Option B: Using provided scripts**
+```bash
+# Windows (PowerShell)
+.\run-all.ps1
+
+# Windows (Batch)
+start-all.bat
+
+# Linux/Mac
+bash scripts/dev-start.sh
+```
+
+**Option C: Using Docker Compose**
+```bash
+# Start all services with Docker
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+```
+
+#### 5. Verify Setup
+
+- **Frontend:** http://localhost:5173
+- **API Gateway:** http://localhost:3000
+- **Auth Service:** http://localhost:4000
+- **Admin Service:** http://localhost:4100
+- **Mentor Service:** http://localhost:4200
+- **User Service:** http://localhost:4300
+- **Prisma Studio:** http://localhost:5555 (if running)
+
+---
+
+## Services Guide
+
+### API Gateway (Port 3000)
+**Purpose:** Single entry point for all client requests. Routes to appropriate backend services.
 
 ```bash
-npm run start:dev
-# or
-npm run start:debug
+cd services/api-gateway
+npm install
+npm run dev
 ```
 
-### Frontend setup
+**Key Routes:** (routes to other services)
+- `/auth/*` → Auth Service (4000)
+- `/admin/*` → Admin Service (4100)
+- `/mentor/*` → Mentor Service (4200)
+- `/user/*` → User Service (4300)
 
-1. Install dependencies
+### Auth Service (Port 4000)
+**Purpose:** JWT authentication, user registration, login, password reset.
+
+```bash
+cd services/auth
+npm install
+npm run dev
+```
+
+**Features:**
+- User registration (learner/mentor)
+- Login with JWT tokens
+- Refresh token rotation
+- Password reset flow
+- Internal API for mentor profile creation
+
+**Tests:** `npm test` (Unit + E2E tests)
+
+### Admin Service (Port 4100)
+**Purpose:** Roadmap and course management for admins.
+
+```bash
+cd services/admin-service
+npm install
+npm run dev
+```
+
+**Features:**
+- Create/edit/delete roadmaps
+- Manage learning nodes
+- Publish content
+- Versioning & history
+
+### Mentor Service (Port 4200)
+**Purpose:** Mentor profile management and expertise showcase.
+
+```bash
+cd services/mentor-service
+npm install
+npm run dev
+```
+
+**Features:**
+- Create & update mentor profiles
+- Skill management
+- Availability settings
+- Mentor discovery
+
+**Tests:** `npm test` (61 tests: 26+ unit, 27+ E2E, 8+ controller) ✅ All passing
+
+### User Service (Port 4300)
+**Purpose:** User enrollments, progress tracking, and learner data.
+
+```bash
+cd services/user-service
+npm install
+npm run dev
+```
+
+**Features:**
+- Learner enrollments
+- Progress tracking
+- Notes & resources
+- Learning statistics
+
+### Frontend (Port 5173)
+**Purpose:** React SPA for learners, mentors, and admins.
 
 ```bash
 cd frontend
 npm install
-```
-
-2. Copy env example in frontend (if needed) and set API base URLs:
-
-```
-VITE_API_URL=http://localhost:3000
-VITE_ADMIN_API_URL=http://localhost:3000/admin
-```
-
-3. Start the frontend dev server
-
-```bash
 npm run dev
 ```
 
-Open http://localhost:5173 (or port printed by Vite).
+**Features:**
+- Interactive roadmap viewer
+- Dashboard (learner, mentor, admin)
+- Authentication flows
+- Profile management
 
 ---
 
-## Environment variables (common)
+## Testing
 
-Backend `.env` (example entries)
+### Unit & E2E Tests
 
-```
-DATABASE_URL=postgresql://user:password@localhost:5432/gupjob
-REDIS_URL=redis://localhost:6379
-JWT_SECRET=your_jwt_secret
-PORT=3000
-ADMIN_SERVICE_TOKEN=some-secret-for-service-to-service
-```
-
-Frontend `.env` (Vite)
-
-```
-VITE_API_URL=http://localhost:3000
-VITE_ADMIN_URL=http://localhost:3000/admin
-```
-
----
-
-## Database & Prisma
-
-- Models exist for Admin (Department, Course, Roadmap, RoadmapNode, RoadmapEdge)
-- User service models hold UserRoadmap and UserRoadmapNode overlays.
-- Run Prisma migrations after changing schema:
-
+**Auth Service** (11 tests, all ✅ passing):
 ```bash
-cd backend
-npx prisma migrate dev
+cd services/auth
+npm test
+# Output: 12 tests passed
+```
+
+**Mentor Service** (61 tests, all ✅ passing):
+```bash
+cd services/mentor-service
+npm test
+# Output: 61 tests passed (26 unit + 27 E2E + 8 controller)
+```
+
+**Test Coverage:**
+- ✅ Authentication & authorization
+- ✅ CRUD operations
+- ✅ Input validation
+- ✅ Role-based access control
+- ✅ Error handling
+- ✅ Edge cases & concurrent requests
+- ✅ Database interactions
+
+**Run all tests:**
+```bash
+npm run test --workspaces
+```
+
+**Watch mode (development):**
+```bash
+npm run test:watch --workspaces
+```
+
+**Coverage report:**
+```bash
+npm run test:cov --workspaces
+```
+
+---
+
+## Database & Migrations
+
+### Prisma Setup
+
+The project uses **Prisma 5** for type-safe database access.
+
+**Generate Prisma Client:**
+```bash
 npx prisma generate
 ```
 
-Useful Prisma commands:
-- `npx prisma studio` — UI to inspect DB
-- `npx prisma migrate status` — check migrations
+**Create a new migration:**
+```bash
+npx prisma migrate dev --name add_new_field
+```
+
+**Apply pending migrations:**
+```bash
+npx prisma migrate deploy
+```
+
+**Reset database (⚠️ deletes all data):**
+```bash
+npx prisma migrate reset
+```
+
+**View database (GUI):**
+```bash
+npx prisma studio
+```
+
+### Database Schema
+Main entities:
+- **User** — Authentication & profile
+- **RefreshToken** — Token management
+- **MentorProfile** — Mentor expertise & availability
+- **Roadmap** — Learning path (admin)
+- **RoadmapNode** — Individual learning items
+- **RoadmapEdge** — Node connections
+- **UserRoadmap** — Learner enrollment snapshot
+- **UserRoadmapNode** — Progress per node
+
+**See full schema:** [libs/shared-db/prisma/schema.prisma](libs/shared-db/prisma/schema.prisma)
 
 ---
 
-## Running tests
+## API Conventions
 
-- Backend: (NestJS)
-  - Unit tests: `npm run test`
-  - E2E tests: `npm run test:e2e`
+### Authentication
 
-- Frontend:
-  - Unit tests (if configured): `npm run test`
+All protected endpoints require a JWT token in the `Authorization` header:
 
-(Adjust according to your test runner and scripts)
+```bash
+curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..." http://localhost:3000/api/profile
+```
 
----
+### Response Format
 
-## Deployment notes
+**Success (2xx):**
+```json
+{
+  "data": { ... },
+  "message": "Operation successful"
+}
+```
 
-- Use environment-specific DATABASE_URL and REDIS_URL.
-- Run Prisma migrations on deploy (`npx prisma migrate deploy`).
-- Use process managers (PM2) or Docker Compose / Kubernetes for production.
-- Recommended: host frontend on Vercel/Netlify, backend on a managed Node host or Docker.
+**Error (4xx/5xx):**
+```json
+{
+  "statusCode": 400,
+  "message": "Validation failed",
+  "error": "Bad Request"
+}
+```
 
-Docker example (brief)
-- Compose with services: postgres, redis, backend, frontend.
-- Ensure migrations run in a one-time init container or CI step.
+### Common Endpoints
 
----
+**Authentication:**
+- `POST /auth/register/learner` — Register learner
+- `POST /auth/register/mentor` — Register mentor
+- `POST /auth/login` — Login
+- `POST /auth/refresh` — Refresh token
+- `POST /auth/logout` — Logout
+- `POST /auth/forgot-password` — Request reset
+- `POST /auth/reset-password` — Reset password
 
-## API examples & conventions
+**Mentor Profiles:**
+- `GET /mentor/profiles/me` — Get current mentor profile
+- `PUT /mentor/profiles/me` — Update profile
+- `GET /mentor/profiles` — List all (admin only)
+- `DELETE /mentor/profiles/:id` — Delete (admin only)
 
-- Auth: Use JWT in Authorization header (`Bearer <token>`).
-
-Key endpoints (examples)
-- Enroll in roadmap
-  - POST /user/enroll
-  - Body: `{ "masterRoadmapSlug": "frontend-developer" }`
-  - Creates a UserRoadmap snapshot (title, slug, totalNodes, version)
-
-- Get user roadmap view
-  - GET /user-roadmaps/:id
-  - Returns: { id, title, slug, progressPercent, totals: { totalNodes, completedNodes }, uiNodes: [ ... ] }
-
-- Admin: Get roadmap summary / nodes
-  - GET /admin/roadmaps/:slug/summary
-  - GET /admin/roadmaps/:slug/nodes?minimal=true
-
-- Node detail (lazy load)
-  - GET /user-roadmaps/:userRoadmapId/nodes/:nodeKey
-  - Returns: { nodeKey, title, contentMd, renderedHtml, userResources }
-
-Note: adapt paths to your actual routes. Secure admin endpoints with service token or internal auth.
+**Examples:** See [docs/api-design.md](docs/api-design.md)
 
 ---
 
-## Caching & cache invalidation patterns
+## Deployment
 
-- Use versioned cache keys to avoid racey invalidation:
-  - roadmap:summary:{slug}:{version}
-  - roadmap:nodes:{slug}:{version}
-- Admin Service increments roadmap.version when structure changes.
-- Recommended: Admin publishes a message to Redis pub/sub channel `roadmap:updated` with payload `{ slug, version }`. User Service listens and evicts or updates its cache.
-- Fallback TTL: set keys to expire (1 hour) to reduce long-lived stale data.
+### Docker Deployment
+
+**Build all images:**
+```bash
+docker-compose build
+```
+
+**Run in production:**
+```bash
+docker-compose -f docker-compose.yml up -d
+```
+
+**Logs:**
+```bash
+docker-compose logs -f
+```
+
+### Environment-Specific Setup
+
+1. **Development**: Use `docker-compose.yml` (local dev)
+2. **Staging**: Update `DATABASE_URL`, `REDIS_URL`, deploy to staging server
+3. **Production**: Use Kubernetes or managed platforms (Azure, AWS)
+
+### Azure Deployment (Optional)
+
+See [docs/azure-devops-ci.md](docs/azure-devops-ci.md) for CI/CD pipeline setup.
+
+**Key steps:**
+1. Set up Azure Container Registry
+2. Configure Azure Pipeline
+3. Deploy to Azure App Service or AKS
+4. Configure managed PostgreSQL & Redis
 
 ---
 
-## UX / Frontend guidance (React Flow)
+## Development Workflow
 
-- Use custom node components for rich node UI (badge, title, small summary).
-- Keep node content minimal when fetching the graph. Lazy-load `contentMd` only on node click to populate the right drawer.
-- Neutralize React Flow wrapper styling and only show your `.card-node` visuals:
-  - Add `className: 'custom-node'` when building nodes so CSS can target and remove default node wrapper styles.
-- Make handles small connector dots:
-  - Style `.react-flow__handle` to be tiny, inset circles so they resemble your design.
-- Use `fitView()` after nodes load (with a short timeout) to center and scale the canvas.
-- Use `MiniMap` for quick overview, and `Controls` for zoom/fit.
+### Code Conventions
+
+See [CONVENTION.md](CONVENTION.md) for:
+- Naming conventions
+- File structure
+- Error handling patterns
+- API response formats
+
+### Git Workflow
+
+```bash
+# Create feature branch
+git checkout -b feature/add-new-feature
+
+# Commit with descriptive messages
+git commit -m "feat: add mentor profile endpoint"
+
+# Push to remote
+git push origin feature/add-new-feature
+
+# Open Pull Request on GitHub
+```
+
+### Before Committing
+
+```bash
+# Run tests
+npm test --workspaces
+
+# Lint code
+npm run lint --workspaces
+
+# Format code
+npm run format --workspaces
+```
 
 ---
 
-## Contributing
+## Troubleshooting
 
-Thanks for your interest! Suggested flow:
+### Common Issues
 
-1. Fork the repo
-2. Create a branch: `git checkout -b feature/my-feature`
-3. Implement changes, keeping Prisma migrations and schema in sync
-4. Run tests & lint
-5. Push branch and open a PR
+**Port already in use:**
+```bash
+# Find process on port (e.g., 3000)
+lsof -i :3000          # Mac/Linux
+netstat -ano | grep :3000  # Windows
 
-Please include:
-- A short description of the change
-- Screenshots for UI changes
-- DB migration steps (if any)
+# Kill process
+kill -9 <PID>
+# Or change port in .env
+```
+
+**Database connection error:**
+```bash
+# Check PostgreSQL is running
+psql -U postgres -c "SELECT 1;"
+
+# Verify DATABASE_URL in .env
+# Format: postgresql://user:password@host:port/database
+```
+
+**Prisma migration conflict:**
+```bash
+# Resolve by resetting (caution: deletes data)
+npx prisma migrate reset
+
+# Or manually fix in prisma/migrations/
+```
+
+**Port 3000 occupied by API Gateway:**
+```bash
+# Change in services/api-gateway/.env
+PORT=3001
+```
+
+**Node modules issues:**
+```bash
+# Clean install
+rm -rf node_modules package-lock.json
+npm install
+
+# Clear npm cache if needed
+npm cache clean --force
+```
 
 ---
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for details.
+Distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 ---
 
 ## Maintainer
 
-Developed by Nguyen Tan Khanh  
-Contact: (add your email / GitHub profile)
+**Developed by:** Tan Khanh (Nguyen)  
+**Role:** Software Engineer  
+**Contact:** [Your Email / GitHub Profile](https://github.com/yourusername)  
+
+**Contributors:**
+- Course Instructor: Software Engineering 2025-2026
+- Team Members (if any)
 
 ---
 
-If you want, I can:
-- Generate a CONTRIBUTING.md with PR checklist and commit-message guidelines.
-- Add a Docker Compose example for local development (Postgres, Redis, backend, frontend).
-- Create a sample `.env.example` file for both backend and frontend.
-Which one would you like next?
+## Additional Resources
+
+- **Architecture Decision Record:** [docs/adrs/0001-monolith-vs-microservices.md](docs/adrs/0001-monolith-vs-microservices.md)
+- **API Design Guide:** [docs/api-design.md](docs/api-design.md)
+- **Local Setup Guide:** [LOCAL_DEV_SETUP.md](LOCAL_DEV_SETUP.md)
+- **Code Conventions:** [CONVENTION.md](CONVENTION.md)
+- **CI/CD Pipeline:** [docs/azure-devops-ci.md](docs/azure-devops-ci.md)
+
+---
+
+**Happy coding! 🚀**

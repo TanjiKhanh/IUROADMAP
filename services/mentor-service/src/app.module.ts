@@ -1,8 +1,8 @@
 // src/app.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '../src/prisma/prisma.module';
-import { MentorProfileModule } from '../src/modules/mentor-profile/mentor-profile.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { MentorProfileModule } from './modules/mentor-profile/mentor-profile.module';
 
 @Module({
   imports: [

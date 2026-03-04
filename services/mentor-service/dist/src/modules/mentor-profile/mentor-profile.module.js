@@ -9,10 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MentorProfileModule = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
-const mentor_profile_controller_1 = require("./mentor-profile.controller");
-const mentor_profile_service_1 = require("./mentor-profile.service");
-const mentor_profile_repository_1 = require("./mentor-profile.repository");
+const mentor_profile_controller_1 = require("./controllers/mentor-profile.controller");
+const mentor_profile_service_1 = require("./services/mentor-profile.service");
+const mentor_profile_repository_1 = require("./repositories/mentor-profile.repository");
 const prisma_module_1 = require("../../prisma/prisma.module");
+const mentor_profile_internal_controller_1 = require("./controllers/mentor-profile.internal.controller");
 let MentorProfileModule = class MentorProfileModule {
 };
 exports.MentorProfileModule = MentorProfileModule;
@@ -25,7 +26,7 @@ exports.MentorProfileModule = MentorProfileModule = __decorate([
                 signOptions: { expiresIn: '1h' },
             }),
         ],
-        controllers: [mentor_profile_controller_1.MentorProfileController],
+        controllers: [mentor_profile_controller_1.MentorProfileController, mentor_profile_internal_controller_1.MentorProfileInternalController],
         providers: [mentor_profile_service_1.MentorProfileService, mentor_profile_repository_1.MentorProfileRepository],
         exports: [mentor_profile_service_1.MentorProfileService],
     })

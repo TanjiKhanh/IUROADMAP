@@ -17,9 +17,11 @@ const common_1 = require("@nestjs/common");
 const mentor_profile_service_1 = require("./mentor-profile.service");
 const create_mentor_profile_dto_1 = require("./dto/create-mentor-profile.dto");
 const update_mentor_profile_dto_1 = require("./dto/update-mentor-profile.dto");
-const jwt_guard_1 = require("../../common/guards/jwt.guard");
-const roles_decorator_1 = require("../../common/decorators/roles.decorator");
+const jwt_auth_guard_1 = require("../../common/guards/jwt.auth.guard");
+const roles_guard_1 = require("../../common/guards/roles.guard");
 const user_decorator_1 = require("../../common/decorators/user.decorator");
+const roles_enum_1 = require("../../common/enums/roles.enum");
+const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 let MentorProfileController = class MentorProfileController {
     constructor(service) {
         this.service = service;
@@ -27,28 +29,23 @@ let MentorProfileController = class MentorProfileController {
     async listProfiles(skip = '0', take = '10') {
         return this.service.listProfiles(Number(skip), Number(take));
     }
-    async getProfile(userId) {
-        return this.service.getProfile(Number(userId));
+    async getMyProfile(user) {
+        return this.service.getProfile(user.userId);
     }
     async createProfile(dto, user) {
         return this.service.createProfile(user.userId, dto);
     }
-    async updateProfile(userId, dto, user) {
-        const targetUserId = Number(userId);
-        if (user.userId !== targetUserId && user.role !== 'ADMIN') {
-            throw new Error('Unauthorized');
-        }
-        return this.service.updateProfile(targetUserId, dto);
+    async updateProfile(dto, user) {
+        return this.service.updateProfile(user.userId, dto);
     }
     async deleteProfile(userId) {
         await this.service.deleteProfile(Number(userId));
     }
-    async upsertProfile(userId, dto) {
-        return this.service.upsertProfile(Number(userId), dto);
-    }
 };
 exports.MentorProfileController = MentorProfileController;
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(roles_enum_1.UserRole.ADMIN),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('skip')),
     __param(1, (0, common_1.Query)('take')),
@@ -57,14 +54,17 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MentorProfileController.prototype, "listProfiles", null);
 __decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Get)('me'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(roles_enum_1.UserRole.MENTOR),
+    __param(0, (0, user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], MentorProfileController.prototype, "getProfile", null);
+], MentorProfileController.prototype, "getMyProfile", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(roles_enum_1.UserRole.MENTOR),
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
@@ -74,19 +74,19 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MentorProfileController.prototype, "createProfile", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(roles_enum_1.UserRole.MENTOR),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, common_1.Put)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __param(2, (0, user_decorator_1.CurrentUser)()),
+    (0, common_1.Put)('me'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_mentor_profile_dto_1.UpdateMentorProfileDto, Object]),
+    __metadata("design:paramtypes", [update_mentor_profile_dto_1.UpdateMentorProfileDto, Object]),
     __metadata("design:returntype", Promise)
 ], MentorProfileController.prototype, "updateProfile", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_guard_1.JwtAuthGuard),
-    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(roles_enum_1.UserRole.ADMIN),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
@@ -94,15 +94,6 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], MentorProfileController.prototype, "deleteProfile", null);
-__decorate([
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, common_1.Post)(':id/upsert'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, create_mentor_profile_dto_1.CreateMentorProfileDto]),
-    __metadata("design:returntype", Promise)
-], MentorProfileController.prototype, "upsertProfile", null);
 exports.MentorProfileController = MentorProfileController = __decorate([
     (0, common_1.Controller)('mentor-profiles'),
     __metadata("design:paramtypes", [mentor_profile_service_1.MentorProfileService])

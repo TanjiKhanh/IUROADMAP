@@ -59,9 +59,10 @@ export class AuthController {
       maxAge: REFRESH_MAX_AGE,
     });
 
-    // Return Access Token & User Info
+    // Return Access Token, Refresh Token & User Info
     return { 
       access_token: result.access_token, 
+      refresh_token: result.refresh_token,
       user: result.user 
     };
   }
