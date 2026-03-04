@@ -2,9 +2,12 @@ import { Controller, Post, Body, Req, Res, HttpCode, UseGuards, Get, Param, NotF
 import { AuthService } from '../services/auth.service';
 import { Request, Response } from 'express';
 import { LoginDto } from '../dto/login.dto';
-import { RegisterDto } from '../dto/register.dto';
+import {  LearnerRegisterDto } from '../dto/learner-register.dto';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { ForgotPasswordDto, ResetPasswordDto } from '../dto/forgot-password.dto';
+import { MentorRegisterDto } from '../dto/mentor-register.dto';
+import { UserResponseDto } from '../dto/user-response.dto';
+
 
 const REFRESH_COOKIE = 'refresh_token';
 const REFRESH_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
@@ -13,13 +16,23 @@ const REFRESH_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  // 1. REGISTER
-  @Post('register')
+  // 1.1 REGISTER LEARNER
+  @Post('register/learner')
   async register(
-    @Body() dto: RegisterDto, 
+    @Body() dto: LearnerRegisterDto, 
     @Res({ passthrough: true }) res: Response
   ) {
-    const result = await this.authService.register(dto);
+    const result = await this.authService.registerLearner(dto);
+    return result;
+  }
+
+  //1.2 REGISTER MENTOR
+  @Post('register/mentor')
+  async registerMentor(
+    @Body() dto: MentorRegisterDto,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const result = await this.authService.registerMentor(dto);
     return result;
   }
 
@@ -46,9 +59,10 @@ export class AuthController {
       maxAge: REFRESH_MAX_AGE,
     });
 
-    // Return Access Token & User Info
+    // Return Access Token, Refresh Token & User Info
     return { 
       access_token: result.access_token, 
+      refresh_token: result.refresh_token,
       user: result.user 
     };
   }

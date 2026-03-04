@@ -16,6 +16,7 @@ import { UsersRepository } from './repositories/user.repository';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AdminClientModule } from '../src/external/admin-client/admin-client.module'
 import { UserClientModule } from './external/user-client/user-client.module';
+import { MentorClientModule } from './external/mentor-client/mentor-client.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { UserClientModule } from './external/user-client/user-client.module';
 
     AdminClientModule,
     UserClientModule,
+    MentorClientModule,
 
     // Configure JWT Async (save to read .env)
     JwtModule.registerAsync({

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../repositories/user.repository';
 import { Prisma, User } from '@prisma/client';
+import { FilterUsersDto } from 'src/dto/filter-users.dto';
+import { of } from 'rxjs';
 
 /**
  * UsersService is a thin layer calling UsersRepository (Prisma).
@@ -46,8 +48,38 @@ export class UsersService {
     return this.usersRepo.revokeAllForUser(userId);
   }
   
-  async findAll(): Promise<User[]> {
-    return this.usersRepo.findAll();
+  // Updated findAll method to accept optional filters
+  async findAll(filters: FilterUsersDto) {
+
+    // --- PAGINATION CALCULATION ---
+    const page = filters.page || 1;
+    const limit = filters.limit || 10;
+    const offset = (page - 1) * limit;
+
+    // --- ROLE & STATUS FILTERING ---
+
+    const data = await this.usersRepo.findAll(
+      { role: filters.role, status: filters.status, search: filters.search },
+      offset,
+      limit
+    );
+
+    // Security: Strip passwords before sending to frontend!
+    const sanitizedData = data.data.map((user) => {
+      const { password, ...safeUser } = user;
+      return safeUser;
+    });
+
+    // Return the standard pagination format
+    return {
+      data: sanitizedData,
+      meta: {
+        total: data.total,
+        page,
+        limit,
+        totalPages: Math.ceil(data.total / limit),
+      },
+    };
   }
 
 }

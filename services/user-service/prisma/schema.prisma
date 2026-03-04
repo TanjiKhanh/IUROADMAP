@@ -115,5 +115,6 @@ model LearnerProfile {
 
   @@map("learner_profiles")
   @@index([universityDepartment])
+
   @@index([major])
 }

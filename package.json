@@ -1,6 +1,16 @@
 {
+  "name": "gupjob",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start:gateway": "cd api-gateway && npm run start:dev",
+    "start:auth": "cd services/auth && npm run start:dev",
+    "start:admin": "cd services/admin-service && npm run start:dev",
+    "start:mentor": "cd services/mentor-service && npm run start:dev",
+    "start:user": "cd services/user-service && npm run start:dev",
+    "start:all": "concurrently -c \"cyan,magenta,yellow,green,blue\" -n \"GATEWAY,AUTH,ADMIN,MENTOR,USER\" \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:admin\" \"npm run start:mentor\" \"npm run start:user\""
+  },
   "devDependencies": {
-    "@types/supertest": "^6.0.3",
-    "supertest": "^7.2.2"
+    "concurrently": "^9.2.1"
   }
 }
