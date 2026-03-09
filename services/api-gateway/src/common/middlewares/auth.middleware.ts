@@ -14,8 +14,20 @@ declare global {
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
-    // 2. Skip Auth for public routes (Login/Register)
-    const publicRoutes = ['/auth/login', '/auth/register' ,'/auth/refresh-token', '/auth/reset-password', '/auth/forgot-password'];
+    // 2. Skip Auth for public routes
+    const publicRoutes = [
+      '/auth/login',
+      '/auth/register',
+      '/auth/register/learner',    
+      '/auth/register/mentor',    
+      '/auth/refresh-token',
+      '/auth/reset-password',
+      '/auth/forgot-password',
+      '/mentors',                  
+      '/mentors/by-skill',         
+      '/mentors/by-industry',      
+    ];
+
     if (publicRoutes.some(route => req.originalUrl.startsWith(route))) {
       return next();
     }
@@ -27,7 +39,7 @@ export class AuthMiddleware implements NestMiddleware {
       throw new UnauthorizedException('No token provided');
     }
 
-    // 4. Normalize header (handle arrays) and extract the token
+    // 4. Normalize header
     const authHeader = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
     const parts = authHeader.split(' ');
     if (parts.length < 2) {
@@ -38,16 +50,17 @@ export class AuthMiddleware implements NestMiddleware {
     const token = parts[1];
 
     try {
-      // 5. DECODE THE PAYLOAD (This is the step you asked about!)
-      // We verify the signature using the shared Secret Key
+      // 5. Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
-      // 6. ATTACH TO REQUEST
-      // jwt.verify can return string or object; ensure we set an object
       const payload = typeof decoded === 'string' ? { sub: decoded } : decoded;
       req.user = payload as any;
 
-      console.log('✅ Gateway Auth Success. User:', (req.user as any).email || (req.user as any).sub, '| Role:', (req.user as any).role);
+      console.log(
+        '✅ Gateway Auth Success. User:',
+        (req.user as any).email || (req.user as any).sub,
+        '| Role:',
+        (req.user as any).role,
+      );
 
       next();
     } catch (err) {

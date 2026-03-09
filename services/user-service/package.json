@@ -5,15 +5,33 @@
   "description": "GUPJOB - user/roadmap microservice",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc -p tsconfig.json",
+    "# ========== DEVELOPMENT =========": "",
     "start": "node dist/main.js",
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "start:debug": "node --inspect-brk dist/main.js",
+
+    "# ========== BUILD =========": "",
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+
+    "# ========== LINTING & FORMATTING =========": "",
+    "lint": "eslint src --ext .ts --max-warnings 0",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+
+    "# ========== DATABASE =========": "",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:dev": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "test": "jest",
-    "test:watch": "jest --watch"
+
+    "# ========== UNIT TESTS (No Database) =========": "",
+    "test:unit": "jest --testPathPatterns='\\.unit\\.spec\\.ts$' --passWithNoTests --coverage",
+    "test:unit:watch": "jest --testPathPatterns='\\.unit\\.spec\\.ts$' --watch",
+    "test:unit:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --testPathPatterns='\\.unit\\.spec\\.ts$' --runInBand",
+    "test": "npm run test:unit"
   },
   "author": "your-team",
   "license": "MIT",

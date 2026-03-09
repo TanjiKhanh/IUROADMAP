@@ -17,8 +17,8 @@ import { UpdateMentorProfileDto } from '../dto/update-mentor-profile.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt.auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { CurrentUser } from '../../../common/decorators/user.decorator';
-import { UserRole } from 'src/common/enums/roles.enum';
-import { Roles } from 'src/common/decorators/roles.decorator';
+import { UserRole } from '../../../common/enums/roles.enum';
+import { Roles } from '../../../common/decorators/roles.decorator';
 
 /**
  * MentorProfileController

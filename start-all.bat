@@ -11,7 +11,7 @@ start "Auth Service" cmd /k "cd services\auth && npm run start:dev"
 start "Admin Service" cmd /k "cd services\admin-service && npm run start:dev"
 
 :: 4. Start Mentor Service
-start "Mentor Service" cmd /k "cd services\mentor-service && npm run dev"
+start "Mentor Service" cmd /k "cd services\mentor-service && npm run start:dev"
 
 :: 5. Start User Service
 start "User Service" cmd /k "cd services\user-service && npm run start:dev"

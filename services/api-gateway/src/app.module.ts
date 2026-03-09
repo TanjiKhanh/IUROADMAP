@@ -3,49 +3,40 @@ import fetch from 'node-fetch';
 import { AuthMiddleware } from './common/middlewares/auth.middleware';
 import { AdminRoleMiddleware } from './common/middlewares/role.middleware';
 import { createServiceProxy } from './utils/proxy.util';
-
-// controllers & guards we add for testing
 import { GatewayController } from './gateway.controller';
 import { JwtAuthGuard } from './common/guards/jwt.guard';
 
 @Module({
-  // Providers ensure NestJS creates these as managed singletons
   providers: [
     AuthMiddleware,
     AdminRoleMiddleware,
     JwtAuthGuard,
-    // default clients (will be overridden in tests)
     {
       provide: 'AUTH_CLIENT',
-      useFactory: () => {
-        // simple fetch-based implementation for runtime
-        return {
-          login: async (payload: any) => {
-            const target = process.env.AUTH_SERVICE_URL || 'http://localhost:3000';
-            const res = await fetch(`${target}/auth/login`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-            });
-            return res.json();
-          },
-        };
-      },
+      useFactory: () => ({
+        login: async (payload: any) => {
+          const target = process.env.AUTH_SERVICE_URL || 'http://localhost:3000';
+          const res = await fetch(`${target}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          return res.json();
+        },
+      }),
     },
     {
       provide: 'ADMIN_CLIENT',
-      useFactory: () => {
-        return {
-          getInfo: async ({ headers }: any) => {
-            const target = process.env.ADMIN_SERVICE_URL || 'http://localhost:4100';
-            const res = await fetch(`${target}/admin/info`, {
-              method: 'GET',
-              headers,
-            });
-            return res.json();
-          },
-        };
-      },
+      useFactory: () => ({
+        getInfo: async ({ headers }: any) => {
+          const target = process.env.ADMIN_SERVICE_URL || 'http://localhost:4100';
+          const res = await fetch(`${target}/admin/info`, {
+            method: 'GET',
+            headers,
+          });
+          return res.json();
+        },
+      }),
     },
   ],
   controllers: [GatewayController],
@@ -57,45 +48,55 @@ export class AppModule implements NestModule {
     const adminTarget = process.env.ADMIN_SERVICE_URL || 'http://localhost:4100';
     const userTarget = process.env.USER_SERVICE_URL || 'http://localhost:4000';
     const authTarget = process.env.AUTH_SERVICE_URL || 'http://localhost:3000';
+    const mentorTarget = process.env.MENTOR_SERVICE_URL || 'http://localhost:4001'; 
 
-    // 1. ADMIN ROUTES (The Secure Chain)
+    // 1. ADMIN ROUTES
     consumer
       .apply(
-        // 1. Log the Request
         (req, res, next) => {
-           this.logger.log(`🛡️ Admin Request: ${req.method} ${req.originalUrl}`);
-           next();
+          this.logger.log(`🛡️ Admin Request: ${req.method} ${req.originalUrl}`);
+          next();
         },
-        // 2. Auth Middleware (Passed as CLASS, not function/adapter)
-        AuthMiddleware, 
-        // 3. Role Middleware (Passed as CLASS)
+        AuthMiddleware,
         AdminRoleMiddleware,
-        // 4. Proxy
         createServiceProxy(adminTarget, { '^/admin': '/admin' })
       )
       .forRoutes('admin/*path');
 
-
     // 2. USER ROUTES
     consumer
       .apply(
-        AuthMiddleware, 
+        AuthMiddleware,
         createServiceProxy(userTarget, { '^/roadmaps': '/roadmaps' })
       )
       .forRoutes('roadmaps/*path');
 
-
     // 3. AUTH ROUTES (Public)
     consumer
       .apply(
-        createServiceProxy(authTarget, { '^/auth': '/auth' }) 
+        createServiceProxy(authTarget, { '^/auth': '/auth' })
       )
       .forRoutes('auth/*path', 'auth');
 
-    // 4. PUBLIC ROUTES (Public)
+    // 4. MENTOR ROUTES 
     consumer
       .apply(
-        createServiceProxy(adminTarget, { '^/public': '/public' }) 
+        AuthMiddleware,
+        createServiceProxy(mentorTarget, { '^/mentors': '/mentors' })
+      )
+      .forRoutes('mentors/*path', 'mentors');
+
+    consumer
+      .apply(
+        AuthMiddleware,
+        createServiceProxy(mentorTarget, { '^/mentor-profiles': '/mentor-profiles' })
+      )
+      .forRoutes('mentor-profiles/*path', 'mentor-profiles');
+
+    // 5. PUBLIC ROUTES
+    consumer
+      .apply(
+        createServiceProxy(adminTarget, { '^/public': '/public' })
       )
       .forRoutes('public/*path', 'public');
   }

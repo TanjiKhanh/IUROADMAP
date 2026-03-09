@@ -1,16 +1,60 @@
 {
-  "name": "gupjob",
-  "version": "0.1.0",
+  "name": "iuroadmap",
+  "version": "1.0.0",
+  "description": "AI-Powered Career Roadmap Platform",
   "private": true,
+  "workspaces": [
+    "services/api-gateway",
+    "services/auth",
+    "services/admin-service",
+    "services/mentor-service",
+    "services/user-service"
+  ],
+
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+
   "scripts": {
-    "start:gateway": "cd api-gateway && npm run start:dev",
-    "start:auth": "cd services/auth && npm run start:dev",
-    "start:admin": "cd services/admin-service && npm run start:dev",
-    "start:mentor": "cd services/mentor-service && npm run start:dev",
-    "start:user": "cd services/user-service && npm run start:dev",
-    "start:all": "concurrently -c \"cyan,magenta,yellow,green,blue\" -n \"GATEWAY,AUTH,ADMIN,MENTOR,USER\" \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:admin\" \"npm run start:mentor\" \"npm run start:user\""
+    "# ========== SETUP =========": "",
+    "install-all": "npm ci --workspaces",
+    "bootstrap": "npm install && npm run build --workspaces",
+    "clean": "npm run clean --workspaces && rm -rf node_modules coverage",
+
+    "# ========== DEVELOPMENT =========": "",
+    "dev": "npm run start:dev --workspaces",
+    "start": "npm run start --workspaces",
+
+    "# ========== BUILD =========": "",
+    "build": "npm run build --workspaces",
+    "prebuild": "npm run clean",
+
+    "# ========== LINTING & FORMATTING =========": "",
+    "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
+    "format": "npm run format --workspaces --if-present",
+    "format:check": "npm run format:check --workspaces --if-present",
+    "validate": "npm run lint && npm run format:check && npm run typecheck",
+    "validate:fix": "npm run lint:fix && npm run format",
+
+    "# ========== TYPE CHECKING =========": "",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+
+    "# ========== UNIT TESTS (No Database) =========": "",
+    "test": "npm run test:unit --workspaces --if-present",
+    "test:unit": "npm run test:unit --workspaces --if-present",
+    "test:unit:watch": "npm run test:unit:watch --workspaces --if-present",
+    "test:unit:debug": "npm run test:unit:debug --workspaces --if-present"
+    
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "eslint": "^8.50.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.2.0"
   }
 }
