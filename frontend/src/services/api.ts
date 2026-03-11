@@ -48,10 +48,16 @@ const processQueue = (token: string | null) => {
 
 api.interceptors.response.use(
   // 1. SUCCESS: Unwrap the response
-  // If backend returns { data: { ... } }, we return { ... }
-  // If backend returns { ... }, we return { ... }
+  // If backend returns { data: [...], meta: {...} } (paginated), keep structure
+  // If backend returns { data: { ... } }, we return the inner { ... }
+  // If backend returns { ... } (no data field), we return { ... }
   (response) => {
-    return response.data?.data ?? response.data;
+    const body = response.data;
+    // Preserve paginated responses that have both data and meta
+    if (body?.data && body?.meta) {
+      return body;
+    }
+    return body?.data ?? body;
   },
 
   // 2. ERROR: Handle 401 (Unauthorized)

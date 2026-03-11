@@ -5,14 +5,11 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
-  UseGuards,
 } from '@nestjs/common';
 import { MentorSearchService } from '../services/mentor-search.service';
 import { FilterMentorsDto } from '../dto/filter-mentors.dto';
 import { MentorResponseDto } from '../../../common/dto/mentor-response.dto';
 import { PaginatedResponseDto } from 'src/common/dto/paginated-response.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt.auth.guard';
-import { RolesGuard } from 'src/common/guards/roles.guard';
 
 @Controller('mentors')
 export class MentorSearchController {
@@ -20,11 +17,8 @@ export class MentorSearchController {
 
   /**
    * Get all mentors with optional filtering and pagination
-   * @param filters - Filter criteria (skills, industry, search, limit, offset, sortBy, order)
-   * @returns Paginated list of mentors
-   * @example GET /mentors?industry=Tech&skills=Node.js&limit=10&offset=0
+   * @example GET /mentors?industry=Tech&limit=10&offset=0
    */
-  @UseGuards(JwtAuthGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
   async findAll(
@@ -45,12 +39,18 @@ export class MentorSearchController {
 
   /**
    * Get mentor statistics
-   * @returns Statistics about mentors (counts by industry, top skills, etc)
+   * @returns Statistics about mentors wrapped in standard response
    * @example GET /mentors/stats
    */
   @Get('stats')
   @HttpCode(HttpStatus.OK)
   async getStats() {
-    return await this.mentorSearchService.getMentorStats();
+    const stats = await this.mentorSearchService.getMentorStats();
+
+    // ✅ Wrap the response in standard format
+    return {
+      data: stats,
+      message: 'Mentor statistics retrieved successfully',
+    };
   }
 }

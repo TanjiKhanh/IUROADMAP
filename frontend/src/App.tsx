@@ -27,6 +27,7 @@ import RequireRole from './auth/RequireRole';
 
 // Layouts
 import MainLayout from './components/layouts/MainLayout'; 
+import FindMentors from './pages/learner/FindMentors';
 
 export default function App() {
   return (
@@ -73,6 +74,7 @@ export default function App() {
             >
               <Route index element={<LearnerDashboard />} />
               <Route path="my-courses" element={<MyCourses />} />
+              <Route path="mentors" element={<FindMentors />} />
               {/* Note: Roadmap Detail removed from here to allow fullscreen */}
             </Route>
 
