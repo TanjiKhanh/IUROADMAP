@@ -23,7 +23,7 @@ export class MentorProfileRepository {
     return this.prisma.mentorProfile.create({
       data: {
         userId,
-        bio: data.bio ? { text: data.bio } : null,
+        bio: data.bio || null,
         cvUrl: data.cvUrl || null,
         linkedinUrl: data.linkedinUrl || null,
         industry: data.industry || null,
@@ -36,7 +36,7 @@ export class MentorProfileRepository {
     return this.prisma.mentorProfile.update({
       where: { userId },
       data: {
-        ...(data.bio !== undefined && { bio: { text: data.bio } }),
+        ...(data.bio !== undefined && { bio: data.bio }),
         ...(data.cvUrl !== undefined && { cvUrl: data.cvUrl }),
         ...(data.linkedinUrl !== undefined && { linkedinUrl: data.linkedinUrl }),
         ...(data.industry !== undefined && { industry: data.industry }),
@@ -51,14 +51,14 @@ export class MentorProfileRepository {
       where: { userId },
       create: {
         userId,
-        bio: data.bio ? { text: data.bio } : null,
+        bio: data.bio || null,
         cvUrl: data.cvUrl || null,
         linkedinUrl: data.linkedinUrl || null,
         industry: data.industry || null,
         skills: data.skills || [],
       },
       update: {
-        ...(data.bio !== undefined && { bio: { text: data.bio } }),
+        ...(data.bio !== undefined && { bio: data.bio }),
         ...(data.cvUrl !== undefined && { cvUrl: data.cvUrl }),
         ...(data.linkedinUrl !== undefined && { linkedinUrl: data.linkedinUrl }),
         ...(data.industry !== undefined && { industry: data.industry }),

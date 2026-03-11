@@ -17,6 +17,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { AdminClientModule } from '../src/external/admin-client/admin-client.module'
 import { UserClientModule } from './external/user-client/user-client.module';
 import { MentorClientModule } from './external/mentor-client/mentor-client.module';
+import { Prisma } from '@prisma/client';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { MentorClientModule } from './external/mentor-client/mentor-client.modul
     
     // Register PassportModule with default strategy
     PassportModule.register({ defaultStrategy: 'jwt' }),
-
+    PrismaModule, 
     AdminClientModule,
     UserClientModule,
     MentorClientModule,

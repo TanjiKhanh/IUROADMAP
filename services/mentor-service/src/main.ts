@@ -1,5 +1,10 @@
-// src/main.ts
 import 'reflect-metadata';
+import { config } from 'dotenv';
+import { join } from 'path';
+
+// Load .env BEFORE NestJS bootstraps, with override so it wins over system env vars
+config({ path: join(__dirname, '..', '.env'), override: true });
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -14,10 +19,11 @@ async function bootstrap() {
     }),
   );
 
-  // Auth runs on 4000, Gateway on 3000, so we put Mentor Service on 4001
-  const port = process.env.PORT || 4200;
+  const port = parseInt(process.env.PORT ?? '4001', 10);
+  
   await app.listen(port);
   
   console.log(`🚀 Mentor Service is running on: http://localhost:${port}`);
 }
+
 bootstrap();

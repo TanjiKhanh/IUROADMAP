@@ -9,12 +9,13 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma-client"
 }
 
 
 model MentorProfile {
   userId         Int      @id
-  bio            Json?
+  bio            String?
   cvUrl          String?
   linkedinUrl    String?
   industry        String?  // For recommendation engine (e.g., "BUSINESS_ANALYTICS", "MARKETING")

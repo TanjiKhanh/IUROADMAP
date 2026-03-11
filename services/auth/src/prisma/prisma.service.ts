@@ -1,5 +1,5 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { PrismaClient } from '../generated/prisma-client';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -7,23 +7,25 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   constructor() {
     super({
-      // Optional: Log queries if you are in development
-      // log: ['query', 'info', 'warn', 'error'], 
+      // Optional: Enable query logging in development
+      // log: process.env.NODE_ENV === 'development' 
+      //   ? ['query', 'info', 'warn', 'error'] 
+      //   : ['warn', 'error'],
     });
   }
 
   async onModuleInit() {
     try {
       await this.$connect();
-      this.logger.log('✅ Connected to Shared Database');
+      this.logger.log('✅ Successfully connected to database');
     } catch (error) {
-      this.logger.error('❌ Database connection failed', error);
+      this.logger.error('❌ Failed to connect to database', error.message);
       throw error;
     }
   }
 
   async onModuleDestroy() {
     await this.$disconnect();
-    this.logger.log('🔌 Disconnected from Shared Database');
+    this.logger.log('🔌 Disconnected from database');
   }
 }
