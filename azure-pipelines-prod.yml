@@ -54,125 +54,125 @@ stages:
               echo "✅ Frontend package.json is valid"
             displayName: 'Validate JSON Files'
 
-  # ---------------------------------------------------------
-  # STAGE 2: BUILD & TEST (with DigitalOcean backend)
-  # ---------------------------------------------------------
-  - stage: Build
-    displayName: '🔨 Build Frontend (Production)'
-    dependsOn: ValidateConfig
-    condition: succeeded()
-    jobs:
-      - job: BuildFrontend
-        displayName: 'Build Frontend for Production'
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - checkout: self
+#   # ---------------------------------------------------------
+#   # STAGE 2: BUILD & TEST (with DigitalOcean backend)
+#   # ---------------------------------------------------------
+#   - stage: Build
+#     displayName: '🔨 Build Frontend (Production)'
+#     dependsOn: ValidateConfig
+#     condition: succeeded()
+#     jobs:
+#       - job: BuildFrontend
+#         displayName: 'Build Frontend for Production'
+#         pool:
+#           vmImage: 'ubuntu-latest'
+#         steps:
+#           - checkout: self
 
-          - task: NodeTool@0
-            inputs:
-              versionSpec: $(NODE_VERSION)
-            displayName: '📦 Setup Node.js'
+#           - task: NodeTool@0
+#             inputs:
+#               versionSpec: $(NODE_VERSION)
+#             displayName: '📦 Setup Node.js'
 
-          - task: Cache@2
-            inputs:
-              key: 'npm | "$(Agent.OS)" | "$(Build.SourcesDirectory)/frontend/package-lock.json"'
-              path: '$(npm_config_cache)'
-              cacheHitVar: 'CACHE_RESTORED'
-            continueOnError: true
-            displayName: '💾 Cache npm Packages'
+#           - task: Cache@2
+#             inputs:
+#               key: 'npm | "$(Agent.OS)" | "$(Build.SourcesDirectory)/frontend/package-lock.json"'
+#               path: '$(npm_config_cache)'
+#               cacheHitVar: 'CACHE_RESTORED'
+#             continueOnError: true
+#             displayName: '💾 Cache npm Packages'
 
-          - script: |
-              set -e
-              cat > .npmrc << 'EOF'
-              legacy-peer-deps=true
-              audit=false
-              engine-strict=false
-              EOF
+#           - script: |
+#               set -e
+#               cat > .npmrc << 'EOF'
+#               legacy-peer-deps=true
+#               audit=false
+#               engine-strict=false
+#               EOF
               
-              npm cache clean --force || true
-            displayName: 'Setup npm'
+#               npm cache clean --force || true
+#             displayName: 'Setup npm'
 
-          - script: |
-              set -e
-              cd frontend
-              echo "=== Installing Dependencies ==="
-              npm ci --legacy-peer-deps
-              echo "✅ Dependencies installed"
-            displayName: '📚 Install Dependencies'
+#           - script: |
+#               set -e
+#               cd frontend
+#               echo "=== Installing Dependencies ==="
+#               npm ci --legacy-peer-deps
+#               echo "✅ Dependencies installed"
+#             displayName: '📚 Install Dependencies'
 
-          - script: |
-              set -e
-              cd frontend
-              echo "=== Linting ==="
-              if grep -q '"lint"' package.json; then
-                npm run lint || echo "⚠️ Lint issues (non-blocking)"
-              else
-                echo "ℹ️ No lint script"
-              fi
-            displayName: '🔍 Lint'
-            continueOnError: true
+#           - script: |
+#               set -e
+#               cd frontend
+#               echo "=== Linting ==="
+#               if grep -q '"lint"' package.json; then
+#                 npm run lint || echo "⚠️ Lint issues (non-blocking)"
+#               else
+#                 echo "ℹ️ No lint script"
+#               fi
+#             displayName: '🔍 Lint'
+#             continueOnError: true
 
-          - script: |
-              set -e
-              cd frontend
-              echo "=== Running Tests ==="
-              if grep -q '"test"' package.json; then
-                npm test -- --coverage --passWithNoTests || echo "⚠️ Test issues (non-blocking)"
-              else
-                echo "ℹ️ No test script"
-              fi
-            displayName: '🧪 Test'
-            continueOnError: true
+#           - script: |
+#               set -e
+#               cd frontend
+#               echo "=== Running Tests ==="
+#               if grep -q '"test"' package.json; then
+#                 npm test -- --coverage --passWithNoTests || echo "⚠️ Test issues (non-blocking)"
+#               else
+#                 echo "ℹ️ No test script"
+#               fi
+#             displayName: '🧪 Test'
+#             continueOnError: true
 
-          - script: |
-              set -e
-              cd frontend
-              echo "=== Building Application (Production) ==="
-              npm run build
-              echo "✅ Production build successful"
-              ls -la dist/
-            displayName: '🏗️ Build (Production)'
-            env:
-              VITE_API_URL: https://your-ocean-digital-ip:3000
-              VITE_ENV: production
+#           - script: |
+#               set -e
+#               cd frontend
+#               echo "=== Building Application (Production) ==="
+#               npm run build
+#               echo "✅ Production build successful"
+#               ls -la dist/
+#             displayName: '🏗️ Build (Production)'
+#             env:
+#               VITE_API_URL: https://your-ocean-digital-ip:3000
+#               VITE_ENV: production
 
-          - task: PublishBuildArtifacts@1
-            displayName: '📦 Publish Build Artifact'
-            inputs:
-              pathToPublish: '$(Build.SourcesDirectory)/frontend/dist'
-              artifactName: 'frontend-prod-build'
-              publishLocation: 'Container'
+#           - task: PublishBuildArtifacts@1
+#             displayName: '📦 Publish Build Artifact'
+#             inputs:
+#               pathToPublish: '$(Build.SourcesDirectory)/frontend/dist'
+#               artifactName: 'frontend-prod-build'
+#               publishLocation: 'Container'
 
-  # ---------------------------------------------------------
-  # STAGE 3: APPROVAL BEFORE DEPLOYMENT
-  # ---------------------------------------------------------
-  - stage: ApprovalProd
-    displayName: '⏸️ Waiting for Approval'
-    dependsOn: Build
-    condition: succeeded()
-    jobs:
-      - job: WaitForValidation
-        displayName: '🔐 Manual Approval Required'
-        pool: server
-        timeoutInMinutes: 1440  # 24 hours to approve
-        steps:
-          - task: ManualValidation@0
-            inputs:
-              notifyUsers: 'your-email@university.edu'
-              instructions: |
-                ✅ Review the changes and approve production deployment
+#   # ---------------------------------------------------------
+#   # STAGE 3: APPROVAL BEFORE DEPLOYMENT
+#   # ---------------------------------------------------------
+#   - stage: ApprovalProd
+#     displayName: '⏸️ Waiting for Approval'
+#     dependsOn: Build
+#     condition: succeeded()
+#     jobs:
+#       - job: WaitForValidation
+#         displayName: '🔐 Manual Approval Required'
+#         pool: server
+#         timeoutInMinutes: 1440  # 24 hours to approve
+#         steps:
+#           - task: ManualValidation@0
+#             inputs:
+#               notifyUsers: 'your-email@university.edu'
+#               instructions: |
+#                 ✅ Review the changes and approve production deployment
                 
-                📋 Details:
-                Branch: $(Build.SourceBranch)
-                Commit: $(Build.SourceVersion)
-                Build ID: $(Build.BuildId)
+#                 📋 Details:
+#                 Branch: $(Build.SourceBranch)
+#                 Commit: $(Build.SourceVersion)
+#                 Build ID: $(Build.BuildId)
                 
-                🚀 This will deploy to Vercel Production
-                Frontend URL: https://iuroadmap.vercel.app
-                Backend API: https://your-ocean-digital-ip:3000
-              onTimeout: 'reject'
-            displayName: '🔓 Awaiting Approval'
+#                 🚀 This will deploy to Vercel Production
+#                 Frontend URL: https://iuroadmap.vercel.app
+#                 Backend API: https://your-ocean-digital-ip:3000
+#               onTimeout: 'reject'
+#             displayName: '🔓 Awaiting Approval'
 
   # ---------------------------------------------------------
   # STAGE 4: DEPLOY TO VERCEL (PRODUCTION)
