@@ -95,6 +95,9 @@ lerna-debug.log
 *.spec.ts
 *.spec.js
 
+# Prisma generated client artifacts
+services/*/src/generated/prisma-client/
+
 # ==========================================
 # 📄 Temporary Files
 # ==========================================
@@ -115,8 +118,10 @@ dist/
 # ==========================================
 # 🔙 Backend-Specific (NestJS/Node)
 # ==========================================
-.env.local
+.env
+.env.development
 .env.test
+.env.production
 dist/
 node_modules/
 *.pid

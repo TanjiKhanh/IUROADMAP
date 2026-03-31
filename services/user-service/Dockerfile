@@ -1,4 +1,3 @@
-# Recommended Dockerfile (node:18-bullseye-slim) — good compatibility with Prisma/native binaries.
 # Place at services/user/Dockerfile
 
 # ---- Builder ----
@@ -19,12 +18,9 @@ COPY package*.json ./
 COPY prisma ./prisma/
 RUN npm ci --only=production=false
 
-# Generate prisma client (if you use Prisma)
-# If using different Prisma schema location change accordingly
-RUN npx prisma generate || true
-
 # Copy source and build
 COPY . .
+RUN npx prisma generate || true
 RUN npm run build
 
 # ---- Runtime ----
@@ -40,11 +36,12 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/src/generated ./dist/generated
 
 # Drop privileges
 USER appuser
 
-EXPOSE 3000
+EXPOSE 4001
 
 # Use a healthcheck (optional)
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD ["node", "-e", "require('./dist/main').health ? process.exit(0) : process.exit(1)"] || true

@@ -5,6 +5,7 @@ import { join } from 'path';
 import { PrismaModule } from './prisma/prisma.module';
 import { MentorProfileModule } from './modules/mentor-profile/mentor-profile.module';
 import { MentorSearchModule } from './modules/mentor-search/mentor-search.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { MentorSearchModule } from './modules/mentor-search/mentor-search.module
     MentorProfileModule,
     MentorSearchModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
   
 })

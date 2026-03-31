@@ -21,11 +21,13 @@ async function bootstrap() {
 
   // 2. Start the Gateway
   const PORT = process.env.PORT || 8080;
-  await app.listen(PORT);
+  await app.listen(PORT , "0.0.0.0");
 
   logger.log(`🚀 API Gateway running on: http://localhost:${PORT}`);
   logger.log(`➡️  Auth Service Proxy:    ${process.env.AUTH_SERVICE_URL}`);
   logger.log(`➡️  Admin Service Proxy:   ${process.env.ADMIN_SERVICE_URL}`);
   logger.log(`➡️  User Service Proxy:    ${process.env.USER_SERVICE_URL}`);
+  logger.log(`➡️  Mentor Service Proxy:  ${process.env.MENTOR_SERVICE_URL}`);
 }
+
 bootstrap();

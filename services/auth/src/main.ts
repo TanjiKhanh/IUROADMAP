@@ -37,7 +37,7 @@ async function bootstrap() {
   app.useGlobalFilters(new PrismaClientExceptionFilter(), new AllExceptionsFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  const port = process.env.PORT || 3001; // Auth Service 
+  const port = process.env.PORT || 3000; // Auth Service 
 
   // '0.0.0.0' This helps Docker containers receive requests from outside.
   await app.listen(port, '0.0.0.0');

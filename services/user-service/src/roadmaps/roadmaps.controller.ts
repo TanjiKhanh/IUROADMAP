@@ -3,7 +3,7 @@ import { RoadmapsService } from './roadmaps.service';
 import { EnrollRoadmapDto } from './dto/enroll-roadmap.dto';
 // 👇 Update path to your actual AuthGuard
 import { AuthGuard } from '../common/guards/auth.guard'; 
-import { RoadmapNodeStatus } from '@prisma/client';
+import { RoadmapNodeStatus } from '../generated/prisma-client';
 
 @Controller('roadmaps')
 @UseGuards(AuthGuard)

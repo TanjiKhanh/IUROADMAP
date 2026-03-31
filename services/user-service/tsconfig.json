@@ -28,9 +28,13 @@
   },
   // 👇 2. Include the library files so TypeScript compiles them
   "include": [
-    "src/**/*", 
-    "test/**/*", 
-    "../../libs/shared-db/src/**/*" 
-, "app.module.ts"  ],
-  "exclude": ["node_modules", "dist"]
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.spec.ts",
+    "src/**/__tests__/**",
+    "test/**"
+  ]
 }

@@ -1,0 +1,194 @@
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: gupjob-postgres
+    env_file:
+      - ./.env.production
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.all.databases.sql:/docker-entrypoint-initdb.d/init.all.databases.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gupjob -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - gupjob-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: gupjob-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gupjob-network
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    env_file:
+      - ./services/api-gateway/.env.production
+    environment:
+      NODE_ENV: production
+      AUTH_SERVICE_URL: http://auth-service:3000
+      ADMIN_SERVICE_URL: http://admin-service:4100
+      USER_SERVICE_URL: http://user-service:4001
+      MENTOR_SERVICE_URL: http://mentor-service:4000
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      admin-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      mentor-service:
+        condition: service_healthy
+    networks:
+      - gupjob-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:8080/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  auth-service:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    container_name: auth-service
+    env_file:
+      - ./services/auth/.env.production
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - gupjob-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  admin-service:
+    build:
+      context: ./services/admin-service
+      dockerfile: Dockerfile
+    container_name: admin-service
+    env_file:
+      - ./services/admin-service/.env.production
+    environment:
+      NODE_ENV: production
+      PORT: 4100
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - gupjob-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4100/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    env_file:
+      - ./services/user-service/.env.production
+    environment:
+      NODE_ENV: production
+      PORT: 4001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - gupjob-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4001/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  mentor-service:
+    build:
+      context: ./services/mentor-service
+      dockerfile: Dockerfile
+    container_name: mentor-service
+    env_file:
+      - ./services/mentor-service/.env.production
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - gupjob-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-reverse-proxy
+    profiles:
+      - proxy
+    ports:
+      - "8081:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    networks:
+      - gupjob-network
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redis-data:
+
+networks:
+  gupjob-network:
+    driver: bridge

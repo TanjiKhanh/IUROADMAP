@@ -9,7 +9,7 @@ export declare class MentorProfileRepository {
         linkedinUrl: string | null;
         industry: string | null;
         skills: string[];
-        bio: import("@prisma/client/runtime/library").JsonValue | null;
+        bio: string | null;
         userId: number;
         createdAt: Date;
         updatedAt: Date;
@@ -19,7 +19,7 @@ export declare class MentorProfileRepository {
         linkedinUrl: string | null;
         industry: string | null;
         skills: string[];
-        bio: import("@prisma/client/runtime/library").JsonValue | null;
+        bio: string | null;
         userId: number;
         createdAt: Date;
         updatedAt: Date;
@@ -29,7 +29,7 @@ export declare class MentorProfileRepository {
         linkedinUrl: string | null;
         industry: string | null;
         skills: string[];
-        bio: import("@prisma/client/runtime/library").JsonValue | null;
+        bio: string | null;
         userId: number;
         createdAt: Date;
         updatedAt: Date;
@@ -39,7 +39,7 @@ export declare class MentorProfileRepository {
         linkedinUrl: string | null;
         industry: string | null;
         skills: string[];
-        bio: import("@prisma/client/runtime/library").JsonValue | null;
+        bio: string | null;
         userId: number;
         createdAt: Date;
         updatedAt: Date;
@@ -49,7 +49,7 @@ export declare class MentorProfileRepository {
         linkedinUrl: string | null;
         industry: string | null;
         skills: string[];
-        bio: import("@prisma/client/runtime/library").JsonValue | null;
+        bio: string | null;
         userId: number;
         createdAt: Date;
         updatedAt: Date;
@@ -59,7 +59,7 @@ export declare class MentorProfileRepository {
         linkedinUrl: string | null;
         industry: string | null;
         skills: string[];
-        bio: import("@prisma/client/runtime/library").JsonValue | null;
+        bio: string | null;
         userId: number;
         createdAt: Date;
         updatedAt: Date;

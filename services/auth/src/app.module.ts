@@ -14,11 +14,11 @@ import { UsersRepository } from './repositories/user.repository';
 
 // Strategies
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { AdminClientModule } from '../src/external/admin-client/admin-client.module'
+import { AdminClientModule } from './external/admin-client/admin-client.module'
 import { UserClientModule } from './external/user-client/user-client.module';
 import { MentorClientModule } from './external/mentor-client/mentor-client.module';
-import { Prisma } from '@prisma/client';
 import { PrismaModule } from './prisma/prisma.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -66,7 +66,7 @@ import { PrismaModule } from './prisma/prisma.module';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AuthController , UsersController ],
+  controllers: [AuthController, UsersController, HealthController],
   providers: [
     AuthService, 
     UsersService, 

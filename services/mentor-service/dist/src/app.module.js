@@ -9,8 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
+const path_1 = require("path");
 const prisma_module_1 = require("./prisma/prisma.module");
 const mentor_profile_module_1 = require("./modules/mentor-profile/mentor-profile.module");
+const mentor_search_module_1 = require("./modules/mentor-search/mentor-search.module");
+const health_controller_1 = require("./health.controller");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -19,11 +22,13 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
+                envFilePath: (0, path_1.join)(__dirname, '..', '.env'),
             }),
             prisma_module_1.PrismaModule,
             mentor_profile_module_1.MentorProfileModule,
+            mentor_search_module_1.MentorSearchModule,
         ],
-        controllers: [],
+        controllers: [health_controller_1.HealthController],
         providers: [],
     })
 ], AppModule);

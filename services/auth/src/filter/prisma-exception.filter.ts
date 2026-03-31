@@ -5,7 +5,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../generated/prisma-client';
 
 /**
  * Catches common Prisma client errors and maps them to HTTP responses.

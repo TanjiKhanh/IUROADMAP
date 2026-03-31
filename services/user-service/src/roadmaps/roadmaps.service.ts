@@ -1,7 +1,7 @@
 import { Inject, Injectable, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { RoadmapNodeStatus } from '@prisma/client';
+import { RoadmapNodeStatus } from '../generated/prisma-client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminClientService } from '../external/admin-client/admin-client.service';
 import { AuthClientService } from '../external/auth-client/auth-client.service';

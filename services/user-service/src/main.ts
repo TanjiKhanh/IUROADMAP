@@ -27,7 +27,7 @@ async function bootstrap() {
   // We use port 4000 to match your docker-compose.yml configuration
   const PORT = process.env.PORT || 4000;
   
-  await app.listen(PORT);
+  await app.listen(PORT , "0.0.0.0");
   
   logger.log(`🚀 User Service running on port ${PORT}`);
 }

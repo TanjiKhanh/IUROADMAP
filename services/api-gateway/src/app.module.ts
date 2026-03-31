@@ -15,7 +15,7 @@ import { JwtAuthGuard } from './common/guards/jwt.guard';
       provide: 'AUTH_CLIENT',
       useFactory: () => ({
         login: async (payload: any) => {
-          const target = process.env.AUTH_SERVICE_URL || 'http://localhost:3000';
+          const target = process.env.AUTH_SERVICE_URL || 'http://auth:3000';
           const res = await fetch(`${target}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -29,7 +29,7 @@ import { JwtAuthGuard } from './common/guards/jwt.guard';
       provide: 'ADMIN_CLIENT',
       useFactory: () => ({
         getInfo: async ({ headers }: any) => {
-          const target = process.env.ADMIN_SERVICE_URL || 'http://localhost:4100';
+          const target = process.env.ADMIN_SERVICE_URL || 'http://admin:4100';
           const res = await fetch(`${target}/admin/info`, {
             method: 'GET',
             headers,
@@ -45,10 +45,10 @@ export class AppModule implements NestModule {
   private readonly logger = new Logger('APIGateway');
 
   configure(consumer: MiddlewareConsumer) {
-    const adminTarget = process.env.ADMIN_SERVICE_URL || 'http://localhost:4100';
-    const userTarget = process.env.USER_SERVICE_URL || 'http://localhost:4000';
-    const authTarget = process.env.AUTH_SERVICE_URL || 'http://localhost:3000';
-    const mentorTarget = process.env.MENTOR_SERVICE_URL || 'http://localhost:4001'; 
+    const adminTarget = process.env.ADMIN_SERVICE_URL || 'http://admin:4100';
+    const userTarget = process.env.USER_SERVICE_URL || 'http://user:4000';
+    const authTarget = process.env.AUTH_SERVICE_URL || 'http://auth:3000';
+    const mentorTarget = process.env.MENTOR_SERVICE_URL || 'http://mentor:4001'; 
 
     // 1. ADMIN ROUTES
     consumer

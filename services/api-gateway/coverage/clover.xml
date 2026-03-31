@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1773060157652" clover="3.2.0">
-  <project timestamp="1773060157652" name="All files">
+<coverage generated="1773241476728" clover="3.2.0">
+  <project timestamp="1773241476729" name="All files">
     <metrics statements="110" coveredstatements="47" conditionals="30" coveredconditionals="14" methods="17" coveredmethods="4" elements="157" coveredelements="65" complexity="0" loc="110" ncloc="110" packages="4" files="7" classes="7"/>
     <package name="src">
       <metrics statements="57" coveredstatements="0" conditionals="14" coveredconditionals="0" methods="12" coveredmethods="0"/>
-      <file name="app.module.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\services\api-gateway\src\app.module.ts">
+      <file name="app.module.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\IUROADMAP\services\api-gateway\src\app.module.ts">
         <metrics statements="29" coveredstatements="0" conditionals="12" coveredconditionals="0" methods="7" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -36,7 +36,7 @@
         <line num="89" count="0" type="stmt"/>
         <line num="97" count="0" type="stmt"/>
       </file>
-      <file name="gateway.controller.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\services\api-gateway\src\gateway.controller.ts">
+      <file name="gateway.controller.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\IUROADMAP\services\api-gateway\src\gateway.controller.ts">
         <metrics statements="13" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -52,7 +52,7 @@
         <line num="26" count="0" type="stmt"/>
         <line num="28" count="0" type="stmt"/>
       </file>
-      <file name="main.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\services\api-gateway\src\main.ts">
+      <file name="main.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\IUROADMAP\services\api-gateway\src\main.ts">
         <metrics statements="15" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="2" count="0" type="stmt"/>
@@ -73,7 +73,7 @@
     </package>
     <package name="src.common.guards">
       <metrics statements="9" coveredstatements="9" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
-      <file name="jwt.guard.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\services\api-gateway\src\common\guards\jwt.guard.ts">
+      <file name="jwt.guard.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\IUROADMAP\services\api-gateway\src\common\guards\jwt.guard.ts">
         <metrics statements="9" coveredstatements="9" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
@@ -88,7 +88,7 @@
     </package>
     <package name="src.common.middlewares">
       <metrics statements="38" coveredstatements="38" conditionals="13" coveredconditionals="12" methods="3" coveredmethods="3"/>
-      <file name="auth.middleware.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\services\api-gateway\src\common\middlewares\auth.middleware.ts">
+      <file name="auth.middleware.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\IUROADMAP\services\api-gateway\src\common\middlewares\auth.middleware.ts">
         <metrics statements="24" coveredstatements="24" conditionals="9" coveredconditionals="8" methods="2" coveredmethods="2"/>
         <line num="1" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
@@ -115,7 +115,7 @@
         <line num="67" count="3" type="stmt"/>
         <line num="68" count="3" type="stmt"/>
       </file>
-      <file name="role.middleware.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\services\api-gateway\src\common\middlewares\role.middleware.ts">
+      <file name="role.middleware.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\IUROADMAP\services\api-gateway\src\common\middlewares\role.middleware.ts">
         <metrics statements="14" coveredstatements="14" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
@@ -135,7 +135,7 @@
     </package>
     <package name="src.utils">
       <metrics statements="6" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
-      <file name="proxy.util.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\services\api-gateway\src\utils\proxy.util.ts">
+      <file name="proxy.util.ts" path="D:\TanKhanh\Lecture\2025-2026\Second Semester\Software Engineering\IUROADMAP\IUROADMAP\services\api-gateway\src\utils\proxy.util.ts">
         <metrics statements="6" coveredstatements="0" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="0"/>
         <line num="1" count="0" type="stmt"/>
         <line num="10" count="0" type="stmt"/>
