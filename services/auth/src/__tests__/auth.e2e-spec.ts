@@ -2,20 +2,28 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../app.module';
-import { PrismaClient } from '@prisma/client';
-import { MentorClientService } from '../external/mentor-client/mentor-client.service'; // Adjust path if needed
+import { PrismaClient } from '../generated/client';
+import { MentorClientService } from '../external/mentor-client/mentor-client.service';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
-  const prisma = new PrismaClient();
+  let prisma: PrismaClient; // Declare but don't instantiate
 
   beforeAll(async () => {
-    // 1. Boot up the entire application
+    // 1. Create PrismaClient FIRST (before app init)
+    prisma = new PrismaClient();
+    
+    try {
+      await prisma.$connect();
+    } catch (error) {
+      console.error('❌ Database connection failed. Make sure PostgreSQL is running.');
+      throw error;
+    }
+
+    // 2. Boot up the application
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
-      // 2. We mock the EXTERNAL service here. We don't want our Auth tests to fail 
-      // just because the Mentor microservice is turned off during testing!
       .overrideProvider(MentorClientService)
       .useValue({
         createMentorProfile: jest.fn().mockResolvedValue({ success: true }),
@@ -23,20 +31,13 @@ describe('AuthController (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    
-    // 3. IMPORTANT: You must bind the ValidationPipe here just like in your main.ts 
-    // so the DTO @IsEmail() decorators actually work during the test!
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     
     await app.init();
   });
 
-  // 4. CLEANUP: Delete all test users before each test runs to guarantee a blank slate
   beforeEach(async () => {
-    // 1st: Delete the child records (Refresh Tokens)
     await prisma.refreshToken.deleteMany();
-    
-    // 2nd: Now it is safe to delete the parent records (Users)
     await prisma.user.deleteMany();
   });
 
