@@ -48,7 +48,7 @@ export class AppModule implements NestModule {
     const adminTarget = process.env.ADMIN_SERVICE_URL || 'http://localhost:4100';
     const userTarget = process.env.USER_SERVICE_URL || 'http://localhost:4000';
     const authTarget = process.env.AUTH_SERVICE_URL || 'http://localhost:3000';
-    const mentorTarget = process.env.MENTOR_SERVICE_URL || 'http://localhost:4001'; 
+    const mentorTarget = process.env.MENTOR_SERVICE_URL || 'http://localhost:4200'; 
 
     // 1. ADMIN ROUTES
     consumer

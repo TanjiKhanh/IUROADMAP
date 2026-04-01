@@ -66,9 +66,9 @@ services:
       DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
-      PORT: 3000
+      PORT: 3001
     ports:
-      - "3000:3000"
+      - "3001:3001"
     depends_on:
       postgres:
         condition: service_healthy
@@ -83,7 +83,7 @@ services:
     container_name: gupjob-api-gateway
     environment:
       JWT_SECRET: ${JWT_SECRET}
-      AUTH_SERVICE_URL: http://auth:3000
+      AUTH_SERVICE_URL: http://auth:3001
       ADMIN_SERVICE_URL: http://admin-service:4100
       PORT: 8080
     ports:

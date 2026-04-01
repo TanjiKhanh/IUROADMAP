@@ -7,6 +7,7 @@ generator client {
   // - "native": để chạy trên máy Windows của bạn
   // - "linux-musl-openssl-3.0.x": để chạy trên Docker (Node 18 Alpine)
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output   = "../src/generated/client"
 }
 
 datasource db {

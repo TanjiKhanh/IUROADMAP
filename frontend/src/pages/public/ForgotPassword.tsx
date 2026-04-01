@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'; // Thêm useNavigate
 import '../../styles/auth.css';
 import logo from '../../assets/images/logo-gupjob-primary.png';
 import axios from 'axios';
+import { authService } from '../../services/auth.service';
 
 type Step = 'REQUEST' | 'SENT' | 'RESET';
 
@@ -24,7 +25,7 @@ export default function ForgotPassword() {
     setIsLoading(true);
     try {
       // Backend sẽ tạo token và gửi vào email người dùng
-      await axios.post('http://localhost:8000/auth/forgot-password', { email });
+      await authService.forgotPassword(email);
       setStep('SENT');
     } catch (error) {
       alert("Email does not exist or server error");

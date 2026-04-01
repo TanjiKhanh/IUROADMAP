@@ -16,7 +16,7 @@ async function bootstrap() {
   // 1. CẤU HÌNH CORS (Quan trọng cho Cookie)
   app.enableCors({
     // URL of Frontend (Ví dụ: http://localhost:5173 cho Vite)
-    origin: ['http://localhost:5173', 'http://localhost:3000'], 
+    origin: ['http://localhost:5173', 'http://localhost:3001'], // Thêm URL của frontend vào đây
     credentials: true, // REQUIRED: To allow sending/receiving Cookies (HttpOnly)
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
@@ -37,10 +37,12 @@ async function bootstrap() {
   app.useGlobalFilters(new PrismaClientExceptionFilter(), new AllExceptionsFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  const port = process.env.PORT || 3001; // Auth Service 
+  const port = process.env.PORT || 3001; // Auth Service (Default: 3001)
 
-  // '0.0.0.0' This helps Docker containers receive requests from outside.
-  await app.listen(port, '0.0.0.0');
+  // Use 'localhost' for development to avoid permission issues
+  // Use '0.0.0.0' in Docker/production to allow external connections
+  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+  await app.listen(port, host);
 
   logger.log(`Auth Service is running on: http://localhost:${port}`);
 }

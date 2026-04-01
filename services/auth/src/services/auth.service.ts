@@ -13,7 +13,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 // IMPORT ADMIN CLIENT  
 import { AdminClientService } from '../external/admin-client/admin-client.service';
-import { AccountStatus, Role } from '@prisma/client';
+import { AccountStatus, Role } from '../generated/client';
 
 // IMPORT USER CLIENT
 import { UserClientService } from '../external/user-client/user-client.service';
@@ -148,6 +148,7 @@ export class AuthService {
       email: user.email, 
       name: user.name, 
       role: user.role,
+      status: user.status
     };
 
     return { 
@@ -160,7 +161,7 @@ export class AuthService {
 
   async forgotPassword(dto: ForgotPasswordDto) {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (!user) throw new NotFoundException('Email không tồn tại trong hệ thống.');
+    if (!user) throw new NotFoundException('Email does not exist in the system.');
 
     // Create Token 
     const token = Math.floor(100000 + Math.random() * 900000).toString();
@@ -265,6 +266,7 @@ async resetPassword(dto: ResetPasswordDto) {
       email: user.email, 
       name: user.name, 
       role: user.role,
+      status: user.status,
     };
 
     return { 

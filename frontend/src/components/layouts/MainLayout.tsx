@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../layouts/Sidebar'; // 👈 Ensure this path points to your smart Sidebar
-import '../../styles/dashboard.css';
+import Sidebar from '../layouts/Sidebar'; // 👈 Đường dẫn Sidebar của bạn
+import '../../styles/dashboard.css'; // 👈 Giữ nguyên file CSS của bạn
 
-export default function AdminLayout() {
-  // NO PROPS are passed here anymore.
-  // The pages (Dashboard, Courses, etc.) are responsible for their own titles.
+// initial props type definition
+interface MainLayoutProps {
+  children?: ReactNode;  // Optional - for non-route usage
+  title?: string;       // Optional title for the page
+  subtitle?: string;    // Optional subtitle for the page
+}
+
+// MainLayout component
+export default function MainLayout({ children, title, subtitle }: MainLayoutProps) {
   return (
     <div className="dashboard-container">
       {/* 1. Sidebar is persistent */}
@@ -13,8 +19,20 @@ export default function AdminLayout() {
 
       {/* 2. Main Content Area */}
       <main className="dashboard-main">
-        {/* 3. React Router injects the active page here */}
-        <Outlet />
+        
+        {/* Page Header */}
+        {(title || subtitle) && (
+          <div className="page-header" style={{ paddingBottom: '20px', borderBottom: '1px solid #eee', marginBottom: '20px' }}>
+            {title && <h1 style={{ margin: 0, fontSize: '24px' }}>{title}</h1>}
+            {subtitle && <p style={{ margin: '5px 0 0', color: '#666' }}>{subtitle}</p>}
+          </div>
+        )}
+
+        {/* Page Content */}
+        <div className="page-content">
+          {children || <Outlet />}
+        </div>
+        
       </main>
     </div>
   );

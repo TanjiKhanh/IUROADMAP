@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ReactNode } from 'react';
-import { authService, RegisterPayload } from '../services/auth.service'; // Import service
+import { authService, LearnerRegisterPayload, MentorRegisterPayload } from '../services/auth.service'; // Import service
 import { setAccessToken, getAccessToken } from './tokenStore';
 import { AuthContext, User } from './AuthContext';
 
@@ -29,25 +29,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // 2. Login Function
   const login = async (email: string, password: string) => {
-    // Use authService
     const payload = await authService.login({ email, password }) as any;
-
-    if (!payload?.access_token) {
-      throw new Error('Login failed: No access token received.');
+    
+    // Check both possible response formats
+    const token = payload?.access_token || payload?.accessToken;
+    const user = payload?.user;
+    
+    if (!token || !user) {
+      throw new Error('Login failed: Invalid response format');
     }
-
-    setAccessToken(payload.access_token);
-    setUser(payload.user);
-
-    return payload.user;
+    
+    setAccessToken(token);
+    setUser(user);
+    
+    return user;
   };
 
   // 3. Register Function (New)
-  const register = async (data: RegisterPayload) => {
-    // We just call the service. 
-    // Usually, registration doesn't auto-login in this specific flow (redirects to login),
-    // but if your backend returns a token on register, you can set it here like in login().
-    await authService.register(data);
+  const register = async (data: LearnerRegisterPayload | MentorRegisterPayload) => {
+    // Registration endpoint returns user data only (no token)
+    // User must login separately to get access token
+    const result = await authService.register(data);
+    
+    // Just validate the registration succeeded
+    // Don't set tokens - registration doesn't return them
+    if (!result || !result.id) {
+      throw new Error('Registration failed: Invalid response');
+    }
+    
+    // Registration successful, user will be redirected to login page
+    return result;
   };
 
   // 4. Refresh Function

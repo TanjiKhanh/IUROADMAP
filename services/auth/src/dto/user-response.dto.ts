@@ -1,5 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { Role, AccountStatus } from '@prisma/client';
+import { Role, AccountStatus } from '../generated/client';
 
 export class UserResponseDto {
   id: number;

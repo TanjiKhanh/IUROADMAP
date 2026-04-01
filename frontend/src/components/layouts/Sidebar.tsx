@@ -6,6 +6,7 @@ import logo from '../../assets/images/logo-gupjob-primary.png';
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Helper for NavLink styling
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) => 

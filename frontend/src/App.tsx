@@ -12,6 +12,10 @@ import LearnerDashboard from './pages/learner/LearnerDashboard';
 import MyCourses from './pages/learner/MyCourse';
 import RoadmapDetail from './pages/learner/RoadmapDetail';
 
+// Pages - Mentor
+import ApplicationPending from './pages/mentor/ApplicationPending';
+import MentorDashboard from './pages/mentor/MentorDashboard';
+
 // Pages - Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageCourses from './pages/admin/ManageCourses';
@@ -52,7 +56,6 @@ export default function App() {
               path="/register" 
               element={<PublicOnly><Register /></PublicOnly>} 
             />
-            
             <Route 
               path="/forgot-password" 
               element={<PublicOnly><ForgotPassword /></PublicOnly>} 
@@ -73,7 +76,6 @@ export default function App() {
             >
               <Route index element={<LearnerDashboard />} />
               <Route path="my-courses" element={<MyCourses />} />
-              {/* Note: Roadmap Detail removed from here to allow fullscreen */}
             </Route>
 
             {/* =========================================
@@ -98,7 +100,7 @@ export default function App() {
               element={
                 <RequireAuth>
                   <RequireRole allowedRoles={['ADMIN']}>
-                    <MainLayout /> 
+                    <MainLayout />
                   </RequireRole>
                 </RequireAuth>
               }
@@ -118,6 +120,24 @@ export default function App() {
                 <RequireAuth>
                   <RequireRole allowedRoles={['ADMIN']}>
                     <RoadmapDesigner />
+                  </RequireRole>
+                </RequireAuth>
+              } 
+            />
+
+            {/* =========================================
+                6. MENTOR ROUTES 
+               ========================================= */}
+            <Route 
+              path="/application-pending" 
+              element={<ApplicationPending />} 
+            />
+            <Route 
+              path="/mentor-dashboard" 
+              element={
+                <RequireAuth>
+                  <RequireRole allowedRoles={['MENTOR']}>
+                    <MentorDashboard />
                   </RequireRole>
                 </RequireAuth>
               } 
