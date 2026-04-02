@@ -1,0 +1,168 @@
+# ==========================================
+# 🔒 Environment Variables & Secrets
+# ==========================================
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ==========================================
+# 📦 Dependencies
+# ==========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==========================================
+# 🏗️ Build & Distribution
+# ==========================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+coverage/
+
+# ==========================================
+# 🎯 IDEs & Editors
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+.project
+.classpath
+*.c9/
+*.iml
+*.log
+*.pot
+*.mo
+
+# ==========================================
+# 🧪 Testing
+# ==========================================
+.nyc_output/
+coverage/
+junit.xml
+test-results/
+
+# ==========================================
+# 🔧 Build Tools
+# ==========================================
+.cache/
+.parcel-cache
+.eslintcache
+.stylelintcache
+tsconfig.tsbuildinfo
+
+# ==========================================
+# 📱 OS-Specific
+# ==========================================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.AppleDouble
+.LSOverride
+*.sublime-workspace
+
+# ==========================================
+# 🐳 Docker & Containers
+# ==========================================
+.docker/
+docker-compose.override.yml
+
+# ==========================================
+# 📚 Monorepo / Workspace
+# ==========================================
+lerna-debug.log
+.turbo/
+
+# ==========================================
+# 🎨 Generated Files
+# ==========================================
+*.generated.ts
+*.generated.js
+*.spec.ts
+*.spec.js
+
+# Prisma generated client artifacts
+services/*/src/generated/prisma-client/
+
+# ==========================================
+# 📄 Temporary Files
+# ==========================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# ==========================================
+# 🌐 Frontend-Specific
+# ==========================================
+dist/
+.vite/
+.vercel
+.netlify
+
+# ==========================================
+# 🔙 Backend-Specific (NestJS/Node)
+# ==========================================
+.env
+.env.development
+.env.test
+.env.production
+dist/
+node_modules/
+*.pid
+*.pid.lock
+
+# ==========================================
+# 📊 Database & Migrations
+# ==========================================
+*.sqlite
+*.sqlite3
+*.db
+migrations/
+
+# ==========================================
+# 🔐 Sensitive Files
+# ==========================================
+*.pem
+*.key
+*.cert
+*.pfx
+*.p12
+secrets.json
+credentials.json
+
+# ==========================================
+# 📦 Package Manager Lock Files (Optional)
+# ==========================================
+# Uncomment if you want to include lock files in git
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ==========================================
+# 🌳 Uploaded Files / Media
+# ==========================================
+uploads/
+public/uploads/
+storage/
+
+# ==========================================
+# 🔗 IDE Extensions & Plugins
+# ==========================================
+.vscode-test/
+.vscode/extensions/

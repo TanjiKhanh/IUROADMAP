@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt'; // 👈 Import JwtModule
 import { PrismaModule } from './prisma/prisma.module';
 import { RoadmapsModule } from './roadmaps/roadmaps.module';
 import { AdminClientModule } from './external/admin-client/admin-client.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -45,7 +46,7 @@ import { AdminClientModule } from './external/admin-client/admin-client.module';
     AdminClientModule,
     RoadmapsModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule {}

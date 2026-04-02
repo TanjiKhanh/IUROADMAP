@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, User, RefreshToken, AccountStatus, Role } from '@prisma/client';
+import { Prisma, User, RefreshToken, AccountStatus, Role } from '../generated/prisma-client';
 
 @Injectable()
 export class UsersRepository {

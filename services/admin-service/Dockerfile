@@ -1,5 +1,4 @@
 # services/admin/Dockerfile
-# Multi-stage Dockerfile for Admin service (NestJS + Prisma)
 FROM node:18-bullseye-slim AS builder
 ENV NODE_ENV=development
 WORKDIR /app
@@ -10,10 +9,10 @@ RUN apt-get update \
 
 COPY package*.json ./
 COPY prisma ./prisma/
-RUN npm ci
-RUN npx prisma generate || true
+RUN npm ci --include=dev
 
 COPY . .
+RUN npx prisma generate
 RUN npm run build
 
 FROM node:18-bullseye-slim AS runner
@@ -26,8 +25,9 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/src/generated ./dist/generated
 
 USER appuser
 
-EXPOSE 3000
+EXPOSE 4100
 CMD ["node", "dist/main.js"]

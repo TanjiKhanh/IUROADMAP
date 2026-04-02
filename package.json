@@ -10,17 +10,15 @@
     "services/mentor-service",
     "services/user-service"
   ],
-
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
   },
-
   "scripts": {
     "# ========== SETUP =========": "",
     "install-all": "npm ci --workspaces",
     "bootstrap": "npm install && npm run build --workspaces",
-    "clean": "npm run clean --workspaces && rm -rf node_modules coverage",
+    "clean": "npm run clean --workspaces && node -e \"require('fs').rmSync('node_modules', {recursive: true, force: true})\" && node -e \"require('fs').rmSync('coverage', {recursive: true, force: true})\"",
 
     "# ========== DEVELOPMENT =========": "",
     "dev": "npm run start:dev --workspaces",
@@ -29,6 +27,9 @@
     "# ========== BUILD =========": "",
     "build": "npm run build --workspaces",
     "prebuild": "npm run clean",
+
+    "# ========== DATABASE MIGRATIONS =========": "",
+    "migrate": "npm run migrate --workspaces --if-present",
 
     "# ========== LINTING & FORMATTING =========": "",
     "lint": "npm run lint --workspaces --if-present",
@@ -46,11 +47,6 @@
     "test:unit": "npm run test:unit --workspaces --if-present",
     "test:unit:watch": "npm run test:unit:watch --workspaces --if-present",
     "test:unit:debug": "npm run test:unit:debug --workspaces --if-present"
-    
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
   },
   "devDependencies": {
     "eslint": "^8.50.0",

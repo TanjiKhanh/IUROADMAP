@@ -1,5 +1,5 @@
 import { ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { RoadmapNodeStatus } from '@prisma/client';
+import { RoadmapNodeStatus } from '../../generated/prisma-client';
 import { RoadmapsService } from '../roadmaps.service';
 
 // helpers to build mocks for every test

@@ -11,6 +11,8 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  output = "../src/generated/prisma-client"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 // 🚦 Status Enum for a specific node in a roadmap

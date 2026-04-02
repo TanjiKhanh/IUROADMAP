@@ -8,4 +8,7 @@ module.exports = {
   transform: {
     ...tsJestTransformCfg,
   },
+  // Ignore compiled output and coverage artifacts so Jest only runs source tests
+  testPathIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/coverage/"],
+  moduleFileExtensions: ["ts", "js", "json", "node"],
 };

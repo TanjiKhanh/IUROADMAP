@@ -22,7 +22,7 @@ async function bootstrap() {
 
   // 3. Start Server
   const port = process.env.PORT || 4100; // Default to 4100 for Admin Service
-  await app.listen(port);
+  await app.listen(port , "0.0.0.0");
   
   logger.log(`🚀 Admin Service is running on port ${port}`);
 }

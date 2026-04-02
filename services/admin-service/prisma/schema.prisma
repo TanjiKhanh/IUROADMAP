@@ -9,6 +9,8 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma-client"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 enum CourseType {

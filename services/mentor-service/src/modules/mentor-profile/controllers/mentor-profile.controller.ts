@@ -12,13 +12,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { MentorProfileService } from '../services/mentor-profile.service';
-import { CreateMentorProfileDto } from '../dto/create-mentor-profile.dto';
 import { UpdateMentorProfileDto } from '../dto/update-mentor-profile.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt.auth.guard';
 import { RolesGuard } from '../../../common/guards/roles.guard';
 import { CurrentUser } from '../../../common/decorators/user.decorator';
 import { UserRole } from '../../../common/enums/roles.enum';
 import { Roles } from '../../../common/decorators/roles.decorator';
+
 
 /**
  * MentorProfileController
@@ -61,7 +61,7 @@ export class MentorProfileController {
   ) {
     return this.service.updateProfile(user.userId, dto);
   }
-
+  
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
