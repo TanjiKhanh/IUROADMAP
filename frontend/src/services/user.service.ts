@@ -57,7 +57,7 @@ export const userService = {
   // ==========================================
   enroll: async (courseId: number) => {
     // Note: Backend might expect { courseId } or just the ID in URL depending on your route
-    const data = await api.post(`/roadmaps/enroll`, { courseId });
+    const data = await api.post(`user/roadmaps/enroll`, { courseId });
     return data;
   },
 
@@ -65,17 +65,18 @@ export const userService = {
   // 📊 DASHBOARD & LISTS
   // ==========================================
   getMyRoadmaps: async () => {
-    const data = await api.get<UserRoadmapSummary[]>('/roadmaps/my');
+    const data = await api.get<UserRoadmapSummary[]>('/user/roadmaps/my');
+    console.log("Fetched User Roadmaps Summary:", data);
     return data;
   },
 
   /**
    * Initial Map Load (Minimal Data)
-   * GET /roadmaps/:id
+   * GET /user/roadmaps/:id
    */
   getRoadmapById: async (id: number) => {
     // 🟢 Debugging: Check what the API actually returns
-    const response: any = await api.get(`/roadmaps/${id}`);
+    const response: any = await api.get(`/user/roadmaps/${id}`);
     
     console.log("API Response for Roadmap:", response);
 
@@ -93,10 +94,10 @@ export const userService = {
   
   /**
    * Fetch heavy content (Markdown) for a specific node
-   * GET /roadmaps/:id/nodes/:nodeKey
+   * GET /user/roadmaps/:id/nodes/:nodeKey
    */
   getNodeDetail: async (roadmapId: number, nodeKey: string) => {
-    const data = await api.get<NodeDetail>(`/roadmaps/${roadmapId}/nodes/${nodeKey}`);
+    const data = await api.get<NodeDetail>(`/user/roadmaps/${roadmapId}/nodes/${nodeKey}`);
     console.log("Fetched Node Detail:", data);
     return data;
   },
@@ -107,19 +108,19 @@ export const userService = {
 
   /**
    * Update the status of a node (e.g. Pending -> Done)
-   * PATCH /roadmaps/:id/nodes/:nodeKey/status
+   * PATCH /user/roadmaps/:id/nodes/:nodeKey/status
    */
   updateNodeStatus: async (roadmapId: number, nodeKey: string, status: string) => {
-    const data = await api.patch(`/roadmaps/${roadmapId}/nodes/${nodeKey}/status`, { status });
+    const data = await api.patch(`/user/roadmaps/${roadmapId}/nodes/${nodeKey}/status`, { status });
     return data;
   },
 
   // ==========================================
-  // 🟢 START PHASE (Legacy/Optional)
+  // 🟢 START PHASE (Legacy/Optional) 
   // ==========================================
   // Keeps the "Start" logic if you want a specific "Start Learning" button
   startNode: async (roadmapId: number, nodeKey: string) => {
-    const data = await api.post<NodeDetail>(`/roadmaps/${roadmapId}/nodes/${nodeKey}/start`);
-    return data;
+    const data = await api.post<NodeDetail>(`/user/roadmaps/${roadmapId}/nodes/${nodeKey}/start`);
+    return data;    
   }
 };

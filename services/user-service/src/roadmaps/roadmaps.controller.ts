@@ -5,14 +5,14 @@ import { EnrollRoadmapDto } from './dto/enroll-roadmap.dto';
 import { AuthGuard } from '../common/guards/auth.guard'; 
 import { RoadmapNodeStatus } from '../generated/prisma-client';
 
-@Controller('roadmaps')
+@Controller('user/roadmaps')
 @UseGuards(AuthGuard)
 export class RoadmapsController {
   constructor(private readonly roadmapsService: RoadmapsService) {}
 
   /**
    * 🟢 ENROLL
-   * POST /roadmaps/enroll
+   * POST /user/roadmaps/enroll
    * Body: { "slug": "frontend-developer" }
    */
   @Post('enroll')
