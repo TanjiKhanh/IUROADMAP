@@ -37,7 +37,7 @@ async function bootstrap() {
   app.useGlobalFilters(new PrismaClientExceptionFilter(), new AllExceptionsFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  const port = process.env.PORT || 3001; // Auth Service (Default: 3001)
+  const port = process.env.PORT || 3000; // Auth Service 
 
   // Use 'localhost' for development to avoid permission issues
   // Use '0.0.0.0' in Docker/production to allow external connections

@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, IsOptional, IsEnum, IsInt, IsJSON } from 'class-validator';
-import { CourseType } from '../../../generated/client'; // Ensures type safety with your DB enum
+import { CourseType } from './course-type.enum';
 
 export class CreateCourseDto {
   @IsString()

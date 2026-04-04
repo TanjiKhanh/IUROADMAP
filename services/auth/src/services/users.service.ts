@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../repositories/user.repository';
-import { Prisma, User } from '../generated/client';
+import { Prisma, User } from '../generated/prisma-client';
 import { FilterUsersDto } from 'src/dto/filter-users.dto';
 import { of } from 'rxjs';
 

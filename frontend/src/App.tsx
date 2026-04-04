@@ -31,6 +31,7 @@ import RequireRole from './auth/RequireRole';
 
 // Layouts
 import MainLayout from './components/layouts/MainLayout'; 
+import FindMentors from './pages/learner/FindMentors';
 
 export default function App() {
   return (

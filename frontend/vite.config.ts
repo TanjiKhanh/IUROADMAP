@@ -23,7 +23,7 @@ export default defineConfig({
           }
         },
       },
-      '/roadmaps': {
+      '/user': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
@@ -31,6 +31,16 @@ export default defineConfig({
       '/public': {
         target: 'http://localhost:8080',
         changeOrigin: true, 
+        secure: false,
+      },
+      '/mentors': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/mentor-profiles': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
         secure: false,
       },
     },

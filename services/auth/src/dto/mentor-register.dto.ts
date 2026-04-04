@@ -8,7 +8,7 @@ import {
   IsUrl, 
   IsNotEmpty 
 } from 'class-validator';
-import { Role } from '../common/enums/role.enum';
+import { Role } from '../generated/prisma-client';
 
 export class MentorRegisterDto {
   // --- AUTHENTICATION INFO ---

@@ -16,11 +16,11 @@ COPY prisma ./prisma/
 # Install dependencies
 RUN npm ci
 
-# Generate Prisma client (if you use Prisma)
-RUN npx prisma generate || true
-
 # Copy the rest and build
 COPY . .
+
+# Generate Prisma client after source copy so custom output path is always present
+RUN npx prisma generate || true
 RUN npm run build
 
 # ---- runtime ----
@@ -36,6 +36,7 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/src/generated ./dist/generated
 
 USER appuser
 

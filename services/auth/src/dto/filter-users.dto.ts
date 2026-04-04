@@ -1,7 +1,6 @@
 import { IsOptional, IsString, IsEnum, IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Role } from '../common/enums/role.enum'; 
-import { AccountStatus } from '../generated/client';
+import { Role, AccountStatus } from '../generated/prisma-client'; 
 
 export class FilterUsersDto {
   @IsOptional()

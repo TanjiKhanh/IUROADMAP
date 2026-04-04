@@ -1,18 +1,18 @@
 {
   "info": {
-    "_postman_id": "b152f9ac-8dcc-41e5-88c3-6104916b448b",
-    "name": "GUPJOB - Lazy Architecture Test",
-    "description": "Updated collection for Auth, Admin, and User Service (Lazy Nodes + Cache).",
+    "_postman_id": "3f84bb57-e5f7-46e5-8be6-dc26e86b0069",
+    "name": "GUPJOB - Complete API Testing",
+    "description": "Complete collection for Auth, Admin, Mentor, and User Services with seeded database data.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "50592471",
-    "_collection_link": "https://go.postman.co/collection/50592471-b152f9ac-8dcc-41e5-88c3-6104916b448b?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/50592471-3f84bb57-e5f7-46e5-8be6-dc26e86b0069?source=collection_link"
   },
   "item": [
     {
       "name": "1. Auth Service",
       "item": [
         {
-          "name": "Login Admin",
+          "name": "Login Student (Seeded)",
           "event": [
             {
               "listen": "test",
@@ -20,13 +20,12 @@
                 "exec": [
                   "var jsonData = pm.response.json();",
                   "if (jsonData.access_token) {",
-                  "    pm.collectionVariables.set(\"admin_token\", jsonData.access_token);",
-                  "    console.log(\"Admin Token Set\");",
+                  "    pm.collectionVariables.set(\"student_token\", jsonData.access_token);",
+                  "    pm.collectionVariables.set(\"student_id\", jsonData.user.id);",
+                  "    console.log(\"✅ Student Token Set\");",
                   "}"
                 ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                "type": "text/javascript"
               }
             }
           ],
@@ -40,7 +39,93 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"admin@gupjob.com\",\n    \"password\": \"admin123\"\n}"
+              "raw": "{\n  \"email\": \"student1@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Mentor (Seeded)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.collectionVariables.set(\"mentor_token\", jsonData.access_token);",
+                  "    pm.collectionVariables.set(\"mentor_id\", jsonData.user.id);",
+                  "    console.log(\"✅ Mentor Token Set\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"mentor1@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/auth/login",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Admin (Seeded)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.access_token) {",
+                  "    pm.collectionVariables.set(\"admin_token\", jsonData.access_token);",
+                  "    pm.collectionVariables.set(\"admin_id\", jsonData.user.id);",
+                  "    console.log(\"✅ Admin Token Set\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{gateway_url}}/auth/login",
@@ -67,7 +152,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"ngtankhanh2005@gmail.com\",\n    \"password\": \"khanhdepzai16\",\n    \"name\": \"Tan Khanh\",\n    \"role\": \"STUDENT\"\n}"
+              "raw": "{\n  \"email\": \"newstudent@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New Student\",\n  \"role\": \"STUDENT\"\n}"
             },
             "url": {
               "raw": "{{gateway_url}}/auth/register/learner",
@@ -87,15 +172,15 @@
           "name": "Register Mentor",
           "request": {
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Ngoc Khanh\",\r\n  \"email\": \"lehoang2@example.com\",\r\n  \"password\": \"ngockhanh\",\r\n  \"role\": \"MENTOR\",\r\n  \"bio\": \"Senior Backend Developer passionate about teaching scalable architecture.\",\r\n  \"cvUrl\": \"https://example.com/jane-doe-cv.pdf\",\r\n  \"linkedinUrl\": \"https://linkedin.com/in/janedoe123\",\r\n  \"industry\": \"Software Engineering\",\r\n  \"skills\": [\"NestJS\", \"Node.js\", \"PostgreSQL\", \"Docker\"]\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "raw": "{\n  \"email\": \"newmentor@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New Mentor\",\n  \"role\": \"MENTOR\",\n  \"bio\": \"Passionate about teaching\",\n  \"linkedinUrl\": \"https://linkedin.com/in/newmentor\",\n  \"industry\": \"Tech\",\n  \"skills\": [\"Node.js\", \"React\", \"PostgreSQL\"]\n}"
             },
             "url": {
               "raw": "{{gateway_url}}/auth/register/mentor",
@@ -110,205 +195,37 @@
             }
           },
           "response": []
-        },
-        {
-          "name": "Login Student",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.access_token) {",
-                  "    pm.collectionVariables.set(\"student_token\", jsonData.access_token);",
-                  "    console.log(\"Student Token Set\");",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"ngtankhanh2005@gmail.com\",\n    \"password\": \"khanhdepzai16\"\n}"
-            },
-            "url": {
-              "raw": "{{gateway_url}}/auth/login",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Login Mentor",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var jsonData = pm.response.json();",
-                  "if (jsonData.access_token) {",
-                  "    pm.collectionVariables.set(\"student_token\", jsonData.access_token);",
-                  "    console.log(\"Student Token Set\");",
-                  "}"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"expert.mentor@example.com\",\n    \"password\": \"supersecretpassword\"\n}"
-            },
-            "url": {
-              "raw": "{{gateway_url}}/auth/login",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get ALL Users",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"admin@gupjob.com\",\n    \"password\": \"admin123\"\n}"
-            },
-            "url": {
-              "raw": "{{gateway_url}}/users",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "users"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Filter With Pagination",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{gateway_url}}/users?limit=3",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "users"
-              ],
-              "query": [
-                {
-                  "key": "limit",
-                  "value": "3"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get ONLY Pending Approvals Copy",
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{gateway_url}}/users?role=MENTOR&status=PENDING_APPROVAL",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "users"
-              ],
-              "query": [
-                {
-                  "key": "role",
-                  "value": "MENTOR"
-                },
-                {
-                  "key": "status",
-                  "value": "PENDING_APPROVAL"
-                }
-              ]
-            }
-          },
-          "response": []
         }
       ]
     },
     {
-      "name": "2. Admin Service (Setup)",
+      "name": "2. Admin Service",
       "item": [
         {
-          "name": "Create Dept (CS)",
+          "name": "Get All Departments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/admin/departments",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "admin",
+                "departments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Department",
           "request": {
             "method": "POST",
             "header": [
@@ -323,7 +240,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{ \"name\": \"Computer Science\", \"slug\": \"cs\" }"
+              "raw": "{\n  \"name\": \"Data Science\",\n  \"slug\": \"data-science\",\n  \"description\": \"Learn data science and machine learning\"\n}"
             },
             "url": {
               "raw": "{{gateway_url}}/admin/departments",
@@ -339,23 +256,15 @@
           "response": []
         },
         {
-          "name": "Create Course (Frontend)",
+          "name": "Get All Courses",
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
               {
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"title\": \"Backend Mastery\",\n    \"slug\": \"backend-mastery\",\n    \"type\": \"JOB\",\n    \"departmentId\": 1,\n    \"description\": \"Master server-side engineering, database management, API design, and DevOps principles to become a professional Backend Developer.\"\n}"
-            },
             "url": {
               "raw": "{{gateway_url}}/admin/courses",
               "host": [
@@ -370,23 +279,15 @@
           "response": []
         },
         {
-          "name": "Create Roadmap (Frontend)",
+          "name": "Get All Roadmaps",
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
               {
                 "key": "Authorization",
                 "value": "Bearer {{admin_token}}"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Frontend Developer Path\",\n  \"slug\": \"frontend-mastery\",\n  \"description\": \"A comprehensive path to becoming a Frontend Developer, covering HTML, CSS, JavaScript, React, and Modern Tooling.\",\n  \"nodes\": [\n    {\n      \"nodeKey\": \"internet\",\n      \"title\": \"Internet Basics\",\n      \"coords\": { \"x\": 0, \"y\": 0 },\n      \"isRequired\": false,\n      \"summary\": \"Understand the foundational concepts of the web: how DNS works, what a Domain Name is, HTTP vs HTTPS, and how Browsers render pages.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n⚫ **Roadmap** [How the Internet Works](https://roadmap.sh/guides/how-internet-works)\\n🟡 **Article** [MDN - How the Web Works](https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/How_does_the_Internet_work)\\n🟣 **Video** [How the Internet Works in 5 Minutes](https://www.youtube.com/watch?v=7_LPdttKXPc)\"\n    },\n    {\n      \"nodeKey\": \"html\",\n      \"title\": \"HTML\",\n      \"coords\": { \"x\": 350, \"y\": 0 },\n      \"isRequired\": true,\n      \"summary\": \"The standard markup language for documents designed to be displayed in a web browser. It defines the structure and meaning of web content.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n⚫ **Roadmap** [Visit Dedicated HTML Roadmap](https://roadmap.sh/html)\\n🟡 **Article** [MDN - HTML Basics](https://developer.mozilla.org/en-US/docs/Learn/Getting_started_with_the_web/HTML_basics)\\n🟡 **Article** [W3Schools - HTML Tutorial](https://www.w3schools.com/html/)\\n🟣 **Video** [HTML Crash Course For Absolute Beginners](https://www.youtube.com/watch?v=UB1O30fR-EE)\\n\\n### 💜 Premium Resources\\n---\\n\\n🟢 **Course** [Codecademy - Learn HTML](https://www.codecademy.com/learn/learn-html)\"\n    },\n    {\n      \"nodeKey\": \"css\",\n      \"title\": \"CSS\",\n      \"coords\": { \"x\": 700, \"y\": 0 },\n      \"isRequired\": true,\n      \"summary\": \"Style sheet language used for describing the presentation of a document written in HTML. It controls layout, colors, fonts, and responsiveness.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n⚫ **Roadmap** [Visit Dedicated CSS Roadmap](https://roadmap.sh/css)\\n🟡 **Article** [web.dev - Learn CSS](https://web.dev/learn/css/)\\n🟡 **Article** [CSS-Tricks - A Complete Guide to Flexbox](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)\\n🟣 **Video** [CSS Crash Course for Beginners](https://www.youtube.com/watch?v=yfoY53QXEnI)\\n\\n### 💜 Premium Resources\\n---\\n\\n🟢 **Course** [Scrimba - Learn CSS](https://scrimba.com/learn/css)\"\n    },\n    {\n      \"nodeKey\": \"js\",\n      \"title\": \"JavaScript\",\n      \"coords\": { \"x\": 1050, \"y\": 0 },\n      \"isRequired\": true,\n      \"summary\": \"Programming language that enables interactive web pages. It is an essential part of web applications, allowing for dynamic content, control of multimedia, and animation.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n⚫ **Roadmap** [Visit Dedicated JavaScript Roadmap](https://roadmap.sh/javascript)\\n🟡 **Article** [The Modern JavaScript Tutorial](https://javascript.info)\\n🟡 **Article** [Namaste JavaScript (Deep Dive)](https://www.youtube.com/playlist?list=PLlasXeu85E9cQ32gLCvAvr9vNaUccPVNP)\\n🟣 **Video** [JavaScript Crash Course for Beginners](https://youtube.com)\\n\\n### 💜 Premium Resources\\n---\\n\\n🟢 **Course** [Scrimba - Fullstack Developer Path](https://scrimba.com)\"\n    },\n    {\n      \"nodeKey\": \"git\",\n      \"title\": \"Version Control (Git)\",\n      \"coords\": { \"x\": 1050, \"y\": 250 },\n      \"isRequired\": true,\n      \"summary\": \"Track changes in your code, collaborate with others, and manage your projects with GitHub. Essential for any team workflow.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n🟡 **Book** [Pro Git (Free Book)](https://git-scm.com/book/en/v2)\\n🟡 **Interactive** [Learn Git Branching (Game)](https://learngitbranching.js.org/)\\n🟣 **Video** [Git and GitHub for Beginners - Crash Course](https://www.youtube.com/watch?v=RGOj5yH7evk)\"\n    },\n    {\n      \"nodeKey\": \"npm\",\n      \"title\": \"Package Managers\",\n      \"coords\": { \"x\": 700, \"y\": 250 },\n      \"isRequired\": true,\n      \"summary\": \"Tools like npm or yarn to automate installing, upgrading, and configuring software libraries and dependencies.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n🟡 **Article** [NPM Docs - About npm](https://docs.npmjs.com/about-npm)\\n🟡 **Article** [FreeCodeCamp - What is NPM?](https://www.freecodecamp.org/news/what-is-npm-a-node-package-manager-tutorial-for-beginners/)\\n🟣 **Video** [NPM Crash Course](https://www.youtube.com/watch?v=jHDhaSSKmB0)\"\n    },\n    {\n      \"nodeKey\": \"react\",\n      \"title\": \"React\",\n      \"coords\": { \"x\": 350, \"y\": 250 },\n      \"isRequired\": true,\n      \"summary\": \"A JavaScript library for building user interfaces. The most popular frontend framework, focusing on component-based architecture.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n⚫ **Roadmap** [React Roadmap](https://roadmap.sh/react)\\n🟡 **Article** [React Official Documentation](https://react.dev/learn)\\n🟡 **Interactive** [Scrimba - Learn React for Free](https://scrimba.com/learn/learnreact)\\n🟣 **Video** [React JS - Full Course for Beginners](https://www.youtube.com/watch?v=bMknfKXIFA8)\\n\\n### 💜 Premium Resources\\n---\\n\\n🟢 **Course** [EpicReact.dev by Kent C. Dodds](https://epicreact.dev/)\"\n    },\n    {\n      \"nodeKey\": \"tailwind\",\n      \"title\": \"Tailwind CSS\",\n      \"coords\": { \"x\": 0, \"y\": 250 },\n      \"isRequired\": true,\n      \"summary\": \"A utility-first CSS framework for rapidly building custom designs without leaving your HTML. It speeds up styling significantly.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n🟡 **Documentation** [Tailwind CSS Docs](https://tailwindcss.com/docs/utility-first)\\n🟣 **Video** [Tailwind CSS Crash Course](https://www.youtube.com/watch?v=ft30zcMlFao)\\n\\n### 💜 Premium Resources\\n---\\n\\n🟢 **UI Kit** [Tailwind UI (Official Components)](https://tailwindui.com/)\"\n    },\n    {\n      \"nodeKey\": \"build_tools\",\n      \"title\": \"Build Tools (Vite)\",\n      \"coords\": { \"x\": 0, \"y\": 500 },\n      \"isRequired\": false,\n      \"summary\": \"Tools that bundle your assets and code for production. Vite is the modern standard for blazing fast development servers.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n🟡 **Article** [Why Vite?](https://vitejs.dev/guide/why.html)\\n🟡 **Article** [Vite for Beginners](https://www.freecodecamp.org/news/get-started-with-vite/)\\n🟣 **Video** [Vite Crash Course](https://www.youtube.com/watch?v=VAeRhSVqXWQ)\"\n    },\n    {\n      \"nodeKey\": \"api\",\n      \"title\": \"APIs & Fetch\",\n      \"coords\": { \"x\": 350, \"y\": 500 },\n      \"isRequired\": true,\n      \"summary\": \"Learn how to fetch data from a server using the Fetch API and Axios, and understand how REST APIs work.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n🟡 **Article** [MDN - Using the Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)\\n🟡 **Article** [Axios vs Fetch](https://www.geeksforgeeks.org/difference-between-fetch-and-axios-js-for-making-http-requests/)\\n🟣 **Video** [Fetch API - Intro to making network requests](https://www.youtube.com/watch?v=cuEtnrL9-KE)\"\n    },\n    {\n      \"nodeKey\": \"state\",\n      \"title\": \"State Management\",\n      \"coords\": { \"x\": 700, \"y\": 500 },\n      \"isRequired\": false,\n      \"summary\": \"Managing global app state using tools like Redux Toolkit, Zustand, or the built-in Context API.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n🟡 **Article** [React Context API Explained](https://www.freecodecamp.org/news/react-context-for-beginners/)\\n🟡 **Article** [Redux Toolkit Quick Start](https://redux-toolkit.js.org/introduction/getting-started)\\n🟣 **Video** [Redux Toolkit Tutorial](https://www.youtube.com/watch?v=bbkBuqC1rU4)\"\n    },\n    {\n      \"nodeKey\": \"testing\",\n      \"title\": \"Testing (Jest)\",\n      \"coords\": { \"x\": 1050, \"y\": 500 },\n      \"isRequired\": false,\n      \"summary\": \"Ensuring your code works as expected using testing frameworks like Jest or Vitest and React Testing Library.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n🟡 **Documentation** [Jest Getting Started](https://jestjs.io/docs/getting-started)\\n🟡 **Article** [React Testing Library Tutorial](https://www.rwieruch.de/react-testing-library/)\\n🟣 **Video** [React Testing Crash Course](https://www.youtube.com/watch?v=8Xwq35cPwYg)\"\n    },\n    {\n      \"nodeKey\": \"auth_frontend\",\n      \"title\": \"Auth Strategies\",\n      \"coords\": { \"x\": 1050, \"y\": 750 },\n      \"isRequired\": false,\n      \"summary\": \"Implementing login/signup on the frontend using JWT, Cookies, or OAuth (e.g., Login with Google).\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n🟡 **Article** [Intro to JSON Web Tokens (JWT)](https://jwt.io/introduction)\\n🟡 **Article** [Authentication vs Authorization](https://auth0.com/intro-to-iam/authentication-vs-authorization/)\\n🟣 **Video** [React Authentication Crash Course](https://www.youtube.com/watch?v=X3qDNOw1vi4)\"\n    },\n    {\n      \"nodeKey\": \"ssr\",\n      \"title\": \"SSR (Next.js)\",\n      \"coords\": { \"x\": 700, \"y\": 750 },\n      \"isRequired\": false,\n      \"summary\": \"Server-Side Rendering framework for React. Essential for SEO, performance, and full-stack capabilities.\",\n      \"contentMd\": \"### 💚 Free Resources\\n---\\n\\n⚫ **Roadmap** [Next.js Roadmap](https://roadmap.sh/nextjs)\\n🟡 **Course** [Next.js Learn (Official)](https://nextjs.org/learn)\\n🟣 **Video** [Next.js 14 Full Course](https://www.youtube.com/watch?v=zjAqacIC_3c)\"\n    },\n    {\n      \"nodeKey\": \"project_frontend\",\n      \"title\": \"Frontend Capstone\",\n      \"coords\": { \"x\": 350, \"y\": 750 },\n      \"isRequired\": true,\n      \"summary\": \"Build a complex dashboard, e-commerce UI, or SaaS application to prove your mastery of the frontend stack.\",\n      \"contentMd\": \"### 💚 Project Ideas\\n---\\n\\n🟡 **Platform** [Frontend Mentor (Real designs to code)](https://www.frontendmentor.io/)\\n🟡 **Platform** [DevChallenges.io](https://devchallenges.io/)\\n\\n### 💡 Suggested Projects\\n1.  **E-commerce Shop:** Cart, Filtering, Payment Integration.\\n2.  **Kanban Board:** Drag and drop tasks (like Trello).\\n3.  **Chat Application:** Real-time messaging UI.\"\n    }\n  ],\n  \"edges\": [\n    { \"sourceKey\": \"internet\", \"targetKey\": \"html\" },\n    { \"sourceKey\": \"html\", \"targetKey\": \"css\" },\n    { \"sourceKey\": \"css\", \"targetKey\": \"js\" },\n    { \"sourceKey\": \"js\", \"targetKey\": \"git\" },\n    { \"sourceKey\": \"git\", \"targetKey\": \"npm\" },\n    { \"sourceKey\": \"npm\", \"targetKey\": \"react\" },\n    { \"sourceKey\": \"react\", \"targetKey\": \"tailwind\" },\n    { \"sourceKey\": \"tailwind\", \"targetKey\": \"build_tools\" },\n    { \"sourceKey\": \"build_tools\", \"targetKey\": \"api\" },\n    { \"sourceKey\": \"api\", \"targetKey\": \"state\" },\n    { \"sourceKey\": \"state\", \"targetKey\": \"testing\" },\n    { \"sourceKey\": \"testing\", \"targetKey\": \"auth_frontend\" },\n    { \"sourceKey\": \"auth_frontend\", \"targetKey\": \"ssr\" },\n    { \"sourceKey\": \"ssr\", \"targetKey\": \"project_frontend\" }\n  ]\n}"
-            },
             "url": {
               "raw": "{{gateway_url}}/admin/roadmaps",
               "host": [
@@ -401,39 +302,7 @@
           "response": []
         },
         {
-          "name": "Partial Insert",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"courseId\": 5\n}"
-            },
-            "url": {
-              "raw": "{{gateway_url}}/admin/roadmaps/8",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "admin",
-                "roadmaps",
-                "8"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Summary (Cache Test)",
+          "name": "Get Roadmap by Slug",
           "request": {
             "method": "GET",
             "header": [
@@ -443,86 +312,14 @@
               }
             ],
             "url": {
-              "raw": "{{gateway_url}}/admin/roadmaps/{{roadmap_slug}}/summary",
+              "raw": "{{gateway_url}}/admin/roadmaps/react-roadmap",
               "host": [
                 "{{gateway_url}}"
               ],
               "path": [
                 "admin",
                 "roadmaps",
-                "{{roadmap_slug}}",
-                "summary"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Course",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{gateway_url}}/admin/courses",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "admin",
-                "courses"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get RoadMap",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{gateway_url}}/admin/roadmaps/{{roadmap_slug}}",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "admin",
-                "roadmaps",
-                "{{roadmap_slug}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Public Course",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{gateway_url}}/admin/roadmaps/{{roadmap_slug}}",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "admin",
-                "roadmaps",
-                "{{roadmap_slug}}"
+                "react-roadmap"
               ]
             }
           },
@@ -531,41 +328,10 @@
       ]
     },
     {
-      "name": "3. User Service (Flow)",
+      "name": "3. Mentor Service",
       "item": [
         {
-          "name": "Enroll (Lazy Snapshot)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{ \r\n    \"slug\": \"{{roadmap_slug}}\" \r\n}"
-            },
-            "url": {
-              "raw": "{{gateway_url}}/roadmaps/enroll",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "roadmaps",
-                "enroll"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Dashboard List (Fast Read)",
+          "name": "Get All Mentors",
           "request": {
             "method": "GET",
             "header": [
@@ -575,89 +341,139 @@
               }
             ],
             "url": {
-              "raw": "{{gateway_url}}/roadmaps/my",
+              "raw": "{{gateway_url}}/mentors?limit=10&offset=0",
               "host": [
                 "{{gateway_url}}"
               ],
               "path": [
-                "roadmaps",
-                "my"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Personalized Map (Merge) Copy",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{gateway_url}}/roadmaps/3",
-              "host": [
-                "{{gateway_url}}"
+                "mentors"
               ],
-              "path": [
-                "roadmaps",
-                "3"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Personalized Map (Merge)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{gateway_url}}/roadmaps/12/nodes/html",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "roadmaps",
-                "12",
-                "nodes",
-                "html"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "4. Mentor Service",
-      "item": [
-        {
-          "name": "Create mentor profile",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"cvUrl\": \"https://gupjob-storage.s3.amazonaws.com/cv/banhkheo-resume.pdf\",\r\n  \"linkedinUrl\": \"https://linkedin.com/in/your-profile\",\r\n  \"industry\": \"Software Engineering\",\r\n  \"skills\": [\"TypeScript\", \"NestJS\", \"Microservices\", \"PostgreSQL\"],\r\n  \"bio\": \"## Senior Backend Developer\\nPassionate about building scalable microservices and helping students navigate their tech careers.\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
                 }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Mentors by Industry",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
               }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/mentors?industry=Tech&limit=10&offset=0",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "mentors"
+              ],
+              "query": [
+                {
+                  "key": "industry",
+                  "value": "Tech"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Mentors by Name",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/mentors?search=alice&limit=10&offset=0",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "mentors"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "alice"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Mentor Statistics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/mentors/stats",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "mentors",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Mentor Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{mentor_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Senior Backend Developer with 10+ years experience\",\n  \"cvUrl\": \"https://example.com/cv.pdf\",\n  \"linkedinUrl\": \"https://linkedin.com/in/myprofile\",\n  \"industry\": \"Tech\",\n  \"skills\": [\"NestJS\", \"Node.js\", \"PostgreSQL\", \"Docker\"]\n}"
             },
             "url": {
               "raw": "{{gateway_url}}/mentor-profiles",
@@ -672,58 +488,15 @@
           "response": []
         },
         {
-          "name": "Get All Profile",
+          "name": "Get My Mentor Profile",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{student_token}}",
-                "type": "text"
+                "value": "Bearer {{mentor_token}}"
               }
             ],
-            "url": {
-              "raw": "{{gateway_url}}/mentor-profiles?skip=0&take=10",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "mentor-profiles"
-              ],
-              "query": [
-                {
-                  "key": "skip",
-                  "value": "0"
-                },
-                {
-                  "key": "take",
-                  "value": "10"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update profile",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"bio\": \"Updated bio: Now with 6 years.\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
             "url": {
               "raw": "{{gateway_url}}/mentor-profiles/me",
               "host": [
@@ -738,10 +511,231 @@
           "response": []
         },
         {
-          "name": "My profile",
+          "name": "Update Mentor Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{mentor_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Updated: Senior Full-Stack Developer\",\n  \"industry\": \"Tech\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/mentor-profiles/me",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "mentor-profiles",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. User Service",
+      "item": [
+        {
+          "name": "Enroll in Roadmap",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roadmapId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/user/roadmaps/enroll",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "user",
+                "roadmaps",
+                "enroll"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Roadmaps (Dashboard)",
           "request": {
             "method": "GET",
-            "header": []
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/user/roadmaps",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "user",
+                "roadmaps"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Roadmap Progress",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/user/roadmaps/1",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "user",
+                "roadmaps",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Node Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/user/roadmaps/1/nodes/react-intro",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "user",
+                "roadmaps",
+                "1",
+                "nodes",
+                "react-intro"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Node Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"userNotesMd\": \"Started learning React introduction\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/user/roadmaps/1/nodes/react-intro",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "user",
+                "roadmaps",
+                "1",
+                "nodes",
+                "react-intro"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Learner Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/user/profile",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "user",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Learner Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"universityDepartment\": \"IU - Computer Science\",\n  \"major\": \"Computer Science\",\n  \"bio\": {\n    \"interests\": [\"Web Development\", \"AI\"],\n    \"goals\": \"Become a Full-Stack Developer\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/user/profile",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "user",
+                "profile"
+              ]
+            }
           },
           "response": []
         }
@@ -751,12 +745,7 @@
   "variable": [
     {
       "key": "gateway_url",
-      "value": "http://localhost:8080",
-      "type": "string"
-    },
-    {
-      "key": "admin_token",
-      "value": "",
+      "value": "http://localhost:3000",
       "type": "string"
     },
     {
@@ -765,8 +754,28 @@
       "type": "string"
     },
     {
-      "key": "roadmap_slug",
-      "value": "frontend-dev",
+      "key": "student_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "mentor_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "mentor_id",
+      "value": "4",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_id",
+      "value": "7",
       "type": "string"
     }
   ]

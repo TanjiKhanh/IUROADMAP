@@ -13,7 +13,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 // IMPORT ADMIN CLIENT  
 import { AdminClientService } from '../external/admin-client/admin-client.service';
-import { AccountStatus, Role } from '../generated/client';
+import { AccountStatus, Role } from '../generated/prisma-client';
 
 // IMPORT USER CLIENT
 import { UserClientService } from '../external/user-client/user-client.service';

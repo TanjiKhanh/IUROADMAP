@@ -9,6 +9,7 @@ import { DepartmentModule } from './modules/department/department.module';
 import { CourseModule } from './modules/course/course.module';
 import {RoadmapModule} from './modules/roadmap/roadmap.module'
 import {PublicModule} from './modules/public/public.module'
+import { HealthController } from './health.controller';
 
 
 @Module({
@@ -29,6 +30,6 @@ import {PublicModule} from './modules/public/public.module'
 
     // 4. Strategy
   ],
-  controllers: [], // 👈 Keep empty! Controllers belong in their modules.
+  controllers: [HealthController],
 })
 export class AppModule {}

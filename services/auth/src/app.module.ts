@@ -14,9 +14,11 @@ import { UsersRepository } from './repositories/user.repository';
 
 // Strategies
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { AdminClientModule } from '../src/external/admin-client/admin-client.module'
+import { AdminClientModule } from './external/admin-client/admin-client.module'
 import { UserClientModule } from './external/user-client/user-client.module';
 import { MentorClientModule } from './external/mentor-client/mentor-client.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { MentorClientModule } from './external/mentor-client/mentor-client.modul
     
     // Register PassportModule with default strategy
     PassportModule.register({ defaultStrategy: 'jwt' }),
-
+    PrismaModule, 
     AdminClientModule,
     UserClientModule,
     MentorClientModule,
@@ -64,7 +66,7 @@ import { MentorClientModule } from './external/mentor-client/mentor-client.modul
       inject: [ConfigService],
     }),
   ],
-  controllers: [AuthController , UsersController ],
+  controllers: [AuthController, UsersController, HealthController],
   providers: [
     AuthService, 
     UsersService, 

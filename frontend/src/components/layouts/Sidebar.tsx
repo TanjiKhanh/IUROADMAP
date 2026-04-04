@@ -57,13 +57,10 @@ export default function Sidebar() {
     <>
       <div className="nav-section-label">Learning</div>
       
-      {/* 🟢 FIXED: Absolute path /dashboard */}
-      {/* 'end' prop ensures it only lights up for exactly /dashboard, not /dashboard/my-courses */}
       <NavLink to="/dashboard" end className={getNavLinkClass}>
         <span>📊</span> Dashboard
       </NavLink>
 
-      {/* 🟢 FIXED: Absolute path /dashboard/my-courses */}
       <NavLink to="/dashboard/my-courses" 
         className={({ isActive }) => 
           // Active if matches exactly OR if we are inside a roadmap detail view
@@ -80,7 +77,13 @@ export default function Sidebar() {
       </NavLink>
       
       <div className="nav-section-label">Community</div>
-      <NavLink to="/dashboard/mentors" className={getNavLinkClass}>
+      <NavLink to="/dashboard/mentors" 
+        className={({ isActive }) => {
+          const isMentorsPage = isActive;
+          const isMentorDetail = location.pathname.startsWith('/mentor/');
+          return (isMentorsPage || isMentorDetail) ? 'nav-link active' : 'nav-link';
+        }}
+      >
         <span>👥</span> Find Mentors
       </NavLink>
 

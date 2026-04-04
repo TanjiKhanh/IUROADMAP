@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsOptional, IsIn, IsInt, IsArray, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsIn, IsNotEmpty } from 'class-validator';
 
 export class LearnerRegisterDto {
   @IsEmail({}, {message: 'Invalid email format'})
