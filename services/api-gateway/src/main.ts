@@ -1,33 +1,46 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
-import * as dotenv from 'dotenv';
+// gateway/src/main.ts
 
-// Load .env file immediately
-dotenv.config();
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { ErrorInterceptor } from './common/interceptors/error.interceptor';
 
 async function bootstrap() {
-  const logger = new Logger('APIGateway');
+  const app = await NestFactory.create(AppModule);
 
-  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  // Global prefix
+  app.setGlobalPrefix('');
 
-  // 1. Enable CORS
-  // This is critical because your Frontend (Port 3001/5173) sends requests to Gateway (Port 8080)
+  // Validation pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
+  // Global filters
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Global interceptors
+  app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalInterceptors(new ErrorInterceptor());
+
+  // CORS
   app.enableCors({
-    origin: true, // Allow all origins (or specify your frontend URL)
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true, // Allow cookies if you use them
+    origin: process.env.CORS_ORIGIN || '*',
+    credentials: true,
   });
 
-  // 2. Start the Gateway
-  const PORT = process.env.PORT || 8080;
-  await app.listen(PORT , "0.0.0.0");
-
-  logger.log(`🚀 API Gateway running on: http://localhost:${PORT}`);
-  logger.log(`➡️  Auth Service Proxy:    ${process.env.AUTH_SERVICE_URL}`);
-  logger.log(`➡️  Admin Service Proxy:   ${process.env.ADMIN_SERVICE_URL}`);
-  logger.log(`➡️  User Service Proxy:    ${process.env.USER_SERVICE_URL}`);
-  logger.log(`➡️  Mentor Service Proxy:  ${process.env.MENTOR_SERVICE_URL}`);
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`✅ Gateway listening on port ${port}`);
 }
 
 bootstrap();
