@@ -1,8 +1,4 @@
-// --------------------------------------------------------
-// USER SERVICE SCHEMA
-// This database manages user-specific progress, enrollment, and personalization.
-// It DOES NOT store the roadmap structure (nodes/edges layout), which lives in Admin Service.
-// --------------------------------------------------------
+// user-service/prisma/schema.prisma
 
 datasource db {
   provider = "postgresql"
@@ -11,112 +7,52 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  output = "../src/generated/prisma-client"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output   = "../src/generated/prisma-client"
 }
 
-// 🚦 Status Enum for a specific node in a roadmap
-enum RoadmapNodeStatus {
-  AVAILABLE    // Default state (implied if no record exists)
-  IN_PROGRESS  // User has clicked "Start" on a topic
-  COMPLETED    // User has finished the topic
-  SKIPPED      // User marked "I already know this"
-  LOCKED       // Optional: Enforce linear progression
+// ================= USER PROGRESS =================
+
+model USER_ROADMAPS {
+  id                      Int                   @id @default(autoincrement())
+  
+  user_id                 Int
+  roadmap_id              Int
+  
+  enrollment_status       String
+  completion_percentage   Int
+  total_credits_earned    Int
+  total_credits_required  Int
+  start_date              DateTime
+
+  userNodeProgress        USER_NODE_PROGRESS[]
+
+  created_at              DateTime              @default(now())
+  updated_at              DateTime              @updatedAt
+
+  @@unique([user_id, roadmap_id])
+  @@index([user_id])
+  @@index([roadmap_id])
+  @@map("user_roadmaps")
 }
 
-// 🗺️ User Roadmap Container
-// This acts as the "Enrollment Record". It caches high-level stats.
-model UserRoadmap {
-  id              Int      @id @default(autoincrement())
-  userId          Int      // Foreign Key to Auth Service (Logical Link)
-  masterRoadmapId Int      // Foreign Key to Admin Service (Logical Link)
+model USER_NODE_PROGRESS {
+  id                      Int                   @id @default(autoincrement())
   
-  // 🏷️ Cache these for fast Dashboard display without fetching from Admin Service
-  title           String   
-  slug            String?  
-
-  // ⚡ PROGRESS CACHE (Snapshot Strategy)
-  // We store 'totalNodes' at the moment of enrollment.
-  // This allows us to calculate % progress instantly: (completedNodes / totalNodes) * 100
-  progressPercent Int      @default(0) 
-  totalNodes      Int      @default(0) 
-  completedNodes  Int      @default(0) 
-
-  // 📅 GOALS & PERSONALIZATION
-  startDate       DateTime @default(now())
-  targetDate      DateTime? // User set deadline: "I want to finish by X date"
+  user_roadmap_id         Int
+  userRoadmap             USER_ROADMAPS         @relation(fields: [user_roadmap_id], references: [id], onDelete: Cascade)
   
-  // 🔗 Relations
-  // Nodes are "Lazy Loaded". We only create rows here when a user interacts with a node.
-  nodes           UserRoadmapNode[]
+  course_node_id          Int
   
-  // 🕒 Timestamps
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  status                  String
+  credits_earned          Int
+  started_at              DateTime?
+  completed_at            DateTime?
 
-  // 🔍 Indexes for performance
-  @@index([userId])
-  @@index([masterRoadmapId])
-  
-  // 🛑 Constraints: A user can only enroll in a specific roadmap once
-  @@unique([userId, masterRoadmapId]) 
-}
+  created_at              DateTime              @default(now())
+  updated_at              DateTime              @updatedAt
 
-// 📍 Node Interaction Overlay
-// Stores ONLY the user's specific data for a node (Status, Notes, Time).
-// Coordinate data (x, y) and Content (Description, Video) live in Admin Service.
-model UserRoadmapNode {
-  id               Int               @id @default(autoincrement())
-  
-  // 🔗 Relation to Parent Roadmap
-  userRoadmapId    Int
-  userRoadmap      UserRoadmap       @relation(fields: [userRoadmapId], references: [id], onDelete: Cascade)
-  
-  // 🔑 The Critical Link
-  // This matches the 'nodeKey' string from the Admin Service JSON (e.g., "react-hooks", "arrays-101")
-  nodeKey          String            
-  
-  // 🚦 STATE (The Overlay)
-  status           RoadmapNodeStatus @default(AVAILABLE)
-  
-  // 📝 DIGITAL NOTEBOOK
-  userNotesMd      String?           // Markdown notes written by the user
-  userResources    Json?             // List of extra links user saved: [{ title: "My Fav Blog", url: "..." }]
-  
-  // ⏱️ ANALYTICS & METRICS
-  startedAt        DateTime?         // When did they switch status to IN_PROGRESS?
-  completedAt      DateTime?         // When did they switch status to COMPLETED?
-  timeSpentMinutes Int               @default(0) // Manual log or auto-timer accumulation
-  
-  // ⭐ FEEDBACK (Optional)
-  difficultyRating Int?              // 1-5 Scale: How hard was this topic for you?
-
-  // 📍 POSITION OVERRIDE (Optional)
-  // If you want to allow users to drag nodes around and save their own layout
-  // positionOverride Json?          // { x: 500, y: 200 }
-
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-
-  // 🛑 Constraints: One status record per node per enrollment
-  @@unique([userRoadmapId, nodeKey]) 
-  
-  // 🔍 Index for fast lookups when loading a full roadmap
-  @@index([userRoadmapId])
-}
-
-
-
-model LearnerProfile {
-  userId               Int    @id
-  universityDepartment String?    // e.g., "IU - Computer Science"
-  major                String?    // e.g., "Computer Science"
-  bio                  Json?      // flexible freeform data: notes, links, socials, preferences
-  createdAt            DateTime   @default(now())
-  updatedAt            DateTime   @updatedAt
-
-  @@map("learner_profiles")
-  @@index([universityDepartment])
-
-  @@index([major])
+  @@unique([user_roadmap_id, course_node_id])
+  @@index([user_roadmap_id])
+  @@index([course_node_id])
+  @@map("user_node_progress")
 }

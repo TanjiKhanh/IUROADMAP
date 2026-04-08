@@ -1,6 +1,4 @@
-// Admin service schema (admin-service)
-// Models: Department, Course, Roadmap, RoadmapNode, RoadmapEdge
-// Datasource uses ADMIN_DATABASE_URL
+// admin-service/prisma/schema.prisma
 
 datasource db {
   provider = "postgresql"
@@ -10,88 +8,104 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma-client"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
-enum CourseType {
-  BASIC
-  JOB
+// ================= ROADMAP & COURSES =================
+
+model MAJOR_ROADMAPS {
+  id                  Int                           @id @default(autoincrement())
+  slug                String                        @unique
+  name                String
+  total_credits       Int
+
+  courseNodes         COURSE_NODES[]
+  created_at          DateTime                      @default(now())
+  updated_at          DateTime                      @updatedAt
+
+  @@map("major_roadmaps")
 }
 
-model Department {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  slug        String   @unique
-  description String?
-  // relations
-  courses     Course[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model COURSE_NODES {
+  id                  Int                           @id @default(autoincrement())
+  roadmap_id          Int
+  roadmap             MAJOR_ROADMAPS                @relation(fields: [roadmap_id], references: [id], onDelete: Cascade)
+  
+  slug                String
+  name                String
+  coords              Json?
+  credits             Int
+  description         String?
 
-  @@index([slug])
+  courseTopics        COURSE_TOPICS_NODE[]
+  prerequisitesAsSource   COURSE_NODE_PREREQUISITES[]   @relation("source")
+  prerequisitesAsTarget   COURSE_NODE_PREREQUISITES[]   @relation("target")
+
+  created_at          DateTime                      @default(now())
+  updated_at          DateTime                      @updatedAt
+
+  @@unique([roadmap_id, slug])
+  @@index([roadmap_id])
+  @@map("course_nodes")
 }
 
-model Course {
-  id           Int      @id @default(autoincrement())
-  slug         String   @unique
-  title        String
-  description  String?
-  type         CourseType
-  departmentId Int?     // reference to admin department (no cross-service relations)
-  department   Department? @relation(fields: [departmentId], references: [id])
-  priorityJob     String[] 
-  structure    Json?      // visual layout / metadata
-  // relations
-  roadmaps     Roadmap[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+model COURSE_NODE_PREREQUISITES {
+  id                      Int                   @id @default(autoincrement())
+  
+  course_node_id          Int
+  courseNode              COURSE_NODES          @relation("target", fields: [course_node_id], references: [id], onDelete: Cascade)
+  
+  prerequisite_node_id    Int
+  prerequisiteNode        COURSE_NODES          @relation("source", fields: [prerequisite_node_id], references: [id], onDelete: Cascade)
 
-  @@index([departmentId])
+  created_at              DateTime              @default(now())
+  updated_at              DateTime              @updatedAt
+
+  @@unique([course_node_id, prerequisite_node_id])
+  @@index([course_node_id])
+  @@index([prerequisite_node_id])
+  @@map("course_node_prerequisites")
 }
 
-model Roadmap {
-  id          Int          @id @default(autoincrement())
-  slug        String       @unique
-  title       String
-  description String?
-  courseId    Int?         // optional relation to Course
-  course      Course?      @relation(fields: [courseId], references: [id])
-  structure   Json?        // coordinates / viewport / groups
-  // relations
-  nodes       RoadmapNode[]
-  edges       RoadmapEdge[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+// ================= COURSE TOPICS =================
 
-  @@index([courseId])
+model COURSE_TOPICS_NODE {
+  id                      Int                   @id @default(autoincrement())
+  
+  course_node_id          Int
+  courseNode              COURSE_NODES          @relation(fields: [course_node_id], references: [id], onDelete: Cascade)
+  
+  slug                    String
+  title                   String
+  description             String?
+  coords                  Json?
+  learning_objectives     String?
+  resources_url           String?
+
+  topicEdgesAsSource      COURSE_TOPICS_EDGE[]  @relation("source")
+  topicEdgesAsTarget      COURSE_TOPICS_EDGE[]  @relation("target")
+
+  created_at              DateTime              @default(now())
+  updated_at              DateTime              @updatedAt
+
+  @@unique([course_node_id, slug])
+  @@index([course_node_id])
+  @@map("course_topics_node")
 }
 
-model RoadmapNode {
-  id         Int     @id @default(autoincrement())
-  roadmapId  Int
-  roadmap    Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
-  nodeKey    String
-  title      String
-  summary    String?
-  contentMd  String?
-  isRequired Boolean @default(true)
-  metadata   Json?
-  coords     Json?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model COURSE_TOPICS_EDGE {
+  id                      Int                   @id @default(autoincrement())
+  
+  source_topic_id         Int
+  sourceTopic             COURSE_TOPICS_NODE    @relation("source", fields: [source_topic_id], references: [id], onDelete: Cascade)
+  
+  target_topic_id         Int
+  targetTopic             COURSE_TOPICS_NODE    @relation("target", fields: [target_topic_id], references: [id], onDelete: Cascade)
 
-  @@unique([roadmapId, nodeKey])
-  @@index([roadmapId])
+  created_at              DateTime              @default(now())
+
+  @@unique([source_topic_id, target_topic_id])
+  @@index([source_topic_id])
+  @@index([target_topic_id])
+  @@map("course_topics_edge")
 }
 
-model RoadmapEdge {
-  id             Int     @id @default(autoincrement())
-  roadmapId      Int
-  roadmap        Roadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
-  sourceKey      String
-  targetKey      String
-  createdAt      DateTime @default(now())
-
-  @@index([roadmapId, sourceKey])
-  @@index([roadmapId, targetKey])
-}
