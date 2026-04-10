@@ -96,7 +96,7 @@ api.interceptors.response.use(
         console.log('🔄 Session expired. Attempting refresh...');
         
         // Call the refresh endpoint using RAW axios (skips this interceptor)
-        const resp = await axios.post('/auth/refresh', {}, { withCredentials: true });
+        const resp = await axios.post('api/v1/auth/refresh', {}, { withCredentials: true });
         
         // Handle unwrapping manually for this raw request
         const payload = resp.data?.data || resp.data;

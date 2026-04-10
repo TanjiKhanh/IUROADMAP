@@ -25,13 +25,23 @@ export class ResponseInterceptor implements NestInterceptor {
       map((data) => {
         const duration = Date.now() - startTime;
 
+        // Some downstream services already return { success: true, data: ... }.
+        // Unwrap once here to avoid nested payloads like data.data.
+        const normalizedData =
+          data &&
+          typeof data === 'object' &&
+          'success' in data &&
+          'data' in data
+            ? (data as { data: unknown }).data
+            : data;
+
         this.logger.log(
           `[${request.method}] ${request.url} - ${response.statusCode} - ${duration}ms`,
         );
 
         return {
           status: 'success',
-          data,
+          data: normalizedData,
           timestamp: new Date().toISOString(),
           path: request.url,
         };

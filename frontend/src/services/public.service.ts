@@ -9,6 +9,6 @@ export interface PublicCourse {
 export const publicService = {
     getJobCourses: async (departmentSlug: string): Promise<PublicCourse[]> => {
     // This calls the public endpoint (adjust path if your backend is different)
-    return api.get(`/public/courses?type=JOB&departmentSlug=${departmentSlug}`);
+    return api.get(`/api/v1/public/courses?type=JOB&departmentSlug=${departmentSlug}`);
   }
 }
