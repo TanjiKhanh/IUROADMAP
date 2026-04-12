@@ -8,21 +8,33 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma-client"
+  
+}
+
+enum EnrollmentStatus {
+  ENROLLED      
+  COMPLETED     
+  DROPPED      
+}
+
+enum NodeProgressStatus {
+  AVAILABLE
+  IN_PROGRESS
+  COMPLETED
 }
 
 // ================= USER PROGRESS =================
 
-model USER_ROADMAPS {
+model USER_ROADMAPS_PROGRESS {
   id                      Int                   @id @default(autoincrement())
   
   user_id                 Int
   roadmap_id              Int
   
-  enrollment_status       String
+  enrollment_status       EnrollmentStatus
   completion_percentage   Int
   total_credits_earned    Int
   total_credits_required  Int
-  start_date              DateTime
 
   userNodeProgress        USER_NODE_PROGRESS[]
 
@@ -39,14 +51,12 @@ model USER_NODE_PROGRESS {
   id                      Int                   @id @default(autoincrement())
   
   user_roadmap_id         Int
-  userRoadmap             USER_ROADMAPS         @relation(fields: [user_roadmap_id], references: [id], onDelete: Cascade)
+  userRoadmap             USER_ROADMAPS_PROGRESS         @relation(fields: [user_roadmap_id], references: [id], onDelete: Cascade)
   
   course_node_id          Int
   
-  status                  String
+  status                  NodeProgressStatus
   credits_earned          Int
-  started_at              DateTime?
-  completed_at            DateTime?
 
   created_at              DateTime              @default(now())
   updated_at              DateTime              @updatedAt

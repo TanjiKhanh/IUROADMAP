@@ -1,54 +1,50 @@
-// gateway/src/modules/roadmaps/services/enrollments.service.ts
-
-import { Injectable, Logger } from '@nestjs/common';
+// services/api-gateway/src/modules/roadmaps/services/enrollments.service.ts
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { AdminServiceClient } from '../clients/admin-service.client';
 import { UserServiceClient } from '../clients/user-service.client';
 import {
-  EnrollRoadmapResponseDto,
-  UserEnrollmentDto,
+  EnrollRoadmapRequestDto,
+  EnrollmentSummaryDto,
 } from '../dtos';
 
 @Injectable()
 export class EnrollmentsService {
-  private readonly logger = new Logger(EnrollmentsService.name);
-
   constructor(
-    private adminClient: AdminServiceClient,
-    private userClient: UserServiceClient,
+    private readonly adminClient: AdminServiceClient,
+    private readonly userClient: UserServiceClient,
   ) {}
 
   /**
-   * SUD-06: Enroll in a roadmap
+   * Clone Major and Generate Macro-Roadmap (Enroll)
    */
-  async enrollInRoadmap(
-    userId: number,
-    roadmapId: number,
-  ): Promise<EnrollRoadmapResponseDto> {
-    this.logger.log(`User ${userId} enrolling in roadmap ${roadmapId}`);
+  async enrollToRoadmap(
+    user: { sub: number; role: string },
+    dto: EnrollRoadmapRequestDto,
+  ): Promise<EnrollmentSummaryDto> {
 
-    // Validate roadmap exists
-    await this.adminClient.getRoadmapById(roadmapId);
+    const userId = user.sub;
+    const slug = dto.slug;
 
-    // Create enrollment
-    return this.userClient.enrollInRoadmap(userId, roadmapId);
-  }
+    const major = await this.adminClient.getMajorBySlug(slug);
 
-  /**
-   * Get user's enrollments (SUD-10)
-   */
-  async getUserEnrollments(userId: number): Promise<UserEnrollmentDto[]> {
-    this.logger.log(`Fetching enrollments for user ${userId}`);
-    return this.userClient.getUserEnrollments(userId);
-  }
+    const enrollResult = await this.userClient.enrollUserToRoadmap({
+      userId,
+      roadmapId: major.id,
+      totalCreditsRequired: major.total_credits,
+    });
 
-  /**
-   * Get specific enrollment
-   */
-  async getEnrollment(
-    enrollmentId: number,
-    userId: number,
-  ): Promise<UserEnrollmentDto> {
-    this.logger.log(`Fetching enrollment ${enrollmentId} for user ${userId}`);
-    return this.userClient.getEnrollment(enrollmentId, userId);
+    const summary: EnrollmentSummaryDto = {
+      id: enrollResult.id,
+      userId: enrollResult.user_id,
+      roadmapId: enrollResult.roadmap_id,
+      slug: major.slug,
+      name: major.name,
+      total_credits_required: enrollResult.total_credits_required,
+      completion_percentage: enrollResult.completion_percentage,
+      total_credits_earned: enrollResult.total_credits_earned,
+      enrollmentDate: enrollResult.created_at,
+    };
+
+    return summary;
   }
 }

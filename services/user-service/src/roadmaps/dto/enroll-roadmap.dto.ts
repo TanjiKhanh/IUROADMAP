@@ -1,7 +1,18 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsInt, Min , IsNotEmpty , IsString} from 'class-validator';
 
 export class EnrollRoadmapDto {
-  @IsString()
+  @IsInt()
+  @Min(1)
   @IsNotEmpty()
-  slug: string; // The specific roadmap (e.g., "frontend-developer")
+  userId: number;
+
+  @IsInt()
+  @Min(1)
+  @IsNotEmpty()
+  roadmapId: number;
+
+  @IsInt()
+  @Min(0)
+  @IsNotEmpty()
+  totalCreditsRequired: number;
 }

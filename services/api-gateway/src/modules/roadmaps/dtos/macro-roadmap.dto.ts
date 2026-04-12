@@ -1,30 +1,23 @@
-// gateway/src/modules/roadmaps/dtos/macro-roadmap.dto.ts
-
-export interface MacroRoadmapNode {
+export class MacroRoadmapNodeDto {
   id: number;
-  nodeKey: string;
-  title: string;
+  slug: string;
+  name: string;
   credits: number;
-  status: string;
-  color: string;
-  coords?: { x: number; y: number };
-  isLocked: boolean;
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
 }
 
-export interface MacroRoadmapEdge {
+export class MacroRoadmapEdgeDto {
   id: number;
-  sourceKey: string;
-  targetKey: string;
+  from: number;
+  to: number;
 }
 
-export class MacroRoadmapDto {
-  status: string;
-  data: {
-    title: string;
-    completion_percentage: number;
-    total_credits_earned: number;
-    total_credits_required: number;
-    nodes: MacroRoadmapNode[];
-    edges: MacroRoadmapEdge[];
-  };
+export class MacroRoadmapResponseDto {
+  userRoadmapId: number;
+  roadmapId: number;
+  completion_percentage: number;
+  total_credits_earned: number;
+  total_credits_required: number;
+  nodes: MacroRoadmapNodeDto[];
+  edges: MacroRoadmapEdgeDto[];
 }

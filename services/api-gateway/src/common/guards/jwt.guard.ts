@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { getJwtPublicKey } from '../../config/jwt.config';
 
 @Injectable()
 export class JwtGuard implements CanActivate {
@@ -28,9 +27,8 @@ export class JwtGuard implements CanActivate {
     }
 
     try {
-      const publicKey = getJwtPublicKey();
-      const decoded = jwt.verify(token, publicKey, {
-        algorithms: ['RS256'],
+      const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+        algorithms: ['HS256'],
       });
 
       request.user = decoded;

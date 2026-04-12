@@ -1,137 +1,117 @@
-// gateway/src/modules/roadmaps/clients/user-service.client.ts
-
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+// services/api-gateway/src/modules/roadmaps/clients/user-service.client.ts
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import { ServiceUrls } from '../../../config/service-urls.config';
-import {
-  EnrollRoadmapResponseDto,
-  UserEnrollmentDto,
-} from '../dtos';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { AxiosError } from 'axios';
+import { UserServiceEnrollResponse , UserRoadmapDetail , UserRoadmapProgress } from '../interfaces';
 
 @Injectable()
 export class UserServiceClient {
+  constructor(private readonly http: HttpService) {}
+
   private readonly logger = new Logger(UserServiceClient.name);
-  private readonly userServiceUrl = ServiceUrls.USER_SERVICE;
 
-  constructor(private httpService: HttpService) {}
-
-  /**
-   * Enroll user in roadmap (SUD-06)
-   */
-  async enrollInRoadmap(
-    userId: number,
-    roadmapId: number,
-  ): Promise<EnrollRoadmapResponseDto> {
+  async enrollUserToRoadmap(params: {
+    userId: number;
+    roadmapId: number;
+    totalCreditsRequired: number;
+  }): Promise<UserServiceEnrollResponse> {
     try {
-      this.logger.log(`Enrolling user ${userId} in roadmap ${roadmapId}`);
-      const response = await firstValueFrom(
-        this.httpService.post<{ status: string; data: EnrollRoadmapResponseDto }>(
-          `${this.userServiceUrl}/api/v1/roadmaps/enroll`,
-          { user_id: userId, roadmap_id: roadmapId },
-        ),
+      console.log('Enrolling user to roadmap with params:', params);
+      const { data } = await this.http.axiosRef.post<UserServiceEnrollResponse>(
+        `${process.env.USER_SERVICE_URL}/user/roadmaps/enroll`,
+        {
+          userId: params.userId,
+          roadmapId: params.roadmapId,
+          totalCreditsRequired: params.totalCreditsRequired,
+        },
       );
-      return response.data.data;
-    } catch (error: any) {
-      if (error.response?.status === 409) {
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+
+      if (err.response?.status === HttpStatus.CONFLICT) {
+        const code =
+          (err.response.data as any)?.code ?? 'ALREADY_ENROLLED';
+
         throw new HttpException(
-          {
-            status: 'error',
-            code: 'ALREADY_ENROLLED',
-            message: 'You are already enrolled in this roadmap',
-          },
+          { message: 'You are already enrolled in this roadmap', code },
           HttpStatus.CONFLICT,
         );
       }
-      if (error.response?.status === 404) {
-        throw new HttpException(
-          {
-            status: 'error',
-            code: 'ROADMAP_NOT_FOUND',
-          },
-          HttpStatus.NOT_FOUND,
-        );
-      }
-      this.logger.error(`Enrollment failed: ${error.message}`);
+
       throw new HttpException(
-        {
-          status: 'error',
-          code: 'USER_SERVICE_ERROR',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to enroll in roadmap',
+        HttpStatus.BAD_GATEWAY,
       );
     }
   }
 
-  /**
-   * Get user's enrollments (SUD-10)
-   */
-  async getUserEnrollments(userId: number): Promise<UserEnrollmentDto[]> {
+
+
+
+
+  async getUserRoadmapDetail(params: {
+    userRoadmapId: number;
+    userId: number;
+  }): Promise<UserRoadmapDetail> {
     try {
-      this.logger.log(`Fetching enrollments for user ${userId}`);
-      const response = await firstValueFrom(
-        this.httpService.get<{ status: string; data: UserEnrollmentDto[] }>(
-          `${this.userServiceUrl}/api/v1/user/roadmaps`,
-          {
-            headers: { 'X-User-Id': userId.toString() },
+      const { data } = await this.http.axiosRef.get<UserRoadmapDetail>(
+        `${process.env.USER_SERVICE_URL}/user/roadmaps/${params.userRoadmapId}`,
+        {
+          headers: {
+            'x-user-id': params.userId, // your user-service can use this
           },
-        ),
+        },
       );
-      return response.data.data;
-    } catch (error: any) {
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
       this.logger.error(
-        `Failed to fetch enrollments for user ${userId}: ${error.message}`,
+        `getUserRoadmapDetail failed: status=${err.response?.status} data=${JSON.stringify(
+          err.response?.data,
+        )}`,
       );
+
+      if (err.response?.status === HttpStatus.NOT_FOUND) {
+        throw new HttpException('User roadmap not found', HttpStatus.NOT_FOUND);
+      }
+
       throw new HttpException(
-        {
-          status: 'error',
-          code: 'USER_SERVICE_ERROR',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to fetch user roadmap detail',
+        HttpStatus.BAD_GATEWAY,
       );
     }
   }
 
-  /**
-   * Get specific enrollment
-   */
-  async getEnrollment(
-    enrollmentId: number,
-    userId: number,
-  ): Promise<UserEnrollmentDto> {
+  async getUserRoadmapProgress(params: {
+    userRoadmapId: number;
+    userId: number;
+  }): Promise<UserRoadmapProgress> {
     try {
-      this.logger.log(`Fetching enrollment ${enrollmentId}`);
-      const response = await firstValueFrom(
-        this.httpService.get<{ status: string; data: UserEnrollmentDto }>(
-          `${this.userServiceUrl}/api/v1/roadmaps/${enrollmentId}`,
-          {
-            headers: { 'X-User-Id': userId.toString() },
-          },
-        ),
-      );
-      return response.data.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        throw new HttpException(
-          {
-            status: 'error',
-            code: 'ENROLLMENT_NOT_FOUND',
-          },
-          HttpStatus.NOT_FOUND,
-        );
-      }
-      this.logger.error(`Failed to fetch enrollment: ${error.message}`);
-      throw new HttpException(
+      const { data } = await this.http.axiosRef.get<UserRoadmapProgress>(
+        `${process.env.USER_SERVICE_URL}/user/roadmaps/${params.userRoadmapId}/progress`,
         {
-          status: 'error',
-          code: 'USER_SERVICE_ERROR',
+          headers: {
+            'x-user-id': params.userId,
+          },
         },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      this.logger.error(
+        `getUserRoadmapProgress failed: status=${err.response?.status} data=${JSON.stringify(
+          err.response?.data,
+        )}`,
+      );
+
+      if (err.response?.status === HttpStatus.NOT_FOUND) {
+        throw new HttpException('User roadmap not found', HttpStatus.NOT_FOUND);
+      }
+
+      throw new HttpException(
+        'Failed to fetch user roadmap progress',
+        HttpStatus.BAD_GATEWAY,
       );
     }
   }

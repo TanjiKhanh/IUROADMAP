@@ -1,124 +1,54 @@
-// gateway/src/modules/roadmaps/clients/admin-service.client.ts
-
-import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
+// services/api-gateway/src/modules/roadmaps/clients/admin-service.client.ts
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import { ServiceUrls } from '../../../config/service-urls.config';
-import { RoadmapDto } from '../dtos';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { AxiosError } from 'axios';
+import { AdminRoadmapGraph, MajorMeta } from '../interfaces';
 
 @Injectable()
 export class AdminServiceClient {
-  private readonly logger = new Logger(AdminServiceClient.name);
-  private readonly adminServiceUrl = ServiceUrls.ADMIN_SERVICE;
+  constructor(private readonly http: HttpService) {}
 
-  constructor(private httpService: HttpService) {}
-
-  /**
-   * Get all roadmaps (SUD-05)
-   */
-  async getAllRoadmaps(): Promise<RoadmapDto[]> {
+  async getMajorBySlug(slug: string): Promise<MajorMeta> {
     try {
-      this.logger.log('Fetching all roadmaps from Admin Service');
-      const response = await firstValueFrom(
-        this.httpService.get<{ status: string; data: RoadmapDto[] }>(
-          `${this.adminServiceUrl}/api/v1/roadmaps`,
-        ),
+      const { data } = await this.http.axiosRef.get<MajorMeta>(
+        `${process.env.ADMIN_SERVICE_URL}/admin/major-roadmaps/${slug}`,
       );
-      return response.data.data;
-    } catch (error: any) {
-      this.logger.error(`Failed to fetch roadmaps: ${error.message}`);
-      throw new HttpException(
-        {
-          status: 'error',
-          code: 'ADMIN_SERVICE_ERROR',
-          message: 'Failed to fetch roadmaps',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
 
-  /**
-   * Get roadmap by ID (SUD-06)
-   */
-  async getRoadmapById(roadmapId: number): Promise<RoadmapDto> {
-    try {
-      this.logger.log(`Fetching roadmap ${roadmapId} from Admin Service`);
-      const response = await firstValueFrom(
-        this.httpService.get<{ status: string; data: RoadmapDto }>(
-          `${this.adminServiceUrl}/api/v1/roadmaps/${roadmapId}/meta`,
-        ),
-      );
-      return response.data.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        throw new HttpException(
-          {
-            status: 'error',
-            code: 'ROADMAP_NOT_FOUND',
-            message: 'Roadmap not found',
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (err.response?.status === HttpStatus.NOT_FOUND) {
+        throw new HttpException('Major not found', HttpStatus.NOT_FOUND);
       }
-      this.logger.error(`Failed to fetch roadmap ${roadmapId}: ${error.message}`);
+
       throw new HttpException(
-        {
-          status: 'error',
-          code: 'ADMIN_SERVICE_ERROR',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to fetch major information',
+        HttpStatus.BAD_GATEWAY,
       );
     }
   }
 
-  /**
-   * Get macro roadmap structure (SUD-07)
-   */
-  async getMacroRoadmap(roadmapId: number) {
+
+
+  async getRoadmapGraph(roadmapId: number): Promise<AdminRoadmapGraph> {
     try {
-      this.logger.log(`Fetching macro roadmap ${roadmapId} from Admin Service`);
-      const response = await firstValueFrom(
-        this.httpService.get(
-          `${this.adminServiceUrl}/api/v1/roadmaps/${roadmapId}/structure`,
-        ),
+      const { data } = await this.http.axiosRef.get<AdminRoadmapGraph>(
+        `${process.env.ADMIN_SERVICE_URL}/admin/major-roadmaps/${roadmapId}/graph`,
       );
-      return response.data.data;
-    } catch (error: any) {
-      this.logger.error(`Failed to fetch macro roadmap: ${error.message}`);
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+
+      if (err.response?.status === HttpStatus.NOT_FOUND) {
+        throw new HttpException('Roadmap not found', HttpStatus.NOT_FOUND);
+      }
+
       throw new HttpException(
-        {
-          status: 'error',
-          code: 'ADMIN_SERVICE_ERROR',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to fetch roadmap graph',
+        HttpStatus.BAD_GATEWAY,
       );
     }
   }
 
-  /**
-   * Get micro roadmap (topic structure) (SUD-08)
-   */
-  async getMicroRoadmap(roadmapId: number, courseNodeId: number) {
-    try {
-      this.logger.log(
-        `Fetching micro roadmap ${courseNodeId} from Admin Service`,
-      );
-      const response = await firstValueFrom(
-        this.httpService.get(
-          `${this.adminServiceUrl}/api/v1/roadmaps/${roadmapId}/courses/${courseNodeId}/topics`,
-        ),
-      );
-      return response.data.data;
-    } catch (error: any) {
-      this.logger.error(`Failed to fetch micro roadmap: ${error.message}`);
-      throw new HttpException(
-        {
-          status: 'error',
-          code: 'ADMIN_SERVICE_ERROR',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
+  
 }

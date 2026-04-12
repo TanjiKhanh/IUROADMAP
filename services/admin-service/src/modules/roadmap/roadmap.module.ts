@@ -1,18 +1,21 @@
 import { Module } from '@nestjs/common';
-import { RoadmapController } from './roadmap.controller';
-import { RoadmapService } from './roadmap.service';
-import { RoadmapRepository } from './roadmap.repository';
+import { CourseRoadmapsController } from './controller/course_roadmap.controller';
+import { TopicsRoadmapsController } from './controller/topics_roadmap.controller';
+import { CourseNodesService } from './services/course_roadmap.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import { TopicsRoadmapService } from './services/topics_roadmap.service';
+import { MajorsService } from './services/majors.service';
 
 
 @Module({
-  imports: [],
-  controllers: [RoadmapController],
+  controllers: [CourseRoadmapsController , TopicsRoadmapsController],
   providers: [
     PrismaService,
-    RoadmapRepository,
-    RoadmapService,
+    CourseNodesService,
+    TopicsRoadmapService,
+    MajorsService
+
   ],
-  exports: [RoadmapService],
+  exports: [CourseNodesService, TopicsRoadmapService],
 })
 export class RoadmapModule {}
