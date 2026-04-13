@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { RoadmapsService } from '../services/roadmaps.service';
-import { MacroRoadmapResponseDto } from '../dtos';
+import { MacroRoadmapResponseDto, MicroRoadmapResponseDto } from '../dtos';
 import { JwtGuard } from '../../../common/guards/jwt.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 
@@ -25,5 +25,13 @@ export class RoadmapsController {
   ): Promise<MacroRoadmapResponseDto> {
     const user = (req as any).user;
     return this.roadmapsService.getMacroRoadmap({ userRoadmapId, user });
+  }
+
+
+  @Get('course-nodes/:courseNodeId/micro')
+  async getMicroRoadmap(
+    @Param('courseNodeId', ParseIntPipe) courseNodeId: number,
+  ): Promise<MicroRoadmapResponseDto> {
+    return this.roadmapsService.getMicroRoadmap({ courseNodeId });
   }
 }

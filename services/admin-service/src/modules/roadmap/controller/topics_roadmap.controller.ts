@@ -9,7 +9,7 @@ export class TopicsRoadmapsController {
    
 
   // Get the topics roadmap for a specific course node ID
-  @Get(':courseNodeId/topics')
+  @Get(':courseNodeId/topics-graph')
     async getCourseTopicsGraph(
     @Param('courseNodeId', ParseIntPipe) courseNodeId: number,
   ) {

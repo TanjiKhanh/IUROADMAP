@@ -2,7 +2,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { AxiosError } from 'axios';
-import { UserServiceEnrollResponse , UserRoadmapDetail , UserRoadmapProgress } from '../interfaces';
+import { UserServiceEnrollResponse , UserRoadmapOverview } from '../interfaces';
 
 @Injectable()
 export class UserServiceClient {
@@ -14,6 +14,7 @@ export class UserServiceClient {
     userId: number;
     roadmapId: number;
     totalCreditsRequired: number;
+    courseNodeIds: number[];
   }): Promise<UserServiceEnrollResponse> {
     try {
       console.log('Enrolling user to roadmap with params:', params);
@@ -23,6 +24,7 @@ export class UserServiceClient {
           userId: params.userId,
           roadmapId: params.roadmapId,
           totalCreditsRequired: params.totalCreditsRequired,
+          courseNodeIds: params.courseNodeIds,
         },
       );
       return data;
@@ -53,10 +55,10 @@ export class UserServiceClient {
   async getUserRoadmapDetail(params: {
     userRoadmapId: number;
     userId: number;
-  }): Promise<UserRoadmapDetail> {
+  }): Promise<UserRoadmapOverview> {
     try {
-      const { data } = await this.http.axiosRef.get<UserRoadmapDetail>(
-        `${process.env.USER_SERVICE_URL}/user/roadmaps/${params.userRoadmapId}`,
+      const { data } = await this.http.axiosRef.get<UserRoadmapOverview>(
+        `${process.env.USER_SERVICE_URL}/user/roadmaps/${params.userRoadmapId}/overview`,
         {
           headers: {
             'x-user-id': params.userId, // your user-service can use this
@@ -83,13 +85,13 @@ export class UserServiceClient {
     }
   }
 
-  async getUserRoadmapProgress(params: {
+  async getUserRoadmapOverview(params: {
     userRoadmapId: number;
     userId: number;
-  }): Promise<UserRoadmapProgress> {
+  }): Promise<UserRoadmapOverview> {
     try {
-      const { data } = await this.http.axiosRef.get<UserRoadmapProgress>(
-        `${process.env.USER_SERVICE_URL}/user/roadmaps/${params.userRoadmapId}/progress`,
+      const { data } = await this.http.axiosRef.get<UserRoadmapOverview>(
+        `${process.env.USER_SERVICE_URL}/user/roadmaps/${params.userRoadmapId}/overview`,
         {
           headers: {
             'x-user-id': params.userId,
@@ -100,7 +102,7 @@ export class UserServiceClient {
     } catch (error) {
       const err = error as AxiosError;
       this.logger.error(
-        `getUserRoadmapProgress failed: status=${err.response?.status} data=${JSON.stringify(
+        `getUserRoadmapOverview failed: status=${err.response?.status} data=${JSON.stringify(
           err.response?.data,
         )}`,
       );
@@ -110,7 +112,7 @@ export class UserServiceClient {
       }
 
       throw new HttpException(
-        'Failed to fetch user roadmap progress',
+        'Failed to fetch user roadmap overview',
         HttpStatus.BAD_GATEWAY,
       );
     }

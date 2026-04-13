@@ -1,25 +1,21 @@
-// gateway/src/modules/roadmaps/dtos/micro-roadmap.dto.ts
-
-export interface MicroRoadmapTopic {
+export class MicroTopicNodeDto {
   id: number;
-  topicKey: string;
+  slug: string;
   title: string;
-  status: string;
-  coords?: { x: number; y: number };
-  learning_objectives?: string;
-  resources_url?: string;
+  description?: string | null;
+  coords?: Record<string, any> | null;
+  learning_objectives?: string | null;
+  resources_url?: string | null;
 }
 
-export interface MicroRoadmapEdge {
-  source_topic_id: number;
-  target_topic_id: number;
+export class MicroTopicEdgeDto {
+  id: number;
+  from: number;
+  to: number;
 }
 
-export class MicroRoadmapDto {
-  status: string;
-  data: {
-    courseTitle: string;
-    topics: MicroRoadmapTopic[];
-    edges: MicroRoadmapEdge[];
-  };
+export class MicroRoadmapResponseDto {
+  courseNodeId: number;
+  topics: MicroTopicNodeDto[];
+  edges: MicroTopicEdgeDto[];
 }

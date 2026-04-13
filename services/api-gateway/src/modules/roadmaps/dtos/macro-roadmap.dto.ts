@@ -3,7 +3,7 @@ export class MacroRoadmapNodeDto {
   slug: string;
   name: string;
   credits: number;
-  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+  status: 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED';
 }
 
 export class MacroRoadmapEdgeDto {

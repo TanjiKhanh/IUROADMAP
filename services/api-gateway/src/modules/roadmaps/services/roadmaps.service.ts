@@ -1,9 +1,13 @@
+// services/api-gateway/src/modules/roadmaps/services/roadmaps.service.ts
 import { Injectable } from '@nestjs/common';
 import { AdminServiceClient } from '../clients/admin-service.client';
 import { UserServiceClient } from '../clients/user-service.client';
+import { RoadmapCacheService } from './roadmap-cache.service';
 import {
   MacroRoadmapResponseDto,
   MacroRoadmapNodeDto,
+  MicroRoadmapResponseDto,
+  MicroTopicNodeDto,
 } from '../dtos';
 
 @Injectable()
@@ -11,81 +15,94 @@ export class RoadmapsService {
   constructor(
     private readonly adminClient: AdminServiceClient,
     private readonly userClient: UserServiceClient,
+    private readonly roadmapCache: RoadmapCacheService,
   ) {}
 
   async getMacroRoadmap(params: {
     userRoadmapId: number;
-    user: { sub: number; role: string };
+    user: { sub: number; role: string; id?: number };
   }): Promise<MacroRoadmapResponseDto> {
     const { userRoadmapId, user } = params;
+    const userId = (user as any).id ?? user.sub;
 
-    // 3. Get USER_ROADMAPS
-    const detail = await this.userClient.getUserRoadmapDetail({
+    // Get overview (USER_ROADMAPS_PROGRESS + USER_NODE_PROGRESS)
+    const overview = await this.userClient.getUserRoadmapOverview({
       userRoadmapId,
-      userId: user.sub,
+      userId,
     });
 
-    // 4. Get node progress
-    const progress = await this.userClient.getUserRoadmapProgress({
-      userRoadmapId,
-      userId: user.sub,
-    });
+    // Try cache graph first
+    let roadmapGraph = await this.roadmapCache.getGraph(overview.roadmapId);
 
-    // 5. Get structure from Admin
-    const graph = await this.adminClient.getRoadmapGraph(detail.roadmap_id);
+    if (!roadmapGraph) {
+      // Cache miss, fetch from admin service and set cache
+      roadmapGraph = await this.adminClient.getRoadmapGraph(overview.roadmapId);
+      await this.roadmapCache.setGraph(overview.roadmapId, roadmapGraph);
+    }
 
-    // 6. Merge
+
+    // Merge overview.nodeProgress with graph.nodes
     const progressByNodeId = new Map<
       number,
       { status: MacroRoadmapNodeDto['status']; creditsEarned: number }
     >();
 
-    for (const p of progress.progress) {
+    for (const p of overview.nodeProgress) {
       progressByNodeId.set(p.courseNodeId, {
-        status: p.status,
+        status: p.status as MacroRoadmapNodeDto['status'],
         creditsEarned: p.creditsEarned,
       });
     }
 
-    const mergedNodes: MacroRoadmapNodeDto[] = graph.nodes.map((n) => {
+    const mergedNodes: MacroRoadmapNodeDto[] = roadmapGraph.nodes.map((n: any) => {
       const p = progressByNodeId.get(n.id);
-      const status = (p?.status ?? 'NOT_STARTED') as
-        | 'NOT_STARTED'
-        | 'IN_PROGRESS'
-        | 'COMPLETED';
-      const creditsEarned = p?.creditsEarned ?? 0;
-
-      // Lock rule: node is locked if it has any prerequisite not completed
-      const incoming = graph.edges.filter((e) => e.to === n.id);
-      let isLocked = false;
-      if (incoming.length > 0) {
-        isLocked = incoming.some((edge) => {
-          const prereq = progressByNodeId.get(edge.from);
-          return prereq?.status !== 'COMPLETED';
-        });
-      }
+      const status: MacroRoadmapNodeDto['status'] =
+        (p?.status as MacroRoadmapNodeDto['status']) ?? 'AVAILABLE';
 
       return {
         id: n.id,
         slug: n.slug,
         name: n.name,
-        coords: n.coords,
         credits: n.credits,
-        description: n.description,
         status,
-        isLocked,
-        creditsEarned,
       };
     });
 
+    // 4. Build response DTO
     return {
-      userRoadmapId,
-      roadmapId: detail.roadmap_id,
-      completion_percentage: detail.completion_percentage,
-      total_credits_earned: detail.total_credits_earned,
-      total_credits_required: detail.total_credits_required,
+      userRoadmapId: overview.userRoadmapId,
+      roadmapId: overview.roadmapId,
+      completion_percentage: overview.completionPercentage,
+      total_credits_earned: overview.totalCreditsEarned,
+      total_credits_required: overview.totalCreditsRequired,
       nodes: mergedNodes,
-      edges: graph.edges,
+      edges: roadmapGraph.edges,
+    };
+  }
+
+
+  async getMicroRoadmap(params: {
+    courseNodeId: number;
+  }): Promise<MicroRoadmapResponseDto> {
+    const { courseNodeId } = params;
+
+    const graph = await this.adminClient.getCourseTopicsGraph(courseNodeId);
+
+    // 2. Map to DTOs (mostly pass-through)
+    const topics: MicroTopicNodeDto[] = (graph.topics ?? []).map((t: any) => ({
+      id: t.id,
+      slug: t.slug,
+      title: t.title,
+      description: t.description ?? null,
+      coords: t.coords ?? null,
+      learning_objectives: t.learningObjectives ?? t.learning_objectives ?? null,
+      resources_url: t.resourcesUrl ?? t.resources_url ?? null,
+    }));
+
+    return {
+      courseNodeId: graph.courseNodeId ?? courseNodeId,
+      topics,
+      edges: graph.edges ?? [],
     };
   }
 }

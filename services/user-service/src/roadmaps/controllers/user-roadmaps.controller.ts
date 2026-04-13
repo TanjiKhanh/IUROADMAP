@@ -10,19 +10,7 @@ export class UserRoadmapsController {
   @Post('enroll')
   @UsePipes(new ValidationPipe({ whitelist: true, transform: true }))
   enroll(@Body() dto: EnrollRoadmapDto) {
-    return this.service.enroll(dto);
-  }
-
-  @Get(':userRoadmapId')
-  getRoadmaProgress(
-    @Param('userRoadmapId', ParseIntPipe) userRoadmapId: number,
-    @Req() req: Request
-  ) {
-    const userIdHeader = req.headers['x-user-id'];
-    const userId = Number(
-    Array.isArray(userIdHeader) ? userIdHeader[0] : userIdHeader,
-  );
-    return this.service.findRoadmapProgress(userId, userRoadmapId);
+    return this.service.enrollUserToRoadmap(dto);
   }
 
 

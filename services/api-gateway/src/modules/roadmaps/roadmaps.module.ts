@@ -8,15 +8,17 @@ import { RoadmapsService } from './services/roadmaps.service';
 import { EnrollmentsService } from './services/enrollments.service';
 import { AdminServiceClient } from './clients/admin-service.client';
 import { UserServiceClient } from './clients/user-service.client';
-
+import { RoadmapCacheService } from './services/roadmap-cache.service';
+import { CacheModule } from '@nestjs/cache-manager';
 @Module({
-  imports: [HttpModule],
+  imports: [HttpModule, CacheModule.register()],
   controllers: [RoadmapsController, EnrollmentsController],
   providers: [
     RoadmapsService,
     EnrollmentsService,
     AdminServiceClient,
     UserServiceClient,
+    RoadmapCacheService,
   ],
   exports: [RoadmapsService, EnrollmentsService],
 })

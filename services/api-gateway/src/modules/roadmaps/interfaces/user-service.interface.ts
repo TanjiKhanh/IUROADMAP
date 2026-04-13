@@ -16,25 +16,16 @@ export interface UserServiceEnrollResponse {
 
 
 
-// USER_ROADMAPS row from user-service
-export interface UserRoadmapDetail {
-  id: number;
-  user_id: number;
-  roadmap_id: number;
-  enrollment_status: string;
-  completion_percentage: number;
-  total_credits_earned: number;
-  total_credits_required: number;
-  created_at: string;
-  updated_at: string;
-}
-
-// User progress (you will implement this in user-service)
-export interface UserRoadmapProgress {
+// services/api-gateway/src/modules/roadmaps/interfaces/roadmap.interface.ts
+export interface UserRoadmapOverview {
+  userRoadmapId: number;
   roadmapId: number;
-  progress: Array<{
+  completionPercentage: number;
+  totalCreditsEarned: number;
+  totalCreditsRequired: number;
+  nodeProgress: Array<{
     courseNodeId: number;
-    status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+    status: 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED';
     creditsEarned: number;
   }>;
 }

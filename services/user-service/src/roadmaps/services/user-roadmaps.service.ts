@@ -1,76 +1,108 @@
-// user-service/src/user-roadmaps/user-roadmaps.service.ts
-import {  Injectable , ConflictException, NotFoundException } from '@nestjs/common';
-import { EnrollRoadmapDto } from '../dto/enroll-roadmap.dto';
-import { PrismaService } from '../../prisma/prisma.service'; 
-import { EnrollmentStatus } from '../../generated/prisma-client';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { EnrollRoadmapDto, EnrollRoadmapResponseDto } from '../dto/enroll-roadmap.dto';
+import { EnrollmentStatus, NodeProgressStatus } from '../../generated/prisma-client';
 
 @Injectable()
 export class UserRoadmapsService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  private readonly logger = new Logger(UserRoadmapsService.name);
 
-  async enroll(dto: EnrollRoadmapDto) {
-    const {
-      userId,
-      roadmapId,
-      totalCreditsRequired,
-    } = dto;
+  constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * SUD-06: Enroll user to roadmap + initialize USER_NODE_PROGRESS
+   */
+  async enrollUserToRoadmap(
+    dto: EnrollRoadmapDto,
+  ): Promise<EnrollRoadmapResponseDto> {
+    const { userId, roadmapId, totalCreditsRequired, courseNodeIds } = dto;
 
-    const isEnrolled = await this.isAlreadyEnrolled(userId, roadmapId);
-    if(isEnrolled) {
-      throw new ConflictException('User is already enrolled in this roadmap');
-    }
+    this.logger.log(
+      `Enrolling user ${userId} to roadmap ${roadmapId} with ${courseNodeIds.length} course nodes`,
+    );
 
-
-    const userRoadmap = await this.prisma.uSER_ROADMAPS_PROGRESS.create({
-      data: {
+    // Check if already enrolled
+    const existing = await this.prisma.uSER_ROADMAPS_PROGRESS.findFirst({
+      where: {
         user_id: userId,
         roadmap_id: roadmapId,
-        enrollment_status: EnrollmentStatus.ENROLLED,     // or 'ACTIVE'
-        completion_percentage: 0,
-        total_credits_earned: 0,
-        total_credits_required: totalCreditsRequired,
       },
     });
 
-    return userRoadmap;
-  }
-
-
-  // Get course_roadmap progress by userId and roadmapId
-  async findRoadmapProgress(userId: number, roadmapId: number) {
-    const isEnrolled = await this.isAlreadyEnrolled(userId, roadmapId);
-    if(!isEnrolled) {
-      throw new ConflictException('User is not enrolled in this roadmap');
+    if (existing) {
+      this.logger.warn(
+        `User ${userId} is already enrolled in roadmap ${roadmapId}`,
+      );
+      throw new ConflictException({
+        statusCode: 409,
+        code: 'ALREADY_ENROLLED',
+        message: 'You are already enrolled in this roadmap',
+        error: 'Conflict',
+      });
     }
 
-    const progress = await this.prisma.uSER_ROADMAPS_PROGRESS.findFirst({
-      where: { user_id: userId, roadmap_id: roadmapId },
-    });
+    try {
+      // Step 1: Create USER_ROADMAPS entry
+      const userRoadmap = await this.prisma.uSER_ROADMAPS_PROGRESS.create({
+        data: {
+          user_id: userId,
+          roadmap_id: roadmapId,
+          enrollment_status: EnrollmentStatus.ENROLLED,
+          completion_percentage: 0,
+          total_credits_earned: 0,
+          total_credits_required: totalCreditsRequired,
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+      });
 
-    return progress;
+      this.logger.log(`Created USER_ROADMAPS with id ${userRoadmap.id}`);
+
+      // Step 2: Initialize USER_NODE_PROGRESS for each course node
+      if (courseNodeIds.length > 0) {
+        await this.prisma.uSER_NODE_PROGRESS.createMany({
+          data: courseNodeIds.map((nodeId) => ({
+            user_roadmap_id: userRoadmap.id,
+            course_node_id: nodeId,
+            status: NodeProgressStatus.AVAILABLE,
+            credits_earned: 0,
+            created_at: new Date(),
+            updated_at: new Date(),
+          })),
+        });
+
+        this.logger.log(
+          `Initialized ${courseNodeIds.length} USER_NODE_PROGRESS rows`,
+        );
+      }
+
+      return {
+        id: userRoadmap.id,
+        user_id: userRoadmap.user_id,
+        roadmap_id: userRoadmap.roadmap_id,
+        enrollment_status: userRoadmap.enrollment_status,
+        completion_percentage: userRoadmap.completion_percentage,
+        total_credits_earned: userRoadmap.total_credits_earned,
+        total_credits_required: userRoadmap.total_credits_required,
+        created_at: userRoadmap.created_at.toISOString(),
+        updated_at: userRoadmap.updated_at.toISOString(),
+      };
+    } catch (error) {
+      this.logger.error(`Enrollment failed for user ${userId}: ${error}`);
+      throw error;
+    }
   }
 
-
-
-
-
-
-   //Find roadmap enrollment by userId and roadmapId
-  async isAlreadyEnrolled(userId: number, roadmapId: number): Promise<boolean> {
-    const existing = await this.prisma.uSER_ROADMAPS_PROGRESS.findFirst({
-        where: { user_id: userId, roadmap_id: roadmapId },
-    });
-    return !!existing; // Returns true if found, false if not
-    }   
-
-
-
-  
+  /**
+   * SUD-07: Get user roadmap overview (totals + per-node progress)
+   */
   async getUserRoadmapOverview(userRoadmapId: number, userId: number) {
-    
+    // Verify roadmap belongs to user
     const roadmap = await this.prisma.uSER_ROADMAPS_PROGRESS.findFirst({
       where: { id: userRoadmapId, user_id: userId },
     });
@@ -79,6 +111,7 @@ export class UserRoadmapsService {
       throw new NotFoundException('User roadmap not found');
     }
 
+    // Get node progress
     const nodeProgress = await this.prisma.uSER_NODE_PROGRESS.findMany({
       where: { user_roadmap_id: userRoadmapId },
       orderBy: { course_node_id: 'asc' },
@@ -92,11 +125,9 @@ export class UserRoadmapsService {
       totalCreditsRequired: roadmap.total_credits_required,
       nodeProgress: nodeProgress.map((p) => ({
         courseNodeId: p.course_node_id,
-        status: p.status as 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED',
+        status: p.status as NodeProgressStatus,
         creditsEarned: p.credits_earned,
       })),
     };
   }
 }
-
-  

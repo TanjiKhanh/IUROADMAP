@@ -2,6 +2,7 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { AdminServiceClient } from '../clients/admin-service.client';
 import { UserServiceClient } from '../clients/user-service.client';
+import { RoadmapCacheService } from './roadmap-cache.service';
 import {
   EnrollRoadmapRequestDto,
   EnrollmentSummaryDto,
@@ -12,6 +13,7 @@ export class EnrollmentsService {
   constructor(
     private readonly adminClient: AdminServiceClient,
     private readonly userClient: UserServiceClient,
+    private readonly roadmapCache: RoadmapCacheService,
   ) {}
 
   /**
@@ -27,10 +29,27 @@ export class EnrollmentsService {
 
     const major = await this.adminClient.getMajorBySlug(slug);
 
+
+    // Try cache graph first
+    let roadmapGraph = await this.roadmapCache.getGraph(major.id);
+
+    if (!roadmapGraph) {
+      // Cache miss, fetch from admin service and set cache
+      roadmapGraph = await this.adminClient.getRoadmapGraph(major.id);
+      if (!roadmapGraph) {
+        throw new ForbiddenException('Roadmap not found');
+      }
+      await this.roadmapCache.setGraph(major.id, roadmapGraph);
+    }
+
+
+    
+
     const enrollResult = await this.userClient.enrollUserToRoadmap({
       userId,
       roadmapId: major.id,
       totalCreditsRequired: major.total_credits,
+      courseNodeIds: roadmapGraph.nodes.map((n) => n.id),
     });
 
     const summary: EnrollmentSummaryDto = {

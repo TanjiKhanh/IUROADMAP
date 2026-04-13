@@ -50,5 +50,26 @@ export class AdminServiceClient {
     }
   }
 
+
+  async getCourseTopicsGraph(courseNodeId: number): Promise<any> {
+    try {
+      const { data } = await this.http.axiosRef.get(
+        `${process.env.ADMIN_SERVICE_URL}/admin/course-nodes/${courseNodeId}/topics-graph`,
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      
+      if (err.response?.status === HttpStatus.NOT_FOUND) {
+        throw new HttpException('Course topics graph not found', HttpStatus.NOT_FOUND);
+      }
+
+      throw new HttpException(
+        'Failed to fetch course topics graph',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
   
 }
