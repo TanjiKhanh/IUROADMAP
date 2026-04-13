@@ -1,5 +1,5 @@
 // user-service/src/user-roadmaps/user-roadmaps.controller.ts
-import { Body, Controller, Param, ParseIntPipe, Post, Req, UsePipes, ValidationPipe , Get } from '@nestjs/common';
+import { Body, Controller, Param, ParseIntPipe, Post, Req, UsePipes, ValidationPipe , Get , Patch } from '@nestjs/common';
 import { EnrollRoadmapDto } from '../dto/enroll-roadmap.dto';
 import { UserRoadmapsService } from '../services/user-roadmaps.service';
 
@@ -23,6 +23,19 @@ export class UserRoadmapsController {
     return this.service.getUserRoadmapOverview(userRoadmapId, userId);
   }
 
+
+
+  @Patch(':userRoadmapId/courses/:courseNodeId')
+  async updateCourseProgress(
+    @Param('userRoadmapId', ParseIntPipe) userRoadmapId: number,
+    @Param('courseNodeId', ParseIntPipe) courseNodeId: number,
+    @Body('creditsEarned') creditsEarned: number,
+    @Req() req: Request,
+  ) {
+    const userId = Number(req.headers['x-user-id']);
+    return this.service.updateCourseProgress(userRoadmapId, courseNodeId, creditsEarned, userId);
+
+  }
 
  
 

@@ -20,7 +20,7 @@ export class UserRoadmapsService {
   async enrollUserToRoadmap(
     dto: EnrollRoadmapDto,
   ): Promise<EnrollRoadmapResponseDto> {
-    const { userId, roadmapId, totalCreditsRequired, courseNodeIds } = dto;
+    const { userId, roadmapId, totalCreditsRequired, courseNodeIds  } = dto;
 
     this.logger.log(
       `Enrolling user ${userId} to roadmap ${roadmapId} with ${courseNodeIds.length} course nodes`,
@@ -129,5 +129,86 @@ export class UserRoadmapsService {
         creditsEarned: p.credits_earned,
       })),
     };
+  }
+
+  // SUD-08: Update course node progress + recalculate roadmap progress
+  // user-service/src/user-roadmaps/user-roadmaps.service.ts
+
+  async updateCourseProgress(
+    userRoadmapId: number,
+    courseNodeId: number,
+    creditsEarned: number,
+    userId: number,
+  ) {
+    // Verify roadmap belongs to user
+    const roadmap = await this.prisma.uSER_ROADMAPS_PROGRESS.findFirst({
+      where: { id: userRoadmapId, user_id: userId },
+    });
+
+    if (!roadmap) {
+      throw new NotFoundException('User roadmap not found');
+    }
+
+    //Check that the course node exists and belongs to the roadmap before updating/creating progress 
+
+    const nodeProgress = await this.prisma.uSER_NODE_PROGRESS.findFirst({
+      where: {
+        user_roadmap_id: userRoadmapId,
+        course_node_id: courseNodeId,
+      },
+    });
+
+    if (!nodeProgress) {
+      throw new NotFoundException('Course node not found in this roadmap');
+    }
+    
+    // Update existing node progress
+    await this.prisma.uSER_NODE_PROGRESS.updateMany({
+      where: {
+        user_roadmap_id: userRoadmapId,
+        course_node_id: courseNodeId,
+      },
+      data: {
+        status: NodeProgressStatus.COMPLETED,
+        credits_earned: creditsEarned,
+        updated_at: new Date(),
+      },
+    });
+
+
+
+    // Recalculate total_credits_earned from all COMPLETED nodes
+    const creditsAgg = await this.prisma.uSER_NODE_PROGRESS.aggregate({
+      where: {
+        user_roadmap_id: userRoadmapId,
+        status: NodeProgressStatus.COMPLETED,
+      },
+      _sum: {
+        credits_earned: true,
+      },
+    });
+
+    const totalCreditsEarned = creditsAgg._sum.credits_earned ?? 0;
+
+    // Recalculate completion_percentage using credits
+    const totalCreditsRequired = roadmap.total_credits_required;
+
+    const completionPercentage =
+      totalCreditsRequired === 0
+        ? 0
+        : Math.floor((totalCreditsEarned / totalCreditsRequired) * 100);
+
+    //  Update USER_ROADMAPS_PROGRESS with new totals
+    await this.prisma.uSER_ROADMAPS_PROGRESS.update({
+      where: { id: userRoadmapId },
+      data: {
+        total_credits_earned: totalCreditsEarned,
+        completion_percentage: completionPercentage,
+        updated_at: new Date(),
+      },
+    });
+
+    // Return updated overview (reuse existing overview method)
+    return this.getUserRoadmapOverview(userRoadmapId, userId);
   }
 }

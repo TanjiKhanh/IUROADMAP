@@ -306,6 +306,22 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get All Department",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Major",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
         }
       ]
     },
@@ -652,6 +668,55 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Mark Course as Completed",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "x-user-id",
+                "value": "29",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"creditsEarned\": 3\r\n}"
+            },
+            "url": {
+              "raw": "{{user-service_url}}/user/roadmaps/:userRoadmapId/courses/:courseNodeId",
+              "host": [
+                "{{user-service_url}}"
+              ],
+              "path": [
+                "user",
+                "roadmaps",
+                ":userRoadmapId",
+                "courses",
+                ":courseNodeId"
+              ],
+              "variable": [
+                {
+                  "key": "userRoadmapId",
+                  "value": "4"
+                },
+                {
+                  "key": "courseNodeId",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -807,6 +872,51 @@
                     {
                       "key": "slug",
                       "value": "computer-science"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Mark Course as Completed",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{student_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"creditsEarned\": \"\"\r\n}"
+                },
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/roadmaps/:userRoadmapId/courses/:courseNodeId",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "roadmaps",
+                    ":userRoadmapId",
+                    "courses",
+                    ":courseNodeId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userRoadmapId",
+                      "value": "7"
+                    },
+                    {
+                      "key": "courseNodeId",
+                      "value": "10"
                     }
                   ]
                 }

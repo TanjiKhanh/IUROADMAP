@@ -10,6 +10,20 @@ generator client {
   output   = "../src/generated/prisma-client"
 }
 
+
+model DEPARTMENTS {
+  id          Int        @id @default(autoincrement())
+  slug        String     @unique
+  name        String     // e.g. "Information Technology"
+  description String?
+
+  roadmaps    MAJOR_ROADMAPS[]  // majors under this department
+  created_at          DateTime                      @default(now())
+  updated_at          DateTime                      @updatedAt
+
+  @@map("departments")
+}
+
 // ================= ROADMAP & COURSES =================
 
 model MAJOR_ROADMAPS {
@@ -17,7 +31,10 @@ model MAJOR_ROADMAPS {
   slug                String                        @unique
   name                String
   total_credits       Int
+  description           String?
 
+  department_id       Int
+  department          DEPARTMENTS                    @relation(fields: [department_id], references: [id], onDelete: Cascade)
   courseNodes         COURSE_NODES[]
   created_at          DateTime                      @default(now())
   updated_at          DateTime                      @updatedAt

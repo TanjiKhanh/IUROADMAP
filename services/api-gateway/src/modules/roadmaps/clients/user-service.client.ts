@@ -117,4 +117,42 @@ export class UserServiceClient {
       );
     }
   }
+
+  async updateCourseProgress(params: {
+    userRoadmapId: number;
+    courseNodeId: number;
+    userId: number;
+    creditsEarned: number;
+  }): Promise<UserRoadmapOverview> {
+    try {
+      const { data } = await this.http.axiosRef.patch<UserRoadmapOverview>(
+        `${process.env.USER_SERVICE_URL}/user/roadmaps/${params.userRoadmapId}/courses/${params.courseNodeId}`,
+        {
+          creditsEarned: params.creditsEarned,
+        },
+        {
+          headers: {
+            'x-user-id': params.userId,
+          },
+        },
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      this.logger.error(
+        `updateCourseProgress failed: status=${err.response?.status} data=${JSON.stringify(
+          err.response?.data,
+        )}`,
+      );
+
+      if (err.response?.status === HttpStatus.NOT_FOUND) {
+        throw new HttpException('User roadmap or course node not found', HttpStatus.NOT_FOUND);
+      }
+
+      throw new HttpException(
+        'Failed to update course progress',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
 }

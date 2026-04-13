@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -34,4 +36,22 @@ export class RoadmapsController {
   ): Promise<MicroRoadmapResponseDto> {
     return this.roadmapsService.getMicroRoadmap({ courseNodeId });
   }
+
+  @Patch(':userRoadmapId/courses/:courseNodeId')
+  async updateCourseProgress(
+    @Param('userRoadmapId', ParseIntPipe) userRoadmapId: number,
+    @Param('courseNodeId', ParseIntPipe) courseNodeId: number,
+    @Body('creditsEarned') creditsEarned: number,
+    @Req() req: Request,
+  ) {
+    const user = (req as any).user;
+    return this.roadmapsService.markCourseComplete({
+      userRoadmapId,
+      courseNodeId,
+      creditsEarned,
+      user,
+    });
+  }
 }
+
+

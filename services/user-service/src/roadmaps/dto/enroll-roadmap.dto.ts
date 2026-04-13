@@ -18,6 +18,8 @@ export class EnrollRoadmapDto {
   @IsInt({ each: true })
   @IsNotEmpty()
   courseNodeIds: number[]; // List of all course node IDs for this roadmap
+
+ 
 }
 
 export class EnrollRoadmapResponseDto {
