@@ -1,11 +1,11 @@
 {
   "info": {
-    "_postman_id": "3f84bb57-e5f7-46e5-8be6-dc26e86b0069",
+    "_postman_id": "a8649829-a18a-446d-8746-b4a289cac399",
     "name": "GUPJOB - Complete API Testing",
     "description": "Complete collection for Auth, Admin, Mentor, and User Services with seeded database data.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "50592471",
-    "_collection_link": "https://go.postman.co/collection/50592471-3f84bb57-e5f7-46e5-8be6-dc26e86b0069?source=collection_link"
+    "_exporter_id": "50604278",
+    "_collection_link": "https://go.postman.co/collection/50604278-a8649829-a18a-446d-8746-b4a289cac399?source=collection_link"
   },
   "item": [
     {
@@ -25,7 +25,9 @@
                   "    console.log(\"✅ Student Token Set\");",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -39,12 +41,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"student1@example.com\",\n  \"password\": \"password123\"\n}"
+              "raw": "{\n  \"email\": \"student3@example.com\",\n  \"password\": \"password123\"\n}   "
             },
             "url": {
-              "raw": "{{gateway_url}}/auth/login",
+              "raw": "{{auth-service_url}}/auth/login",
               "host": [
-                "{{gateway_url}}"
+                "{{auth-service_url}}"
               ],
               "path": [
                 "auth",
@@ -68,7 +70,9 @@
                   "    console.log(\"✅ Mentor Token Set\");",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -85,11 +89,13 @@
               "raw": "{\n  \"email\": \"mentor1@example.com\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
-              "raw": "{{gateway_url}}/auth/login",
+              "raw": "{{auth-service_url}}/api/v1/auth/login",
               "host": [
-                "{{gateway_url}}"
+                "{{auth-service_url}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "auth",
                 "login"
               ]
@@ -111,7 +117,9 @@
                   "    console.log(\"✅ Admin Token Set\");",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -128,11 +136,13 @@
               "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
-              "raw": "{{gateway_url}}/auth/login",
+              "raw": "{{auth-service_url}}/api/v1/auth/login",
               "host": [
-                "{{gateway_url}}"
+                "{{auth-service_url}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "auth",
                 "login"
               ]
@@ -152,14 +162,16 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"newstudent@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New Student\",\n  \"role\": \"STUDENT\"\n}"
+              "raw": "{\n  \"email\": \"newstudent1@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New Student\",\n  \"role\": \"STUDENT\"\n}"
             },
             "url": {
-              "raw": "{{gateway_url}}/auth/register/learner",
+              "raw": "{{auth-service_url}}/api/v1/auth/register/learner",
               "host": [
-                "{{gateway_url}}"
+                "{{auth-service_url}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "auth",
                 "register",
                 "learner"
@@ -180,14 +192,16 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"newmentor@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New Mentor\",\n  \"role\": \"MENTOR\",\n  \"bio\": \"Passionate about teaching\",\n  \"linkedinUrl\": \"https://linkedin.com/in/newmentor\",\n  \"industry\": \"Tech\",\n  \"skills\": [\"Node.js\", \"React\", \"PostgreSQL\"]\n}"
+              "raw": "{\n  \"email\": \"newmentor1@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New Mentor\",\n  \"role\": \"MENTOR\",\n  \"bio\": \"Passionate about teaching\",\n  \"linkedinUrl\": \"https://linkedin.com/in/newmentor\",\n  \"industry\": \"Tech\",\n  \"cvUrl\": \"https://www.facebook.com/khanh.nguyentan.9210256\",\n  \"skills\": [\"Node.js\", \"React\", \"PostgreSQL\"]\n}"
             },
             "url": {
-              "raw": "{{gateway_url}}/auth/register/mentor",
+              "raw": "{{auth-service_url}}/api/v1/auth/register/mentor",
               "host": [
-                "{{gateway_url}}"
+                "{{auth-service_url}}"
               ],
               "path": [
+                "api",
+                "v1",
                 "auth",
                 "register",
                 "mentor"
@@ -202,7 +216,7 @@
       "name": "2. Admin Service",
       "item": [
         {
-          "name": "Get All Departments",
+          "name": "Get Course Roadmap Graph",
           "request": {
             "method": "GET",
             "header": [
@@ -212,51 +226,28 @@
               }
             ],
             "url": {
-              "raw": "{{gateway_url}}/admin/departments",
+              "raw": "{{admin-service}}/admin/major-roadmaps/:roadmapId/graph",
               "host": [
-                "{{gateway_url}}"
+                "{{admin-service}}"
               ],
               "path": [
                 "admin",
-                "departments"
+                "major-roadmaps",
+                ":roadmapId",
+                "graph"
+              ],
+              "variable": [
+                {
+                  "key": "roadmapId",
+                  "value": "1"
+                }
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Create Department",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Data Science\",\n  \"slug\": \"data-science\",\n  \"description\": \"Learn data science and machine learning\"\n}"
-            },
-            "url": {
-              "raw": "{{gateway_url}}/admin/departments",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "admin",
-                "departments"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Courses",
+          "name": "Get Topic Roadmap Graph",
           "request": {
             "method": "GET",
             "header": [
@@ -266,36 +257,21 @@
               }
             ],
             "url": {
-              "raw": "{{gateway_url}}/admin/courses",
+              "raw": "{{admin-service}}/admin/course-nodes/:courseNodeId/topics",
               "host": [
-                "{{gateway_url}}"
+                "{{admin-service}}"
               ],
               "path": [
                 "admin",
-                "courses"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Roadmaps",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{gateway_url}}/admin/roadmaps",
-              "host": [
-                "{{gateway_url}}"
+                "course-nodes",
+                ":courseNodeId",
+                "topics"
               ],
-              "path": [
-                "admin",
-                "roadmaps"
+              "variable": [
+                {
+                  "key": "courseNodeId",
+                  "value": "10"
+                }
               ]
             }
           },
@@ -312,14 +288,20 @@
               }
             ],
             "url": {
-              "raw": "{{gateway_url}}/admin/roadmaps/react-roadmap",
+              "raw": "{{admin-service}}/admin/major-roadmaps/:slug",
               "host": [
-                "{{gateway_url}}"
+                "{{admin-service}}"
               ],
               "path": [
                 "admin",
-                "roadmaps",
-                "react-roadmap"
+                "major-roadmaps",
+                ":slug"
+              ],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "computer-science"
+                }
               ]
             }
           },
@@ -562,12 +544,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"roadmapId\": 1\n}"
+              "raw": "{\n  \"userId\": 25,\n  \"roadmapId\": 1,\n  \"totalCreditsRequired\": 136,\n  \"courseNodeIds\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]\n}"
             },
             "url": {
-              "raw": "{{gateway_url}}/user/roadmaps/enroll",
+              "raw": "{{user-service_url}}/user/roadmaps/enroll",
               "host": [
-                "{{gateway_url}}"
+                "{{user-service_url}}"
               ],
               "path": [
                 "user",
@@ -579,82 +561,12 @@
           "response": []
         },
         {
-          "name": "Get My Roadmaps (Dashboard)",
+          "name": "Get Major Progress",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{gateway_url}}/user/roadmaps",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "user",
-                "roadmaps"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Roadmap Progress",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{gateway_url}}/user/roadmaps/1",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "user",
-                "roadmaps",
-                "1"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Node Details",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{gateway_url}}/user/roadmaps/1/nodes/react-intro",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "user",
-                "roadmaps",
-                "1",
-                "nodes",
-                "react-intro"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Node Status",
-          "request": {
-            "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
@@ -663,55 +575,44 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "x-user-id",
+                "value": "26",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"userNotesMd\": \"Started learning React introduction\"\n}"
+              "raw": "{\n  \"userId\": 26,\n  \"roadmapId\": 1,\n  \"totalCreditsRequired\": 136\n}"
             },
             "url": {
-              "raw": "{{gateway_url}}/user/roadmaps/1/nodes/react-intro",
+              "raw": "{{user-service_url}}/user/roadmaps/:userRoadmapId",
               "host": [
-                "{{gateway_url}}"
+                "{{user-service_url}}"
               ],
               "path": [
                 "user",
                 "roadmaps",
-                "1",
-                "nodes",
-                "react-intro"
+                ":userRoadmapId"
+              ],
+              "variable": [
+                {
+                  "key": "userRoadmapId",
+                  "value": "1"
+                }
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Get Learner Profile",
+          "name": "Get Major Overview",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{student_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{gateway_url}}/user/profile",
-              "host": [
-                "{{gateway_url}}"
-              ],
-              "path": [
-                "user",
-                "profile"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Learner Profile",
-          "request": {
-            "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
@@ -720,24 +621,273 @@
               {
                 "key": "Authorization",
                 "value": "Bearer {{student_token}}"
+              },
+              {
+                "key": "x-user-id",
+                "value": "29",
+                "type": "text"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"universityDepartment\": \"IU - Computer Science\",\n  \"major\": \"Computer Science\",\n  \"bio\": {\n    \"interests\": [\"Web Development\", \"AI\"],\n    \"goals\": \"Become a Full-Stack Developer\"\n  }\n}"
+              "raw": "{\n  \"userId\": 26,\n  \"roadmapId\": 1,\n  \"totalCreditsRequired\": 136\n}"
             },
             "url": {
-              "raw": "{{gateway_url}}/user/profile",
+              "raw": "{{user-service_url}}/user/roadmaps/:userRoadmapId/overview",
               "host": [
-                "{{gateway_url}}"
+                "{{user-service_url}}"
               ],
               "path": [
                 "user",
-                "profile"
+                "roadmaps",
+                ":userRoadmapId",
+                "overview"
+              ],
+              "variable": [
+                {
+                  "key": "userRoadmapId",
+                  "value": "4"
+                }
               ]
             }
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "Api Gateway",
+      "item": [
+        {
+          "name": "Auth Service",
+          "item": [
+            {
+              "name": "Login Student",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = pm.response.json();",
+                      "if (jsonData.access_token) {",
+                      "    pm.collectionVariables.set(\"student_token\", jsonData.access_token);",
+                      "    pm.collectionVariables.set(\"student_id\", jsonData.user.id);",
+                      "    console.log(\"✅ Student Token Set\");",
+                      "}"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"student2@example.com\",\n  \"password\": \"password123\"\n}   "
+                },
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/auth/login",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register Student",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"newstudent1@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New Student\",\n  \"role\": \"STUDENT\"\n}"
+                },
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/auth/register/learner",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "register",
+                    "learner"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register Mentor",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"newmentor1@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"New Mentor\",\n  \"role\": \"MENTOR\",\n  \"bio\": \"Passionate about teaching\",\n  \"linkedinUrl\": \"https://linkedin.com/in/newmentor\",\n  \"industry\": \"Tech\",\n  \"cvUrl\": \"https://www.facebook.com/khanh.nguyentan.9210256\",\n  \"skills\": [\"Node.js\", \"React\", \"PostgreSQL\"]\n}"
+                },
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/auth/register/mentor",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "register",
+                    "mentor"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Roadmap",
+          "item": [
+            {
+              "name": "Enroll in Roadmap",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{student_token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/roadmaps/:slug/enroll",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "roadmaps",
+                    ":slug",
+                    "enroll"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "computer-science"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Macro Roadmap",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{student_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/roadmaps/:userRoadmapId",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "roadmaps",
+                    ":userRoadmapId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userRoadmapId",
+                      "value": "6"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Micro Roadmap",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{student_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{gateway_url}}/api/v1/roadmaps/:userRoadmapId",
+                  "host": [
+                    "{{gateway_url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "roadmaps",
+                    ":userRoadmapId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "userRoadmapId",
+                      "value": "6"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
       ]
     }
