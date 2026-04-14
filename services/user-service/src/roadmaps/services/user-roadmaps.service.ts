@@ -211,4 +211,13 @@ export class UserRoadmapsService {
     // Return updated overview (reuse existing overview method)
     return this.getUserRoadmapOverview(userRoadmapId, userId);
   }
+
+
+  async getUserRoadmapsSummaries(userId: number) {
+    const roadmaps = await this.prisma.uSER_ROADMAPS_PROGRESS.findMany({
+      where: { user_id: userId },
+      orderBy: { created_at: 'desc' },
+    });
+    return roadmaps;
+  }
 }

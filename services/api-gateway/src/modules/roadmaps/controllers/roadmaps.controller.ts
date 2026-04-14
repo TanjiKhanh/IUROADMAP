@@ -10,13 +10,22 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { RoadmapsService } from '../services/roadmaps.service';
-import { MacroRoadmapResponseDto, MicroRoadmapResponseDto } from '../dtos';
+import { MacroRoadmapResponseDto, MicroRoadmapResponseDto, UserRoadmapSummaryDto } from '../dtos';
 import { JwtGuard } from '../../../common/guards/jwt.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 
 @Controller('api/v1/roadmaps')
 export class RoadmapsController {
   constructor(private readonly roadmapsService: RoadmapsService) {}
+
+  @UseGuards(JwtGuard)
+  @Roles('STUDENT', 'ADMIN')
+  @Get('my')
+  async getMyRoadmaps(@Req() req: Request): Promise<UserRoadmapSummaryDto[]> {
+    const user = (req as any).user;
+    const userId = user.userId || user.id || user.sub;
+    return this.roadmapsService.getUserRoadmapsSummaries(userId);
+  }
 
   @UseGuards(JwtGuard)
   @Roles('STUDENT') 
@@ -52,6 +61,7 @@ export class RoadmapsController {
       user,
     });
   }
+
 }
 
 

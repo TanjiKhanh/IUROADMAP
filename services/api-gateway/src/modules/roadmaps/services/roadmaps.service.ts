@@ -8,6 +8,7 @@ import {
   MacroRoadmapNodeDto,
   MicroRoadmapResponseDto,
   MicroTopicNodeDto,
+  UserRoadmapSummaryDto,
 } from '../dtos';
 
 @Injectable()
@@ -172,5 +173,51 @@ export class RoadmapsService {
       nodes: mergedNodes,
       edges: graph.edges,
     };
+  }
+
+
+
+  async getUserRoadmapsSummaries(userId: number): Promise<UserRoadmapSummaryDto[]> {
+    const roadmaps = await this.userClient.getUserRoadmaps(userId);
+    if (!roadmaps.length) return [];
+
+    const majors = await this.adminClient.getMajors();
+    const majorById = new Map<number, any>(
+      majors.map((m: any) => [m.id, m]),
+    );
+
+    const overviewResults = await Promise.allSettled(
+      roadmaps.map((r) =>
+        this.userClient.getUserRoadmapOverview({
+          userRoadmapId: r.id,
+          userId,
+        }),
+      ),
+    );
+
+    return roadmaps.map((r, index) => {
+      const major = majorById.get(r.roadmap_id);
+      const overview =
+        overviewResults[index].status === 'fulfilled'
+          ? overviewResults[index].value
+          : null;
+
+      const totalNodes = overview?.nodeProgress?.length ?? 0;
+      const completedNodes =
+        overview?.nodeProgress?.filter((n) => n.status === 'COMPLETED').length ??
+        0;
+
+      return {
+        id: r.id,
+        userId: r.user_id,
+        title: major?.name ?? `Roadmap ${r.roadmap_id}`,
+        slug: major?.slug ?? `roadmap-${r.roadmap_id}`,
+        progressPercent: r.completion_percentage ?? 0,
+        totalNodes,
+        completedNodes,
+        startDate: r.created_at,
+        updatedAt: r.updated_at,
+      };
+    });
   }
 }

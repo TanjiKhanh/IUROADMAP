@@ -24,6 +24,28 @@ export interface UserRoadmapProgressDetail {
   edges: UserRoadmapEdge[];
 }
 
+export interface MicroTopicNode {
+  id: number;
+  slug: string;
+  title: string;
+  description?: string | null;
+  coords?: { x?: number; y?: number } | null;
+  learning_objectives?: string | null;
+  resources_url?: string | null;
+}
+
+export interface MicroTopicEdge {
+  id: number;
+  from: number;
+  to: number;
+}
+
+export interface MicroRoadmapResponse {
+  courseNodeId: number;
+  topics: MicroTopicNode[];
+  edges: MicroTopicEdge[];
+}
+
 export const roadmapService = {
   /**
    * Enroll/clone a major roadmap by slug.
@@ -41,5 +63,14 @@ export const roadmapService = {
   getUserRoadmapDetail: async (userRoadmapId: number) => {
     const data = await api.get<UserRoadmapProgressDetail>(`/api/v1/roadmaps/${userRoadmapId}`);
     return data as unknown as UserRoadmapProgressDetail;
+  },
+
+  /**
+   * Fetch a micro roadmap for a specific course node.
+   * GET /api/v1/roadmaps/course-nodes/:courseNodeId/micro
+   */
+  getMicroRoadmap: async (courseNodeId: number) => {
+    const data = await api.get<MicroRoadmapResponse>(`/api/v1/roadmaps/course-nodes/${courseNodeId}/micro`);
+    return data as unknown as MicroRoadmapResponse;
   },
 };

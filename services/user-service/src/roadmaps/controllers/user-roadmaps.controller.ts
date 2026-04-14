@@ -37,6 +37,12 @@ export class UserRoadmapsController {
 
   }
 
+  @Get('my')
+  async getMyRoadmaps(@Req() req: Request) {
+    const userId = Number(req.headers['x-user-id']);
+    return this.service.getUserRoadmapsSummaries(userId);
+  }
+
  
 
 }

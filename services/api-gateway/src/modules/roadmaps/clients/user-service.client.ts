@@ -4,6 +4,18 @@ import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { AxiosError } from 'axios';
 import { UserServiceEnrollResponse , UserRoadmapOverview } from '../interfaces';
 
+export interface UserRoadmapProgressRow {
+  id: number;
+  user_id: number;
+  roadmap_id: number;
+  enrollment_status: string;
+  completion_percentage: number;
+  total_credits_earned: number;
+  total_credits_required: number;
+  created_at: string;
+  updated_at: string;
+}
+
 @Injectable()
 export class UserServiceClient {
   constructor(private readonly http: HttpService) {}
@@ -151,6 +163,32 @@ export class UserServiceClient {
 
       throw new HttpException(
         'Failed to update course progress',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+
+  async getUserRoadmaps(userId: number): Promise<UserRoadmapProgressRow[]> {
+    try {
+      const { data } = await this.http.axiosRef.get<UserRoadmapProgressRow[]>(
+        `${process.env.USER_SERVICE_URL}/user/roadmaps/my`,
+        {
+          headers: {
+            'x-user-id': userId,
+          },
+        },
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      this.logger.error(
+        `getUserRoadmaps failed: status=${err.response?.status} data=${JSON.stringify(
+          err.response?.data,
+        )}`,
+      );
+      throw new HttpException(
+        'Failed to fetch user roadmaps',
         HttpStatus.BAD_GATEWAY,
       );
     }
