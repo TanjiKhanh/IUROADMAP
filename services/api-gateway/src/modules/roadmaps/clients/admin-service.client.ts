@@ -6,7 +6,9 @@ import { AdminRoadmapGraph, MajorMeta } from '../interfaces';
 
 @Injectable()
 export class AdminServiceClient {
-  constructor(private readonly http: HttpService) {}
+  constructor(
+    private readonly http: HttpService,
+  ) {}
 
   async getMajorBySlug(slug: string): Promise<MajorMeta> {
     try {
@@ -71,5 +73,36 @@ export class AdminServiceClient {
     }
   }
 
+  async getDepartments(): Promise<any[]> {
+    try {
+      const { data } = await this.http.axiosRef.get(
+        `${process.env.ADMIN_SERVICE_URL}/admin/management/departments`,
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        'Failed to fetch departments',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async getMajors(departmentSlug?: string): Promise<any[]> {
+    try {
+      const url = departmentSlug
+        ? `${process.env.ADMIN_SERVICE_URL}/admin/management/majors?departmentSlug=${departmentSlug}`
+        : `${process.env.ADMIN_SERVICE_URL}/admin/management/majors`;
+
+      const { data } = await this.http.axiosRef.get(url);
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        'Failed to fetch majors',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
   
 }

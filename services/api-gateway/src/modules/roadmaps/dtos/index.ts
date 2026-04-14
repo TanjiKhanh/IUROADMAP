@@ -4,3 +4,4 @@ export * from './roadmap.dto';
 export * from './enrollment.dto';
 export * from './macro-roadmap.dto';
 export * from './micro-roadmap.dto';
+export * from './explore-majors-response.dto';
