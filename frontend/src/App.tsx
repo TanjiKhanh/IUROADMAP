@@ -11,6 +11,7 @@ import ForgotPassword from './pages/public/ForgotPassword';
 import LearnerDashboard from './pages/learner/LearnerDashboard';
 import MyCourses from './pages/learner/MyCourse';
 import RoadmapDetail from './pages/learner/RoadmapDetail';
+import ExploreMajors from './pages/learner/ExploreMajors';
 
 // Pages - Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -73,6 +74,7 @@ export default function App() {
               }
             >
               <Route index element={<LearnerDashboard />} />
+              <Route path="explore" element={<ExploreMajors />} />
               <Route path="my-courses" element={<MyCourses />} />
               <Route path="mentors" element={<FindMentors />} />
               {/* Note: Roadmap Detail removed from here to allow fullscreen */}

@@ -65,7 +65,7 @@ export const userService = {
   // 📊 DASHBOARD & LISTS
   // ==========================================
   getMyRoadmaps: async () => {
-    const data = await api.get<UserRoadmapSummary[]>('/api/v1/user/roadmaps/my');
+    const data = await api.get<UserRoadmapSummary[]>('/api/v1/roadmaps/my');
     console.log("Fetched User Roadmaps Summary:", data);
     return data;
   },

@@ -60,6 +60,10 @@ export default function Sidebar() {
         <span>📊</span> Dashboard
       </NavLink>
 
+      <NavLink to="/dashboard/explore" className={getNavLinkClass}>
+        <span>🎓</span> Explore Majors
+      </NavLink>
+
       <NavLink to="/dashboard/my-courses" 
         className={({ isActive }) => 
           // Active if matches exactly OR if we are inside a roadmap detail view
