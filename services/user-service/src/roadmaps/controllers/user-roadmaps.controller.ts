@@ -29,11 +29,12 @@ export class UserRoadmapsController {
   async updateCourseProgress(
     @Param('userRoadmapId', ParseIntPipe) userRoadmapId: number,
     @Param('courseNodeId', ParseIntPipe) courseNodeId: number,
+    @Body('status') status: 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED',
     @Body('creditsEarned') creditsEarned: number,
     @Req() req: Request,
   ) {
     const userId = Number(req.headers['x-user-id']);
-    return this.service.updateCourseProgress(userRoadmapId, courseNodeId, creditsEarned, userId);
+    return this.service.updateCourseProgress(userRoadmapId, courseNodeId, status, creditsEarned, userId);
 
   }
 

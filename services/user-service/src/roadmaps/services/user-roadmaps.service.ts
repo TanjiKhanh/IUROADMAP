@@ -1,5 +1,6 @@
 import {
   Injectable,
+  BadRequestException,
   ConflictException,
   NotFoundException,
   Logger,
@@ -137,9 +138,24 @@ export class UserRoadmapsService {
   async updateCourseProgress(
     userRoadmapId: number,
     courseNodeId: number,
+    status: 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED',
     creditsEarned: number,
     userId: number,
   ) {
+    const allowedStatuses = ['AVAILABLE', 'IN_PROGRESS', 'COMPLETED'] as const;
+    const normalizedStatus = String(status || '').toUpperCase();
+
+    if (!allowedStatuses.includes(normalizedStatus as (typeof allowedStatuses)[number])) {
+      throw new BadRequestException('Invalid status. Allowed values: AVAILABLE, IN_PROGRESS, COMPLETED');
+    }
+
+    const statusEnum = normalizedStatus as NodeProgressStatus;
+
+    const normalizedCreditsEarned =
+      statusEnum === NodeProgressStatus.COMPLETED
+        ? Math.max(0, Number(creditsEarned || 0))
+        : 0;
+
     // Verify roadmap belongs to user
     const roadmap = await this.prisma.uSER_ROADMAPS_PROGRESS.findFirst({
       where: { id: userRoadmapId, user_id: userId },
@@ -169,8 +185,8 @@ export class UserRoadmapsService {
         course_node_id: courseNodeId,
       },
       data: {
-        status: NodeProgressStatus.COMPLETED,
-        credits_earned: creditsEarned,
+        status: statusEnum,
+        credits_earned: normalizedCreditsEarned,
         updated_at: new Date(),
       },
     });

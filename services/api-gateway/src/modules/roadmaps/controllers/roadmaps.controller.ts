@@ -10,7 +10,12 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { RoadmapsService } from '../services/roadmaps.service';
-import { MacroRoadmapResponseDto, MicroRoadmapResponseDto, UserRoadmapSummaryDto } from '../dtos';
+import {
+  MacroRoadmapNodeDto,
+  MacroRoadmapResponseDto,
+  MicroRoadmapResponseDto,
+  UserRoadmapSummaryDto,
+} from '../dtos';
 import { JwtGuard } from '../../../common/guards/jwt.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
 
@@ -46,10 +51,13 @@ export class RoadmapsController {
     return this.roadmapsService.getMicroRoadmap({ courseNodeId });
   }
 
+  @UseGuards(JwtGuard)
+  @Roles('STUDENT', 'ADMIN')
   @Patch(':userRoadmapId/courses/:courseNodeId')
   async updateCourseProgress(
     @Param('userRoadmapId', ParseIntPipe) userRoadmapId: number,
     @Param('courseNodeId', ParseIntPipe) courseNodeId: number,
+    @Body('status') status: MacroRoadmapNodeDto['status'],
     @Body('creditsEarned') creditsEarned: number,
     @Req() req: Request,
   ) {
@@ -57,6 +65,7 @@ export class RoadmapsController {
     return this.roadmapsService.markCourseComplete({
       userRoadmapId,
       courseNodeId,
+      status,
       creditsEarned,
       user,
     });

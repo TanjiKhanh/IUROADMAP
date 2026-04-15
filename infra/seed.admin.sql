@@ -68,35 +68,36 @@ INSERT INTO admin.course_nodes (
   updated_at
 ) VALUES
   -- Intro & Math foundation
-  (1,  1, 'intro-to-programming',       'Intro To Programming',        '{"x":100,"y":40}',  4,
+  (1,  1, 'intro-to-programming',       'Intro To Programming',        '{"x":234,"y":91}',   4,
    'Fundamentals of programming using a high-level language.', NOW(), NOW()),
-  (2,  1, 'c-calculus-1',               'Calculus 1',                  '{"x":100,"y":140}', 4,
+  (2,  1, 'c-calculus-1',               'Calculus 1',                  '{"x":234,"y":299}',  4,
    'Limits, derivatives, and basic integration techniques.', NOW(), NOW()),
-  (3,  1, 'calculus-2',                 'Calculus 2',                  '{"x":260,"y":140}', 4,
+  (3,  1, 'calculus-2',                 'Calculus 2',                  '{"x":598,"y":299}',  4,
    'Advanced integration, sequences, and series.', NOW(), NOW()),
-  (4,  1, 'linear-algebra',             'Linear Algebra',              '{"x":260,"y":240}', 4,
-   'Matrices, vectors, eigenvalues, eigenvectors, and linear transformations.', NOW(), NOW()),
-  (5,  1, 'probability-statistics',     'Probability & Statistics',    '{"x":420,"y":140}', 3,
+  (5,  1, 'probability-statistics',     'Probability & Statistics',    '{"x":962,"y":299}',  3,
    'Probability theory and basic statistics for engineers.', NOW(), NOW()),
-  (6,  1, 'discrete-mathematics',       'Discrete Mathematics',        '{"x":420,"y":240}', 3,
+
+  (4,  1, 'linear-algebra',             'Linear Algebra',              '{"x":598,"y":507}',  4,
+   'Matrices, vectors, eigenvalues, eigenvectors, and linear transformations.', NOW(), NOW()),
+  (6,  1, 'discrete-mathematics',       'Discrete Mathematics',        '{"x":962,"y":507}',  3,
    'Logic, sets, combinatorics, graphs, and proof techniques.', NOW(), NOW()),
 
   -- Programming & systems core
-  (7,  1, 'c-cpp-programming',          'C/C++ Programming',           '{"x":100,"y":260}', 4,
+  (7,  1, 'c-cpp-programming',          'C/C++ Programming',           '{"x":234,"y":507}',  4,
    'Structured and object-oriented programming in C/C++.', NOW(), NOW()),
-  (8,  1, 'object-oriented-programming','Object-Oriented Programming', '{"x":260,"y":360}', 4,
+  (8,  1, 'object-oriented-programming','Object-Oriented Programming', '{"x":598,"y":715}',  4,
    'OOP concepts: classes, inheritance, polymorphism, design principles.', NOW(), NOW()),
-  (9,  1, 'computer-network',           'Computer Network',            '{"x":260,"y":460}', 4,
+  (9,  1, 'computer-network',           'Computer Network',            '{"x":962,"y":715}',  4,
    'Fundamentals of computer networking and protocols.', NOW(), NOW()),
 
   -- CS core: DS & Algorithms, Web, IoT, AI
-  (10, 1, 'algorithms-data-structure',  'Algorithms & Data Structure', '{"x":420,"y":360}', 4,
-   'Fundamental data structures and algorithms for problem solving.', NOW(), NOW()),
-  (11, 1, 'web-application-development','Web Application Development', '{"x":580,"y":360}', 4,
-   'Frontend & backend web development fundamentals.', NOW(), NOW()),
-  (12, 1, 'internet-of-things',         'Internet of Things',          '{"x":420,"y":460}', 4,
+  (12, 1, 'internet-of-things',         'Internet of Things',          '{"x":962,"y":923}',  4,
    'Embedded systems and IoT communication basics.', NOW(), NOW()),
-  (13, 1, 'artificial-intelligence',    'Artificial Intelligence',     '{"x":740,"y":460}', 4,
+  (10, 1, 'algorithms-data-structure',  'Algorithms & Data Structure', '{"x":1326,"y":715}', 4,
+   'Fundamental data structures and algorithms for problem solving.', NOW(), NOW()),
+  (11, 1, 'web-application-development','Web Application Development', '{"x":1326,"y":923}', 4,
+   'Frontend & backend web development fundamentals.', NOW(), NOW()),
+  (13, 1, 'artificial-intelligence',    'Artificial Intelligence',     '{"x":1690,"y":819}', 4,
    'Search, knowledge representation, and basic machine learning.', NOW(), NOW())
 ON CONFLICT (id) DO NOTHING;
 

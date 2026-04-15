@@ -6,6 +6,7 @@ export class CourseNodesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getFormattedRoadmapGraph(roadmapId: number) {
+
     const nodes = await this.prisma.cOURSE_NODES.findMany({
       where: { roadmap_id: roadmapId },
       orderBy: { id: 'asc' },

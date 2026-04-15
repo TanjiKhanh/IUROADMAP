@@ -64,9 +64,11 @@ export class RoadmapsService {
       return {
         id: n.id,
         slug: n.slug,
+        coords: n.coords,
         name: n.name,
         credits: n.credits,
         status,
+        description: n.description,
       };
     });
 
@@ -113,16 +115,18 @@ export class RoadmapsService {
   async markCourseComplete(params: {
     userRoadmapId: number;
     courseNodeId: number;
+    status: MacroRoadmapNodeDto['status'];
     creditsEarned: number;
     user: { sub: number; role: string; id?: number };
   }): Promise<MacroRoadmapResponseDto> {
-    const { userRoadmapId, courseNodeId, creditsEarned, user } = params;
+    const { userRoadmapId, courseNodeId, status, creditsEarned, user } = params;
     const userId = (user as any).id ?? user.sub;
 
     // 1. Update progress in User Service and get updated overview
     const overview = await this.userClient.updateCourseProgress({
       userRoadmapId,
       courseNodeId,
+      status,
       creditsEarned,
       userId,
     });
@@ -157,9 +161,11 @@ export class RoadmapsService {
       return {
         id: n.id,
         slug: n.slug,
+        coords: n.coords,
         name: n.name,
         credits: n.credits,
         status,
+        description: n.description,
       };
     });
 

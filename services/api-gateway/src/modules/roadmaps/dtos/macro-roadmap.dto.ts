@@ -3,6 +3,7 @@ export class MacroRoadmapNodeDto {
   slug: string;
   name: string;
   credits: number;
+  coords?: { x?: number; y?: number } | null;
   status: 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED';
 }
 
@@ -14,6 +15,7 @@ export class MacroRoadmapEdgeDto {
 
 export class MacroRoadmapResponseDto {
   userRoadmapId: number;
+  description?: string | null;
   roadmapId: number;
   completion_percentage: number;
   total_credits_earned: number;

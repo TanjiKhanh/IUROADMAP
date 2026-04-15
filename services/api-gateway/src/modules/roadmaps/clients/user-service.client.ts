@@ -134,12 +134,14 @@ export class UserServiceClient {
     userRoadmapId: number;
     courseNodeId: number;
     userId: number;
+    status: 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED';
     creditsEarned: number;
   }): Promise<UserRoadmapOverview> {
     try {
       const { data } = await this.http.axiosRef.patch<UserRoadmapOverview>(
         `${process.env.USER_SERVICE_URL}/user/roadmaps/${params.userRoadmapId}/courses/${params.courseNodeId}`,
         {
+          status: params.status,
           creditsEarned: params.creditsEarned,
         },
         {

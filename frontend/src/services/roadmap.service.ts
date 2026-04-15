@@ -3,10 +3,14 @@ import api from './api';
 export interface UserRoadmapDetailNode {
   id: number;
   slug: string;
+  coords?: { x: number; y: number } | null;
   name: string;
   credits: number;
-  status: 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED' | 'SKIPPED' | 'LOCKED';
+  status: 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED';
+  description?: string | null;
 }
+
+export type MacroCourseStatus = 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED';
 
 export interface UserRoadmapEdge {
   id: number;
@@ -46,6 +50,11 @@ export interface MicroRoadmapResponse {
   edges: MicroTopicEdge[];
 }
 
+export interface UpdateCourseStatusPayload {
+  status: MacroCourseStatus;
+  creditsEarned: number;
+}
+
 export const roadmapService = {
   /**
    * Enroll/clone a major roadmap by slug.
@@ -72,5 +81,18 @@ export const roadmapService = {
   getMicroRoadmap: async (courseNodeId: number) => {
     const data = await api.get<MicroRoadmapResponse>(`/api/v1/roadmaps/course-nodes/${courseNodeId}/micro`);
     return data as unknown as MicroRoadmapResponse;
+  },
+
+  /**
+   * Update status of a course node in a user roadmap.
+   * PATCH /api/v1/roadmaps/:userRoadmapId/courses/:courseNodeId
+   */
+  updateCourseStatus: async (
+    userRoadmapId: number,
+    courseNodeId: number,
+    payload: UpdateCourseStatusPayload
+  ) => {
+    const data = await api.patch(`/api/v1/roadmaps/${userRoadmapId}/courses/${courseNodeId}`, payload);
+    return data;
   },
 };

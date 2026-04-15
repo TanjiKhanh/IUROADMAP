@@ -142,7 +142,9 @@ export default function MyCourses() {
 
                     <div 
                       className="action-link"
-                      onClick={() => navigate(`/dashboard/roadmap/${course.id}`)}
+                      onClick={() => navigate(`/dashboard/roadmap/${course.id}`, {
+                        state: { roadmapTitle: course.title }
+                      })}
                     >
                       {status.label}
                     </div>

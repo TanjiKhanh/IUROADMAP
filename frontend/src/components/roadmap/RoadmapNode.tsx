@@ -3,79 +3,62 @@ import { Handle, Position, NodeProps } from 'reactflow';
 
 export interface RoadmapNodeData {
   title: string;
-  status:  'COMPLETED' | 'IN_PROGRESS' | 'AVAILABLE' | 'SKIPPED';
+  status: 'COMPLETED' | 'IN_PROGRESS' | 'AVAILABLE' ;
   summary?: string;
 }
 
 const RoadmapNode = ({ data, selected }: NodeProps<RoadmapNodeData>) => {
-  
-  // 🎨 Style Configuration based on Status
-  const getStatusConfig = (status: string) => {
+  const getStatusConfig = (status: RoadmapNodeData['status']) => {
     switch (status) {
-      case 'COMPLETED': 
-        return { 
-          styleClass: 'node-verified', 
-          icon: '✓', 
-          badgeText: 'Verified',
-          handleColor: '#A855F7' // Purple
-        };
-      case 'IN_PROGRESS': 
-        return { 
-          styleClass: 'node-in-progress', 
-          icon: '⟳', 
-          badgeText: 'In Progress', 
-          handleColor: '#EAB308' // Yellow
-        };
-      case 'SKIPPED':
+      case 'COMPLETED':
         return {
-          styleClass: 'node-skipped',
-          icon: '⏭',
-          badgeText: 'Skipped',
-          handleColor: '#94a3b8'
+          styleClass: 'node-completed',
+          icon: '✓',
+          badgeText: 'COMPLETED',
+          handleColor: '#16a34a',
         };
+      case 'IN_PROGRESS':
+        return {
+          styleClass: 'node-in-progress',
+          icon: '◔',
+          badgeText: 'IN PROGRESS',
+          handleColor: '#f59e0b',
+        };
+      
       default: 
-        return { 
-          styleClass: 'node-available', 
-          icon: '▶', 
-          badgeText: 'Available', 
-          handleColor: '#3B82F6' // Blue
+        return {
+          styleClass: 'node-available',
+          icon: '•',
+          badgeText: 'AVAILABLE',
+          handleColor: '#3b82f6',
         };
     }
   };
 
-  const config = getStatusConfig(data.status || 'LOCKED');
+  const config = getStatusConfig(data.status || 'AVAILABLE');
 
   return (
     <div className={`roadmap-node-card ${config.styleClass} ${selected ? 'selected' : ''}`}>
-      
-      {/* Left Connection Handle */}
       <Handle 
         type="target" 
         position={Position.Left} 
         className="node-handle"
-        style={{ borderColor: config.handleColor }}
+        style={{ borderColor: config.handleColor, background: '#ffffff' }}
       />
 
-      {/* Header: Badge (Left) & Icon (Right) */}
-      <div className="node-header">
-        <span className="node-badge">{config.badgeText}</span>
-        <span className="node-icon">{config.icon}</span>
-      </div>
-      
-      {/* Content */}
-      <div className="node-content">
-        <h3 className="node-title">{data.title}</h3>
-        <p className="node-summary">
-          {data.summary || "Master this topic to unlock new skills."}
-        </p>
+      <div className="node-status-row">
+        <span className="node-status-label">{config.badgeText}</span>
+        <span className="node-status-icon" aria-hidden="true">{config.icon}</span>
       </div>
 
-      {/* Right Connection Handle */}
+      <h3 className="node-title">{data.title}</h3>
+      <p className="node-meta">{data.summary || 'No code information'}</p>
+
       <Handle 
         type="source" 
         position={Position.Right} 
         className="node-handle"
-        style={{ borderColor: config.handleColor }}
+        style={{ borderColor: config.handleColor, background: '#ffffff' }}
       />
     </div>
   );
