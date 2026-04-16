@@ -6,6 +6,8 @@ export interface Department {
   name: string;
   slug: string;
   description?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Course {
@@ -47,28 +49,27 @@ export const adminService = {
   // 📂 DEPARTMENTS
   // ==========================================
   getAllDepartments: async () => {
-    // 💡 FIX: Cast the result so TypeScript knows it's an Array, not an AxiosResponse
-    const data = await api.get<Department[]>('/api/v1/admin/departments');
+    const data = await api.get<Department[]>('/api/v1/departments');
     return data as unknown as Department[];
   },
 
-  getDepartmentBySlug: async (slug: string) => {
-    const data = await api.get<Department>(`/api/v1/admin/departments/${slug}`);
+  getDepartmentById: async (id: number) => {
+    const data = await api.get<Department>(`/api/v1/departments/${id}`);
     return data as unknown as Department;
   },
 
   createDepartment: async (payload: Department) => {
-    const data = await api.post<Department>('/api/v1/admin/departments', payload);
+    const data = await api.post<Department>('/api/v1/departments', payload);
     return data as unknown as Department;
   },
 
   updateDepartment: async (id: number, payload: Partial<Department>) => {
-    const data = await api.patch<Department>(`/api/v1/admin/departments/${id}`, payload);
+    const data = await api.patch<Department>(`/api/v1/departments/${id}`, payload);
     return data as unknown as Department;
   },
 
   deleteDepartment: async (id: number) => {
-    const data = await api.delete(`/api/v1/admin/departments/${id}`);
+    const data = await api.delete(`/api/v1/departments/${id}`);
     return data as unknown as any;
   },
 

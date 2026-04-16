@@ -4,8 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RoadmapsModule } from './modules/roadmaps/roadmaps.module';
 import {AuthModule} from './modules/auth/auth.module';  
-import { RoleGuard, JwtGuard } from './common/guards';
-import { APP_GUARD } from '@nestjs/core';
+import {  AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -14,7 +13,8 @@ import { APP_GUARD } from '@nestjs/core';
       envFilePath: '.env',
     }),
     RoadmapsModule,
-    AuthModule
+    AuthModule,
+    AdminModule
   ],
   providers: [
   ],

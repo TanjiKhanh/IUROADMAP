@@ -15,12 +15,6 @@ export default function Header({ title, subtitle }: HeaderProps) {
         <h1>{title}</h1>
         {subtitle && <p>{subtitle}</p>}
       </div>
-      <div className="user-profile">
-        <button className="notification-btn">🔔</button>
-        <div className="avatar">
-          {user?.email?.[0]?.toUpperCase() || 'U'}
-        </div>
-      </div>
     </header>
   );
 }

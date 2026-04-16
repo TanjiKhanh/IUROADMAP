@@ -7,16 +7,24 @@ import { TopicsRoadmapService } from './services/topics_roadmap.service';
 import { MajorsService } from './services/majors.service';
 import { ManagementController } from './controller/management.controller';
 import { ManagementService } from './services/management.service';
+import { DepartmentsController } from './controller/departments.controller';
+import { DepartmentsService } from './services/departments.service';
 
 
 @Module({
-  controllers: [CourseRoadmapsController , TopicsRoadmapsController , ManagementController],
+  controllers: [
+    CourseRoadmapsController,
+    TopicsRoadmapsController,
+    ManagementController,
+    DepartmentsController,
+  ],
   providers: [
     PrismaService,
     CourseNodesService,
     TopicsRoadmapService,
     MajorsService,
-    ManagementService
+    ManagementService,
+    DepartmentsService,
 
   ],
   exports: [CourseNodesService, TopicsRoadmapService],
