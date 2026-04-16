@@ -14,7 +14,11 @@ import { ExploreRoadmapsController } from './controllers/exploration-roadmap.con
 import { ExploreMajorsService } from './services/explore-majors.service';
 @Module({
   imports: [HttpModule, CacheModule.register()],
-  controllers: [RoadmapsController, EnrollmentsController, ExploreRoadmapsController],
+  controllers: [
+    RoadmapsController,
+    EnrollmentsController,
+    ExploreRoadmapsController,
+  ],
   providers: [
     RoadmapsService,
     EnrollmentsService,

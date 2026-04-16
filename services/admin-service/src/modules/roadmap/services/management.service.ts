@@ -54,4 +54,26 @@ export class ManagementService {
         : null,
     }));
   }
+
+
+
+  async updateMajorMeta(
+    slug: string,
+    payload: { name?: string; description?: string; totalCreditsRequired?: number },
+  ): Promise<any> {
+    const { name, description, totalCreditsRequired } = payload;
+
+    const updatedMajor = await this.prisma.mAJOR_ROADMAPS.update({
+      where: { slug },
+      data: { name, description, total_credits: totalCreditsRequired },
+    });
+
+    return {
+      id: updatedMajor.id,
+      slug: updatedMajor.slug,
+      name: updatedMajor.name,
+      description: updatedMajor.description,
+      totalCreditsRequired: updatedMajor.total_credits,
+    };
+  }
 }

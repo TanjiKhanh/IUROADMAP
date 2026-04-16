@@ -1,5 +1,5 @@
 // admin-service/src/management/management.controller.ts
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { ManagementService } from '../services/management.service';
 import { DepartmentDto , MajorDto} from '../dto/department.dto';
 
@@ -19,5 +19,14 @@ export class ManagementController {
     @Query('departmentSlug') departmentSlug?: string,
   ): Promise<MajorDto[]> {
     return this.service.listMajors(departmentSlug);
+  }
+
+
+  @Patch('majors/:slug')
+  async updateMajorMeta(
+    @Param('slug') slug: string,
+    @Body() payload: { name?: string; description?: string; totalCreditsRequired?: number },
+  ): Promise<MajorDto> {
+    return this.service.updateMajorMeta(slug, payload);
   }
 }

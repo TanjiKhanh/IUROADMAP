@@ -4,6 +4,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { AxiosError } from 'axios';
 import { AdminRoadmapGraph, MajorMeta } from '../interfaces';
 
+
 @Injectable()
 export class AdminServiceClient {
   constructor(
@@ -52,6 +53,7 @@ export class AdminServiceClient {
     }
   }
 
+ 
 
   async getCourseTopicsGraph(courseNodeId: number): Promise<any> {
     try {

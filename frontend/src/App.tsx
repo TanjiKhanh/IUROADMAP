@@ -15,10 +15,9 @@ import ExploreMajors from './pages/learner/ExploreMajors';
 
 // Pages - Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
-import ManageCourses from './pages/admin/ManageCourses';
 import ManageDepartments from './pages/admin/ManageDepartments';
-import ManageRoadmaps from './pages/admin/ManageRoadmap';
-import RoadmapDesigner from './pages/admin/RoadmapDesign';
+import ManageRoadmaps from './pages/admin/ManageMajor';
+import RoadmapDesigner from './pages/admin/MajorRoadmapDesign';
 
 // Auth Components
 import { AuthProvider } from './auth/AuthProvider';
@@ -109,13 +108,23 @@ export default function App() {
             >
               <Route index element={<AdminDashboard />} />
               <Route path="roadmaps" element={<ManageRoadmaps />} />
-              <Route path="courses" element={<ManageCourses />} />
               <Route path="departments" element={<ManageDepartments />} />
             </Route>
 
             {/* =========================================
                 5. ADMIN FULLSCREEN TOOLS (No Sidebar)
                ========================================= */}
+            <Route 
+              path="/admin/roadmaps/design" 
+              element={
+                <RequireAuth>
+                  <RequireRole allowedRoles={['ADMIN']}>
+                    <RoadmapDesigner />
+                  </RequireRole>
+                </RequireAuth>
+              } 
+            />
+
             <Route 
               path="/admin/roadmaps/design/:slug" 
               element={

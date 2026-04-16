@@ -30,6 +30,7 @@ export interface RoadmapNodeInput {
 export interface RoadmapEdgeInput {
   sourceKey: string;
   targetKey: string;
+  constraintType?: 'PREREQUISITE' | 'OPTIONAL';
 }
 
 export interface Roadmap {
@@ -40,6 +41,77 @@ export interface Roadmap {
   courseId: number;
   nodes: RoadmapNodeInput[];
   edges: RoadmapEdgeInput[];
+}
+
+export interface Major {
+  id: number;
+  slug: string;
+  name: string;
+  description?: string | null;
+  totalCreditsRequired: number;
+  totalCourses?: number;
+}
+
+export interface AdminRoadmapGraphNode {
+  id: number;
+  slug: string;
+  name: string;
+  coords: { x: number; y: number } | null;
+  credits: number;
+  description: string | null;
+}
+
+export interface AdminRoadmapGraphEdge {
+  id: number;
+  from: number;
+  to: number;
+}
+
+export interface AdminRoadmapGraph {
+  roadmapId: number;
+  nodes: AdminRoadmapGraphNode[];
+  edges: AdminRoadmapGraphEdge[];
+}
+
+export interface CreateAdminCourseNodePayload {
+  slug: string;
+  name: string;
+  credits: number;
+  description?: string;
+  coords?: { x: number; y: number };
+}
+
+export interface UpdateAdminCourseNodePayload {
+  slug?: string;
+  name?: string;
+  credits?: number;
+  description?: string;
+  coords?: { x: number; y: number };
+}
+
+export interface AdminCourseNodeResponse {
+  id: number;
+  roadmap_id: number;
+  slug: string;
+  name: string;
+  credits: number;
+  description: string | null;
+  coords: { x: number; y: number } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreatePrerequisitePayload {
+  course_node_id: number;
+  prerequisite_node_id: number;
+}
+
+export interface AdminPrerequisiteEdgeResponse {
+  id: number;
+  course_node_id: number;
+  prerequisite_node_id: number;
+  created_at: string;
+  updated_at: string;
 }
 
 
@@ -128,6 +200,70 @@ export const adminService = {
 
   deleteRoadmap: async (id: number) => {
     const data = await api.delete(`/api/v1/admin/roadmaps/${id}`);
+    return data as unknown as any;
+  },
+
+  // ==========================================
+  // 🧠 ADMIN MAJORS + ROADMAP GRAPH DESIGN
+  // ==========================================
+  getAdminMajors: async () => {
+    const data = await api.get<Major[]>('/api/v1/admin/majors');
+    return data as unknown as Major[];
+  },
+
+  getAdminMajorBySlug: async (slug: string) => {
+    const data = await api.get<Major>(`/api/v1/admin/majors/${encodeURIComponent(slug)}`);
+    return data as unknown as Major;
+  },
+
+  updateAdminMajor: async (
+    slug: string,
+    payload: Partial<Pick<Major, 'name' | 'description' | 'totalCreditsRequired'>>,
+  ) => {
+    const data = await api.patch<Major>(`/api/v1/admin/majors/${encodeURIComponent(slug)}`, payload);
+    return data as unknown as Major;
+  },
+
+  getAdminRoadmapGraph: async (roadmapId: number) => {
+    const data = await api.get<AdminRoadmapGraph>(`/api/v1/admin/roadmaps/${roadmapId}/graph`);
+    return data as unknown as AdminRoadmapGraph;
+  },
+
+  createAdminCourseNode: async (roadmapId: number, payload: CreateAdminCourseNodePayload) => {
+    const data = await api.post<AdminCourseNodeResponse>(
+      `/api/v1/admin/roadmaps/${roadmapId}/courses`,
+      payload,
+    );
+    return data as unknown as AdminCourseNodeResponse;
+  },
+
+  updateAdminCourseNode: async (
+    roadmapId: number,
+    courseNodeId: number,
+    payload: UpdateAdminCourseNodePayload,
+  ) => {
+    const data = await api.patch<AdminCourseNodeResponse>(
+      `/api/v1/admin/roadmaps/${roadmapId}/courses/${courseNodeId}`,
+      payload,
+    );
+    return data as unknown as AdminCourseNodeResponse;
+  },
+
+  deleteAdminCourseNode: async (roadmapId: number, courseNodeId: number) => {
+    const data = await api.delete(`/api/v1/admin/roadmaps/${roadmapId}/courses/${courseNodeId}`);
+    return data as unknown as any;
+  },
+
+  createAdminPrerequisite: async (roadmapId: number, payload: CreatePrerequisitePayload) => {
+    const data = await api.post<AdminPrerequisiteEdgeResponse>(
+      `/api/v1/admin/roadmaps/${roadmapId}/prerequisites`,
+      payload,
+    );
+    return data as unknown as AdminPrerequisiteEdgeResponse;
+  },
+
+  deleteAdminPrerequisite: async (roadmapId: number, edgeId: number) => {
+    const data = await api.delete(`/api/v1/admin/roadmaps/${roadmapId}/prerequisites/${edgeId}`);
     return data as unknown as any;
   },
 

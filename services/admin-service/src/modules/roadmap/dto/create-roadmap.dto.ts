@@ -45,9 +45,6 @@ export class CreateRoadmapEdgeDto {
   @IsString()
   @IsNotEmpty()
   targetKey!: string;
-
-  @IsOptional()
-  constraintType?: 'PREREQUISITE' | 'OPTIONAL';
 }
 
 /**

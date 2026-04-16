@@ -20,3 +20,4 @@ export class MajorDto {
     name: string;
   } | null;
 }
+

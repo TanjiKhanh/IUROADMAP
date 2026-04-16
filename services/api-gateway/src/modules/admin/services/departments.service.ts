@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DepartmentAdminServiceClient } from '../clients/admin-service.client';
+import { AdminServiceClient } from '../clients/admin-service.client';
 import {
   CreateDepartmentDto,
   UpdateDepartmentDto,
@@ -10,7 +10,7 @@ import {
 export class DepartmentsService {
   private readonly logger = new Logger(DepartmentsService.name);
 
-  constructor(private readonly adminClient: DepartmentAdminServiceClient) {}
+  constructor(private readonly adminClient: AdminServiceClient) {}
 
   async createDepartment(dto: CreateDepartmentDto): Promise<DepartmentResponseDto> {
     this.logger.log(`Creating department: ${dto.slug}`);

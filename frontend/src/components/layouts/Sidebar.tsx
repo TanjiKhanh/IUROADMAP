@@ -19,10 +19,10 @@ export default function Sidebar() {
         <span>🧠</span> Dashboard
       </NavLink>
       <NavLink to="/admin/roadmaps" className={getNavLinkClass}>
-        <span>🗺️</span> Roadmaps
+        <span>🗺️</span> Major Roadmaps 
       </NavLink>
       <NavLink to="/admin/courses" className={getNavLinkClass}>
-        <span>📚</span> Courses
+        <span>📚</span> Topic Roadmaps
       </NavLink>
       <NavLink to="/admin/departments" className={getNavLinkClass}>
         <span>📂</span> Departments

@@ -69,20 +69,6 @@ export default function AdminDashboard() {
             <div className="stat-value">👥 {stats.users}</div>
           </div>
         </section>
-
-        {/* Quick Links */}
-        <section className="continue-learning" style={{ marginTop: '20px' }}>
-          <h2>Quick Actions</h2>
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-             {/* ... Your cards links ... */}
-             <Link to="/admin/roadmaps" className="course-card" style={{textDecoration:'none', color:'inherit', minWidth: '200px'}}>
-                <h4>🗺️ Manage Roadmaps</h4>
-             </Link>
-             <Link to="/admin/courses" className="course-card" style={{textDecoration:'none', color:'inherit', minWidth: '200px'}}>
-                <h4>📚 Manage Courses</h4>
-             </Link>
-          </div>
-        </section>
       </div>
     </>
   );
