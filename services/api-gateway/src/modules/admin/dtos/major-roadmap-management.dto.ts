@@ -6,6 +6,7 @@ import {
   IsString,
   Min,
   ValidateNested,
+  IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -38,6 +39,12 @@ export class CreateCourseNodeDto {
   @ValidateNested()
   @Type(() => CoordsDto)
   coords?: CoordsDto;
+
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  Prerequisites?: number[];
 }
 
 export class UpdateCourseNodeDto {
@@ -62,6 +69,12 @@ export class UpdateCourseNodeDto {
   @ValidateNested()
   @Type(() => CoordsDto)
   coords?: CoordsDto;
+
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  Prerequisites?: number[];
 }
 
 export class CreatePrerequisiteDto {

@@ -241,6 +241,26 @@ export class AdminRoadmapsService {
       throw new BadRequestException('Both nodes must belong to the same roadmap');
     }
 
+    // Check if the prerequisite edge already exists
+    let existing = await this.prisma.cOURSE_NODE_PREREQUISITES.findFirst({
+      where: {
+        course_node_id: dto.course_node_id,
+        prerequisite_node_id: dto.prerequisite_node_id,
+      },
+    });
+
+    // If it already exists, return it
+    if (existing) {
+      return {
+        id: existing.id,
+        course_node_id: existing.course_node_id,
+        prerequisite_node_id: existing.prerequisite_node_id,
+        created_at: existing.created_at.toISOString(),
+        updated_at: existing.updated_at.toISOString(),
+      };
+    }
+
+    // Create new prerequisite edge
     try {
       const created = await this.prisma.cOURSE_NODE_PREREQUISITES.create({
         data: {
@@ -257,11 +277,24 @@ export class AdminRoadmapsService {
         updated_at: created.updated_at.toISOString(),
       };
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new ConflictException('Prerequisite edge already exists');
+      // If constraint violation occurs (race condition), fetch and return existing record
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        existing = await this.prisma.cOURSE_NODE_PREREQUISITES.findFirst({
+          where: {
+            course_node_id: dto.course_node_id,
+            prerequisite_node_id: dto.prerequisite_node_id,
+          },
+        });
+
+        if (existing) {
+          return {
+            id: existing.id,
+            course_node_id: existing.course_node_id,
+            prerequisite_node_id: existing.prerequisite_node_id,
+            created_at: existing.created_at.toISOString(),
+            updated_at: existing.updated_at.toISOString(),
+          };
+        }
       }
 
       throw error;

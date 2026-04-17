@@ -16,6 +16,8 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import Header from '../../components/layouts/Header';
+import Notification, { NotificationType } from '../../components/ui/Notification';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import {
 	adminService,
 	AdminRoadmapGraph,
@@ -166,6 +168,21 @@ export default function MajorRoadmapDesign() {
 	const [form, setForm] = useState<NodeFormState>(EMPTY_FORM);
 	const [searchTerm, setSearchTerm] = useState('');
 
+	// Notification state
+	const [notification, setNotification] = useState<{
+		type: NotificationType;
+		title: string;
+		message?: string;
+	} | null>(null);
+
+	// Confirm dialog state
+	const [confirmDialog, setConfirmDialog] = useState<{
+		title: string;
+		message: string;
+		onConfirm: () => Promise<void>;
+		isDestructive?: boolean;
+	} | null>(null);
+
 	const nodeTypes = useMemo(() => ({ courseNode: CourseNodeCard }), []);
 
 	const resolveMajor = useCallback(async (): Promise<Major> => {
@@ -199,19 +216,13 @@ export default function MajorRoadmapDesign() {
 
 			setNodes(flowNodes);
 			setEdges(flowEdges);
-
-			if (selectedNodeId && !flowNodes.some((node) => node.id === selectedNodeId)) {
-				setSelectedNodeId(null);
-				setEditorMode(null);
-				setForm(EMPTY_FORM);
-			}
 		} catch (err) {
 			console.error('Failed to load major roadmap graph', err);
 			alert('Failed to load major roadmap graph.');
 		} finally {
 			setLoading(false);
 		}
-	}, [resolveMajor, setEdges, setNodes, selectedNodeId]);
+	}, [resolveMajor, setEdges, setNodes]);
 
 	useEffect(() => {
 		loadGraph();
@@ -267,13 +278,14 @@ export default function MajorRoadmapDesign() {
 		const currentId = selectedNodeId ? Number(selectedNodeId) : null;
 		return nodes
 			.filter((node) => Number(node.id) !== currentId)
+			.filter((node) => !form.prerequisiteIds.includes(Number(node.id)))
 			.filter((node) => {
 				if (!searchTerm.trim()) return true;
 				const haystack = `${node.data.title} ${node.data.slug}`.toLowerCase();
 				return haystack.includes(searchTerm.toLowerCase());
 			})
 			.map((node) => ({ id: Number(node.id), name: node.data.title, slug: node.data.slug }));
-	}, [nodes, selectedNodeId, searchTerm]);
+	}, [nodes, selectedNodeId, searchTerm, form.prerequisiteIds]);
 
 	const handleFieldChange = (
 		event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -292,20 +304,16 @@ export default function MajorRoadmapDesign() {
 		});
 	};
 
-	const handlePrerequisitesChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		const nextIds = Array.from(event.target.selectedOptions)
-			.map((option) => Number(option.value))
-			.filter((id) => Number.isFinite(id));
-
-		setForm((prev) => ({ ...prev, prerequisiteIds: nextIds }));
-	};
-
 	const createNode = async () => {
 		if (!major) return;
 
 		const credits = Number(form.credits);
 		if (!form.slug.trim() || !form.name.trim() || !Number.isFinite(credits) || credits < 0) {
-			alert('Please provide valid slug, name, and credits.');
+			setNotification({
+				type: 'error',
+				title: 'Invalid Input',
+				message: 'Please provide valid slug, name, and credits.',
+			});
 			return;
 		}
 
@@ -314,13 +322,15 @@ export default function MajorRoadmapDesign() {
 			const fallbackX = 120 + (nodes.length % 4) * GRAPH_FALLBACK_X;
 			const fallbackY = 120 + Math.floor(nodes.length / 4) * GRAPH_FALLBACK_Y;
 
-			const created = await adminService.createAdminCourseNode(major.id, {
+			const createPayload: any = {
 				slug: form.slug.trim(),
 				name: form.name.trim(),
 				credits,
 				description: form.description.trim() || undefined,
 				coords: { x: fallbackX, y: fallbackY },
-			});
+			};
+
+			const created = await adminService.createAdminCourseNode(major.id, createPayload);
 
 			for (const prerequisiteId of form.prerequisiteIds) {
 				if (prerequisiteId === created.id) continue;
@@ -331,11 +341,20 @@ export default function MajorRoadmapDesign() {
 				});
 			}
 
+			setNotification({
+				type: 'success',
+				title: 'Course Created',
+				message: `Successfully created "${form.name}" with ${form.prerequisiteIds.length} prerequisite(s).`,
+			});
 			closePanel();
 			await loadGraph();
 		} catch (err: any) {
 			console.error('Failed to create course node', err);
-			alert(err.response?.data?.message || 'Failed to create node.');
+			setNotification({
+				type: 'error',
+				title: 'Failed to Create Course',
+				message: err.response?.data?.message || 'An error occurred while creating the course node.',
+			});
 		} finally {
 			setSaving(false);
 		}
@@ -348,7 +367,11 @@ export default function MajorRoadmapDesign() {
 		const credits = Number(form.credits);
 
 		if (!form.slug.trim() || !form.name.trim() || !Number.isFinite(credits) || credits < 0) {
-			alert('Please provide valid slug, name, and credits.');
+			setNotification({
+				type: 'error',
+				title: 'Invalid Input',
+				message: 'Please provide valid slug, name, and credits.',
+			});
 			return;
 		}
 
@@ -384,11 +407,20 @@ export default function MajorRoadmapDesign() {
 				}
 			}
 
+			setNotification({
+				type: 'success',
+				title: 'Course Updated',
+				message: `Successfully updated "${form.name}". Added ${added.length} and removed ${removed.length} prerequisite(s).`,
+			});
 			closePanel();
 			await loadGraph();
 		} catch (err: any) {
 			console.error('Failed to update course node', err);
-			alert(err.response?.data?.message || 'Failed to update node.');
+			setNotification({
+				type: 'error',
+				title: 'Failed to Update Course',
+				message: err.response?.data?.message || 'An error occurred while updating the course node.',
+			});
 		} finally {
 			setSaving(false);
 		}
@@ -397,20 +429,37 @@ export default function MajorRoadmapDesign() {
 	const deleteNode = async () => {
 		if (!major || !selectedNodeId) return;
 
-		const confirmed = window.confirm('Delete this node and all related prerequisite edges?');
-		if (!confirmed) return;
+		const nodeName = nodes.find((n) => n.id === selectedNodeId)?.data.title || 'this node';
 
-		setSaving(true);
-		try {
-			await adminService.deleteAdminCourseNode(major.id, Number(selectedNodeId));
-			closePanel();
-			await loadGraph();
-		} catch (err: any) {
-			console.error('Failed to delete course node', err);
-			alert(err.response?.data?.message || 'Failed to delete node.');
-		} finally {
-			setSaving(false);
-		}
+		setConfirmDialog({
+			title: 'Delete Course Node',
+			message: `Are you sure you want to delete "${nodeName}" and all its related prerequisite relationships? This action cannot be undone.`,
+			isDestructive: true,
+			onConfirm: async () => {
+				setSaving(true);
+				try {
+					await adminService.deleteAdminCourseNode(major.id, Number(selectedNodeId));
+					setNotification({
+						type: 'success',
+						title: 'Course Deleted',
+						message: `"${nodeName}" has been successfully deleted.`,
+					});
+					closePanel();
+					setConfirmDialog(null);
+					await loadGraph();
+				} catch (err: any) {
+					console.error('Failed to delete course node', err);
+					setNotification({
+						type: 'error',
+						title: 'Failed to Delete Course',
+						message: err.response?.data?.message || 'An error occurred while deleting the course node.',
+					});
+					setConfirmDialog(null);
+				} finally {
+					setSaving(false);
+				}
+			},
+		});
 	};
 
 	const handleSubmit = async (event: React.FormEvent) => {
@@ -442,10 +491,18 @@ export default function MajorRoadmapDesign() {
 					})
 				)
 			);
-			alert('Layout saved!');
+			setNotification({
+				type: 'success',
+				title: 'Layout Saved',
+				message: `Successfully saved positions for ${nodes.length} course node(s).`,
+			});
 		} catch (err) {
 			console.error('Failed to save layout', err);
-			alert('Failed to save layout.');
+			setNotification({
+				type: 'error',
+				title: 'Failed to Save Layout',
+				message: 'An error occurred while saving the layout.',
+			});
 		} finally {
 			setSaving(false);
 		}
@@ -453,6 +510,31 @@ export default function MajorRoadmapDesign() {
 
 	return (
         <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#f8fafc', overflow: 'hidden' }}>
+            
+            {/* Notification Component */}
+            {notification && (
+                <Notification
+                    type={notification.type}
+                    title={notification.title}
+                    message={notification.message}
+                    duration={notification.type === 'error' ? 5000 : 4000}
+                    onClose={() => setNotification(null)}
+                />
+            )}
+
+            {/* Confirm Dialog Component */}
+            {confirmDialog && (
+                <ConfirmDialog
+                    title={confirmDialog.title}
+                    message={confirmDialog.message}
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                    isDestructive={confirmDialog.isDestructive}
+                    isLoading={saving}
+                    onConfirm={confirmDialog.onConfirm}
+                    onCancel={() => setConfirmDialog(null)}
+                />
+            )}
             
             {/* --- HEADER AREA --- */}
             <div className="roadmap-header-container">
@@ -651,15 +733,67 @@ export default function MajorRoadmapDesign() {
                     </div>
 
                     <div style={{ marginBottom: 24 }}>
-                        <label
-                            htmlFor="prerequisites"
-                            style={{ display: 'block', fontWeight: 600, marginBottom: 6, fontSize: 14 }}
-                        >
+                        <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, fontSize: 14 }}>
                             Prerequisites
                         </label>
+
+                        {/* Selected Prerequisites as Removable Pills */}
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: 8,
+                                marginBottom: 12,
+                                minHeight: form.prerequisiteIds.length > 0 ? 36 : 0,
+                            }}
+                        >
+                            {form.prerequisiteIds.map((prereqId) => {
+                                const prereqNode = nodes.find((n) => Number(n.id) === prereqId);
+                                return (
+                                    <div
+                                        key={prereqId}
+                                        style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: 8,
+                                            padding: '6px 12px',
+                                            background: '#dbeafe',
+                                            color: '#1d4ed8',
+                                            borderRadius: 999,
+                                            fontSize: 13,
+                                            fontWeight: 500,
+                                        }}
+                                    >
+                                        <span>{prereqNode?.data.title || `Course ${prereqId}`}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setForm((prev) => ({
+                                                    ...prev,
+                                                    prerequisiteIds: prev.prerequisiteIds.filter((id) => id !== prereqId),
+                                                }))
+                                            }
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#1d4ed8',
+                                                cursor: 'pointer',
+                                                fontSize: 16,
+                                                fontWeight: 'bold',
+                                                padding: 0,
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Searchable Dropdown for Adding Prerequisites */}
                         <input
                             type="text"
-                            placeholder="Search prerequisite by name..."
+                            placeholder="Search and select prerequisites..."
                             value={searchTerm}
                             onChange={(event) => setSearchTerm(event.target.value)}
                             style={{
@@ -668,24 +802,70 @@ export default function MajorRoadmapDesign() {
                                 padding: '10px 12px',
                                 border: '1px solid #cbd5e1',
                                 borderRadius: 8,
+                                fontSize: 14,
                             }}
                         />
-                        <select
-                            id="prerequisites"
-                            multiple
-                            value={form.prerequisiteIds.map(String)}
-                            onChange={handlePrerequisitesChange}
-                            style={{ width: '100%', minHeight: 140, padding: 8, border: '1px solid #cbd5e1', borderRadius: 8 }}
-                        >
-                            {availablePrerequisiteOptions.map((option) => (
-                                <option key={option.id} value={option.id} style={{ padding: '6px', cursor: 'pointer' }}>
-                                    {option.name}
-                                </option>
-                            ))}
-                        </select>
-                        <div style={{ marginTop: 6, fontSize: 11, color: '#64748b' }}>
-                            Use Ctrl/Cmd + click to select multiple prerequisites.
-                        </div>
+
+                        {/* Dropdown List */}
+                        {searchTerm.trim() && (
+                            <div
+                                style={{
+                                    border: '1px solid #cbd5e1',
+                                    borderRadius: 8,
+                                    maxHeight: 200,
+                                    overflowY: 'auto',
+                                    background: '#ffffff',
+                                    boxShadow: '0 4px 12px rgba(15, 23, 42, 0.08)',
+                                }}
+                            >
+                                {availablePrerequisiteOptions.length > 0 ? (
+                                    availablePrerequisiteOptions.map((option) => (
+                                        <button
+                                            key={option.id}
+                                            type="button"
+                                            onClick={() => {
+                                                setForm((prev) => ({
+                                                    ...prev,
+                                                    prerequisiteIds: [...prev.prerequisiteIds, option.id],
+                                                }));
+                                                setSearchTerm('');
+                                            }}
+                                            style={{
+                                                display: 'block',
+                                                width: '100%',
+                                                textAlign: 'left',
+                                                padding: '10px 12px',
+                                                border: 'none',
+                                                background: 'transparent',
+                                                cursor: 'pointer',
+                                                fontSize: 13,
+                                                color: '#0f172a',
+                                                borderBottom: '1px solid #f1f5f9',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                (e.currentTarget as HTMLElement).style.background = '#f1f5f9';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                (e.currentTarget as HTMLElement).style.background = 'transparent';
+                                            }}
+                                        >
+                                            <div style={{ fontWeight: 500 }}>{option.name}</div>
+                                            <div style={{ fontSize: 11, color: '#64748b' }}>{option.slug}</div>
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div style={{ padding: '10px 12px', color: '#64748b', fontSize: 13 }}>
+                                        No matching courses found.
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {form.prerequisiteIds.length === 0 && !searchTerm && (
+                            <div style={{ marginTop: 6, fontSize: 11, color: '#64748b' }}>
+                                Click the search box and start typing to add prerequisites.
+                            </div>
+                        )}
                     </div>
 
                     <button type="submit" className="btn-primary" style={{ width: '100%', padding: '12px 0' }} disabled={saving}>

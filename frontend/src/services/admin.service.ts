@@ -79,6 +79,7 @@ export interface CreateAdminCourseNodePayload {
   credits: number;
   description?: string;
   coords?: { x: number; y: number };
+  Prerequisites?: number[];
 }
 
 export interface UpdateAdminCourseNodePayload {
@@ -87,6 +88,7 @@ export interface UpdateAdminCourseNodePayload {
   credits?: number;
   description?: string;
   coords?: { x: number; y: number };
+  Prerequisites?: number[];
 }
 
 export interface AdminCourseNodeResponse {

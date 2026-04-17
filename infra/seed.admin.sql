@@ -6,7 +6,6 @@ INSERT INTO admin.departments (
   id,
   slug,
   name,
-  subtitle,
   description,
   created_at,
   updated_at
@@ -184,3 +183,17 @@ INSERT INTO admin.course_topics_edge (
   (2, 2, 3, NOW()),  -- Stacks & Queues → Binary Trees
   (3, 3, 4, NOW())   -- Binary Trees → Graph (DFS & BFS)
 ON CONFLICT (id) DO NOTHING;
+
+-- Reset sequences to avoid conflicts on future inserts
+
+SELECT setval('admin.departments_id_seq', (SELECT COALESCE(MAX(id), 0) + 1 FROM admin.departments));
+
+SELECT setval('admin.major_roadmaps_id_seq', (SELECT COALESCE(MAX(id), 0) + 1 FROM admin.major_roadmaps));
+
+SELECT setval('admin.course_nodes_id_seq', (SELECT COALESCE(MAX(id), 0) + 1 FROM admin.course_nodes));
+
+SELECT setval('admin.course_node_prerequisites_id_seq', (SELECT COALESCE(MAX(id), 0) + 1 FROM admin.course_node_prerequisites));
+
+SELECT setval('admin.course_topics_node_id_seq', (SELECT COALESCE(MAX(id), 0) + 1 FROM admin.course_topics_node));
+
+SELECT setval('admin.course_topics_edge_id_seq', (SELECT COALESCE(MAX(id), 0) + 1 FROM admin.course_topics_edge));
