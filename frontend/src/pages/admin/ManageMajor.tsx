@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminService, Major } from '../../services/admin.service';
 import Header from '../../components/layouts/Header';
+import Notification from '../../components/ui/Notification';
 import { Form, Input, TextArea, SubmitButton } from '../../components/ui/Forms';
 import { useForm } from '../../hooks/useForm';
 
@@ -11,6 +12,11 @@ export default function ManageRoadmaps() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [editingMajor, setEditingMajor] = useState<Major | null>(null);
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    title: string;
+    message?: string;
+  } | null>(null);
 
   const { values, handleChange, resetForm, setValues } = useForm({
     name: '',
@@ -49,16 +55,26 @@ export default function ManageRoadmaps() {
     resetForm();
   };
 
+  const closeNotification = () => setNotification(null);
+
+  const handleSuccess = (message: string) => {
+    setNotification({ type: 'success', title: 'Success', message });
+  };
+
+  const handleFailure = (message: string) => {
+    setNotification({ type: 'error', title: 'Error', message });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingMajor) {
-      alert('Please choose a major to edit.');
+      handleFailure('Please choose a major to edit.');
       return;
     }
 
     const credits = Number(values.totalCreditsRequired);
     if (!Number.isFinite(credits) || credits < 0) {
-      alert('Total credits required must be a valid non-negative number.');
+      handleFailure('Total credits required must be a valid non-negative number.');
       return;
     }
 
@@ -70,11 +86,11 @@ export default function ManageRoadmaps() {
         totalCreditsRequired: credits,
       });
 
-      alert('Major updated successfully.');
+      handleSuccess('Major updated successfully.');
       handleCancelEdit();
       loadMajors();
     } catch (err: any) {
-      alert(`Error: ${err.response?.data?.message || err.message}`);
+      handleFailure(err.response?.data?.message || err.message || 'Failed to update major.');
     } finally {
       setSubmitting(false);
     }
@@ -86,6 +102,16 @@ export default function ManageRoadmaps() {
         title="Manage Majors" 
         subtitle="Select a major, update its metadata, then open the roadmap canvas"
       />
+
+      {notification && (
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          duration={4000}
+          onClose={closeNotification}
+        />
+      )}
 
       <div className="admin-content-area">
         <div className="admin-grid">

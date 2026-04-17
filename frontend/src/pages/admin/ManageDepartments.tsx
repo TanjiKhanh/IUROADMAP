@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { adminService, Department } from '../../services/admin.service';
 import Header from '../../components/layouts/Header';
+import Notification from '../../components/ui/Notification';
 import { Form, Input, TextArea, SubmitButton } from '../../components/ui/Forms';
 import { useForm } from '../../hooks/useForm';
 
@@ -9,11 +10,15 @@ export default function ManageDepartments() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [notice, setNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    title: string;
+    message?: string;
+  } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Department | null>(null);
   
   // 🆕 Track Edit Mode
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
 
   // 1. Initialize Form Hook (Get 'setValues' to populate form manually)
   const { values, handleChange, resetForm, setValues } = useForm({
@@ -41,7 +46,7 @@ export default function ManageDepartments() {
 
   // 🆕 Handle "Edit" Click
   const handleEditClick = (dept: Department) => {
-    setEditingId(dept.id!);
+    setEditingDepartment(dept);
     setValues({
       name: dept.name,
       slug: dept.slug,
@@ -53,14 +58,11 @@ export default function ManageDepartments() {
 
   // 🆕 Handle "Cancel" Click
   const handleCancelEdit = () => {
-    setEditingId(null);
+    setEditingDepartment(null);
     resetForm();
   };
 
-  const showNotice = (type: 'success' | 'error', message: string) => {
-    setNotice({ type, message });
-    window.setTimeout(() => setNotice((current) => (current?.message === message ? null : current)), 3500);
-  };
+  const closeNotification = () => setNotification(null);
 
   const getFriendlyErrorMessage = (err: any, action: string) => {
     const backendMessage = err?.response?.data?.message;
@@ -75,28 +77,35 @@ export default function ManageDepartments() {
     return `Something went wrong while trying to ${action}. Please try again.`;
   };
 
+  const handleSuccess = (message: string) => {
+    setNotification({ type: 'success', title: 'Success', message });
+  };
+
+  const handleFailure = (err: any, action: string) => {
+    setNotification({
+      type: 'error',
+      title: 'Update Failed',
+      message: getFriendlyErrorMessage(err, action),
+    });
+  };
+
   // 3. Handle Submit (Create OR Update)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      if (editingId !== null) {
-        // UPDATE
-        await adminService.updateDepartment(editingId, values);
-        showNotice('success', 'Department updated successfully.');
+      if (editingDepartment !== null) {
+        await adminService.updateDepartment(editingDepartment.id!, values);
+        handleSuccess('Department updated successfully.');
       } else {
-        // CREATE
         await adminService.createDepartment(values);
-        showNotice('success', 'Department created successfully.');
+        handleSuccess('Department created successfully.');
       }
       
       handleCancelEdit(); // Reset form and mode
       loadDepartments(); // Refresh list
     } catch (err: any) {
-      showNotice(
-        'error',
-        getFriendlyErrorMessage(err, editingId !== null ? 'update this department' : 'create this department'),
-      );
+      handleFailure(err, editingDepartment !== null ? 'update this department' : 'create this department');
     } finally {
       setSubmitting(false);
     }
@@ -107,13 +116,12 @@ export default function ManageDepartments() {
     try {
       setDeleting(true);
       await adminService.deleteDepartment(id);
-      showNotice('success', 'Department deleted successfully.');
+      handleSuccess('Department deleted successfully.');
       loadDepartments();
-      // If deleting the item currently being edited, cancel edit mode
-      if (editingId === id) handleCancelEdit();
+      if (editingDepartment?.id === id) handleCancelEdit();
       setPendingDelete(null);
     } catch (err: any) {
-      showNotice('error', getFriendlyErrorMessage(err, 'delete this department'));
+      handleFailure(err, 'delete this department');
     } finally {
       setDeleting(false);
     }
@@ -126,44 +134,15 @@ export default function ManageDepartments() {
         subtitle="Create and configure your learning domains"
       />
 
-          {notice && (
-            <div
-              style={{
-                marginBottom: '16px',
-                padding: '14px 16px',
-                borderRadius: '12px',
-                border: notice.type === 'success' ? '1px solid #bbf7d0' : '1px solid #fecaca',
-                background: notice.type === 'success' ? '#f0fdf4' : '#fef2f2',
-                color: notice.type === 'success' ? '#166534' : '#991b1b',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '12px',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '1.1rem' }}>
-                  {notice.type === 'success' ? '✅' : '⚠️'}
-                </span>
-                <span>{notice.message}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setNotice(null)}
-                style={{
-                  border: 'none',
-                  background: 'transparent',
-                  color: 'inherit',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  lineHeight: 1,
-                }}
-                aria-label="Dismiss notification"
-              >
-                ✕
-              </button>
-            </div>
-          )}
+          {notification && (
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          duration={4000}
+          onClose={closeNotification}
+        />
+      )}
 
       <div className="admin-content-area">
         <div className="admin-grid">
@@ -171,10 +150,10 @@ export default function ManageDepartments() {
           {/* --- FORM SECTION --- */}
           <div className="card">
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
-              <h3>{editingId ? 'Edit Department' : 'Add New Department'}</h3>
+              <h3>{editingDepartment ? 'Edit Department' : 'Add New Department'}</h3>
               
               {/* 🆕 Cancel Button */}
-              {editingId && (
+              {editingDepartment && (
                 <button 
                   type="button" 
                   onClick={handleCancelEdit}
@@ -213,7 +192,7 @@ export default function ManageDepartments() {
               />
 
               <SubmitButton isLoading={submitting}>
-                {editingId ? 'Update Department' : '+ Create Department'}
+                {editingDepartment ? 'Update Department' : '+ Create Department'}
               </SubmitButton>
             </Form>
           </div>
@@ -233,24 +212,31 @@ export default function ManageDepartments() {
                 </thead>
                 <tbody>
                   {departments.map(dept => (
-                    <tr key={dept.id} style={{background: editingId === dept.id ? '#f0f9ff' : 'transparent'}}>
+                    <tr key={dept.id} style={{background: editingDepartment?.id === dept.id ? '#f0f9ff' : 'transparent'}}>
                       <td>{dept.id}</td>
                       <td><strong>{dept.name}</strong></td>
                       <td><code>{dept.slug}</code></td>
                       <td>
                         <div style={{display: 'flex', gap: '8px'}}>
                           {/* 🆕 Edit Button */}
-                          <button 
+                                <button 
                             className="btn-icon"
                             onClick={() => handleEditClick(dept)}
-                            title="Edit"
+                            title="Edit Department"
                             style={{
-                              background: '#e0e7ff', color: '#4338ca', border: 'none', 
-                              borderRadius: '6px', width: '32px', height: '32px', cursor: 'pointer',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center'
+                              background: '#e0e7ff',
+                              color: '#4338ca',
+                              border: 'none',
+                              borderRadius: '6px',
+                              width: '32px',
+                              height: '32px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
                             }}
                           >
-                            ✏️
+                            E
                           </button>
 
                           <button 
