@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import '../../styles/MajorRoadmapDesign.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import ReactFlow, {
 	Background,
@@ -256,22 +257,10 @@ export default function MajorRoadmapDesign() {
 	);
 
 	const onNodeDragStop = useCallback(
-		async (_event: React.MouseEvent, node: Node<RoadmapNodeData>) => {
-			if (!major) return;
-
-			const courseNodeId = Number(node.id);
-			if (!Number.isFinite(courseNodeId)) return;
-
-			try {
-				await adminService.updateAdminCourseNode(major.id, courseNodeId, {
-					coords: { x: node.position.x, y: node.position.y },
-				});
-			} catch (err) {
-				console.error('Failed to persist node coordinates', err);
-				alert('Failed to save node position.');
-			}
+		(_event: React.MouseEvent, node: Node<RoadmapNodeData>) => {
+			// No-op: handled by React Flow state
 		},
-		[major],
+		[],
 	);
 
 	const availablePrerequisiteOptions = useMemo(() => {
@@ -440,221 +429,291 @@ export default function MajorRoadmapDesign() {
 	const totalNodes = nodes.length;
 	const totalEdges = edges.length;
 
+	// Save Layout handler
+	const handleSaveLayout = async () => {
+		if (!major) return;
+		setSaving(true);
+		try {
+			// Batch update all node coordinates
+			await Promise.all(
+				nodes.map((node) =>
+					adminService.updateAdminCourseNode(major.id, Number(node.id), {
+						coords: { x: node.position.x, y: node.position.y },
+					})
+				)
+			);
+			alert('Layout saved!');
+		} catch (err) {
+			console.error('Failed to save layout', err);
+			alert('Failed to save layout.');
+		} finally {
+			setSaving(false);
+		}
+	};
+
 	return (
-		<div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#f8fafc' }}>
-			<div style={{ padding: '0 20px', borderBottom: '1px solid #e2e8f0', background: '#ffffff' }}>
-				<Header
-					title={major ? `Major Roadmap: ${major.name}` : 'Major Roadmap Designer'}
-					subtitle="Left-click a node to edit. Drag nodes to reposition and auto-save coordinates."
-				/>
+        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#f8fafc', overflow: 'hidden' }}>
+            
+            {/* --- HEADER AREA --- */}
+            <div className="roadmap-header-container">
+                <div className="roadmap-top-row">
+                    <Header
+                        title={major ? `Major Roadmap: ${major.name}` : 'Major Roadmap Designer'}
+                        subtitle="Left-click a node to edit. Drag nodes to reposition and auto-save coordinates."
+                    />
+                    <div className="roadmap-metrics">
+                        Nodes: {totalNodes} <span style={{ color: '#cbd5e1', margin: '0 12px' }}>|</span> Prerequisites: {totalEdges}
+                    </div>
+                </div>
+                
+                <div className="roadmap-header-bar">
+                    <div className="header-actions-left">
+                        <button type="button" className="btn-primary" onClick={openCreatePanel}>
+                            + Create Course Node
+                        </button>
+                        <button
+                            type="button"
+                            className="btn-save"
+                            onClick={handleSaveLayout}
+                            disabled={saving}
+                        >
+                            {saving ? 'Saving...' : 'Save Layout'}
+                        </button>
+                    </div>
+                    
+                    <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={() => navigate('/admin/roadmaps')}
+                    >
+                        ← Back to List
+                    </button>
+                </div>
+            </div>
 
-				<div style={{ marginBottom: 12, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-					<button
-						type="button"
-						className="btn-secondary"
-						onClick={() => navigate('/admin/roadmaps')}
-					>
-						Back to Majors
-					</button>
-					<button type="button" className="btn-primary" onClick={openCreatePanel}>
-						+ Create Course Node
-					</button>
-					<div
-						style={{
-							display: 'flex',
-							gap: 8,
-							marginLeft: 'auto',
-							fontSize: 12,
-							color: '#334155',
-						}}
-					>
-						<span style={{ background: '#e2e8f0', padding: '4px 8px', borderRadius: 999 }}>
-							Nodes: {totalNodes}
-						</span>
-						<span style={{ background: '#e2e8f0', padding: '4px 8px', borderRadius: 999 }}>
-							Prerequisites: {totalEdges}
-						</span>
-					</div>
-				</div>
-			</div>
+            {/* --- GRAPH CANVAS --- */}
+            <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <ReactFlow
+                        nodes={nodes}
+                        edges={edges}
+                        nodeTypes={nodeTypes}
+                        onNodesChange={onNodesChange}
+                        onEdgesChange={onEdgesChange}
+                        onNodeClick={onNodeClick}
+                        onNodeDragStop={onNodeDragStop}
+                        onPaneClick={closePanel}
+                        fitView
+                    >
+                        <Background gap={20} color="#cbd5e1" />
+                        <Controls />
+                        <MiniMap />
+                    </ReactFlow>
+                    {nodes.length === 0 && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '45%',
+                                left: '35%',
+                                background: '#ffffff',
+                                padding: '14px 18px',
+                                borderRadius: 10,
+                                border: '1px solid #cbd5e1',
+                                boxShadow: '0 8px 20px rgba(15,23,42,0.08)',
+                                fontSize: 13,
+                                color: '#334155',
+                            }}
+                        >
+                            No course nodes yet. Click + Create Course Node to start.
+                        </div>
+                    )}
+                </div>
+            </div>
 
-			<div style={{ display: 'flex', flex: 1 }}>
-				<div style={{ flex: 1, minWidth: 0 }}>
-					<ReactFlow
-						nodes={nodes}
-						edges={edges}
-						nodeTypes={nodeTypes}
-						onNodesChange={onNodesChange}
-						onEdgesChange={onEdgesChange}
-						onNodeClick={onNodeClick}
-						onNodeDragStop={onNodeDragStop}
-						onPaneClick={closePanel}
-						fitView
-					>
-						<Background gap={20} color="#cbd5e1" />
-						<Controls />
-						<MiniMap />
-					</ReactFlow>
-					{nodes.length === 0 && (
-						<div
-							style={{
-								position: 'absolute',
-								top: '45%',
-								left: '35%',
-								background: '#ffffff',
-								padding: '14px 18px',
-								borderRadius: 10,
-								border: '1px solid #cbd5e1',
-								boxShadow: '0 8px 20px rgba(15,23,42,0.08)',
-								fontSize: 13,
-								color: '#334155',
-							}}
-						>
-							No course nodes yet. Click + Create Course Node to start.
-						</div>
-					)}
-				</div>
+            {/* --- NEW: Backdrop Overlay (Click to close) --- */}
+            <div 
+                onClick={closePanel}
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(15, 23, 42, 0.4)',
+                    backdropFilter: 'blur(2px)',
+                    zIndex: 99,
+                    opacity: editorMode ? 1 : 0,
+                    visibility: editorMode ? 'visible' : 'hidden',
+                    transition: 'opacity 0.3s ease, visibility 0.3s ease'
+                }}
+            />
 
-				{editorMode && (
-					<aside
-						style={{
-							width: 360,
-							borderLeft: '1px solid #e2e8f0',
-							background: '#ffffff',
-							padding: 16,
-							overflowY: 'auto',
-						}}
-					>
-						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-							<h3 style={{ margin: 0 }}>{editorMode === 'create' ? 'Create Node' : 'Edit Node'}</h3>
-							<button
-								type="button"
-								onClick={closePanel}
-								style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16 }}
-							>
-								Close
-							</button>
-						</div>
-						<p style={{ marginTop: 8, marginBottom: 14, fontSize: 12, color: '#64748b' }}>
-							Select prerequisite courses by name from the list below.
-						</p>
+            {/* --- NEW: Slide-Over Side Panel --- */}
+            <aside
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    width: 380,
+                    background: '#ffffff',
+                    padding: '24px 20px',
+                    overflowY: 'auto',
+                    boxShadow: '-8px 0 30px rgba(15, 23, 42, 0.15)',
+                    zIndex: 100, // Very high z-index to cover the header
+                    transform: editorMode ? 'translateX(0)' : 'translateX(100%)', // Slides it in and out
+                    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)', // Smooth physical animation
+                }}
+            >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#0f172a' }}>
+                        {editorMode === 'create' ? 'Create Node' : 'Edit Node'}
+                    </h3>
+                    <button
+                        type="button"
+                        onClick={closePanel}
+                        style={{ 
+                            background: '#f1f5f9', 
+                            color: '#475569',
+                            border: 'none', 
+                            cursor: 'pointer', 
+                            fontSize: 14,
+                            padding: '6px 12px',
+                            borderRadius: '6px',
+                            fontWeight: 600
+                        }}
+                    >
+                        Close
+                    </button>
+                </div>
+                
+                <p style={{ marginBottom: 20, fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
+                    Provide details for this course. Ensure the slug is unique and the credits match university requirements.
+                </p>
 
-						<form onSubmit={handleSubmit} style={{ marginTop: 16 }}>
-							<div style={{ marginBottom: 12 }}>
-								<label htmlFor="slug" style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>
-									Slug
-								</label>
-								<input
-									id="slug"
-									name="slug"
-									value={form.slug}
-									onChange={handleFieldChange}
-									required
-									style={{ width: '100%', padding: 10, border: '1px solid #cbd5e1', borderRadius: 6 }}
-								/>
-							</div>
+                <form onSubmit={handleSubmit}>
+                    <div style={{ marginBottom: 16 }}>
+                        <label htmlFor="slug" style={{ display: 'block', fontWeight: 600, marginBottom: 6, fontSize: 14 }}>
+                            Slug
+                        </label>
+                        <input
+                            id="slug"
+                            name="slug"
+                            value={form.slug}
+                            onChange={handleFieldChange}
+                            required
+                            style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 8 }}
+                        />
+                    </div>
 
-							<div style={{ marginBottom: 12 }}>
-								<label htmlFor="name" style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>
-									Name
-								</label>
-								<input
-									id="name"
-									name="name"
-									value={form.name}
-									onChange={handleFieldChange}
-									required
-									style={{ width: '100%', padding: 10, border: '1px solid #cbd5e1', borderRadius: 6 }}
-								/>
-							</div>
+                    <div style={{ marginBottom: 16 }}>
+                        <label htmlFor="name" style={{ display: 'block', fontWeight: 600, marginBottom: 6, fontSize: 14 }}>
+                            Course Name
+                        </label>
+                        <input
+                            id="name"
+                            name="name"
+                            value={form.name}
+                            onChange={handleFieldChange}
+                            required
+                            style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 8 }}
+                        />
+                    </div>
 
-							<div style={{ marginBottom: 12 }}>
-								<label htmlFor="credits" style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>
-									Credits
-								</label>
-								<input
-									id="credits"
-									name="credits"
-									type="number"
-									min={0}
-									value={form.credits}
-									onChange={handleFieldChange}
-									required
-									style={{ width: '100%', padding: 10, border: '1px solid #cbd5e1', borderRadius: 6 }}
-								/>
-							</div>
+                    <div style={{ marginBottom: 16 }}>
+                        <label htmlFor="credits" style={{ display: 'block', fontWeight: 600, marginBottom: 6, fontSize: 14 }}>
+                            Credits
+                        </label>
+                        <input
+                            id="credits"
+                            name="credits"
+                            type="number"
+                            min={0}
+                            value={form.credits}
+                            onChange={handleFieldChange}
+                            required
+                            style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 8 }}
+                        />
+                    </div>
 
-							<div style={{ marginBottom: 12 }}>
-								<label htmlFor="description" style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>
-									Description
-								</label>
-								<textarea
-									id="description"
-									name="description"
-									value={form.description}
-									onChange={handleFieldChange}
-									rows={4}
-									style={{ width: '100%', padding: 10, border: '1px solid #cbd5e1', borderRadius: 6 }}
-								/>
-							</div>
+                    <div style={{ marginBottom: 16 }}>
+                        <label htmlFor="description" style={{ display: 'block', fontWeight: 600, marginBottom: 6, fontSize: 14 }}>
+                            Description
+                        </label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            value={form.description}
+                            onChange={handleFieldChange}
+                            rows={4}
+                            style={{ width: '100%', padding: '10px 12px', border: '1px solid #cbd5e1', borderRadius: 8, resize: 'vertical' }}
+                        />
+                    </div>
 
-							<div style={{ marginBottom: 16 }}>
-								<label
-									htmlFor="prerequisites"
-									style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}
-								>
-									Prerequisites (select by course name)
-								</label>
-								<input
-									type="text"
-									placeholder="Search prerequisite by name or slug"
-									value={searchTerm}
-									onChange={(event) => setSearchTerm(event.target.value)}
-									style={{
-										width: '100%',
-										marginBottom: 8,
-										padding: 8,
-										border: '1px solid #cbd5e1',
-										borderRadius: 6,
-									}}
-								/>
-								<select
-									id="prerequisites"
-									multiple
-									value={form.prerequisiteIds.map(String)}
-									onChange={handlePrerequisitesChange}
-									style={{ width: '100%', minHeight: 120, padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }}
-								>
-									{availablePrerequisiteOptions.map((option) => (
-										<option key={option.id} value={option.id}>
-											{option.name} ({option.slug})
-										</option>
-									))}
-								</select>
-								<div style={{ marginTop: 6, fontSize: 11, color: '#64748b' }}>
-									Use Ctrl/Cmd + click to select multiple prerequisites.
-								</div>
-							</div>
+                    <div style={{ marginBottom: 24 }}>
+                        <label
+                            htmlFor="prerequisites"
+                            style={{ display: 'block', fontWeight: 600, marginBottom: 6, fontSize: 14 }}
+                        >
+                            Prerequisites
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Search prerequisite by name..."
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
+                            style={{
+                                width: '100%',
+                                marginBottom: 8,
+                                padding: '10px 12px',
+                                border: '1px solid #cbd5e1',
+                                borderRadius: 8,
+                            }}
+                        />
+                        <select
+                            id="prerequisites"
+                            multiple
+                            value={form.prerequisiteIds.map(String)}
+                            onChange={handlePrerequisitesChange}
+                            style={{ width: '100%', minHeight: 140, padding: 8, border: '1px solid #cbd5e1', borderRadius: 8 }}
+                        >
+                            {availablePrerequisiteOptions.map((option) => (
+                                <option key={option.id} value={option.id} style={{ padding: '6px', cursor: 'pointer' }}>
+                                    {option.name}
+                                </option>
+                            ))}
+                        </select>
+                        <div style={{ marginTop: 6, fontSize: 11, color: '#64748b' }}>
+                            Use Ctrl/Cmd + click to select multiple prerequisites.
+                        </div>
+                    </div>
 
-							<button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={saving}>
-								{saving ? 'Saving...' : editorMode === 'create' ? 'Create Node' : 'Save Node'}
-							</button>
-						</form>
+                    <button type="submit" className="btn-primary" style={{ width: '100%', padding: '12px 0' }} disabled={saving}>
+                        {saving ? 'Saving...' : editorMode === 'create' ? 'Create Node' : 'Save Changes'}
+                    </button>
+                </form>
 
-						{editorMode === 'edit' && (
-							<button
-								type="button"
-								className="btn-danger-sm"
-								style={{ marginTop: 10, width: '100%' }}
-								onClick={deleteNode}
-								disabled={saving}
-							>
-								Delete Node
-							</button>
-						)}
-					</aside>
-				)}
-			</div>
-		</div>
+                {editorMode === 'edit' && (
+                    <button
+                        type="button"
+                        style={{ 
+                            marginTop: 12, 
+                            width: '100%', 
+                            padding: '12px 0', 
+                            background: '#fff', 
+                            color: '#ef4444', 
+                            border: '1px solid #f87171',
+                            borderRadius: '8px',
+                            fontWeight: 600,
+                            cursor: 'pointer'
+                        }}
+                        onClick={deleteNode}
+                        disabled={saving}
+                    >
+                        Delete Node
+                    </button>
+                )}
+            </aside>
+        </div>
 	);
 }

@@ -186,13 +186,11 @@ export const adminService = {
     return data as unknown as Roadmap;
   },
 
-  // ✅ CREATE: Matches your requested body structure
   createRoadmap: async (payload: Roadmap) => {
     const data = await api.post<Roadmap>('/api/v1/admin/roadmaps', payload);
     return data as unknown as Roadmap;
   },
 
-  // ✅ UPDATE: Matches your requested body structure
   updateRoadmap: async (id: number, payload: Partial<Roadmap>) => {
     const data = await api.patch<Roadmap>(`/api/v1/admin/roadmaps/${id}`, payload);
     return data as unknown as Roadmap;

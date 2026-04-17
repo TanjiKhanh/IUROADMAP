@@ -1,0 +1,130 @@
+/* MajorRoadmapDesign custom styles */
+
+
+.roadmap-header-area {
+  background: #fff;
+  padding: 28px 32px 18px 32px;
+  border-radius: 16px;
+  margin: 32px auto 18px auto;
+  box-shadow: 0 2px 12px rgba(37, 99, 235, 0.08);
+  max-width: 1100px;
+  position: relative;
+}
+
+.roadmap-header-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+
+.roadmap-header-bar .btn-primary,
+.roadmap-header-bar .btn-save,
+.roadmap-header-bar .btn-secondary {
+  min-width: 140px;
+  max-width: 220px;
+  font-size: 0.700rem;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 1rem 0;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+  border: none;
+  margin: 0;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+
+/* MajorRoadmapDesign custom styles */
+
+.roadmap-header-container {
+  background: #ffffff;
+  padding: 20px 32px;
+  border-bottom: 1px solid #e2e8f0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.roadmap-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.roadmap-metrics {
+  font-size: 1.05rem;
+  color: #475569;
+  font-weight: 500;
+  padding-top: 8px;
+}
+
+/* The light gray bar housing the buttons */
+.roadmap-header-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0px 20px;
+  border-radius: 12px;
+}
+
+.header-actions-left {
+  display: flex;
+  gap: 12px;
+}
+
+.roadmap-header-bar button {
+  font-size: 0.50rem;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.roadmap-header-bar .btn-primary {
+  background: #6366f1;
+  color: #fff;
+}
+.roadmap-header-bar .btn-primary:hover {
+  background: #4f46e5;
+}
+
+/* Soft teal to match the image */
+.roadmap-header-bar .btn-save {
+  background: #99f6e4;
+  color: #115e59;
+}
+.roadmap-header-bar .btn-save:hover {
+  background: #5eead4;
+}
+
+.roadmap-header-bar .btn-secondary {
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+.roadmap-header-bar .btn-secondary:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+@media (max-width: 900px) {
+  .roadmap-top-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .roadmap-header-bar {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .header-actions-left {
+    width: 100%;
+    flex-direction: column;
+  }
+  .roadmap-header-bar button {
+    width: 100%;
+  }
+}
