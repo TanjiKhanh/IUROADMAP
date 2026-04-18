@@ -1,18 +1,14 @@
 import { Module } from '@nestjs/common';
-import { RoadmapsService } from './roadmaps.service';
-import { RoadmapsController } from './roadmaps.controller';
-import { PrismaModule } from '../prisma/prisma.module';
-// Import the services we just created
-import { AdminClientService } from '../external/admin-client/admin-client.service';
-import { AuthClientService } from '../external/auth-client/auth-client.service';
+import { UserRoadmapsService } from './services/user-roadmaps.service';
+import { UserRoadmapsController } from './controllers/user-roadmaps.controller';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
-  imports: [PrismaModule],
-  controllers: [RoadmapsController],
+  imports: [],
+  controllers: [UserRoadmapsController],
   providers: [
-    RoadmapsService, 
-    AdminClientService, 
-    AuthClientService
+    UserRoadmapsService, 
+    PrismaService
   ], 
 })
 export class RoadmapsModule {}

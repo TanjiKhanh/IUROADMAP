@@ -1,24 +1,76 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService, UserRoadmapSummary } from '../../services/user.service';
+import { roadmapService, UserRoadmapProgressDetail } from '../../services/roadmap.service';
 import '../../styles/myCourse.css'; // Ensure you have the CSS file from the previous step
 
+type RoadmapCourseCard = UserRoadmapSummary & {
+  completionPercentage: number;
+  creditsEarned: number;
+  creditsRequired: number;
+  totalNodes: number;
+  completedNodes: number;
+};
+
 export default function MyCourses() {
-  const [roadmaps, setRoadmaps] = useState<UserRoadmapSummary[]>([]);
+  const [roadmaps, setRoadmaps] = useState<RoadmapCourseCard[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const data = await userService.getMyRoadmaps();
-        if (Array.isArray(data)) {
-          setRoadmaps(data);
-        } else {
+        const summaryData = await userService.getMyRoadmaps();
+        if (!Array.isArray(summaryData)) {
           setRoadmaps([]);
+          return;
         }
+
+        const detailResults = await Promise.allSettled(
+          summaryData.map((roadmap) => roadmapService.getUserRoadmapDetail(roadmap.id))
+        );
+
+        const detailById = new Map<number, UserRoadmapProgressDetail>();
+
+        detailResults.forEach((result, index) => {
+          if (result.status === 'fulfilled') {
+            detailById.set(summaryData[index].id, result.value);
+          }
+        });
+
+        const mergedRoadmaps: RoadmapCourseCard[] = summaryData.map((roadmap) => {
+          const detail = detailById.get(roadmap.id);
+
+          if (!detail) {
+            return {
+              ...roadmap,
+              completionPercentage: roadmap.progressPercent,
+              creditsEarned: 0,
+              creditsRequired: 0,
+              totalNodes: roadmap.totalNodes,
+              completedNodes: roadmap.completedNodes,
+            };
+          }
+
+          const completedNodes = detail.nodes.filter((node) => node.status === 'COMPLETED').length;
+          return {
+            ...roadmap,
+            completionPercentage: detail.completion_percentage,
+            creditsEarned: detail.total_credits_earned,
+            creditsRequired: detail.total_credits_required,
+            totalNodes: detail.nodes.length,
+            completedNodes,
+          };
+        });
+
+        const sortedRoadmaps = [...mergedRoadmaps].sort(
+          (a, b) => (b.completionPercentage || 0) - (a.completionPercentage || 0)
+        );
+
+        setRoadmaps(sortedRoadmaps);
       } catch (error) {
         console.error("Failed to load courses:", error);
+        setRoadmaps([]);
       } finally {
         setLoading(false);
       }
@@ -55,7 +107,7 @@ export default function MyCourses() {
             <div className="empty-state-card" style={{ padding: '2rem', textAlign: 'center', gridColumn: '1 / -1', background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
               <p style={{ marginBottom: '1rem', color: '#64748b' }}>No active courses found.</p>
               <button 
-                onClick={() => navigate('/explore')} 
+                onClick={() => navigate('/dashboard/explore')} 
                 style={{ background: '#0f172a', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
               >
                 Explore Catalog →
@@ -63,7 +115,8 @@ export default function MyCourses() {
             </div>
           ) : (
             roadmaps.map((course) => {
-              const status = getStatus(course.progressPercent);
+              const status = getStatus(course.completionPercentage);
+              const metricLabel = status.type === 'not-started' ? 'Status' : 'Progress';
               
               return (
                 <div key={course.id} className={`course-grid-card ${status.type}`}>
@@ -76,20 +129,28 @@ export default function MyCourses() {
 
                   <div className="card-progress-section">
                     <div className="progress-labels">
-                      <span className="label-text">Progress</span>
+                      <span className="label-text">{metricLabel}</span>
                       <span className="label-percent">{status.text}</span>
                     </div>
                     
                     <div className="progress-track">
                       <div 
                         className="progress-fill" 
-                        style={{ width: `${course.progressPercent}%` }}
+                        style={{ width: `${course.completionPercentage}%` }}
                       ></div>
+                    </div>
+
+                    <div className="course-meta-line">
+                      Credits {course.creditsEarned}/{course.creditsRequired || 0} · Courses {course.completedNodes}/{course.totalNodes || 0}
                     </div>
 
                     <div 
                       className="action-link"
-                      onClick={() => navigate(`/dashboard/roadmap/${course.id}`)}
+                      onClick={() =>
+                        navigate(`/dashboard/roadmap/${course.id}`, {
+                          state: { roadmapTitle: course.title },
+                        })
+                      }
                     >
                       {status.label}
                     </div>

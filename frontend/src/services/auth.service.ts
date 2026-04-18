@@ -29,7 +29,7 @@ export interface MentorRegisterPayload {
 export const authService = {
   login: async (credentials: LoginPayload) => {
     // The interceptor in api.ts returns response.data directly
-    return api.post('/auth/login', credentials);
+    return api.post('/api/v1/auth/login', credentials);
   },
 
   register: async (data: LearnerRegisterPayload) => {
@@ -49,10 +49,10 @@ export const authService = {
   },
 
   refresh: async () => {
-    return api.post('/auth/refresh', {});
+    return api.post('/api/v1/auth/refresh', {});
   },
 
   logout: async () => {
-    return api.post('/auth/logout', {});
+    return api.post('/api/v1/auth/logout', {});
   },
 };

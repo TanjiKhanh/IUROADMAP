@@ -94,7 +94,7 @@ export const mentorService = {
     try {
       console.log('🔍 Searching mentors with filters:', filters);
       
-      const response: any = await api.get(`/mentors?${params.toString()}`);
+      const response: any = await api.get(`/api/v1/mentors?${params.toString()}`);
       
       console.log('✅ Mentors response:', response);
       console.log('📈 Mentors count:', response?.data?.length);
@@ -116,7 +116,7 @@ export const mentorService = {
       console.log('📋 Fetching all mentors...');
       
       const response: any = await api.get(
-        `/mentors?limit=${limit}&offset=${offset}`
+        `/api/v1/mentors?limit=${limit}&offset=${offset}`
       );
       
       console.log('✅ All mentors fetched:', response?.data?.length);
@@ -141,7 +141,7 @@ export const mentorService = {
       console.log(`🏭 Searching mentors in industry: ${industry}`);
       
       const response: any = await api.get(
-        `/mentors?industry=${industry}&limit=${limit}&offset=${offset}`
+        `/api/v1/mentors?industry=${industry}&limit=${limit}&offset=${offset}`
       );
       
       return response as PaginatedResponse<MentorProfile>;
@@ -164,7 +164,7 @@ export const mentorService = {
       console.log(`🔎 Searching mentors: ${search}`);
       
       const response: any = await api.get(
-        `/mentors?search=${search}&limit=${limit}&offset=${offset}`
+        `/api/v1/mentors?search=${search}&limit=${limit}&offset=${offset}`
       );
       
       return response as PaginatedResponse<MentorProfile>;
@@ -186,7 +186,7 @@ export const mentorService = {
     try {
       console.log('📊 Fetching mentor statistics...');
       
-      const response: any = await api.get('/mentors/stats');
+      const response: any = await api.get('/api/v1/mentors/stats');
       
       const data = extractResponse(response);
       
@@ -213,7 +213,7 @@ export const mentorService = {
     try {
       console.log('👤 Fetching my profile...');
       
-      const response: any = await api.get('/mentor-profiles/me');
+      const response: any = await api.get('/api/v1/mentor-profiles/me');
       const data = extractResponse(response);
       
       return data as MentorProfile;
@@ -231,7 +231,7 @@ export const mentorService = {
     try {
       console.log('✨ Creating mentor profile...');
       
-      const response: any = await api.post('/mentor-profiles', mentor);
+      const response: any = await api.post('/api/v1/mentor-profiles', mentor);
       const data = extractResponse(response);
       
       return data as MentorProfile;
@@ -249,7 +249,7 @@ export const mentorService = {
     try {
       console.log('📝 Updating mentor profile...');
       
-      const response: any = await api.put('/mentor-profiles/me', mentor);
+      const response: any = await api.put('/api/v1/mentor-profiles/me', mentor);
       const data = extractResponse(response);
       
       return data as MentorProfile;
@@ -267,7 +267,7 @@ export const mentorService = {
     try {
       console.log(`👤 Fetching profile for user ${userId}...`);
       
-      const response: any = await api.get(`/mentor-profiles/${userId}`);
+      const response: any = await api.get(`/api/v1/mentor-profiles/${userId}`);
       const data = extractResponse(response);
       
       return data as MentorProfile;

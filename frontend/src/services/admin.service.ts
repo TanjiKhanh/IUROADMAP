@@ -48,27 +48,27 @@ export const adminService = {
   // ==========================================
   getAllDepartments: async () => {
     // 💡 FIX: Cast the result so TypeScript knows it's an Array, not an AxiosResponse
-    const data = await api.get<Department[]>('/admin/departments');
+    const data = await api.get<Department[]>('/api/v1/admin/departments');
     return data as unknown as Department[];
   },
 
   getDepartmentBySlug: async (slug: string) => {
-    const data = await api.get<Department>(`/admin/departments/${slug}`);
+    const data = await api.get<Department>(`/api/v1/admin/departments/${slug}`);
     return data as unknown as Department;
   },
 
   createDepartment: async (payload: Department) => {
-    const data = await api.post<Department>('/admin/departments', payload);
+    const data = await api.post<Department>('/api/v1/admin/departments', payload);
     return data as unknown as Department;
   },
 
   updateDepartment: async (id: number, payload: Partial<Department>) => {
-    const data = await api.patch<Department>(`/admin/departments/${id}`, payload);
+    const data = await api.patch<Department>(`/api/v1/admin/departments/${id}`, payload);
     return data as unknown as Department;
   },
 
   deleteDepartment: async (id: number) => {
-    const data = await api.delete(`/admin/departments/${id}`);
+    const data = await api.delete(`/api/v1/admin/departments/${id}`);
     return data as unknown as any;
   },
 
@@ -76,27 +76,27 @@ export const adminService = {
   // 📚 COURSES
   // ==========================================
   getAllCourses: async () => {
-    const data = await api.get<Course[]>('/admin/courses');
+    const data = await api.get<Course[]>('/api/v1/admin/courses');
     return data as unknown as Course[];
   },
 
   getCourseBySlug: async (slug: string) => {
-    const data = await api.get<Course>(`/admin/courses/${slug}`);
+    const data = await api.get<Course>(`/api/v1/admin/courses/${slug}`);
     return data as unknown as Course;
   },
 
   createCourse: async (payload: Course) => {
-    const data = await api.post<Course>('/admin/courses', payload);
+    const data = await api.post<Course>('/api/v1/admin/courses', payload);
     return data as unknown as Course;
   },
 
   updateCourse: async (id: number, payload: Partial<Course>) => {
-    const data = await api.patch<Course>(`/admin/courses/${id}`, payload);
+    const data = await api.patch<Course>(`/api/v1/admin/courses/${id}`, payload);
     return data as unknown as Course;
   },
 
   deleteCourse: async (id: number) => {
-    const data = await api.delete(`/admin/courses/${id}`);
+    const data = await api.delete(`/api/v1/admin/courses/${id}`);
     return data as unknown as any;
   },
 
@@ -104,29 +104,29 @@ export const adminService = {
   // 🗺️ ROADMAPS
   // ==========================================
   getAllRoadmaps: async () => {
-    const data = await api.get<Roadmap[]>('/admin/roadmaps');
+    const data = await api.get<Roadmap[]>('/api/v1/admin/roadmaps');
     return data as unknown as Roadmap[];
   },
 
   getRoadmapBySlug: async (slug: string) => {
-    const data = await api.get<Roadmap>(`/admin/roadmaps/${slug}`);
+    const data = await api.get<Roadmap>(`/api/v1/admin/roadmaps/${slug}`);
     return data as unknown as Roadmap;
   },
 
   // ✅ CREATE: Matches your requested body structure
   createRoadmap: async (payload: Roadmap) => {
-    const data = await api.post<Roadmap>('/admin/roadmaps', payload);
+    const data = await api.post<Roadmap>('/api/v1/admin/roadmaps', payload);
     return data as unknown as Roadmap;
   },
 
   // ✅ UPDATE: Matches your requested body structure
   updateRoadmap: async (id: number, payload: Partial<Roadmap>) => {
-    const data = await api.patch<Roadmap>(`/admin/roadmaps/${id}`, payload);
+    const data = await api.patch<Roadmap>(`/api/v1/admin/roadmaps/${id}`, payload);
     return data as unknown as Roadmap;
   },
 
   deleteRoadmap: async (id: number) => {
-    const data = await api.delete(`/admin/roadmaps/${id}`);
+    const data = await api.delete(`/api/v1/admin/roadmaps/${id}`);
     return data as unknown as any;
   },
 

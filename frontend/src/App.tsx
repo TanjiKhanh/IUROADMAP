@@ -10,7 +10,10 @@ import ForgotPassword from './pages/public/ForgotPassword';
 // Pages - Learner
 import LearnerDashboard from './pages/learner/LearnerDashboard';
 import MyCourses from './pages/learner/MyCourse';
-import RoadmapDetail from './pages/learner/RoadmapDetail';
+import MacroRoadmap from './pages/learner/MacroRoadmap';
+import ExploreMajors from './pages/learner/ExploreMajors';
+import FindMentors from './pages/learner/FindMentors';
+import MicroRoadmap from './pages/learner/MicroRoadmap';
 
 // Pages - Mentor
 import ApplicationPending from './pages/mentor/ApplicationPending';
@@ -31,7 +34,6 @@ import RequireRole from './auth/RequireRole';
 
 // Layouts
 import MainLayout from './components/layouts/MainLayout'; 
-import FindMentors from './pages/learner/FindMentors';
 
 export default function App() {
   return (
@@ -76,18 +78,23 @@ export default function App() {
               }
             >
               <Route index element={<LearnerDashboard />} />
+              <Route path="explore" element={<ExploreMajors />} />
               <Route path="my-courses" element={<MyCourses />} />
+              <Route path="find-mentors" element={<FindMentors />} />
+              <Route path="roadmap/:id" element={<MacroRoadmap />} />
+              <Route path="roadmap-preview/:slug" element={<MacroRoadmap />} />
+              <Route path="roadmap/:id/micro/:courseNodeId" element={<MicroRoadmap />} />
             </Route>
-
+            
             {/* =========================================
                 3. LEARNER FULLSCREEN TOOLS (No Sidebar)
                ========================================= */}
             <Route 
-              path="/dashboard/roadmap/:id" 
+              path="/dashboard/roadmap-legacy/:id" 
               element={
                 <RequireAuth>
                   <RequireRole allowedRoles={['STUDENT', 'ADMIN']}>
-                    <RoadmapDetail />
+                    <MacroRoadmap />
                   </RequireRole>
                 </RequireAuth>
               } 

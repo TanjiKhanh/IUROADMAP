@@ -5,7 +5,7 @@
   color: #1e293b;
   max-width: 1200px;
   /* Remove margin: 0 auto; if you want it left-aligned like dashboard */
-  padding: 0 1rem;
+  padding: 0 1rem 0 0.1rem;
 }
 
 .page-header {
@@ -78,6 +78,7 @@
   /* Limit to 3 lines */
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -141,6 +142,13 @@
   border-radius: 99px; /* Pill shape */
   overflow: hidden;
   margin-bottom: 1.25rem;
+}
+
+.course-meta-line {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: -0.25rem;
+  margin-bottom: 0.85rem;
 }
 
 .progress-fill {
