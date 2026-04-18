@@ -10,8 +10,14 @@ import ForgotPassword from './pages/public/ForgotPassword';
 // Pages - Learner
 import LearnerDashboard from './pages/learner/LearnerDashboard';
 import MyCourses from './pages/learner/MyCourse';
-import RoadmapDetail from './pages/learner/RoadmapDetail';
+import MacroRoadmap from './pages/learner/MacroRoadmap';
 import ExploreMajors from './pages/learner/ExploreMajors';
+import FindMentors from './pages/learner/FindMentors';
+import MicroRoadmap from './pages/learner/MicroRoadmap';
+
+// Pages - Mentor
+import ApplicationPending from './pages/mentor/ApplicationPending';
+import MentorDashboard from './pages/mentor/MentorDashboard';
 
 // Pages - Admin
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -27,7 +33,6 @@ import RequireRole from './auth/RequireRole';
 
 // Layouts
 import MainLayout from './components/layouts/MainLayout'; 
-import FindMentors from './pages/learner/FindMentors';
 
 export default function App() {
   return (
@@ -53,7 +58,6 @@ export default function App() {
               path="/register" 
               element={<PublicOnly><Register /></PublicOnly>} 
             />
-            
             <Route 
               path="/forgot-password" 
               element={<PublicOnly><ForgotPassword /></PublicOnly>} 
@@ -75,19 +79,21 @@ export default function App() {
               <Route index element={<LearnerDashboard />} />
               <Route path="explore" element={<ExploreMajors />} />
               <Route path="my-courses" element={<MyCourses />} />
-              <Route path="mentors" element={<FindMentors />} />
-              {/* Note: Roadmap Detail removed from here to allow fullscreen */}
+              <Route path="find-mentors" element={<FindMentors />} />
+              <Route path="roadmap/:id" element={<MacroRoadmap />} />
+              <Route path="roadmap-preview/:slug" element={<MacroRoadmap />} />
+              <Route path="roadmap/:id/micro/:courseNodeId" element={<MicroRoadmap />} />
             </Route>
-
+            
             {/* =========================================
                 3. LEARNER FULLSCREEN TOOLS (No Sidebar)
                ========================================= */}
             <Route 
-              path="/dashboard/roadmap/:id" 
+              path="/dashboard/roadmap-legacy/:id" 
               element={
                 <RequireAuth>
                   <RequireRole allowedRoles={['STUDENT', 'ADMIN']}>
-                    <RoadmapDetail />
+                    <MacroRoadmap />
                   </RequireRole>
                 </RequireAuth>
               } 
@@ -101,7 +107,7 @@ export default function App() {
               element={
                 <RequireAuth>
                   <RequireRole allowedRoles={['ADMIN']}>
-                    <MainLayout /> 
+                    <MainLayout />
                   </RequireRole>
                 </RequireAuth>
               }
@@ -131,6 +137,24 @@ export default function App() {
                 <RequireAuth>
                   <RequireRole allowedRoles={['ADMIN']}>
                     <RoadmapDesigner />
+                  </RequireRole>
+                </RequireAuth>
+              } 
+            />
+
+            {/* =========================================
+                6. MENTOR ROUTES 
+               ========================================= */}
+            <Route 
+              path="/application-pending" 
+              element={<ApplicationPending />} 
+            />
+            <Route 
+              path="/mentor-dashboard" 
+              element={
+                <RequireAuth>
+                  <RequireRole allowedRoles={['MENTOR']}>
+                    <MentorDashboard />
                   </RequireRole>
                 </RequireAuth>
               } 

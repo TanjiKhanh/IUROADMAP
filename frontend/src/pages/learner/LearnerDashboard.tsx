@@ -171,8 +171,8 @@ export default function LearnerDashboard() {
                     </div>
 
                     {roadmap.progressPercent > 0 ? (
-                      <div className="roadmap-footer">
-                        <div className="progress-container">
+                      <div className="roadmap-footer roadmap-footer-progress">
+                        <div className="progress-inline">
                           <div className="progress-track">
                             <div
                               className="progress-bar-fill"
@@ -203,7 +203,7 @@ export default function LearnerDashboard() {
                             })
                           }
                         >
-                          Start Learning
+                          Start Learning 
                         </button>
                       </div>
                     )}

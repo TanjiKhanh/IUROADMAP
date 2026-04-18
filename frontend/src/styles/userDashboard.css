@@ -215,13 +215,34 @@
   margin-top: 10px;
 }
 
+.roadmap-footer-progress {
+  justify-content: space-between;
+  padding-top: 12px;
+}
+
+.roadmap-footer-available {
+  padding-top: 12px;
+  justify-content: flex-start;
+}
+
 .progress-container {
   flex: 1;
 }
 
+.progress-inline {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
 .progress-track {
-  width: 100%;
+  flex: 1;
+  min-width: 120px;
   height: 8px;
+  margin-top: 18px;
   background-color: #e5ebf5;
   border-radius: 999px;
   overflow: hidden;
@@ -234,11 +255,12 @@
 }
 
 .progress-text {
-  margin-top: 4px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   font-size: 0.8rem;
   color: #7d8ea8;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .btn-continue {
@@ -258,11 +280,28 @@
   background: #172236;
 }
 
+.btn-start-link {
+  border: none;
+  background: transparent;
+  color: #4F46E5;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-start-link:hover {
+  color: #2b26c5;
+}
+
 .dashboard-pagination {
-  display: inline-flex;
+  display: flex;
+  justify-content: center;
   align-items: center;
   gap: 10px;
-  margin-top: 2px;
+  width: 100%;
+  margin-top: 6px;
 }
 
 .pagination-btn {
@@ -486,6 +525,10 @@
   .roadmap-footer {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .progress-inline {
+    width: 100%;
   }
 
   .btn-continue {

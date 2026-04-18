@@ -1,36 +1,46 @@
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
+import { CheckCircle2, LoaderCircle } from 'lucide-react';
 
 export interface RoadmapNodeData {
   title: string;
   status: 'COMPLETED' | 'IN_PROGRESS' | 'AVAILABLE' ;
+  slug?: string;
+  credits?: number;
   summary?: string;
 }
 
 const RoadmapNode = ({ data, selected }: NodeProps<RoadmapNodeData>) => {
+  const buildMeta = () => {
+    if (data.summary) return data.summary;
+    if (data.slug && typeof data.credits === 'number') {
+      return `${data.slug} • ${data.credits} Credits`;
+    }
+    return 'No code information';
+  };
+
   const getStatusConfig = (status: RoadmapNodeData['status']) => {
     switch (status) {
       case 'COMPLETED':
         return {
           styleClass: 'node-completed',
-          icon: '✓',
+          icon: <CheckCircle2 size={14} />,
           badgeText: 'COMPLETED',
           handleColor: '#16a34a',
         };
       case 'IN_PROGRESS':
         return {
           styleClass: 'node-in-progress',
-          icon: '◔',
-          badgeText: 'IN PROGRESS',
+          icon: <LoaderCircle size={14} className="node-status-icon-spin" />,
+          badgeText: 'IN-PROCESS',
           handleColor: '#f59e0b',
         };
       
       default: 
         return {
           styleClass: 'node-available',
-          icon: '•',
           badgeText: 'AVAILABLE',
-          handleColor: '#3b82f6',
+          handleColor: '#3c86df',
         };
     }
   };
@@ -52,7 +62,7 @@ const RoadmapNode = ({ data, selected }: NodeProps<RoadmapNodeData>) => {
       </div>
 
       <h3 className="node-title">{data.title}</h3>
-      <p className="node-meta">{data.summary || 'No code information'}</p>
+  <p className="node-meta">{buildMeta()}</p>
 
       <Handle 
         type="source" 
