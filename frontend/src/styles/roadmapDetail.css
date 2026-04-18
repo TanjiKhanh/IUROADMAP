@@ -241,6 +241,8 @@ body {
 
 /* Header Row */
 .node-status-row {
+/* Header Row */
+.node-status-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -265,6 +267,16 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.node-status-icon svg {
+  display: block;
+}
+
+.node-status-icon-spin {
+  animation: node-icon-spin 1.8s linear infinite;
 }
 
 /* Content */
@@ -277,6 +289,7 @@ body {
 }
 
 .node-meta {
+.node-meta {
   margin: 0;
   font-size: 0.66rem;
   color: #94a3b8;
@@ -287,6 +300,8 @@ body {
   display: -webkit-box;
   -webkit-line-clamp: 1;
   line-clamp: 1;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
 }
 
@@ -294,9 +309,13 @@ body {
 .react-flow__handle.node-handle {
   width: 8px !important;
   height: 8px !important;
+  width: 8px !important;
+  height: 8px !important;
   background-color: #ffffff !important;
   border-width: 1.5px !important;
+  border-width: 1.5px !important;
   border-style: solid !important;
+  opacity: 0 !important;
   opacity: 0 !important;
   z-index: 10;
 }
@@ -307,17 +326,26 @@ body {
 
 /* COMPLETED */
 .node-completed {
+/* COMPLETED */
+.node-completed {
   background-color: #ffffff;
   border-color: #16a34a;
+  border-color: #16a34a;
 }
+.node-completed .node-status-label {
+  color: #16a34a;
 .node-completed .node-status-label {
   color: #16a34a;
 }
 .node-completed .node-status-icon {
   color: #16a34a;
   background: #f0fdf4;
+.node-completed .node-status-icon {
+  color: #16a34a;
+  background: #f0fdf4;
 }
 
+/* IN PROGRESS */
 /* IN PROGRESS */
 .node-in-progress {
   background-color: #ffffff;
@@ -331,6 +359,7 @@ body {
   background: #fffbeb;
 }
 
+/* AVAILABLE */
 /* AVAILABLE */
 .node-available {
   background-color: #ffffff;
@@ -413,4 +442,20 @@ body {
   border: 0;
   border-top: 1px solid #e2e8f0;
   margin: 2em 0;
+}
+
+.roadmap-toolbar--macro {
+  left: 18px;
+  right: auto;
+  top: 18px;
+  flex-direction: column;
+}
+
+.roadmap-canvas .react-flow__minimap {
+  width: 180px !important;
+  height: 110px !important;
+  border: 1px solid #eef3f8;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
 }

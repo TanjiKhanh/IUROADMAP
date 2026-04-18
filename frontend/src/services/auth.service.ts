@@ -6,11 +6,24 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface RegisterPayload {
+export interface LearnerRegisterPayload {
   email: string;
   password: string;
   name: string;
   role: string;
+  // ✅ NOTE: Course enrollment happens via priorityJob field, but it's handled in LearnerProfile after registration
+}
+
+export interface MentorRegisterPayload {
+  email: string;
+  password: string;
+  name: string;
+  role: string;
+  linkedinUrl: string;
+  industry: string;
+  skills: string[];
+  bio: string;
+  cvUrl: string;
 }
 
 export const authService = {
@@ -19,8 +32,20 @@ export const authService = {
     return api.post('/api/v1/auth/login', credentials);
   },
 
-  register: async (data: RegisterPayload) => {
-    return api.post('/api/v1/auth/register', data);
+  register: async (data: LearnerRegisterPayload) => {
+    return api.post('/auth/register/learner', data);
+  },
+
+  forgotPassword: async (email: string) => {
+  return api.post('/auth/forgot-password', { email });
+  },
+
+  resetPassword: async (token: string, newPassword: string) => {
+    return api.post('/auth/reset-password', { token, newPassword });
+  },
+
+  registerMentor: async (data: MentorRegisterPayload) => {
+    return api.post('/auth/register/mentor', data);
   },
 
   refresh: async () => {

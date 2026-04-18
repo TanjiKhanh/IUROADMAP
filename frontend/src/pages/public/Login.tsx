@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/auth.css'; 
 import { useAuth , User } from '../../auth/AuthContext';
 
@@ -8,6 +8,7 @@ import logo from '../../assets/images/logo-gupjob-primary.png';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   // State manage form
@@ -20,7 +21,15 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Check if coming from registration
+  useEffect(() => {
+    if ((location.state as any)?.message) {
+      setSuccess((location.state as any).message);
+    }
+  }, [location.state]);
 
   // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,12 +38,14 @@ export default function Login() {
       [e.target.name]: e.target.value
     });
     if (error) setError(null);
+    if (success) setSuccess(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       if (!formData.email || !formData.password) {
@@ -49,7 +60,9 @@ export default function Login() {
       console.log("Login successful, user:", user);
       
       // Redirect based on role
-      if (user?.role === 'ADMIN') {
+      if (user?.role === 'MENTOR' && user?.status === 'PENDING_APPROVAL') {
+        navigate('/application-pending', { replace: true });
+      } else if (user?.role === 'ADMIN') {
         navigate('/admin', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
@@ -75,6 +88,12 @@ export default function Login() {
         {error && (
           <div className="auth-error">
             <span>⚠️ {error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div style={{ backgroundColor: '#d4edda', border: '1px solid #c3e6cb', color: '#155724', padding: '12px 16px', borderRadius: '4px', marginBottom: '1rem', fontSize: '0.95rem' }}>
+            <span>✅ {success}</span>
           </div>
         )}
 

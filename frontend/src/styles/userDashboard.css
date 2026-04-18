@@ -1,287 +1,494 @@
-/* src/pages/learner/LearnerDashboard.css */
-
-/* --- Layout Grid --- */
-.dashboard-container {
+.learner-dashboard-container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  font-family: 'Inter', sans-serif; /* Or your system font */
-  color: #1e293b;
+  gap: 24px;
+  font-family: 'Inter', sans-serif;
+  color: #1f2a3d;
 }
 
-/* --- Stats Row (Top) --- */
+.dashboard-loading {
+  padding: 20px;
+  text-align: center;
+  color: #6c7b96;
+}
+
+.dashboard-heading h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: #1f2a3d;
+}
+
+.dashboard-heading p {
+  margin: 6px 0 0;
+  font-size: 1.1rem;
+  color: #73819b;
+}
+
 .stats-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
 }
 
-.stat-card {
-  background: white;
-  border: 1px solid #e2e8f0;
+.learner-stat-card {
+  background: #ffffff;
+  border: 1px solid #d8e0ec;
   border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 140px;
+  padding: 16px 18px;
+  min-height: 122px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
-.stat-card h3 {
-  font-size: 0.875rem;
-  color: #64748b;
-  font-weight: 500;
+.learner-stat-card h3 {
   margin: 0;
+  font-size: 14px;
+  color: #7b89a2;
+  font-weight: 700;
 }
 
 .stat-main {
   display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
 }
 
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0f172a;
+.learner-stat-value {
+  font-size: 30px;
   line-height: 1;
+  font-weight: 800;
+  color: #27354f;
+  padding-left: 8px;
 }
 
 .stat-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.25rem;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.stat-sub {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  margin: 0;
+.stat-progress {
+  color: #4d5fe6;
+  background: #eceffd;
 }
 
-/* Specific Styles for Progress Card */
+.stat-verified {
+  color: #e0a911;
+  background: #fff6da;
+}
+
+.stat-streak {
+  color: #2fbf71;
+  background: #e8f8ef;
+}
+
+.stat-mentorship {
+  color: #3e82ea;
+  background: #eaf2ff;
+}
+
+.learner-stat-sub {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #95a2b8;
+  text-align: left;
+}
+
 .progress-mini-bar {
   width: 100%;
   height: 6px;
-  background-color: #f1f5f9;
-  border-radius: 3px;
-  margin-top: 0.75rem;
+  background-color: #e9eef7;
+  border-radius: 999px;
+  margin-top: 10px;
   overflow: hidden;
 }
 
 .progress-mini-fill {
   height: 100%;
-  background-color: #4f46e5; /* Primary Blue */
-  border-radius: 3px;
+  background-color: #5850ec;
+  border-radius: inherit;
 }
 
-/* --- Main Content Split (Left: Learning, Right: Sidebar) --- */
 .content-split {
   display: grid;
-  grid-template-columns: 2fr 1fr; /* 2/3rds for Learning, 1/3rd for Sidebar */
-  gap: 2rem;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 16px;
+  align-items: start;
 }
 
-@media (max-width: 1024px) {
-  .content-split {
-    grid-template-columns: 1fr; /* Stack on smaller screens */
-  }
+.dashboard-panel {
+  background: #ffffff;
+  border: 1px solid #d8e0ec;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
-/* --- Continue Learning Section --- */
+.dashboard-panel + .dashboard-panel {
+  margin-top: 16px;
+}
+
 .section-header {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #334155;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 750;
+  line-height: 1.12;
+  color: #202f46;
 }
 
 .section-sub {
   display: block;
-  font-size: 0.875rem;
-  color: #64748b;
-  font-weight: 400;
-  margin-top: -0.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: 4px;
+  margin-bottom: 14px;
+  color: #7b8aa4;
+  font-size: 1rem;
 }
 
 .roadmap-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #dde5f1;
+  border-radius: 10px;
+  padding: 10px 10px;
+  margin-bottom: 12px;
+  background: #ffffff;
+}
+
+.roadmap-card.empty-state {
+  text-align: center;
+  padding: 22px;
 }
 
 .roadmap-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
+  gap: 5px;
 }
 
+
+
 .roadmap-header h4 {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 0.25rem 0;
-  color: #0f172a;
+  margin: 0;
+  color: #21314a;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
 }
 
 .roadmap-desc {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin: 0;
+  margin: 8px 0 0;
+  color: #6f809c;
+  font-size: 15px;
+  text-align: left;
 }
 
 .status-badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.25rem 0.75rem;
+  align-self: flex-start;
+  font-size: 0.74rem;
+  font-weight: 700;
   border-radius: 999px;
-  background-color: #fef3c7;
-  color: #b45309;
+  padding: 3px 10px;
+}
+
+.status-badge.in-progress {
+  background: #fff4d8;
+  color: #b4870c;
+}
+
+.status-badge.available {
+  background: #dff4e7;
+  color: #2b9b57;
 }
 
 .status-badge.completed {
-  background-color: #dcfce7;
-  color: #166534;
+  background: #dff4e7;
+  color: #21824a;
 }
 
 .roadmap-footer {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 14px;
+  margin-top: 10px;
 }
 
 .progress-container {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
 }
 
 .progress-track {
   width: 100%;
   height: 8px;
-  background-color: #f1f5f9;
-  border-radius: 4px;
+  background-color: #e5ebf5;
+  border-radius: 999px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background-color: #4f46e5;
-  border-radius: 4px;
+  background: linear-gradient(90deg, #4d48e6 0%, #6557f3 100%);
+  border-radius: inherit;
 }
 
 .progress-text {
-  font-size: 0.75rem;
-  color: #64748b;
-  text-align: right;
+  margin-top: 4px;
+  display: inline-block;
+  font-size: 0.8rem;
+  color: #7d8ea8;
+  font-weight: 600;
 }
 
 .btn-continue {
-  background-color: #0f172a;
-  color: white;
   border: none;
-  padding: 0.6rem 1.25rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: 8px;
+  height: 36px;
+  min-width: 112px;
+  padding: 0 14px;
+  color: #ffffff;
+  background: #1f2d44;
+  font-size: 0.9rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
 }
 
 .btn-continue:hover {
-  background-color: #334155;
+  background: #172236;
 }
 
-/* --- Right Sidebar Widgets --- */
+.dashboard-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.pagination-btn {
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #8ca0be;
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pagination-page-current {
+  min-width: 30px;
+  height: 30px;
+  border: 1px solid #94a1b5;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #3d4d67;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 0 8px;
+}
+
+.pagination-page-total {
+  color: #8ea0b9;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.recent-achievements .achievement-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #f0df97;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fffdf2;
+}
+
+.achievement-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #d9a110;
+  background: #fff2c8;
+  flex-shrink: 0;
+}
+
+.achievement-card strong {
+  display: block;
+  color: #2a3650;
+  font-size: 0.98rem;
+}
+
+.achievement-card p {
+  margin: 2px 0 0;
+  font-size: 0.84rem;
+  color: #7f8ea8;
+}
+
 .sidebar-widget {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border: 1px solid #d8e0ec;
   border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  width: 400px;
+  max-width: 100%;
+  min-height: 250px;
+  padding: 24px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.sidebar-widget + .sidebar-widget {
+  margin-top: 24px;
 }
 
 .widget-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+  margin: 0;
+  color: #2c3c56;
+  font-size: 20px;
+  line-height: 1.15;
+  font-weight: 700;
 }
 
 .session-card {
-  background-color: #f8fafc;
-  border-radius: 8px;
-  padding: 1rem;
-  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #edf2fc;
+  padding: 24px;
+  margin-top: 24px;
 }
 
 .mentor-name {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #4f46e5;
   display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1E3A8A;
 }
 
 .session-topic {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #1e293b;
-  margin: 0.25rem 0;
+  margin: 4px 0;
+  color: #3d5ea8;
+  font-size: 1rem;
 }
 
 .session-time {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-bottom: 1rem;
   display: block;
+  color: #3d5ea8;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
 }
 
 .btn-join {
   width: 100%;
-  background-color: #4f46e5;
-  color: white;
+  height: 36px;
   border: none;
-  padding: 0.5rem;
   border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  color: #ffffff;
+  background: linear-gradient(90deg, #4f49e7 0%, #6154f3 100%);
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .mentor-profile-card {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: 10px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  padding: 10px;
 }
 
 .mentor-avatar {
-  width: 40px;
-  height: 40px;
-  background-color: #cbd5e1;
-  border-radius: 50%;
-  display: flex;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #cfd8e7;
+  color: #3f4f69;
+  font-weight: 800;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  color: #475569;
+}
+
+.mentor-display-name {
+  color: #2d3d58;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.mentor-role {
+  color: #7688a4;
+  font-size: 0.84rem;
 }
 
 .btn-view-profile {
+  margin-top: 10px;
   width: 100%;
-  background-color: white;
-  border: 1px solid #e2e8f0;
-  color: #334155;
-  padding: 0.5rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  height: 34px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  color: #000000;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
+}
+
+.browse-link-wrap {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.browse-link {
+  text-decoration: none;
+  color: #4F46E5;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 1280px) {
+  .stats-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .section-header,
+  .widget-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .content-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-heading h1 {
+    font-size: 1.85rem;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .roadmap-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-continue {
+    width: 100%;
+  }
 }

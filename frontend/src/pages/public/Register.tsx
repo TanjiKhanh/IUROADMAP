@@ -1,178 +1,214 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../auth/AuthContext'; // Import useAuth hook
+import { useAuth } from '../../auth/AuthContext';
+import { authService } from '../../services/auth.service';
 import '../../styles/Register.css';
+import { MentorRegisterPayload } from '../../services/auth.service';
 
-// Asset Import (Logo)
+// Asset Import
 import logo from '../../assets/images/logo-gupjob-primary.png';
 import gitHub from '../../assets/images/icon-github.png';
 import linkedIn from '../../assets/images/icon-linkedin.png';
 
-import { PublicCourse , publicService } from '../../services/public.service';
+import { PublicCourse, publicService } from '../../services/public.service';
+import { RegisterForm, MentorFormData } from '../../components/auth/RegisterForm';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { register } = useAuth(); // Get register function from context
+  const { register } = useAuth();
   const [step, setStep] = useState(1);
-  const totalSteps = 6;
 
-  // State control form data
   const [formData, setFormData] = useState({
     email: '',
     fullName: '',
     password: '',
-    role: '', 
-    currentSituation: '', 
-    careerGoals: [] as string[],
-    interests: [] as string[],
-    primaryGoalNextYear: '',
+    role: '',
     priorityJob: '',
-    selectedCourseId : null as number | null
+    selectedCourseId: null as number | null,
   });
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // --- LOAD RECOMMENDED COURSES BASED ON INTEREST ---
+  // --- LOAD RECOMMENDED COURSES ---
   const [availableCourses, setAvailableCourses] = useState<PublicCourse[]>([]);
   const [isCourseLoading, setIsCourseLoading] = useState(false);
 
   useEffect(() => {
-    if (step === 6) {
+    // Load courses for learners at step 3
+    if (step === 3 && formData.role === 'learner') {
       const loadCourses = async () => {
         setIsCourseLoading(true);
         try {
-          const primaryInterest = formData.interests[0];
-          const deptSlug = getDepartmentSlug(primaryInterest);
-
-          // Use publicService to fetch JOB courses for the department
-          const courses = await publicService.getJobCourses(deptSlug);
-          
+          const courses = await publicService.getJobCourses('general');
           if (Array.isArray(courses)) {
             setAvailableCourses(courses);
           }
         } catch (err) {
-          console.error("Error loading courses", err);
+          console.error('Error loading courses', err);
         } finally {
           setIsCourseLoading(false);
         }
       };
       loadCourses();
     }
-  }, [step, formData.interests]);
+  }, [step, formData.role]);
 
-  // --- HANDLERS (Keep existing handlers) ---
+  // --- CORE API SUBMIT LOGIC ---
+  const submitToServer = async (extraData: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Map frontend roles to backend expected enums
+      let backendRole = 'STUDENT';
+      if (formData.role === 'mentor') backendRole = 'MENTOR';
+      if (formData.role === 'company') backendRole = 'COMPANY';
+
+      const basePayload = {
+        email: formData.email,
+        password: formData.password,
+        name: formData.fullName,
+        role: backendRole,
+      };
+
+      let payload: any;
+
+      if (backendRole === 'MENTOR') {
+            payload = { ...basePayload, ...extraData } as MentorRegisterPayload;
+            console.log('🚀 Calling MENTOR API with payload:', payload);
+            
+            const response = await authService.registerMentor(payload);
+            console.log('✅ Mentor registration successful:', response);
+          } else if (backendRole === 'STUDENT') {
+            payload = basePayload;
+            console.log('🚀 Calling LEARNER API with payload:', payload);
+            
+            const response = await authService.register(payload);
+            console.log('✅ Learner registration successful:', response);
+          } else {
+            payload = basePayload;
+            console.log('🚀 Calling COMPANY API with payload:', payload);
+            
+            const response = await authService.register(payload);
+            console.log('✅ Company registration successful:', response);
+          }
+
+          // ROUTING BRANCH:
+          if (backendRole === 'MENTOR') {
+            localStorage.setItem('mentorName', formData.fullName);
+            localStorage.setItem('mentorEmail', formData.email);
+            console.log('📍 Navigating to /application-pending');
+            navigate('/application-pending');
+          } else {
+            navigate('/login', { state: { message: 'Registration successful! Please login with your credentials.' } });
+          }
+
+        } catch (err: any) {
+          const errorMsg = err.response?.data?.message || err.message || 'Registration failed';
+          setError(errorMsg);
+          console.error('❌ Registration error:', {
+            status: err.response?.status,
+            message: err.message,
+            data: err.response?.data,
+            fullError: err
+          });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // --- HANDLERS ---
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError(null);
   };
 
   const handleSelect = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
-
-  const handleMultiSelect = (field: 'careerGoals' | 'interests', value: string) => {
-    setFormData(prev => {
-      const list = prev[field];
-      return list.includes(value) 
-        ? { ...prev, [field]: list.filter(item => item !== value) }
-        : { ...prev, [field]: [...list, value] };
-    });
-  };
-
 
   const handleCourseSelect = (course: PublicCourse) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       if (prev.selectedCourseId === course.id) {
         return { ...prev, selectedCourseId: null, priorityJob: '' };
       }
-      return { 
-        ...prev, 
-        selectedCourseId: course.id, 
-        priorityJob: course.slug 
+      return {
+        ...prev,
+        selectedCourseId: course.id,
+        priorityJob: course.slug,
       };
     });
   };
 
-// Helper to map UI Interest tags to Backend Department Slugs
-const getDepartmentSlug = (interest: string) => {
-  const map: Record<string, string> = {
-    'IT': 'it',
-    'Business - Marketing': 'business',
-    'Design': 'design',
-    'Other': 'general'
-  };
-  return map[interest] || 'general';
-};
-
+  // --- STEP NAVIGATION ---
   const nextStep = () => {
     if (step === 1 && (!formData.email || !formData.fullName || !formData.password)) {
-      setError("Please fill in all fields.");
+      setError('Please fill in all fields.');
       return;
     }
-    if (step === 2 && !formData.role) {
-      setError("Please select a role.");
-      return;
+    if (step === 2) {
+      if (!formData.role) {
+        setError('Please select a role.');
+        return;
+      }
+      if (formData.role === 'mentor') {
+        setError(null);
+        setStep(4);
+        return;
+      }
+      if (formData.role === 'company') {
+        // Companies complete registration on step 2, no next step needed
+        return; 
+      }
     }
     setError(null);
-    setStep(prev => Math.min(prev + 1, totalSteps));
+    setStep((prev) => prev + 1);
   };
 
-  const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
+  const prevStep = () => {
+    if (step === 4) {
+      setStep(2);
+    } else {
+      setStep((prev) => Math.max(prev - 1, 1));
+    }
+  };
 
-
-
-
-  // --- SUBMIT HANDLER ---
+  // --- SPECIFIC SUBMIT HANDLERS ---
   const handleSubmit = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Map role logic
-      const roleMap: { [key: string]: string } = {
-        'learner': 'STUDENT',
-        'mentor': 'MENTOR',
-        'company': 'COMPANY',
-        'admin': 'ADMIN'
-      };
-      
-      const backendRole = roleMap[formData.role.toLowerCase()] || formData.role.toUpperCase();
-      
-      const departmentSlug = getDepartmentSlug(formData.interests[0]);
-      
-      const payload = {
-        email: formData.email,
-        password: formData.password,
-        name: formData.fullName,
-        role: backendRole,  
-      };
-
-      console.log("Submitting Payload:", payload); // 🔍 Debug Log
-
-      // Call the context function instead of fetch
-      await register(payload);
-
-      // Success -> Navigate
-      navigate('/login');
-      
-    } catch (err: any) {
-      // API errors usually come as objects or strings depending on your api.ts interceptor
-      const errorMessage = err.response?.data?.message || err.message || 'Registration failed';
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+    await submitToServer({});
   };
 
-  // ... (Rest of your Render Functions: renderStep1, renderStep2, etc. remain exactly the same) ...
-  
-  // NOTE: Paste your existing render functions (renderStep1 - renderStep5) and return statement here.
-  // The UI logic does not change, only the handleSubmit logic changed.
-  
-  // ... (Include renderStep1, renderStep2, renderStep3, renderStep4, renderStep5) ...
+  const handleMentorSubmit = async (mentorData: MentorFormData) => {
+    await submitToServer({
+      cvUrl: mentorData.cvUrl,
+      linkedinUrl: mentorData.linkedinUrl,
+      industry: mentorData.industry,
+      skills: mentorData.skills,
+      bio: mentorData.bio,
+    });
+  };
 
+  // --- DYNAMIC PROGRESS BAR LOGIC ---
+  const getProgressInfo = () => {
+    // Company path: Auth -> Role (2 steps total)
+    if (formData.role === 'company') {
+      return { currentDisplayStep: step, totalDisplaySteps: 2 };
+    }
+    
+    // Mentor path: Auth -> Role -> Mentor Form (3 steps total)
+    if (formData.role === 'mentor') {
+      const displayStep = step === 4 ? 3 : step; // Map internal step 4 to display step 3
+      return { currentDisplayStep: displayStep, totalDisplaySteps: 3 };
+    }
+    
+    // Learner path (or default before selection): Auth -> Role -> Course (3 steps total)
+    return { currentDisplayStep: step, totalDisplaySteps: 3 };
+  };
+
+  const { currentDisplayStep, totalDisplaySteps } = getProgressInfo();
+
+  // --- RENDER FUNCTIONS ---
   const renderStep1 = () => (
     <>
       <h2 style={{fontSize: '1.75rem', marginBottom: '0.5rem'}}>Create Account</h2>
@@ -259,111 +295,6 @@ const getDepartmentSlug = (interest: string) => {
 
   const renderStep3 = () => (
     <>
-      <h2 style={{fontSize: '1.5rem'}}>Current Situation?</h2>
-      <div className="grid-cards two-col">
-        {[
-          { id: 'student', icon: '📚', label: 'Student' },
-          { id: 'job-seeker', icon: '🚀', label: 'Job Seeker' },
-          { id: 'employed', icon: '💼', label: 'Employed' },
-          { id: 'other', icon: '➕', label: 'Other' }
-        ].map(item => (
-          <div 
-            key={item.id}
-            className={`card-select centered ${formData.currentSituation === item.id ? 'active' : ''}`}
-            onClick={() => handleSelect('currentSituation', item.id)}
-          >
-            <div className="card-icon-box">{item.icon}</div>
-            <div className="card-info"><h3>{item.label}</h3></div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-
-  const renderStep4 = () => (
-    <>
-      <h2 style={{fontSize: '1.5rem'}}>Primary Career Goals?</h2>
-      <div className="grid-cards">
-        {[
-          { id: 'career_change', title: 'Career Change', desc: 'Transition to a new field.' },
-          { id: 'skill_up', title: 'Skill Enhancement', desc: 'Deepen current skills.' },
-          { id: 'new_job', title: 'Find a New Job', desc: 'Actively seeking opportunities.' },
-          { id: 'personal', title: 'Personal Growth', desc: 'Learning for curiosity.' }
-        ].map(item => (
-          <div 
-            key={item.id}
-            className={`check-item ${formData.careerGoals.includes(item.id) ? 'active' : ''}`}
-            onClick={() => handleMultiSelect('careerGoals', item.id)}
-          >
-            <div className="check-box-visual">{formData.careerGoals.includes(item.id) && '✓'}</div>
-            <div className="card-info">
-              <h3>{item.title}</h3>
-              <p>{item.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-
-  const renderStep5 = () => (
-    <>
-      <div className="step-centered-header">
-        <h2>Tell us about your interests & goals</h2>
-        <p>This will help us personalize your learning journey.</p>
-      </div>
-
-      <div style={{ marginBottom: '2rem' }}>
-        <label className="section-label">What areas are you most interested in?</label>
-        <span className="section-sub-label">Select all that apply</span>
-        
-        <div className="grid-cards two-col">
-          {[
-            { id: 'Business - Marketing', icon: '📢' }, 
-            { id: 'IT', icon: '< >' }, 
-            { id: 'Design', icon: '🎨' }, 
-            { id: 'Other', icon: '•••' } 
-          ].map(item => (
-            <div 
-              key={item.id} 
-              className={`interest-card ${formData.interests.includes(item.id) ? 'active' : ''}`}
-              onClick={() => handleMultiSelect('interests', item.id)}
-            >
-              <div className="interest-icon">{item.icon}</div>
-              <span>{item.id}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label className="section-label">What is your primary goal for the next year?</label>
-        <div style={{ marginTop: '0.75rem' }}>
-          {[
-            'Obtain a certification',
-            'Find a suitable job',
-            'Personal development',
-            'Start my own business',
-            'Other'
-          ].map(goal => (
-            <div 
-              key={goal}
-              className={`goal-card ${formData.primaryGoalNextYear === goal ? 'active' : ''}`}
-              onClick={() => handleSelect('primaryGoalNextYear', goal)}
-            >
-              {goal}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {error && <div className="error-msg" style={{ marginTop: '1rem' }}>{error}</div>}
-    </>
-  );
-
-  //Load all JOB course corresponding to selected department 
-  const renderStep6 = () => (
-    <>
       <div className="step-centered-header">
         <h2>Choose Your Focus</h2>
         <p>Select a specific career path to enroll in.</p>
@@ -377,9 +308,9 @@ const getDepartmentSlug = (interest: string) => {
         </div>
       ) : (
         <div className="grid-cards">
-          {availableCourses.map(course => (
-            <div 
-              key={course.id} 
+          {availableCourses.map((course) => (
+            <div
+              key={course.id}
               className={`course-select-card ${formData.selectedCourseId === course.id ? 'active' : ''}`}
               onClick={() => handleCourseSelect(course)}
               style={{
@@ -391,21 +322,24 @@ const getDepartmentSlug = (interest: string) => {
                 transition: 'all 0.2s',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between'
+                justifyContent: 'space-between',
               }}
             >
-              {/* Only Title */}
               <span style={{ fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>
                 {course.title}
               </span>
 
-              {/* Selection Circle */}
-              <div style={{
-                width: '20px', height: '20px', borderRadius: '50%',
-                border: formData.selectedCourseId === course.id ? '5px solid #2563eb' : '2px solid #cbd5e1',
-                backgroundColor: 'white',
-                transition: 'all 0.2s'
-              }} />
+              <div
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  border:
+                    formData.selectedCourseId === course.id ? '5px solid #2563eb' : '2px solid #cbd5e1',
+                  backgroundColor: 'white',
+                  transition: 'all 0.2s',
+                }}
+              />
             </div>
           ))}
         </div>
@@ -415,40 +349,82 @@ const getDepartmentSlug = (interest: string) => {
 
   return (
     <div className="register-container">
+      {/* Container is wide if we are past step 1 */}
       <div className={`register-card ${step > 1 ? 'wide' : ''}`}>
-        <div style={{textAlign:'center', marginBottom:'1rem'}}>
-          <Link to="/"><img src={logo} alt="Logo" style={{height:'40px'}} /></Link>
+        <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <Link to="/">
+            <img src={logo} alt="Logo" style={{ height: '40px' }} />
+          </Link>
         </div>
 
-        {/* Progress Bar */}
+        {/* Dynamic Progress Bar (Visible for Steps > 1) */}
         {step > 1 && (
-          <div className="step-header">
-            <span className="step-count">Step {step} of {totalSteps}</span>
-            <div className="progress-bar-bg">
-              <div className="progress-bar-fill" style={{ width: `${(step / totalSteps) * 100}%` }}></div>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                Step {currentDisplayStep} of {totalDisplaySteps}
+              </span>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {Array.from({ length: totalDisplaySteps }).map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      backgroundColor: i < currentDisplayStep ? '#2563eb' : '#e2e8f0',
+                      transition: 'all 0.3s',
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Render Steps */}
+        {step === 4 && error && <div className="error-msg" style={{ marginBottom: '1rem' }}>{error}</div>}
+
         {step === 1 && renderStep1()}
         {step === 2 && renderStep2()}
-        {step === 3 && renderStep3()}
-        {step === 4 && renderStep4()}
-        {step === 5 && renderStep5()}
-        {step === 6 && renderStep6()}
+        {step === 3 && formData.role === 'learner' && renderStep3()}
 
-        {/* Footer */}
+        {step === 4 && (
+          <RegisterForm isLoading={isLoading} onSubmitSuccess={handleMentorSubmit} onBack={prevStep} />
+        )}
+
+        {/* Navigation Buttons */}
         {step > 1 && (
-          <div className="action-footer">
-            <button className="btn-ghost" onClick={prevStep}>Back</button>
-            <button 
-              className="btn-primary-foot" 
-              onClick={step === totalSteps ? handleSubmit : nextStep}
-              disabled={isLoading || (step === 6 && isCourseLoading)}
-            >
-              {isLoading ? 'Processing...' : (step === totalSteps ? 'Finish and go to Dashboard' : 'Continue')}
-            </button>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', justifyContent: 'space-between' }}>
+            
+            {/* Back Button (Hidden on Step 4 since RegisterForm handles it) */}
+            {step !== 4 && (
+               <button className="btn-ghost" onClick={prevStep} disabled={isLoading}>
+                 ← Back
+               </button>
+            )}
+
+            {/* Next Button: ONLY show on Step 2 if Company is NOT selected */}
+            {step === 2 && formData.role !== 'company' && (
+              <button className="btn-primary" onClick={nextStep}>
+                Next →
+              </button>
+            )}
+
+            {/* Submit Button: Show on Step 3 for Learners OR Step 2 for Companies */}
+            {(
+              (step === 3 && formData.role === 'learner') || 
+              (step === 2 && formData.role === 'company')
+            ) && (
+              <button
+                className="btn-primary"
+                onClick={handleSubmit}
+                disabled={isLoading || isCourseLoading}
+                style={{ opacity: isLoading || isCourseLoading ? 0.6 : 1 }}
+              >
+                {isLoading ? 'Creating Account...' : 'Complete Registration'}
+              </button>
+            )}
+            
           </div>
         )}
       </div>

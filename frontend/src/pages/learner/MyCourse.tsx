@@ -63,7 +63,11 @@ export default function MyCourses() {
           };
         });
 
-        setRoadmaps(mergedRoadmaps);
+        const sortedRoadmaps = [...mergedRoadmaps].sort(
+          (a, b) => (b.completionPercentage || 0) - (a.completionPercentage || 0)
+        );
+
+        setRoadmaps(sortedRoadmaps);
       } catch (error) {
         console.error("Failed to load courses:", error);
         setRoadmaps([]);

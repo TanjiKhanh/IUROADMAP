@@ -20,11 +20,22 @@
   box-sizing: border-box;
 }
 
-body {
+html, body {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-body);
   color: var(--text-main);
+}
+
+#root {
+  width: 100%;
+  height: 100%;
 }
 
 /* =========================================
@@ -33,92 +44,284 @@ body {
 .dashboard-container {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* --- SIDEBAR --- */
 .dashboard-sidebar {
-  width: 250px;
-  background: var(--bg-white);
-  border-right: 1px solid var(--border);
-  padding: 20px;
+  width: 260px;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  position: fixed; /* Keep sidebar fixed */
-  height: 100vh;
-  z-index: 10;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  transition: width 0.3s ease;
+  position: relative;
+  overflow: visible;
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+}
+
+/* Collapsed */
+.dashboard-sidebar.collapsed {
+  width: 80px;
+}
+
+/* Hide text when collapsed */
+.dashboard-sidebar.collapsed .nav-text,
+.dashboard-sidebar.collapsed .nav-section-label,
+.dashboard-sidebar.collapsed .badge-pro {
+  display: none;
+}
+
+/* Center elements when collapsed and improve spacing */
+.dashboard-sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 15px auto;
+  border-radius: 12px;
+}
+
+/* Make sure the active state looks good when collapsed */
+.dashboard-sidebar.collapsed .nav-link.active {
+  background-color: #eef2ff; /* Softer blue for active icon */
+}
+
+.dashboard-sidebar.collapsed .sidebar-brand {
+  justify-content: center;
+  margin-top: 15px; /* Push the brand down slightly */
+}
+
+/* Hide elements when collapsed */
+.dashboard-sidebar.collapsed .pro-upsell-notification,
+.dashboard-sidebar.collapsed .brand-icon {
+  display: none;
+}
+
+.dashboard-sidebar.collapsed .user-mini-profile,
+.dashboard-sidebar.collapsed .btn-logout {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+/* ============================= */
+/* Header */
+/* ============================= */
+.sidebar-header {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 15px; /* Increased padding for better top spacing */
 }
 
 .sidebar-brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--primary);
-  margin-bottom: 30px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: #4f46e5;
+  white-space: nowrap;
 }
 
+.brand-icon {
+  width: 32px;
+  height: 32px;
+}
+
+/* Toggle Button */
+.btn-toggle-sidebar {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+
+  width: 36px;
+  height: 36px;
+
+  /* Position it perfectly on the right border */
+  position: absolute;
+  right: -18px; 
+  top: 20px; /* Align with the new header padding */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  color: #64748b;
+
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  z-index: 10; /* Ensure it stays above the border */
+}
+
+.btn-toggle-sidebar:hover {
+  color: #4f46e5;
+  border-color: #c7d2fe; /* Subtle border change on hover */
+}
+
+.btn-toggle-sidebar svg {
+  transition: transform 0.3s ease;
+}
+
+.btn-toggle-sidebar.collapsed svg {
+  transform: rotate(180deg);
+}
+
+/* ============================= */
+/* Navigation */
+/* ============================= */
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
+  padding: 16px; /* Ensure padding on all sides */
+}
+
+/* When collapsed, adjust the nav container padding so icons don't hit the edges */
+.dashboard-sidebar.collapsed .sidebar-nav {
+  padding: 16px 12px;
 }
 
 .nav-section-label {
   font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
   text-transform: uppercase;
-  color: var(--text-muted);
-  font-weight: 700;
-  margin: 20px 0 10px 12px;
+  margin: 24px 0 12px 8px; /* Increased spacing around labels */
 }
 
-.sidebar-nav a {
+.nav-link {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 12px;
+  padding: 12px 14px; /* Slightly larger clickable area */
   color: #475569;
   text-decoration: none;
   border-radius: 8px;
-  margin-bottom: 4px;
-  font-size: 0.95rem;
-  transition: all 0.2s;
+  margin-bottom: 6px;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
 }
 
-.sidebar-nav a:hover {
+.nav-link:hover,
+.nav-link.active {
   background-color: #f1f5f9;
-  color: var(--text-main);
+  color: #4f46e5;
+  font-weight: 400;
 }
 
-.sidebar-nav a.active {
-  background-color: #eef2ff;
-  color: var(--primary);
-  font-weight: 500;
+/* Icon (Lucide friendly) */
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;        /* FIXED width */
+  flex-shrink: 0;  
 }
-
+/* ============================= */
+/* Footer */
+/* ============================= */
 .sidebar-footer {
-  margin-top: auto;
-  border-top: 1px solid var(--border);
-  padding-top: 20px;
+  padding: 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* tighter spacing */
 }
 
+/* ============================= */
+/* Upgrade Notification (FIXED) */
+/* ============================= */
+.pro-upsell-notification {
+  position: relative;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+
+  max-height: none;
+  overflow: hidden;
+}
+
+/* Close button */
+.btn-close-upsell {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #166534;
+  cursor: pointer;
+}
+
+.btn-close-upsell:hover {
+  color: #0f172a;
+}
+
+/* Content */
+.upsell-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upsell-content h4 {
+  margin: 0 0 2px 0;
+  font-size: 0.8rem;
+  color: #166534;
+}
+
+.upsell-content p {
+  margin: 0 0 8px 0;
+  font-size: 0.7rem;
+  color: #15803d;
+  line-height: 1.3;
+}
+
+/* Button */
+.btn-upgrade {
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.btn-upgrade:hover {
+  background-color: #16a34a;
+}
+
+/* ============================= */
+/* User Profile */
+/* ============================= */
 .user-mini-profile {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 12px;
 }
 
 .avatar-small {
-  width: 32px;
-  height: 32px;
-  background: var(--primary);
+  width: 40px;
+  height: 40px;
+  background-color: #4f46e5;
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
   font-weight: bold;
+  flex-shrink: 0;
 }
 
 .user-info {
@@ -130,34 +333,123 @@ body {
 .user-email {
   font-size: 0.85rem;
   font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
+  color: #0f172a;
   text-overflow: ellipsis;
-  max-width: 140px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
+.badge {
+  font-size: 0.65rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.badge.student { color: #4f46e5; }
+.badge.mentor { color: #059669; }
+.badge.admin { color: #dc2626; }
+
+/* ============================= */
+/* Logout */
+/* ============================= */
 .btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
   background: none;
   border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 8px 0;
-  width: 100%;
-  text-align: left;
+  padding: 10px 12px;
+  color: #64748b;
   font-size: 0.9rem;
-  transition: color 0.2s;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
 }
 
 .btn-logout:hover {
-  color: var(--danger-text);
+  background-color: #fee2e2;
+  color: #dc2626;
 }
 
 /* --- MAIN CONTENT AREA --- */
 .dashboard-main {
   flex: 1;
-  margin-left: 250px; /* Offset for fixed sidebar */
-  padding: 30px;
-  max-width: 1600px;
+  min-width: 0;
+  min-height: 0;
+  height: 100vh;
+  padding: 24px 30px;   /* keep consistent */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.page-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  padding-bottom: 24px;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.page-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.page-content::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 999px;
+}
+
+.page-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.page-content.is-scrolling {
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.page-content.is-scrolling::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+}
+
+.page-content > :first-child {
+  margin-top: 0 !important;
+}
+
+.dashboard-main:has(.micro-roadmap-page) {
+  padding: 0;
+}
+
+.dashboard-main:has(.roadmap-page) {
+  padding: 0;
+}
+
+.page-content:has(.micro-roadmap-page) {
+  padding-bottom: 0;
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+
+.page-content:has(.roadmap-page) {
+  padding-bottom: 0;
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+
+.explore-page,
+.dashboard-page {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
 }
 
 .dashboard-header {

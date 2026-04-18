@@ -14,6 +14,7 @@ export default function ExploreMajors() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [enrollingSlug, setEnrollingSlug] = useState<string | null>(null);
+  const [viewingSlug, setViewingSlug] = useState<string | null>(null);
   const [enrollNotice, setEnrollNotice] = useState<{
     type: 'success' | 'already' | 'error';
     title: string;
@@ -150,8 +151,29 @@ export default function ExploreMajors() {
     }
   };
 
-  const handleViewMajor = (major: MajorCard) => {
-    console.log('View major clicked:', major.slug);
+  const handleViewMajor = async (major: MajorCard) => {
+    try {
+      setEnrollNotice(null);
+      setViewingSlug(major.slug);
+
+      navigate(`/dashboard/roadmap-preview/${major.slug}`, {
+        state: {
+          roadmapTitle: major.name,
+          roadmapDescription: major.description || '',
+          previewMode: true,
+        },
+      });
+    } catch (err: any) {
+      const backendMessage = err?.response?.data?.data?.message ?? err?.response?.data?.message;
+      setEnrollNotice({
+        type: 'error',
+        title: 'Open Failed',
+        message: backendMessage || 'Unable to open roadmap. Please try again.',
+        allowRoadmapNav: false,
+      });
+    } finally {
+      setViewingSlug(null);
+    }
   };
 
   const getMajorBadge = (major: MajorCard) => {
@@ -311,8 +333,9 @@ export default function ExploreMajors() {
                     <button
                       className="btn-view"
                       onClick={() => handleViewMajor(major)}
+                      disabled={viewingSlug === major.slug}
                     >
-                      View
+                      {viewingSlug === major.slug ? 'Opening...' : 'View'}
                     </button>
                     <button
                       className="btn-clone"
