@@ -83,6 +83,40 @@ export class RoadmapsService {
       edges: roadmapGraph.edges,
     };
   }
+  
+  // UC2: Get preview of roadmap by slug (for enrollment page, before user enrolls)
+  async getPreviewRoadmapBySlug(params: {
+    slug: string;
+  }): Promise<MacroRoadmapResponseDto> {
+    const { slug } = params;
+
+    const major = await this.adminClient.getMajorBySlug(slug);
+
+    let roadmapGraph = await this.roadmapCache.getGraph(major.id);
+    if (!roadmapGraph) {
+      roadmapGraph = await this.adminClient.getRoadmapGraph(major.id);
+      await this.roadmapCache.setGraph(major.id, roadmapGraph);
+    }
+
+    const previewNodes: MacroRoadmapNodeDto[] = roadmapGraph.nodes.map((n: any) => ({
+      id: n.id,
+      slug: n.slug,
+      name: n.name,
+      credits: n.credits,
+      coords: n.coords,
+      status: 'AVAILABLE',
+    }));
+
+    return {
+      userRoadmapId: 0,
+      roadmapId: major.id,
+      completion_percentage: 0,
+      total_credits_earned: 0,
+      total_credits_required: major.total_credits,
+      nodes: previewNodes,
+      edges: roadmapGraph.edges,
+    };
+  }
 
   // USD 8: Get micro roadmap (topics + edges for a course node)
   async getMicroRoadmap(params: {

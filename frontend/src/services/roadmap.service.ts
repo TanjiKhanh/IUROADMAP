@@ -75,6 +75,15 @@ export const roadmapService = {
   },
 
   /**
+   * Fetch readonly roadmap preview by major slug.
+   * GET /api/v1/roadmaps/preview/:slug
+   */
+  getPreviewRoadmapBySlug: async (slug: string) => {
+    const data = await api.get<UserRoadmapProgressDetail>(`/api/v1/roadmaps/preview/${encodeURIComponent(slug)}`);
+    return data as unknown as UserRoadmapProgressDetail;
+  },
+
+  /**
    * Fetch a micro roadmap for a specific course node.
    * GET /api/v1/roadmaps/course-nodes/:courseNodeId/micro
    */

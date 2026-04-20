@@ -1,10 +1,84 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ReactFlow, {
+  Background,
+  Edge,
+  Node,
+  ReactFlowInstance,
+  useEdgesState,
+  useNodesState,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
 import { exploreService, Department, MajorCard } from '../../services/explore.service';
-import { roadmapService } from '../../services/roadmap.service';
+import { roadmapService, UserRoadmapProgressDetail } from '../../services/roadmap.service';
+import RoadmapToolbar from '../../components/roadmap/RoadmapToolbar';
 import '../../styles/exploreMajors.css';
 
 type DepartmentFilter = 'all' | string;
+
+type PreviewRoadmapState = {
+  major: MajorCard;
+  roadmap: UserRoadmapProgressDetail;
+};
+
+const PREVIEW_GAP_X = 290;
+const PREVIEW_GAP_Y = 170;
+
+const buildPreviewLayout = (roadmap: UserRoadmapProgressDetail) => {
+  const flowNodes: Node[] = (roadmap.nodes || []).map((node, index) => {
+    const hasCoords = Number.isFinite(node.coords?.x) && Number.isFinite(node.coords?.y);
+
+    return {
+      id: String(node.id),
+      position: hasCoords
+        ? { x: Number(node.coords?.x), y: Number(node.coords?.y) }
+        : {
+            x: (index % 4) * PREVIEW_GAP_X,
+            y: Math.floor(index / 4) * PREVIEW_GAP_Y,
+          },
+      data: {
+        label: (
+          <div className="preview-node-card">
+            <span className="preview-node-status">AVAILABLE</span>
+            <h4>{node.name}</h4>
+            <p>{node.slug}</p>
+          </div>
+        ),
+      },
+      style: {
+        border: 'none',
+        background: 'transparent',
+        boxShadow: 'none',
+        padding: 0,
+      },
+    };
+  });
+
+  const flowEdges: Edge[] = (roadmap.edges || [])
+    .map((edge, index) => ({
+      id: `preview-edge-${index}-${edge.from}-${edge.to}`,
+      source: String(edge.to),
+      target: String(edge.from),
+      type: 'smoothstep',
+      style: {
+        stroke: '#9db0cb',
+        strokeWidth: 1.5,
+        strokeDasharray: '4 4',
+      },
+      label: 'prerequisite',
+      labelStyle: {
+        fill: '#7a8ca6',
+        fontSize: 9,
+        fontWeight: 600,
+      },
+      labelBgPadding: [2, 1] as [number, number],
+      labelBgBorderRadius: 4,
+      labelBgStyle: { fill: 'transparent', fillOpacity: 0 },
+    }))
+    .filter((edge) => edge.source !== edge.target);
+
+  return { flowNodes, flowEdges };
+};
 
 export default function ExploreMajors() {
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -15,6 +89,12 @@ export default function ExploreMajors() {
   const [error, setError] = useState<string | null>(null);
   const [enrollingSlug, setEnrollingSlug] = useState<string | null>(null);
   const [viewingSlug, setViewingSlug] = useState<string | null>(null);
+  const [previewRoadmap, setPreviewRoadmap] = useState<PreviewRoadmapState | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewPanMode, setPreviewPanMode] = useState(true);
+  const [previewFlowInstance, setPreviewFlowInstance] = useState<ReactFlowInstance | null>(null);
+  const [previewNodes, setPreviewNodes, onPreviewNodesChange] = useNodesState([]);
+  const [previewEdges, setPreviewEdges, onPreviewEdgesChange] = useEdgesState([]);
   const [enrollNotice, setEnrollNotice] = useState<{
     type: 'success' | 'already' | 'error';
     title: string;
@@ -106,6 +186,19 @@ export default function ExploreMajors() {
     return () => window.clearTimeout(timer);
   }, [enrollNotice]);
 
+  useEffect(() => {
+    if (!previewRoadmap) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setPreviewRoadmap(null);
+      }
+    };
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [previewRoadmap]);
+
   const handleGoMyRoadmaps = () => {
     setEnrollNotice(null);
     navigate('/dashboard/my-courses');
@@ -155,14 +248,14 @@ export default function ExploreMajors() {
     try {
       setEnrollNotice(null);
       setViewingSlug(major.slug);
+      setPreviewLoading(true);
 
-      navigate(`/dashboard/roadmap-preview/${major.slug}`, {
-        state: {
-          roadmapTitle: major.name,
-          roadmapDescription: major.description || '',
-          previewMode: true,
-        },
-      });
+      const roadmap = await roadmapService.getPreviewRoadmapBySlug(major.slug);
+      const { flowNodes, flowEdges } = buildPreviewLayout(roadmap);
+
+      setPreviewNodes(flowNodes);
+      setPreviewEdges(flowEdges);
+      setPreviewRoadmap({ major, roadmap });
     } catch (err: any) {
       const backendMessage = err?.response?.data?.data?.message ?? err?.response?.data?.message;
       setEnrollNotice({
@@ -172,8 +265,21 @@ export default function ExploreMajors() {
         allowRoadmapNav: false,
       });
     } finally {
+      setPreviewLoading(false);
       setViewingSlug(null);
     }
+  };
+
+  const handlePreviewZoomIn = () => {
+    previewFlowInstance?.zoomIn({ duration: 180 });
+  };
+
+  const handlePreviewZoomOut = () => {
+    previewFlowInstance?.zoomOut({ duration: 180 });
+  };
+
+  const handlePreviewReset = () => {
+    previewFlowInstance?.fitView({ padding: 0.2, duration: 250 });
   };
 
   const getMajorBadge = (major: MajorCard) => {
@@ -264,6 +370,65 @@ export default function ExploreMajors() {
         </div>
       )}
 
+      {previewRoadmap && (
+        <div
+          className="explore-preview-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Roadmap preview"
+          onClick={() => setPreviewRoadmap(null)}
+        >
+          <div className="explore-preview-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="explore-preview-header">
+              <div>
+                <h3>{previewRoadmap.major.name}</h3>
+                <p>Preview only. You cannot edit this roadmap.</p>
+              </div>
+              <button type="button" onClick={() => setPreviewRoadmap(null)}>
+                Close
+              </button>
+            </div>
+
+            <div className="explore-preview-canvas">
+              <RoadmapToolbar
+                isPanMode={previewPanMode}
+                onZoomIn={handlePreviewZoomIn}
+                onZoomOut={handlePreviewZoomOut}
+                onResetView={handlePreviewReset}
+                onTogglePanMode={() => setPreviewPanMode((prev) => !prev)}
+              />
+
+              {previewLoading ? (
+                <div className="explore-preview-loading">Opening roadmap...</div>
+              ) : (
+                <ReactFlow
+                  nodes={previewNodes}
+                  edges={previewEdges}
+                  onNodesChange={onPreviewNodesChange}
+                  onEdgesChange={onPreviewEdgesChange}
+                  onInit={setPreviewFlowInstance}
+                  fitView
+                  fitViewOptions={{ padding: 0.16 }}
+                  nodesDraggable={false}
+                  nodesConnectable={false}
+                  elementsSelectable={false}
+                  panOnDrag={previewPanMode}
+                  selectionOnDrag={!previewPanMode}
+                  panOnScroll
+                  zoomOnScroll
+                  zoomOnPinch
+                  zoomOnDoubleClick
+                  minZoom={0.35}
+                  maxZoom={2}
+                >
+                  <Background color="#cbd5e1" gap={24} size={1} />
+                </ReactFlow>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="explore-topbar">
         <div className="explore-search-wrap">
           <span className="explore-search-icon">Search</span>
@@ -333,7 +498,7 @@ export default function ExploreMajors() {
                     <button
                       className="btn-view"
                       onClick={() => handleViewMajor(major)}
-                      disabled={viewingSlug === major.slug}
+                      disabled={viewingSlug === major.slug || previewLoading}
                     >
                       {viewingSlug === major.slug ? 'Opening...' : 'View'}
                     </button>

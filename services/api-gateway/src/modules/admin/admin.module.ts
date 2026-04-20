@@ -6,7 +6,9 @@ import { AdminServiceClient } from './clients/admin-service.client';
 import { AdminRoadmapsController } from './controllers/major-roadmaps.controller';
 import { AdminRoadmapsAliasController } from './controllers/admin-roadmaps-alias.controller';
 import { MajorsController } from './controllers/majors.controller';
+import { CoursesController } from './controllers/courses.controller';
 import { AdminRoadmapsService } from './services/major-roadmaps.service';
+import { CoursesService } from './services/courses.service';
 
 @Module({
   imports: [HttpModule],
@@ -15,8 +17,14 @@ import { AdminRoadmapsService } from './services/major-roadmaps.service';
     AdminRoadmapsController,
     AdminRoadmapsAliasController,
     MajorsController,
+    CoursesController,
   ],
-  providers: [DepartmentsService, AdminServiceClient, AdminRoadmapsService],
+  providers: [
+    DepartmentsService,
+    AdminServiceClient,
+    AdminRoadmapsService,
+    CoursesService,
+  ],
   exports: [DepartmentsService],
 })
 export class AdminModule {}

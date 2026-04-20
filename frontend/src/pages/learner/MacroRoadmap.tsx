@@ -19,7 +19,6 @@ import {
   UserRoadmapProgressDetail,
 } from '../../services/roadmap.service';
 import { userService } from '../../services/user.service';
-import { adminService } from '../../services/admin.service';
 import RoadmapNode, { RoadmapNodeData } from '../../components/roadmap/RoadmapNode';
 import RoadmapToolbar from '../../components/roadmap/RoadmapToolbar';
 import '../../styles/roadmapDetail.css';
@@ -156,43 +155,7 @@ export default function MacroRoadmap() {
 
       if (isPreviewMode && slug) {
         try {
-          const preview = await adminService.getRoadmapBySlug(slug);
-          const keyToId = new Map<string, number>();
-          const previewNodes: UserRoadmapDetailNode[] = (preview.nodes || []).map((node, index) => {
-            const nodeId = index + 1;
-            keyToId.set(node.nodeKey, nodeId);
-            return {
-              id: nodeId,
-              slug: node.nodeKey,
-              name: node.title,
-              credits: 0,
-              status: 'AVAILABLE',
-              coords: node.coords || null,
-            };
-          });
-
-          const previewEdges: UserRoadmapEdge[] = (preview.edges || [])
-            .map((edge, index) => {
-              const from = keyToId.get(edge.sourceKey);
-              const to = keyToId.get(edge.targetKey);
-              if (!from || !to) return null;
-              return {
-                id: index + 1,
-                from,
-                to,
-              };
-            })
-            .filter((edge): edge is UserRoadmapEdge => Boolean(edge));
-
-          const previewData: UserRoadmapProgressDetail = {
-            userRoadmapId: 0,
-            roadmapId: preview.id || 0,
-            completion_percentage: 0,
-            total_credits_earned: 0,
-            total_credits_required: 0,
-            nodes: previewNodes,
-            edges: previewEdges,
-          };
+          const previewData = await roadmapService.getPreviewRoadmapBySlug(slug);
 
           setRoadmap(previewData);
           const { flowNodes, flowEdges } = buildMacroLayout(previewData.nodes, previewData.edges || []);

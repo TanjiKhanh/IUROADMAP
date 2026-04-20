@@ -42,11 +42,13 @@ export default function Sidebar() {
       </NavLink>
 
       <NavLink to="/admin/roadmaps" className={getNavLinkClass}>
-        <span>🗺️</span> Roadmaps
+        <span className="nav-icon"><Map size={18} /></span>
+        <span className="nav-text">Roadmaps</span>
       </NavLink>
 
       <NavLink to="/admin/courses" className={getNavLinkClass}>
-        <span>📚</span> Courses
+        <span className="nav-icon"><BookOpen size={18} /></span>
+        <span className="nav-text">Courses</span>
       </NavLink>
 
       <NavLink to="/admin/departments" className={getNavLinkClass}>

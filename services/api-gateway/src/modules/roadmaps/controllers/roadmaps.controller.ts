@@ -33,6 +33,15 @@ export class RoadmapsController {
   }
 
   @UseGuards(JwtGuard)
+  @Roles('STUDENT', 'ADMIN')
+  @Get('preview/:slug')
+  async getPreviewRoadmapBySlug(
+    @Param('slug') slug: string,
+  ): Promise<MacroRoadmapResponseDto> {
+    return this.roadmapsService.getPreviewRoadmapBySlug({ slug });
+  }
+
+  @UseGuards(JwtGuard)
   @Roles('STUDENT') 
   @Get(':userRoadmapId')
   async getMacroRoadmap(

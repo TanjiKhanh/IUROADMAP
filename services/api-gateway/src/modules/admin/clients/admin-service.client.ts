@@ -1,7 +1,26 @@
 import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { AxiosError } from 'axios';
-import { CreateDepartmentDto, UpdateDepartmentDto, DepartmentResponseDto, AdminPrerequisiteEdgeResponseDto, CreatePrerequisiteDto, AdminCourseNodeResponseDto, CreateCourseNodeDto, UpdateCourseNodeDto, AdminRoadmapGraph } from '../dtos';
+import {
+  AdminCourseListItem,
+  AdminCourseNodeResponseDto,
+  AdminCourseTopicsGraph,
+  AdminPrerequisiteEdgeResponseDto,
+  AdminRoadmapGraph,
+  AdminTopicCoordsUpdateResponse,
+  AdminTopicEdge,
+  AdminTopicNode,
+  CreateAdminTopicNodeDto,
+  CreateAdminTopicEdgeDto,
+  CreateCourseNodeDto,
+  CreateDepartmentDto,
+  CreatePrerequisiteDto,
+  UpdateAdminCourseNodeMetaDto,
+  UpdateAdminTopicNodeDto,
+  UpdateCourseNodeDto,
+  UpdateDepartmentDto,
+  DepartmentResponseDto,
+} from '../dtos';
 import { MajorResponseDto, UpdateMajorMetaPayload } from '../dtos/major.dto';
 @Injectable()
 export class AdminServiceClient {
@@ -123,6 +142,161 @@ export class AdminServiceClient {
       throw new HttpException(
         'Failed to fetch admin roadmap graph',
         HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async getAdminCourseNodes(): Promise<AdminCourseListItem[]> {
+    try {
+      const { data } = await this.http.axiosRef.get<AdminCourseListItem[]>(
+        `${process.env.ADMIN_SERVICE_URL}/admin/course-nodes`,
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        (err.response?.data as any)?.message || 'Failed to fetch admin courses',
+        err.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async updateAdminCourseNodeMeta(
+    courseNodeId: number,
+    payload: UpdateAdminCourseNodeMetaDto,
+  ): Promise<AdminCourseListItem> {
+    try {
+      const { data } = await this.http.axiosRef.patch<AdminCourseListItem>(
+        `${process.env.ADMIN_SERVICE_URL}/admin/course-nodes/${courseNodeId}`,
+        payload,
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        (err.response?.data as any)?.message || 'Failed to update admin course',
+        err.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async getAdminCourseTopicsGraph(courseNodeId: number): Promise<AdminCourseTopicsGraph> {
+    try {
+      const { data } = await this.http.axiosRef.get<AdminCourseTopicsGraph>(
+        `${process.env.ADMIN_SERVICE_URL}/admin/course-nodes/${courseNodeId}/topics-graph`,
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        (err.response?.data as any)?.message || 'Failed to fetch course topics graph',
+        err.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async createAdminTopicNode(
+    courseNodeId: number,
+    payload: CreateAdminTopicNodeDto,
+  ): Promise<AdminTopicNode> {
+    try {
+      const { data } = await this.http.axiosRef.post<AdminTopicNode>(
+        `${process.env.ADMIN_SERVICE_URL}/admin/course-nodes/${courseNodeId}/topics`,
+        payload,
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        (err.response?.data as any)?.message || 'Failed to create topic node',
+        err.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async updateAdminTopicNode(
+    courseNodeId: number,
+    topicId: number,
+    payload: UpdateAdminTopicNodeDto,
+  ): Promise<AdminTopicNode> {
+    try {
+      const { data } = await this.http.axiosRef.patch<AdminTopicNode>(
+        `${process.env.ADMIN_SERVICE_URL}/admin/course-nodes/${courseNodeId}/topics/${topicId}`,
+        payload,
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        (err.response?.data as any)?.message || 'Failed to update topic node',
+        err.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async deleteAdminTopicNode(courseNodeId: number, topicId: number): Promise<void> {
+    try {
+      await this.http.axiosRef.delete(
+        `${process.env.ADMIN_SERVICE_URL}/admin/course-nodes/${courseNodeId}/topics/${topicId}`,
+      );
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        (err.response?.data as any)?.message || 'Failed to delete topic node',
+        err.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async updateAdminTopicCoords(
+    courseNodeId: number,
+    topicId: number,
+    coords: { x: number; y: number },
+  ): Promise<AdminTopicCoordsUpdateResponse> {
+    try {
+      const { data } = await this.http.axiosRef.patch<AdminTopicCoordsUpdateResponse>(
+        `${process.env.ADMIN_SERVICE_URL}/admin/course-nodes/${courseNodeId}/topics/${topicId}/coords`,
+        { coords },
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        (err.response?.data as any)?.message || 'Failed to update topic coords',
+        err.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async createAdminTopicEdge(
+    courseNodeId: number,
+    payload: CreateAdminTopicEdgeDto,
+  ): Promise<AdminTopicEdge> {
+    try {
+      const { data } = await this.http.axiosRef.post<AdminTopicEdge>(
+        `${process.env.ADMIN_SERVICE_URL}/admin/course-nodes/${courseNodeId}/topics-edges`,
+        payload,
+      );
+      return data;
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        (err.response?.data as any)?.message || 'Failed to create topic edge',
+        err.response?.status || HttpStatus.BAD_GATEWAY,
+      );
+    }
+  }
+
+  async deleteAdminTopicEdge(courseNodeId: number, edgeId: number): Promise<void> {
+    try {
+      await this.http.axiosRef.delete(
+        `${process.env.ADMIN_SERVICE_URL}/admin/course-nodes/${courseNodeId}/topics-edges/${edgeId}`,
+      );
+    } catch (error) {
+      const err = error as AxiosError;
+      throw new HttpException(
+        (err.response?.data as any)?.message || 'Failed to delete topic edge',
+        err.response?.status || HttpStatus.BAD_GATEWAY,
       );
     }
   }

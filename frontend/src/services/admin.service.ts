@@ -11,12 +11,61 @@ export interface Department {
 }
 
 export interface Course {
-  id?: number;
-  title: string;
+  id: number;
   slug: string;
+  name: string;
+  roadmapId: number;
+  roadmapSlug: string;
+  roadmapName: string;
+  credits: number;
   description?: string;
-  type: 'BASIC' | 'JOB';
-  departmentId: number;
+}
+
+export interface UpdateAdminCourseMetaPayload {
+  slug?: string;
+  name?: string;
+  credits?: number;
+  description?: string;
+}
+
+export interface AdminTopicNode {
+  id: number;
+  slug: string;
+  title: string;
+  description?: string | null;
+  coords?: { x: number; y: number } | null;
+  learningObjectives?: string | null;
+  resourcesUrl?: string | null;
+}
+
+export interface AdminTopicEdge {
+  id: number;
+  fromTopicId: number;
+  toTopicId: number;
+}
+
+export interface AdminCourseTopicsGraph {
+  courseNodeId: number;
+  topics: AdminTopicNode[];
+  edges: AdminTopicEdge[];
+}
+
+export interface CreateAdminTopicNodePayload {
+  slug: string;
+  title: string;
+  description?: string;
+  learningObjectives?: string;
+  resourcesUrl?: string;
+  coords?: { x: number; y: number };
+}
+
+export interface UpdateAdminTopicNodePayload {
+  slug?: string;
+  title?: string;
+  description?: string;
+  learningObjectives?: string;
+  resourcesUrl?: string;
+  coords?: { x: number; y: number };
 }
 
 
@@ -155,23 +204,68 @@ export const adminService = {
     return data as unknown as Course[];
   },
 
-  getCourseBySlug: async (slug: string) => {
-    const data = await api.get<Course>(`/api/v1/admin/courses/${slug}`);
+  updateCourseNodeMeta: async (courseNodeId: number, payload: UpdateAdminCourseMetaPayload) => {
+    const data = await api.patch<Course>(`/api/v1/admin/courses/${courseNodeId}`, payload);
     return data as unknown as Course;
   },
 
-  createCourse: async (payload: Course) => {
-    const data = await api.post<Course>('/api/v1/admin/courses', payload);
-    return data as unknown as Course;
+  getAdminCourseTopicsGraph: async (courseNodeId: number) => {
+    const data = await api.get<AdminCourseTopicsGraph>(
+      `/api/v1/admin/courses/${courseNodeId}/topics-graph`,
+    );
+    return data as unknown as AdminCourseTopicsGraph;
   },
 
-  updateCourse: async (id: number, payload: Partial<Course>) => {
-    const data = await api.patch<Course>(`/api/v1/admin/courses/${id}`, payload);
-    return data as unknown as Course;
+  createAdminTopicNode: async (
+    courseNodeId: number,
+    payload: CreateAdminTopicNodePayload,
+  ) => {
+    const data = await api.post<AdminTopicNode>(`/api/v1/admin/courses/${courseNodeId}/topics`, payload);
+    return data as unknown as AdminTopicNode;
   },
 
-  deleteCourse: async (id: number) => {
-    const data = await api.delete(`/api/v1/admin/courses/${id}`);
+  updateAdminTopicNode: async (
+    courseNodeId: number,
+    topicId: number,
+    payload: UpdateAdminTopicNodePayload,
+  ) => {
+    const data = await api.patch<AdminTopicNode>(
+      `/api/v1/admin/courses/${courseNodeId}/topics/${topicId}`,
+      payload,
+    );
+    return data as unknown as AdminTopicNode;
+  },
+
+  deleteAdminTopicNode: async (courseNodeId: number, topicId: number) => {
+    const data = await api.delete(`/api/v1/admin/courses/${courseNodeId}/topics/${topicId}`);
+    return data as unknown as any;
+  },
+
+  updateAdminTopicCoords: async (
+    courseNodeId: number,
+    topicId: number,
+    coords: { x: number; y: number },
+  ) => {
+    const data = await api.patch(
+      `/api/v1/admin/courses/${courseNodeId}/topics/${topicId}/coords`,
+      { coords },
+    );
+    return data;
+  },
+
+  createAdminTopicEdge: async (
+    courseNodeId: number,
+    payload: { sourceTopicId: number; targetTopicId: number },
+  ) => {
+    const data = await api.post<AdminTopicEdge>(
+      `/api/v1/admin/courses/${courseNodeId}/topics-edges`,
+      payload,
+    );
+    return data as unknown as AdminTopicEdge;
+  },
+
+  deleteAdminTopicEdge: async (courseNodeId: number, edgeId: number) => {
+    const data = await api.delete(`/api/v1/admin/courses/${courseNodeId}/topics-edges/${edgeId}`);
     return data as unknown as any;
   },
 

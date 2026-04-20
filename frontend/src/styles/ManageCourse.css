@@ -1,0 +1,33 @@
+.course-list-scroll-wrap {
+  max-height: 520px;
+  overflow-y: auto;
+  border-radius: 10px;
+}
+
+.course-list-scroll-wrap {
+  scrollbar-width: none;
+}
+
+.course-list-scroll-wrap::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.course-list-scroll-wrap.show-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #9bb0d3 #eaf0fb;
+}
+
+.course-list-scroll-wrap.show-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.course-list-scroll-wrap.show-scrollbar::-webkit-scrollbar-thumb {
+  background: #9bb0d3;
+  border-radius: 999px;
+}
+
+.course-list-scroll-wrap.show-scrollbar::-webkit-scrollbar-track {
+  background: #eaf0fb;
+  border-radius: 999px;
+}

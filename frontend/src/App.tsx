@@ -23,7 +23,9 @@ import MentorDashboard from './pages/mentor/MentorDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageDepartments from './pages/admin/ManageDepartments';
 import ManageRoadmaps from './pages/admin/ManageMajor';
+import ManageCourse from './pages/admin/ManageCourse';
 import RoadmapDesigner from './pages/admin/MajorRoadmapDesign';
+import CourseTopicRoadmapDesign from './pages/admin/CourseTopicRoadmapDesign';
 
 // Auth Components
 import { AuthProvider } from './auth/AuthProvider';
@@ -114,6 +116,7 @@ export default function App() {
             >
               <Route index element={<AdminDashboard />} />
               <Route path="roadmaps" element={<ManageRoadmaps />} />
+              <Route path="courses" element={<ManageCourse />} />
               <Route path="departments" element={<ManageDepartments />} />
             </Route>
 
@@ -140,6 +143,17 @@ export default function App() {
                   </RequireRole>
                 </RequireAuth>
               } 
+            />
+
+            <Route
+              path="/admin/courses/:courseNodeId/topics"
+              element={
+                <RequireAuth>
+                  <RequireRole allowedRoles={['ADMIN']}>
+                    <CourseTopicRoadmapDesign />
+                  </RequireRole>
+                </RequireAuth>
+              }
             />
 
             {/* =========================================
