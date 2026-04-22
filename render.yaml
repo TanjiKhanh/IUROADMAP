@@ -1,0 +1,127 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: gupjob-postgres
+    plan: standard
+    ipAllowList: [] # Allow all IPs, restrict in Render console if needed
+    envVars:
+      - key: POSTGRES_USER
+        value: gupjob
+      - key: POSTGRES_PASSWORD
+        sync: false
+      - key: POSTGRES_DB
+        value: gupjob_prod
+
+  # Redis Cache
+  - type: pserv
+    name: gupjob-redis
+    plan: standard
+    runtime: redis-7
+    envVars: []
+
+  # Auth Service
+  - type: web
+    name: auth-service
+    runtime: node
+    plan: standard
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+    dockerfilePath: ./services/auth/Dockerfile
+    healthCheckPath: /health
+
+  # Admin Service
+  - type: web
+    name: admin-service
+    runtime: node
+    plan: standard
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4100
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: AUTH_SERVICE_URL
+        value: https://auth-service-XXXXX.onrender.com
+    dockerfilePath: ./services/admin-service/Dockerfile
+    healthCheckPath: /health
+
+  # User Service
+  - type: web
+    name: user-service
+    runtime: node
+    plan: standard
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4001
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: AUTH_SERVICE_URL
+        value: https://auth-service-XXXXX.onrender.com
+    dockerfilePath: ./services/user-service/Dockerfile
+    healthCheckPath: /health
+
+  # Mentor Service
+  - type: web
+    name: mentor-service
+    runtime: node
+    plan: standard
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4002
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: AUTH_SERVICE_URL
+        value: https://auth-service-XXXXX.onrender.com
+    dockerfilePath: ./services/mentor-service/Dockerfile
+    healthCheckPath: /health
+
+  # API Gateway
+  - type: web
+    name: api-gateway
+    runtime: node
+    plan: standard
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: AUTH_SERVICE_URL
+        value: https://auth-service-XXXXX.onrender.com
+      - key: ADMIN_SERVICE_URL
+        value: https://admin-service-XXXXX.onrender.com
+      - key: USER_SERVICE_URL
+        value: https://user-service-XXXXX.onrender.com
+      - key: MENTOR_SERVICE_URL
+        value: https://mentor-service-XXXXX.onrender.com
+    dockerfilePath: ./services/api-gateway/Dockerfile
+    healthCheckPath: /health
