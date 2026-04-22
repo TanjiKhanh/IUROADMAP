@@ -1,6 +1,6 @@
 # services/api-gateway/Dockerfile
 # Multi-stage Dockerfile for the API Gateway (NestJS)
-FROM node:18-bullseye-slim AS builder
+FROM node:20-bullseye-slim AS builder
 ENV NODE_ENV=development
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN npx prisma generate || true
 COPY . .
 RUN npm run build
 
-FROM node:18-bullseye-slim AS runner
+FROM node:20-bullseye-slim AS runner
 ENV NODE_ENV=production
 WORKDIR /app
 
