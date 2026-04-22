@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/layouts/Header';
 import Notification from '../../components/ui/Notification';
@@ -18,6 +18,7 @@ export default function ManageCourse() {
   const [submitting, setSubmitting] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [showScrollbar, setShowScrollbar] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [notification, setNotification] = useState<{
     type: 'success' | 'error';
     title: string;
@@ -86,6 +87,18 @@ export default function ManageCourse() {
   useEffect(() => {
     loadCourses();
   }, []);
+
+  const filteredCourses = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      return courses;
+    }
+
+    return courses.filter((course) => {
+      const haystack = `${course.name} ${course.slug} ${course.roadmapName} ${course.roadmapSlug}`.toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [courses, searchQuery]);
 
   const handleEditClick = (course: Course) => {
     setEditingCourse(course);
@@ -225,6 +238,21 @@ export default function ManageCourse() {
 
           <div className="card">
             <h3>Courses</h3>
+            <div style={{ marginBottom: 12 }}>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search course, slug, roadmap..."
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: 8,
+                  fontSize: 14,
+                }}
+              />
+            </div>
             {loading ? (
               <p>Loading...</p>
             ) : (
@@ -243,7 +271,7 @@ export default function ManageCourse() {
                     </tr>
                   </thead>
                   <tbody>
-                    {courses.map((course) => (
+                    {filteredCourses.map((course) => (
                       <tr key={course.id} style={{ background: editingCourse?.id === course.id ? '#f0f9ff' : 'transparent' }}>
                         <td>
                           <strong>{course.name}</strong>
@@ -302,10 +330,10 @@ export default function ManageCourse() {
                       </tr>
                     ))}
 
-                    {courses.length === 0 && (
+                    {filteredCourses.length === 0 && (
                       <tr>
                         <td colSpan={4} style={{ textAlign: 'center', padding: 20 }}>
-                          No courses found.
+                          {courses.length === 0 ? 'No courses found.' : 'No courses match your search.'}
                         </td>
                       </tr>
                     )}

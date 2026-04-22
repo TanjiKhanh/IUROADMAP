@@ -7,6 +7,7 @@ import ReactFlow, {
   Controls,
   Edge,
   EdgeMouseHandler,
+  Handle,
   MarkerType,
   MiniMap,
   Node,
@@ -94,6 +95,7 @@ const TopicNodeCard = ({ data, selected }: NodeProps<TopicNodeData>) => {
           : '0 4px 12px rgba(15, 23, 42, 0.08)',
       }}
     >
+      <Handle type="target" position={Position.Left} style={{ background: '#475569' }} />
       <div style={{ fontWeight: 700, color: '#0f172a', fontSize: 13, marginBottom: 4 }}>
         {data.title}
       </div>
@@ -114,6 +116,7 @@ const TopicNodeCard = ({ data, selected }: NodeProps<TopicNodeData>) => {
           {data.description}
         </div>
       )}
+      <Handle type="source" position={Position.Right} style={{ background: '#475569' }} />
     </div>
   );
 };
@@ -405,6 +408,7 @@ export default function CourseTopicRoadmapDesign() {
         const haystack = `${node.data.title} ${node.data.slug}`.toLowerCase();
         return haystack.includes(searchTerm.toLowerCase());
       });
+      
   }, [form.nextTopicIds, nodes, searchTerm, selectedNodeId]);
 
   const handleFieldChange = (
@@ -896,7 +900,7 @@ export default function CourseTopicRoadmapDesign() {
 
             <input
               type="text"
-              placeholder="Search and add next topics..."
+              placeholder="Search and select next topics..."
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
               style={{
@@ -954,6 +958,12 @@ export default function CourseTopicRoadmapDesign() {
                     No matching topics found.
                   </div>
                 )}
+              </div>
+            )}
+
+            {form.nextTopicIds.length === 0 && !searchTerm && (
+              <div style={{ marginTop: 6, fontSize: 11, color: '#64748b' }}>
+                Click the search box and start typing to add next topics.
               </div>
             )}
           </div>
