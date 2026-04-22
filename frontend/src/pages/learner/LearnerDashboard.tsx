@@ -117,7 +117,7 @@ export default function LearnerDashboard() {
             <span className="stat-icon stat-streak">
               <Flame size={18} />
             </span>
-            <span className="learner-stat-value">12</span>
+            <span className="learner-stat-value">0</span>
           </div>
           <p className="learner-stat-sub">days in a row</p>
         </div>
@@ -128,7 +128,7 @@ export default function LearnerDashboard() {
             <span className="stat-icon stat-mentorship">
               <CalendarClock size={18} />
             </span>
-            <span className="learner-stat-value">8</span>
+            <span className="learner-stat-value">0</span>
           </div>
           <p className="learner-stat-sub">hours this month</p>
         </div>

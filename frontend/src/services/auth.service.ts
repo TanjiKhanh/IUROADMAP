@@ -33,19 +33,19 @@ export const authService = {
   },
 
   register: async (data: LearnerRegisterPayload) => {
-    return api.post('/auth/register/learner', data);
+    return api.post('/api/v1/auth/register/learner', data);
   },
 
   forgotPassword: async (email: string) => {
-  return api.post('/auth/forgot-password', { email });
+  return api.post('/api/v1/auth/forgot-password', { email });
   },
 
   resetPassword: async (token: string, newPassword: string) => {
-    return api.post('/auth/reset-password', { token, newPassword });
+    return api.post('/api/v1/auth/reset-password', { token, newPassword });
   },
 
   registerMentor: async (data: MentorRegisterPayload) => {
-    return api.post('/auth/register/mentor', data);
+    return api.post('/api/v1/auth/register/mentor', data);
   },
 
   refresh: async () => {
