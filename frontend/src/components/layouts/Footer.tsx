@@ -13,7 +13,7 @@ const Footer = () => {
             <h4>
                {/* Icon vô cực tượng trưng hoặc logo */}
                <span style={{color: '#3b82f6', fontSize: '1.5rem', marginRight: '8px'}}>∞</span> 
-               Gup Job
+               IUROADMAP
             </h4>
             <p>Connecting learners with opportunities.</p>
           </div>

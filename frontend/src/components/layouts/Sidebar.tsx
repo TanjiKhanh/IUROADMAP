@@ -163,7 +163,7 @@ export default function Sidebar() {
       <div className="sidebar-header">
         <div className="sidebar-brand">
           <img src={logo} alt="Gub Job" className="brand-icon" />
-          <span className="nav-text brand-name">Gub Job</span>
+          <span className="nav-text brand-name">IUROADMAP</span>
         </div>
 
         <button

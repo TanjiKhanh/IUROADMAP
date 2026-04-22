@@ -26,6 +26,13 @@
   max-width: 650px;
 }
 
+.register-logo {
+  height: 56px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 /* --- STEP INDICATOR (Thanh tiến trình) --- */
 .step-header {
   margin-bottom: 2rem;
@@ -386,4 +393,10 @@
   border-radius: 8px;
   margin-bottom: 1rem;
   font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .register-logo {
+    height: 48px;
+  }
 }

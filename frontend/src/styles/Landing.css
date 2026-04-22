@@ -112,7 +112,7 @@ button {
 }
 
 .brand-logo { 
-  height: 40px; 
+  height: 52px; 
   display: block;
   cursor: pointer; 
 }
@@ -357,6 +357,7 @@ button {
 @media (max-width: 768px) {
   .site-header { padding: 1rem; }
   .header-inner { flex-direction: column; gap: 1rem; }
+  .brand-logo { height: 44px; }
   .site-nav { flex-wrap: wrap; justify-content: center; gap: 1rem; }
   
   .hero { grid-template-columns: 1fr; text-align: center; gap: 3rem; padding-top: 2rem; }

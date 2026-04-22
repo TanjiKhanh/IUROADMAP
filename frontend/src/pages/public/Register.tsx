@@ -353,7 +353,7 @@ export default function RegisterPage() {
       <div className={`register-card ${step > 1 ? 'wide' : ''}`}>
         <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
           <Link to="/">
-            <img src={logo} alt="Logo" style={{ height: '40px' }} />
+            <img src={logo} alt="Logo" className="register-logo" />
           </Link>
         </div>
 
