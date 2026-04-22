@@ -10,7 +10,7 @@ RUN apt-get update \
 
 COPY package*.json ./
 # If gateway does not use Prisma, you can remove COPY prisma
-RUN npm ci
+RUN npm install --no-audit --no-fund
 RUN npx prisma generate || true
 
 COPY . .
