@@ -7,7 +7,6 @@ import { getAccessToken, setAccessToken } from '../auth/tokenStore';
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true, // Crucial: Sends HttpOnly cookies to the backend
   headers: {
     'Content-Type': 'application/json',
   },
