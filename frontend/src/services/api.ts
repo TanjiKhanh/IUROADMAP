@@ -4,8 +4,9 @@ import { getAccessToken, setAccessToken } from '../auth/tokenStore';
 // =====================================
 // Axios Instance
 // =====================================
+const BASE_URL = import.meta.env.VITE_API_URL || '';
 const api = axios.create({
-  baseURL: '', // Relies on Vite proxy defined in vite.config.ts
+  baseURL: BASE_URL,
   withCredentials: true, // Crucial: Sends HttpOnly cookies to the backend
   headers: {
     'Content-Type': 'application/json',
@@ -96,7 +97,8 @@ api.interceptors.response.use(
         console.log('🔄 Session expired. Attempting refresh...');
         
         // Call the refresh endpoint using RAW axios (skips this interceptor)
-        const resp = await axios.post('api/v1/auth/refresh', {}, { withCredentials: true });
+        const refreshUrl = BASE_URL ? `${BASE_URL}/auth/refresh` : '/api/v1/auth/refresh';
+        const resp = await axios.post(refreshUrl, {}, { withCredentials: true });
         
         // Handle unwrapping manually for this raw request
         const payload = resp.data?.data || resp.data;
