@@ -121,10 +121,6 @@ export default function Sidebar() {
         <span className="nav-text">My Roadmaps</span>
       </NavLink>
 
-      <NavLink to="/dashboard/progress" className={getNavLinkClass}>
-        <span className="nav-icon"><Rocket size={18} /></span>
-        <span className="nav-text">Progress</span>
-      </NavLink>
 
       <div className="nav-section-label">Community</div>
 

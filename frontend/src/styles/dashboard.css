@@ -674,3 +674,215 @@ body {
   margin: 0;
   color: var(--text-main);
 }
+
+/* =========================================
+   5. ADMIN OVERVIEW PAGE
+   ========================================= */
+.admin-overview-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-overview-live-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.admin-overview-alert {
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.admin-overview-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.admin-overview-stat-card {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  padding: 16px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(2, 6, 23, 0.06);
+}
+
+.admin-overview-stat-card.tone-indigo {
+  background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%);
+}
+
+.admin-overview-stat-card.tone-green {
+  background: linear-gradient(180deg, #ecfdf3 0%, #ffffff 100%);
+}
+
+.admin-overview-stat-card.tone-violet {
+  background: linear-gradient(180deg, #f5f3ff 0%, #ffffff 100%);
+}
+
+.admin-overview-stat-card.tone-amber {
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.admin-overview-stat-label {
+  color: #475569;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.admin-overview-stat-value {
+  margin-top: 10px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.admin-overview-stat-hint {
+  margin-top: 8px;
+  font-size: 0.84rem;
+  color: #64748b;
+}
+
+.admin-overview-main-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-overview-card {
+  margin-bottom: 0;
+}
+
+.admin-overview-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-overview-action-link {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.admin-overview-action-link:hover {
+  transform: translateY(-1px);
+  border-color: #c7d2fe;
+  background: #eef2ff;
+}
+
+.admin-overview-action-title {
+  color: #0f172a;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.admin-overview-action-sub {
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.admin-overview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.admin-overview-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+}
+
+.admin-overview-row-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.admin-overview-row-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.admin-overview-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-overview-table-wrap {
+  overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.admin-overview-list::-webkit-scrollbar,
+.admin-overview-table-wrap::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.admin-overview-list::-webkit-scrollbar-thumb,
+.admin-overview-table-wrap::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 999px;
+}
+
+.admin-overview-list::-webkit-scrollbar-track,
+.admin-overview-table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-overview-muted {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1100px) {
+  .admin-overview-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-overview-actions-grid {
+    grid-template-columns: 1fr;
+  }
+}

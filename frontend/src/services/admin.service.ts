@@ -84,12 +84,13 @@ export interface RoadmapEdgeInput {
 
 export interface Roadmap {
   id?: number;
+  name?: string;
   slug: string;
-  title: string;
+  title?: string;
   description?: string;
-  courseId: number;
-  nodes: RoadmapNodeInput[];
-  edges: RoadmapEdgeInput[];
+  courseId?: number;
+  nodes?: RoadmapNodeInput[];
+  edges?: RoadmapEdgeInput[];
 }
 
 export interface Major {
@@ -273,7 +274,7 @@ export const adminService = {
   // 🗺️ ROADMAPS
   // ==========================================
   getAllRoadmaps: async () => {
-    const data = await api.get<Roadmap[]>('/api/v1/admin/roadmaps');
+    const data = await api.get<Roadmap[]>('/api/v1/admin/major-roadmaps');
     return data as unknown as Roadmap[];
   },
 

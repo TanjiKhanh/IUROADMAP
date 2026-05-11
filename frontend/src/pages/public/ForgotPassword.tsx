@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Thêm useNavigate
 import '../../styles/auth.css';
 import logo from '../../assets/images/logo-gupjob-primary.png';
-import axios from 'axios';
 import { authService } from '../../services/auth.service';
 
 type Step = 'REQUEST' | 'SENT' | 'RESET';
@@ -49,15 +48,9 @@ export default function ForgotPassword() {
 
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/auth/reset-password', {
-        token: emailToken, // ✅ Token người dùng nhập vào
-        newPassword: newPassword
-      });
-
-      if (response.data.success) {
-        alert("Password updated successfully!");
-        navigate('/login');
-      }
+      await authService.resetPassword(emailToken, newPassword);
+      alert("Password updated successfully!");
+      navigate('/login');
     } catch (error: any) {
       alert(error.response?.data?.message || "Invalid or expired code.");
     } finally {
