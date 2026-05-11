@@ -34,15 +34,22 @@
     "test": "npm run test:unit"
   },
   "dependencies": {
+    "@nestjs/axios": "^3.0.0",
     "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^10.2.10",
+    "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.2.10",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.2.10",
+    "axios": "^1.6.2",
     "cache-manager": "^7.2.8",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6",
     "jsonwebtoken": "9.0.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
   },
