@@ -1,5 +1,5 @@
 // services/api-gateway/src/modules/roadmaps/services/enrollments.service.ts
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, Logger } from '@nestjs/common';
 import { AdminServiceClient } from '../clients/admin-service.client';
 import { UserServiceClient } from '../clients/user-service.client';
 import { RoadmapCacheService } from './roadmap-cache.service';
@@ -10,6 +10,8 @@ import {
 
 @Injectable()
 export class EnrollmentsService {
+  private readonly logger = new Logger(EnrollmentsService.name);
+
   constructor(
     private readonly adminClient: AdminServiceClient,
     private readonly userClient: UserServiceClient,
@@ -42,14 +44,15 @@ export class EnrollmentsService {
       await this.roadmapCache.setGraph(major.id, roadmapGraph);
     }
 
-
-    
+    const courseNodeIds = roadmapGraph.nodes.map((n) => n.id);
+    this.logger.log(`📋 Enrolling user ${userId} to roadmap ${major.id} with ${courseNodeIds.length} nodes`);
+    this.logger.debug(`Course nodes: ${JSON.stringify(courseNodeIds)}`);
 
     const enrollResult = await this.userClient.enrollUserToRoadmap({
       userId,
       roadmapId: major.id,
       totalCreditsRequired: major.total_credits,
-      courseNodeIds: roadmapGraph.nodes.map((n) => n.id),
+      courseNodeIds,
     });
 
     const summary: EnrollmentSummaryDto = {

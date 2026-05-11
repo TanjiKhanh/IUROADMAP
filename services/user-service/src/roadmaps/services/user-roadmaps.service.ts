@@ -26,6 +26,7 @@ export class UserRoadmapsService {
     this.logger.log(
       `Enrolling user ${userId} to roadmap ${roadmapId} with ${courseNodeIds.length} course nodes`,
     );
+    this.logger.debug(`Course node IDs: ${JSON.stringify(courseNodeIds)}`);
 
     // Check if already enrolled
     const existing = await this.prisma.uSER_ROADMAPS_PROGRESS.findFirst({

@@ -61,7 +61,7 @@ export class RoadmapsController {
   }
 
   @UseGuards(JwtGuard)
-  @Roles('STUDENT', 'ADMIN')
+  @Roles('STUDENT')
   @Patch(':userRoadmapId/courses/:courseNodeId')
   async updateCourseProgress(
     @Param('userRoadmapId', ParseIntPipe) userRoadmapId: number,

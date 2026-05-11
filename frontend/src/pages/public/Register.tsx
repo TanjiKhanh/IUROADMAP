@@ -63,7 +63,6 @@ export default function RegisterPage() {
       // Map frontend roles to backend expected enums
       let backendRole = 'STUDENT';
       if (formData.role === 'mentor') backendRole = 'MENTOR';
-      if (formData.role === 'company') backendRole = 'COMPANY';
 
       const basePayload = {
         email: formData.email,
@@ -77,21 +76,13 @@ export default function RegisterPage() {
       if (backendRole === 'MENTOR') {
             payload = { ...basePayload, ...extraData } as MentorRegisterPayload;
             console.log('🚀 Calling MENTOR API with payload:', payload);
-            
             const response = await authService.registerMentor(payload);
             console.log('✅ Mentor registration successful:', response);
-          } else if (backendRole === 'STUDENT') {
-            payload = basePayload;
-            console.log('🚀 Calling LEARNER API with payload:', payload);
-            
-            const response = await authService.register(payload);
-            console.log('✅ Learner registration successful:', response);
           } else {
             payload = basePayload;
-            console.log('🚀 Calling COMPANY API with payload:', payload);
-            
+            console.log('🚀 Calling LEARNER API with payload:', payload);
             const response = await authService.register(payload);
-            console.log('✅ Company registration successful:', response);
+            console.log('✅ Learner registration successful:', response);
           }
 
           // ROUTING BRANCH:
@@ -157,10 +148,6 @@ export default function RegisterPage() {
         setStep(4);
         return;
       }
-      if (formData.role === 'company') {
-        // Companies complete registration on step 2, no next step needed
-        return; 
-      }
     }
     setError(null);
     setStep((prev) => prev + 1);
@@ -180,29 +167,19 @@ export default function RegisterPage() {
   };
 
   const handleMentorSubmit = async (mentorData: MentorFormData) => {
-    await submitToServer({
-      cvUrl: mentorData.cvUrl,
-      linkedinUrl: mentorData.linkedinUrl,
-      industry: mentorData.industry,
-      skills: mentorData.skills,
-      bio: mentorData.bio,
-    });
+    // Mentor registration is an upcoming feature in this flow.
+    setError('This is an upcoming feature.');
+    return;
   };
 
   // --- DYNAMIC PROGRESS BAR LOGIC ---
   const getProgressInfo = () => {
-    // Company path: Auth -> Role (2 steps total)
-    if (formData.role === 'company') {
-      return { currentDisplayStep: step, totalDisplaySteps: 2 };
-    }
-    
     // Mentor path: Auth -> Role -> Mentor Form (3 steps total)
     if (formData.role === 'mentor') {
       const displayStep = step === 4 ? 3 : step; // Map internal step 4 to display step 3
       return { currentDisplayStep: displayStep, totalDisplaySteps: 3 };
     }
-    
-    // Learner path (or default before selection): Auth -> Role -> Course (3 steps total)
+    // Learner/default path: 3 steps
     return { currentDisplayStep: step, totalDisplaySteps: 3 };
   };
 
@@ -274,8 +251,7 @@ export default function RegisterPage() {
       <div className="grid-cards">
         {[
           { id: 'learner', icon: '🎓', title: "I'm a Learner", desc: "Gain skills & land jobs." },
-          { id: 'mentor', icon: '💡', title: "I'm a Mentor", desc: "Guide & share expertise." },
-          { id: 'company', icon: '💼', title: "I'm a Company", desc: "Hire skilled talent." }
+          { id: 'mentor', icon: '💡', title: "I'm a Mentor", desc: "Guide & share expertise." }
         ].map(item => (
           <div 
             key={item.id} 
@@ -293,59 +269,7 @@ export default function RegisterPage() {
     </>
   );
 
-  const renderStep3 = () => (
-    <>
-      <div className="step-centered-header">
-        <h2>Choose Your Focus</h2>
-        <p>Select a specific career path to enroll in.</p>
-      </div>
-
-      {isCourseLoading ? (
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Loading...</div>
-      ) : availableCourses.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
-          No courses found. You can skip this step.
-        </div>
-      ) : (
-        <div className="grid-cards">
-          {availableCourses.map((course) => (
-            <div
-              key={course.id}
-              className={`course-select-card ${formData.selectedCourseId === course.id ? 'active' : ''}`}
-              onClick={() => handleCourseSelect(course)}
-              style={{
-                border: formData.selectedCourseId === course.id ? '2px solid #2563eb' : '1px solid #e2e8f0',
-                borderRadius: '12px',
-                padding: '1.2rem',
-                cursor: 'pointer',
-                backgroundColor: formData.selectedCourseId === course.id ? '#eff6ff' : 'white',
-                transition: 'all 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <span style={{ fontSize: '1rem', fontWeight: 600, color: '#1e293b' }}>
-                {course.title}
-              </span>
-
-              <div
-                style={{
-                  width: '20px',
-                  height: '20px',
-                  borderRadius: '50%',
-                  border:
-                    formData.selectedCourseId === course.id ? '5px solid #2563eb' : '2px solid #cbd5e1',
-                  backgroundColor: 'white',
-                  transition: 'all 0.2s',
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-    </>
-  );
+  
 
   return (
     <div className="register-container">
@@ -384,13 +308,38 @@ export default function RegisterPage() {
 
         {step === 4 && error && <div className="error-msg" style={{ marginBottom: '1rem' }}>{error}</div>}
 
-        {step === 1 && renderStep1()}
-        {step === 2 && renderStep2()}
-        {step === 3 && formData.role === 'learner' && renderStep3()}
+          {step === 1 && renderStep1()}
+          {step === 2 && renderStep2()}
+          {step === 3 && formData.role === 'learner' && (
+            <>
+              <h2 style={{fontSize: '1.25rem', marginBottom: '0.5rem'}}>Confirm & Create Account</h2>
+              <p style={{color:'#64748b'}}>Select a recommended course (optional) and complete your registration.</p>
 
-        {step === 4 && (
-          <RegisterForm isLoading={isLoading} onSubmitSuccess={handleMentorSubmit} onBack={prevStep} />
-        )}
+              {isCourseLoading && <div style={{padding:'1rem'}}>Loading courses...</div>}
+
+              {!isCourseLoading && availableCourses.length > 0 && (
+                <div className="grid-cards" style={{marginTop:'1rem'}}>
+                  {availableCourses.map(course => (
+                    <div key={course.id} className={`card-select ${formData.selectedCourseId === course.id ? 'active' : ''}`} onClick={() => handleCourseSelect(course)}>
+                      <div className="card-icon-box">📚</div>
+                      <div className="card-info">
+                        <h3>{course.title}</h3>
+                        <p style={{fontSize:'0.9rem', color:'#64748b'}}>{course.slug || course.title}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {(!isCourseLoading && availableCourses.length === 0) && (
+                <div style={{padding:'1rem', color:'#64748b'}}>No recommended courses available right now.</div>
+              )}
+            </>
+          )}
+
+          {step === 4 && (
+            <RegisterForm isLoading={isLoading} onSubmitSuccess={handleMentorSubmit} onBack={prevStep} />
+          )}
 
         {/* Navigation Buttons */}
         {step > 1 && (
@@ -403,18 +352,15 @@ export default function RegisterPage() {
                </button>
             )}
 
-            {/* Next Button: ONLY show on Step 2 if Company is NOT selected */}
-            {step === 2 && formData.role !== 'company' && (
+            {/* Next Button */}
+            {step === 2 && (
               <button className="btn-primary" onClick={nextStep}>
                 Next →
               </button>
             )}
 
-            {/* Submit Button: Show on Step 3 for Learners OR Step 2 for Companies */}
-            {(
-              (step === 3 && formData.role === 'learner') || 
-              (step === 2 && formData.role === 'company')
-            ) && (
+            {/* Submit Button: Show on Step 3 for Learners */}
+            {(step === 3 && formData.role === 'learner') && (
               <button
                 className="btn-primary"
                 onClick={handleSubmit}
