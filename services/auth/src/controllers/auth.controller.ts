@@ -6,7 +6,6 @@ import {  LearnerRegisterDto } from '../dto/learner-register.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { ForgotPasswordDto, ResetPasswordDto } from '../dto/forgot-password.dto';
 import { MentorRegisterDto } from '../dto/mentor-register.dto';
-import { UserResponseDto } from '../dto/user-response.dto';
 import { Public } from '../decorators/public.decorator';
 
 
