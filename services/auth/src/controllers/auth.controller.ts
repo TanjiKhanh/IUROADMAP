@@ -3,10 +3,11 @@ import { AuthService } from '../services/auth.service';
 import { Request, Response } from 'express';
 import { LoginDto } from '../dto/login.dto';
 import {  LearnerRegisterDto } from '../dto/learner-register.dto';
-import { JwtAuthGuard } from '../guards/jwt.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { ForgotPasswordDto, ResetPasswordDto } from '../dto/forgot-password.dto';
 import { MentorRegisterDto } from '../dto/mentor-register.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
+import { Public } from '../decorators/public.decorator';
 
 
 const REFRESH_COOKIE = 'refresh_token';
@@ -17,6 +18,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   // 1.1 REGISTER LEARNER
+  @Public()
   @Post('register/learner')
   async register(
     @Body() dto: LearnerRegisterDto, 
@@ -27,6 +29,7 @@ export class AuthController {
   }
 
   //1.2 REGISTER MENTOR
+  @Public()
   @Post('register/mentor')
   async registerMentor(
     @Body() dto: MentorRegisterDto,
@@ -37,6 +40,7 @@ export class AuthController {
   }
 
   // 2. LOGIN (Set Cookie)
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(
@@ -68,6 +72,7 @@ export class AuthController {
   }
 
   // 3. REFRESH (Read Cookie)
+  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   async refresh(
@@ -115,6 +120,7 @@ export class AuthController {
     return;
   }
 
+    @Public()
     @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
@@ -122,6 +128,7 @@ export class AuthController {
   }
 
 
+  @Public()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() dto: ResetPasswordDto) {

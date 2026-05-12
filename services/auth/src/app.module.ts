@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { APP_GUARD } from '@nestjs/core';
 
 // Controllers & Services
 import { AuthController } from './controllers/auth.controller';
@@ -12,8 +13,9 @@ import { UsersService } from './services/users.service';
 import { PrismaService } from './prisma/prisma.service';
 import { UsersRepository } from './repositories/user.repository'; 
 
-// Strategies
+// Strategies & Guards
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AdminClientModule } from './external/admin-client/admin-client.module'
 import { UserClientModule } from './external/user-client/user-client.module';
 import { MentorClientModule } from './external/mentor-client/mentor-client.module';
@@ -72,7 +74,11 @@ import { HealthController } from './health.controller';
     UsersService, 
     UsersRepository,
     PrismaService,
-    JwtStrategy, 
+    JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
   ],
 })
 export class AppModule {}
