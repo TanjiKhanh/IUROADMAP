@@ -13,10 +13,8 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
-  // 1. CẤU HÌNH CORS (Quan trọng cho Cookie)
   app.enableCors({
-    // URL of Frontend (Ví dụ: http://localhost:5173 cho Vite)
-    origin: ['http://localhost:5173', 'http://localhost:3001'], // Thêm URL của frontend vào đây
+    origin: ['http://localhost:5173', 'http://localhost:3001'],
     credentials: true, // REQUIRED: To allow sending/receiving Cookies (HttpOnly)
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
