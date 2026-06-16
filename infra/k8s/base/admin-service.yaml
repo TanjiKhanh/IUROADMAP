@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-service
+  namespace: iuroadmap
+  labels:
+    app: admin-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4100
+      targetPort: 4100
+      protocol: TCP
+      name: http
+  selector:
+    app: admin-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-service
+  namespace: iuroadmap
+  labels:
+    app: admin-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-service
+  template:
+    metadata:
+      labels:
+        app: admin-service
+    spec:
+      containers:
+        - name: admin-service
+          image: gupjob/admin-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4100
+              name: http
+          envFrom:
+            - configMapRef:
+                name: iuroadmap-config
+          env:
+            - name: NODE_ENV
+              value: "production"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4100
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4100
+            initialDelaySeconds: 5
+            periodSeconds: 5
