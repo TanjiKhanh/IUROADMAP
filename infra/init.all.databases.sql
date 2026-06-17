@@ -155,53 +155,61 @@ CREATE INDEX idx_course_topics_edge_target_topic_id ON course_topics_edge(target
 -- Connect to user database
 \c gupjob_user;
 
-CREATE TYPE "RoadmapNodeStatus" AS ENUM ('AVAILABLE', 'IN_PROGRESS', 'COMPLETED', 'SKIPPED', 'LOCKED');
+-- 1. Create Enums exactly matching Prisma definitions
+CREATE TYPE "EnrollmentStatus" AS ENUM ('ENROLLED', 'COMPLETED', 'DROPPED');
+CREATE TYPE "NodeProgressStatus" AS ENUM ('AVAILABLE', 'IN_PROGRESS', 'COMPLETED');
 
-CREATE TABLE "UserRoadmap" (
-  id SERIAL PRIMARY KEY,
-  "userId" INTEGER NOT NULL,
-  "masterRoadmapId" INTEGER NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  slug VARCHAR(255),
-  "progressPercent" INTEGER DEFAULT 0,
-  "totalNodes" INTEGER DEFAULT 0,
-  "completedNodes" INTEGER DEFAULT 0,
-  "startDate" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  "targetDate" TIMESTAMP,
-  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE("userId", "masterRoadmapId")
+-- 2. Create the User Roadmaps table mapped from USER_ROADMAPS_PROGRESS
+CREATE TABLE "user_roadmaps" (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    roadmap_id INTEGER NOT NULL,
+    enrollment_status "EnrollmentStatus" NOT NULL,
+    completion_percentage INTEGER NOT NULL,
+    total_credits_earned INTEGER NOT NULL,
+    total_credits_required INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Matches @@unique([user_id, roadmap_id])
+    CONSTRAINT unique_user_roadmap UNIQUE (user_id, roadmap_id)
 );
 
-CREATE INDEX idx_userroadmap_userid ON "UserRoadmap"("userId");
-CREATE INDEX idx_userroadmap_masterroadmapid ON "UserRoadmap"("masterRoadmapId");
+-- Indexes for user_roadmaps
+CREATE INDEX idx_user_roadmaps_user_id ON "user_roadmaps"(user_id);
+CREATE INDEX idx_user_roadmaps_roadmap_id ON "user_roadmaps"(roadmap_id);
 
-CREATE TABLE "UserRoadmapNode" (
-  id SERIAL PRIMARY KEY,
-  "userRoadmapId" INTEGER NOT NULL REFERENCES "UserRoadmap"(id) ON DELETE CASCADE,
-  "nodeKey" VARCHAR(255) NOT NULL,
-  status "RoadmapNodeStatus" DEFAULT 'AVAILABLE',
-  "userNotesMd" TEXT,
-  "userResources" JSONB,
-  "startedAt" TIMESTAMP,
-  "completedAt" TIMESTAMP,
-  "timeSpentMinutes" INTEGER DEFAULT 0,
-  "difficultyRating" INTEGER,
-  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE("userRoadmapId", "nodeKey")
+
+-- 3. Create the Node Progress table mapped from USER_NODE_PROGRESS
+CREATE TABLE "user_node_progress" (
+    id SERIAL PRIMARY KEY,
+    user_roadmap_id INTEGER NOT NULL,
+    course_node_id INTEGER NOT NULL,
+    status "NodeProgressStatus" NOT NULL,
+    credits_earned INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Matches @@unique([user_roadmap_id, course_node_id])
+    CONSTRAINT unique_roadmap_node UNIQUE (user_roadmap_id, course_node_id),
+
+    -- Matches the relation fields with onDelete: Cascade
+    CONSTRAINT fk_user_roadmap FOREIGN KEY (user_roadmap_id) 
+        REFERENCES "user_roadmaps"(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_userroadmapnode_userroadmapid ON "UserRoadmapNode"("userRoadmapId");
+-- Indexes for user_node_progress
+CREATE INDEX idx_user_node_progress_user_roadmap_id ON "user_node_progress"(user_roadmap_id);
+CREATE INDEX idx_user_node_progress_course_node_id ON "user_node_progress"(course_node_id);
 
-CREATE TABLE "LearnerProfile" (
-  "userId" INTEGER PRIMARY KEY,
-  "universityDepartment" VARCHAR(255),
-  major VARCHAR(255),
-  bio JSONB,
-  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- 4. Automatically update the updated_at column on changes (PostgreSQL Best Practice)
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
 
-CREATE INDEX idx_learnerprofile_universitydepartment ON "LearnerProfile"("universityDepartment");
-CREATE INDEX idx_learnerprofile_major ON "LearnerProfile"(major);
+CREATE TRIGGER update_user_roadmaps_modtime BEFORE UPDATE ON "user_roadmaps" FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
+CREATE TRIGGER update_user_node_progress_modtime BEFORE UPDATE ON "user_node_progress" FOR EACH ROW EXECUTE PROCEDURE update_modified_column();

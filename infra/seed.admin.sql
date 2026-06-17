@@ -3,6 +3,8 @@
 -- 2. Insert Major Roadmaps
 \c gupjob_admin;
 
+
+
 INSERT INTO "departments" (id, slug, name, description, created_at, updated_at) VALUES
 (1, 'information-technology', 'Information Technology', 'Department of Information Technology and related majors.', '2026-04-16 22:36:23', '2026-04-16 22:36:23');
 
