@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { RoadmapsModule } from './modules/roadmaps/roadmaps.module';
 import {AuthModule} from './modules/auth/auth.module';  
 import {  AdminModule } from './modules/admin/admin.module';
+import { HealthController } from './gateway.controller';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import {  AdminModule } from './modules/admin/admin.module';
     AuthModule,
     AdminModule
   ],
+  controllers: [HealthController],
   providers: [
   ],
 })

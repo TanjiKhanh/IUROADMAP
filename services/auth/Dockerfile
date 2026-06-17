@@ -40,6 +40,7 @@ COPY --from=builder /app/src/generated ./dist/generated
 
 USER appuser
 
+
 EXPOSE 3000
 # Start the NestJS app; ensure the entry file path matches your build output
 CMD ["node", "dist/main.js"]

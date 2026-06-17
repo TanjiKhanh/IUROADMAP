@@ -1,56 +1,92 @@
-
 services:
+  # ===== PostgreSQL Database =====
   postgres:
     image: postgres:15-alpine
-    container_name: gupjob-postgres
-    env_file:
-      - ./.env.production
+    container_name: iuroadmap-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-gupjob}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-gupjob_secure_password}
+      TZ: UTC
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./init.all.databases.sql:/docker-entrypoint-initdb.d/init.all.databases.sql:ro
+      # Initialize databases and schemas
+      - ./infra/init.all.databases.sql:/docker-entrypoint-initdb.d/01-init.all.databases.sql
+      # Seed data
+      - ./infra/seed.auth.sql:/docker-entrypoint-initdb.d/02-seed.auth.sql
+      - ./infra/seed.admin.sql:/docker-entrypoint-initdb.d/03-seed.admin.sql
+      - ./infra/seed.mentor.sql:/docker-entrypoint-initdb.d/04-seed.mentor.sql
+      - ./infra/seed.user.sql:/docker-entrypoint-initdb.d/05-seed.user.sql
+      # Persistent data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gupjob -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-gupjob}"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 20s
     networks:
-      - gupjob-network
+      - iuroadmap-network
     restart: unless-stopped
 
+
+  # ===== Admin PostgreSQL (Optional) =====
+  
+
+  # ===== Redis Cache =====
   redis:
     image: redis:7-alpine
-    container_name: gupjob-redis
+    container_name: iuroadmap-redis
     ports:
       - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_secure_password}
     volumes:
-      - redis-data:/data
+      - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - gupjob-network
+      - iuroadmap-network
     restart: unless-stopped
 
-  api-gateway:
+  # ===== Auth Service =====
+  auth-service:
     build:
-      context: ./services/api-gateway
+      context: ./services/auth
       dockerfile: Dockerfile
-    container_name: api-gateway
-    env_file:
-      - ./services/api-gateway/.env.production
+    container_name: iuroadmap-auth-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       NODE_ENV: production
-      AUTH_SERVICE_URL: http://auth-service:3000
-      ADMIN_SERVICE_URL: http://admin-service:4100
-      USER_SERVICE_URL: http://user-service:4001
-      MENTOR_SERVICE_URL: http://mentor-service:4000
+      PORT: 3000
+      AUTH_DATABASE_URL: "postgresql://${DB_USER:-gupjob}:${DB_PASSWORD:-gupjob_secure_password}@postgres:5432/gupjob_auth"
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
+      JWT_SECRET: ${JWT_SECRET:-secret-jwt-key}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-3600s}
+      MENTOR_SERVICE_URL: http://mentor-service:4001
+      MENTOR_SERVICE_API_KEY: ${MENTOR_SERVICE_API_KEY:-super-secret-gupjob-internal-key-998877}
     ports:
-      - "8080:8080"
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); })"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - iuroadmap-network
+    restart: unless-stopped
+
+  # ===== Admin Service =====
+  admin-service:
+    build:
+      context: ./services/admin-service
+      dockerfile: Dockerfile
+    container_name: iuroadmap-admin-service
     depends_on:
       postgres:
         condition: service_healthy
@@ -58,137 +94,163 @@ services:
         condition: service_healthy
       auth-service:
         condition: service_healthy
-      admin-service:
-        condition: service_healthy
-      user-service:
-        condition: service_healthy
-      mentor-service:
-        condition: service_healthy
-    networks:
-      - gupjob-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:8080/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  auth-service:
-    build:
-      context: ./services/auth
-      dockerfile: Dockerfile
-    container_name: auth-service
-    env_file:
-      - ./services/auth/.env.production
     environment:
       NODE_ENV: production
-      PORT: 3000
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - gupjob-network
-    restart: unless-stopped
+      PORT: 3001
+      ADMIN_DATABASE_URL: "postgresql://${DB_USER:-gupjob}:${DB_PASSWORD:-gupjob_secure_password}@postgres:5432/gupjob_admin"
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
+      JWT_SECRET: ${JWT_SECRET:-secret-jwt-key}
+      AUTH_SERVICE_URL: http://auth-service:3000
+      AUTH_SERVICE_API_KEY: ${AUTH_SERVICE_API_KEY:-super-secret-gupjob-internal-key-998877}
+    ports:
+      - "3001:3001"
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); })"]
+      interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
-
-  admin-service:
-    build:
-      context: ./services/admin-service
-      dockerfile: Dockerfile
-    container_name: admin-service
-    env_file:
-      - ./services/admin-service/.env.production
-    environment:
-      NODE_ENV: production
-      PORT: 4100
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
-      - gupjob-network
+      - iuroadmap-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4100/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
-  user-service:
+  # ===== Mentor Service =====
+  mentor-service:
     build:
-      context: ./services/user-service
+      context: ./services/mentor-service
       dockerfile: Dockerfile
-    container_name: user-service
-    env_file:
-      - ./services/user-service/.env.production
-    environment:
-      NODE_ENV: production
-      PORT: 4001
+    container_name: iuroadmap-mentor-service
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks:
-      - gupjob-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4001/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  mentor-service:
-    build:
-      context: ./services/mentor-service
-      dockerfile: Dockerfile
-    container_name: mentor-service
-    env_file:
-      - ./services/mentor-service/.env.production
+      auth-service:
+        condition: service_healthy
     environment:
       NODE_ENV: production
-      PORT: 4000
+      PORT: 4001
+      MENTOR_DATABASE_URL: "postgresql://${DB_USER:-gupjob}:${DB_PASSWORD:-gupjob_secure_password}@postgres:5432/gupjob_mentor"
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
+      JWT_SECRET: ${JWT_SECRET:-secret-jwt-key}
+      AUTH_SERVICE_URL: http://auth-service:3000
+      AUTH_SERVICE_API_KEY: ${AUTH_SERVICE_API_KEY:-super-secret-gupjob-internal-key-998877}
+    ports:
+      - "4001:4001"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4001/health', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); })"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - iuroadmap-network
+    restart: unless-stopped
+
+  # ===== User Service =====
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    container_name: iuroadmap-user-service
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - gupjob-network
-    restart: unless-stopped
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      USER_DATABASE_URL: "postgresql://${DB_USER:-gupjob}:${DB_PASSWORD:-gupjob_secure_password}@postgres:5432/gupjob_user"
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
+      JWT_SECRET: ${JWT_SECRET:-secret-jwt-key}
+      AUTH_SERVICE_URL: http://auth-service:3000
+      AUTH_SERVICE_API_KEY: ${AUTH_SERVICE_API_KEY:-super-secret-gupjob-internal-key-998877}
+    ports:
+      - "3002:3002"
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3002/health', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); }) "]
+      interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
-
-  nginx:
-    image: nginx:alpine
-    container_name: nginx-reverse-proxy
-    profiles:
-      - proxy
-    ports:
-      - "8081:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-    depends_on:
-      api-gateway:
-        condition: service_healthy
     networks:
-      - gupjob-network
+      - iuroadmap-network
     restart: unless-stopped
 
-volumes:
-  pgdata:
-  redis-data:
+  # ===== API Gateway =====
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: iuroadmap-api-gateway
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      admin-service:
+        condition: service_healthy
+      mentor-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      JWT_SECRET: ${JWT_SECRET:-secret-jwt-key}
+      AUTH_SERVICE_URL: http://auth-service:3000
+      ADMIN_SERVICE_URL: http://admin-service:3001
+      MENTOR_SERVICE_URL: http://mentor-service:4001
+      USER_SERVICE_URL: http://user-service:3002
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080/health', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); })"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - iuroadmap-network
+    restart: unless-stopped
+
+  # ===== Frontend (Optional) =====
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: iuroadmap-frontend
+    depends_on:
+      - api-gateway
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://api-gateway:8080}
+      NODE_ENV: production
+    ports:
+      - "5173:5173"
+    networks:
+      - iuroadmap-network
+    restart: unless-stopped
+
+  # ===== Nginx Reverse Proxy (Optional) =====
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: iuroadmap-nginx
+    depends_on:
+      - api-gateway
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/certs:/etc/nginx/certs:ro
+    networks:
+      - iuroadmap-network
+    restart: unless-stopped
+    profiles:
+      - proxy
 
 networks:
-  gupjob-network:
+  iuroadmap-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

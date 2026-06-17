@@ -70,74 +70,87 @@ CREATE INDEX idx_mentor_skill_mentorid ON "MentorSkill"("mentorId");
 -- Connect to admin database
 \c gupjob_admin;
 
+
 CREATE TYPE "CourseType" AS ENUM ('BASIC', 'JOB');
 
-CREATE TABLE "Department" (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) UNIQUE NOT NULL,
-  slug VARCHAR(255) UNIQUE NOT NULL,
-  description TEXT,
-  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_department_slug ON "Department"(slug);
-
-CREATE TABLE "Course" (
+CREATE TABLE departments (
   id SERIAL PRIMARY KEY,
   slug VARCHAR(255) UNIQUE NOT NULL,
-  title VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
   description TEXT,
-  type "CourseType",
-  "departmentId" INTEGER REFERENCES "Department"(id),
-  "priorityJob" TEXT[],
-  structure JSONB,
-  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_course_departmentid ON "Course"("departmentId");
+CREATE INDEX idx_departments_slug ON departments(slug);
 
-CREATE TABLE "Roadmap" (
+CREATE TABLE major_roadmaps (
   id SERIAL PRIMARY KEY,
   slug VARCHAR(255) UNIQUE NOT NULL,
-  title VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  total_credits INTEGER NOT NULL,
   description TEXT,
-  "courseId" INTEGER REFERENCES "Course"(id),
-  structure JSONB,
-  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  department_id INTEGER NOT NULL REFERENCES departments(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_roadmap_courseid ON "Roadmap"("courseId");
+CREATE INDEX idx_major_roadmaps_department_id ON major_roadmaps(department_id);
 
-CREATE TABLE "RoadmapNode" (
+CREATE TABLE course_nodes (
   id SERIAL PRIMARY KEY,
-  "roadmapId" INTEGER NOT NULL REFERENCES "Roadmap"(id) ON DELETE CASCADE,
-  "nodeKey" VARCHAR(255) NOT NULL,
-  title VARCHAR(255) NOT NULL,
-  summary TEXT,
-  "contentMd" TEXT,
-  "isRequired" BOOLEAN DEFAULT true,
-  metadata JSONB,
+  roadmap_id INTEGER NOT NULL REFERENCES major_roadmaps(id) ON DELETE CASCADE,
+  slug VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
   coords JSONB,
-  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  "updatedAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE("roadmapId", "nodeKey")
+  credits INTEGER NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(roadmap_id, slug)
 );
 
-CREATE INDEX idx_roadmapnode_roadmapid ON "RoadmapNode"("roadmapId");
+CREATE INDEX idx_course_nodes_roadmap_id ON course_nodes(roadmap_id);
 
-CREATE TABLE "RoadmapEdge" (
+CREATE TABLE course_node_prerequisites (
   id SERIAL PRIMARY KEY,
-  "roadmapId" INTEGER NOT NULL REFERENCES "Roadmap"(id) ON DELETE CASCADE,
-  "sourceKey" VARCHAR(255) NOT NULL,
-  "targetKey" VARCHAR(255) NOT NULL,
-  "createdAt" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  course_node_id INTEGER NOT NULL REFERENCES course_nodes(id) ON DELETE CASCADE,
+  prerequisite_node_id INTEGER NOT NULL REFERENCES course_nodes(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(course_node_id, prerequisite_node_id)
 );
 
-CREATE INDEX idx_roadmapedge_roadmapid_sourcekey ON "RoadmapEdge"("roadmapId", "sourceKey");
-CREATE INDEX idx_roadmapedge_roadmapid_targetkey ON "RoadmapEdge"("roadmapId", "targetKey");
+CREATE INDEX idx_course_node_prerequisites_course_node_id ON course_node_prerequisites(course_node_id);
+CREATE INDEX idx_course_node_prerequisites_prerequisite_node_id ON course_node_prerequisites(prerequisite_node_id);
+
+CREATE TABLE course_topics_node (
+  id SERIAL PRIMARY KEY,
+  course_node_id INTEGER NOT NULL REFERENCES course_nodes(id) ON DELETE CASCADE,
+  slug VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  coords JSONB,
+  learning_objectives TEXT,
+  resources_url VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(course_node_id, slug)
+);
+
+CREATE INDEX idx_course_topics_node_course_node_id ON course_topics_node(course_node_id);
+
+CREATE TABLE course_topics_edge (
+  id SERIAL PRIMARY KEY,
+  source_topic_id INTEGER NOT NULL REFERENCES course_topics_node(id) ON DELETE CASCADE,
+  target_topic_id INTEGER NOT NULL REFERENCES course_topics_node(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(source_topic_id, target_topic_id)
+);
+
+CREATE INDEX idx_course_topics_edge_source_topic_id ON course_topics_edge(source_topic_id);
+CREATE INDEX idx_course_topics_edge_target_topic_id ON course_topics_edge(target_topic_id);
 
 -- Connect to user database
 \c gupjob_user;
