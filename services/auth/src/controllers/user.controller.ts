@@ -1,17 +1,20 @@
 import { Controller, Get, Param, NotFoundException, Query, ValidationPipe, ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
-import { FilterUsersDto  } from '../dto/filter-users.dto';
-import {  UserResponseDto  } from '../dto/user-response.dto';
+import { FilterUsersDto } from '../dto/filter-users.dto';
+import { UserResponseDto } from '../dto/user-response.dto';
 
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
-
-@Controller('users') 
+@ApiTags('User')
+@Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // 1. Fetch all users WITH FILTERS and PAGINATION 
+  // 1. Fetch all users WITH FILTERS and PAGINATION
   @Get()
+  @ApiOperation({ summary: 'Filter and paginate users' })
+  @ApiResponse({ status: 200, description: 'Users retrieved successfully' })
   async findAll(
     @Query(new ValidationPipe({ transform: true })) filters: FilterUsersDto,
   ) {
@@ -26,6 +29,10 @@ export class UsersController {
 
   // 2. Fetch single user
   @Get(':id')
+  @ApiOperation({ summary: 'Get user profile details by ID' })
+  @ApiParam({ name: 'id', type: String, description: 'ID of the user' })
+  @ApiResponse({ status: 200, description: 'User retrieved successfully', type: UserResponseDto })
+  @ApiResponse({ status: 404, description: 'User not found' })
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.findById(Number(id));
     

@@ -47,20 +47,4 @@ model User {
   resetPasswordExpires DateTime?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-
-  refreshTokens RefreshToken[]
-}
-
-model RefreshToken {
-  id         String   @id @default(uuid())
-  userId     Int
-  user       User     @relation(fields: [userId], references: [id])
-  tokenHash  String
-  createdAt  DateTime @default(now())
-  expiresAt  DateTime
-  revoked    Boolean  @default(false)
-  userAgent  String?
-  ip         String?
-
-  @@index([userId])
 }

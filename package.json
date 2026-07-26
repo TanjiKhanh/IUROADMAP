@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "description": "AI-Powered Career Roadmap Platform",
   "private": true,
+  "packageManager": "npm@11.12.1",
   "workspaces": [
-    "services/api-gateway",
-    "services/auth",
-    "services/admin-service",
-    "services/mentor-service",
-    "services/user-service"
+    "apps/*",
+    "services/*",
+    "packages/*"
   ],
   "engines": {
     "node": ">=18.0.0",
@@ -16,41 +15,56 @@
   },
   "scripts": {
     "# ========== SETUP =========": "",
-    "install-all": "npm ci --workspaces",
-    "bootstrap": "npm install && npm run build --workspaces",
-    "clean": "npm run clean --workspaces && node -e \"require('fs').rmSync('node_modules', {recursive: true, force: true})\" && node -e \"require('fs').rmSync('coverage', {recursive: true, force: true})\"",
-
+    "install-all": "npm ci",
+    "bootstrap": "npm install && npm run build",
+    "clean": "npm run clean --workspaces --if-present && node -e \"require('fs').rmSync('node_modules', {recursive: true, force: true})\" && node -e \"require('fs').rmSync('coverage', {recursive: true, force: true})\"",
     "# ========== DEVELOPMENT =========": "",
-    "dev": "npm run start:dev --workspaces",
-    "start": "npm run start --workspaces",
-
+    "gen:api": "npm run gen:api --workspace=iuroadmap.web",
+    "dev": "turbo run start:dev dev --parallel",
+    "start": "turbo run start --parallel",
+    "web:dev": "turbo run dev --filter=iuroadmap.web",
+    "mobile:start": "turbo run start --filter=iuroadmap.mobile",
+    "mobile:android": "turbo run android --filter=iuroadmap.mobile",
+    "mobile:ios": "turbo run ios --filter=iuroadmap.mobile",
     "# ========== BUILD =========": "",
-    "build": "npm run build --workspaces",
+    "build": "turbo run build",
     "prebuild": "npm run clean",
-
     "# ========== DATABASE MIGRATIONS =========": "",
-    "migrate": "npm run migrate --workspaces --if-present",
-
+    "migrate": "turbo run migrate --parallel",
     "# ========== LINTING & FORMATTING =========": "",
-    "lint": "npm run lint --workspaces --if-present",
-    "lint:fix": "npm run lint:fix --workspaces --if-present",
-    "format": "npm run format --workspaces --if-present",
-    "format:check": "npm run format:check --workspaces --if-present",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "turbo run format",
+    "format:check": "turbo run format:check",
     "validate": "npm run lint && npm run format:check && npm run typecheck",
     "validate:fix": "npm run lint:fix && npm run format",
-
     "# ========== TYPE CHECKING =========": "",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-
+    "typecheck": "turbo run typecheck",
     "# ========== UNIT TESTS (No Database) =========": "",
-    "test": "npm run test:unit --workspaces --if-present",
-    "test:unit": "npm run test:unit --workspaces --if-present",
-    "test:unit:watch": "npm run test:unit:watch --workspaces --if-present",
-    "test:unit:debug": "npm run test:unit:debug --workspaces --if-present"
+    "test": "turbo run test:unit",
+    "test:unit": "turbo run test:unit",
+    "test:unit:watch": "turbo run test:unit:watch",
+    "test:unit:debug": "turbo run test:unit:debug",
+    "# ========== GIT HOOKS ==========": "",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
     "eslint": "^8.50.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
     "prettier": "^3.0.0",
+    "turbo": "^2.5.3",
     "typescript": "^5.2.0"
   }
 }

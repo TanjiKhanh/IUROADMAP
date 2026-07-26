@@ -1,5 +1,6 @@
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { ValidationPipe, Logger, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
@@ -12,6 +13,20 @@ import { ResponseInterceptor } from './filter/response.interceptor';;
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
+
+  app.setGlobalPrefix('api', { exclude: ['health'] });
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
+
+  const config = new DocumentBuilder()
+    .setTitle('IUROADMAP Auth Service')
+    .setDescription('Authentication & JWT Service API documentation')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   // 1. CẤU HÌNH CORS (Quan trọng cho Cookie)
   app.enableCors({
@@ -27,10 +42,10 @@ async function bootstrap() {
   // 3. GLOBAL PIPES (Validation)
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, 
-      transform: true, 
+      whitelist: true,
+      transform: true,
       transformOptions: { enableImplicitConversion: true },
-      forbidNonWhitelisted: true, 
+      forbidNonWhitelisted: true,
     }),
   );
 
@@ -41,7 +56,7 @@ async function bootstrap() {
 
   // Use 'localhost' for development to avoid permission issues
   // Use '0.0.0.0' in Docker/production to allow external connections
-  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+  const host = process.env.HOST || '0.0.0.0';
   await app.listen(port, host);
 
   logger.log(`Auth Service is running on: http://localhost:${port}`);

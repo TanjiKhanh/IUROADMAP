@@ -38,7 +38,9 @@ export class AuthGuard implements CanActivate {
       const secret = process.env.JWT_SECRET;
       if (!secret) throw new Error('JWT_SECRET is not defined');
 
-      const payload = jwt.verify(token, secret);
+      const payload: any = jwt.verify(token, secret);
+      payload.userId = payload.userId ?? payload.sub;
+      payload.sub = payload.sub ?? payload.userId;
       
       // 📝 Attach user to request so RolesGuard can read it later
       request['user'] = payload;

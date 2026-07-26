@@ -23,24 +23,20 @@ services:
       context: ./services/auth
       dockerfile: Dockerfile
     container_name: iuroadmap-auth-service
+    env_file:
+      - ./services/auth/.env
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3000
-      AUTH_DATABASE_URL: "postgresql://${DB_USER:-gupjob}:${DB_PASSWORD:-gupjob_secure_password}@postgres:5432/gupjob_auth"
       REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
-      JWT_SECRET: ${JWT_SECRET:-secret-jwt-key}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-3600s}
       MENTOR_SERVICE_URL: http://mentor-service:4001
-      MENTOR_SERVICE_API_KEY: ${MENTOR_SERVICE_API_KEY:-super-secret-gupjob-internal-key-998877}
     ports:
       - "3000:3000"
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); })"]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -54,25 +50,23 @@ services:
       context: ./services/admin-service
       dockerfile: Dockerfile
     container_name: iuroadmap-admin-service
+    env_file:
+      - ./services/admin-service/.env
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
       auth-service:
         condition: service_healthy
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3001
-      ADMIN_DATABASE_URL: "postgresql://${DB_USER:-gupjob}:${DB_PASSWORD:-gupjob_secure_password}@postgres:5432/gupjob_admin"
       REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
-      JWT_SECRET: ${JWT_SECRET:-secret-jwt-key}
       AUTH_SERVICE_URL: http://auth-service:3000
-      AUTH_SERVICE_API_KEY: ${AUTH_SERVICE_API_KEY:-super-secret-gupjob-internal-key-998877}
+      MENTOR_SERVICE_URL: http://mentor-service:4001
     ports:
       - "3001:3001"
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); })"]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3001/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -86,25 +80,22 @@ services:
       context: ./services/mentor-service
       dockerfile: Dockerfile
     container_name: iuroadmap-mentor-service
+    env_file:
+      - ./services/mentor-service/.env
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
       auth-service:
         condition: service_healthy
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 4001
-      MENTOR_DATABASE_URL: "postgresql://${DB_USER:-gupjob}:${DB_PASSWORD:-gupjob_secure_password}@postgres:5432/gupjob_mentor"
       REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
-      JWT_SECRET: ${JWT_SECRET:-secret-jwt-key}
       AUTH_SERVICE_URL: http://auth-service:3000
-      AUTH_SERVICE_API_KEY: ${AUTH_SERVICE_API_KEY:-super-secret-gupjob-internal-key-998877}
     ports:
       - "4001:4001"
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4001/health', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); })"]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4001/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -118,25 +109,23 @@ services:
       context: ./services/user-service
       dockerfile: Dockerfile
     container_name: iuroadmap-user-service
+    env_file:
+      - ./services/user-service/.env
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
       auth-service:
         condition: service_healthy
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3002
-      USER_DATABASE_URL: "postgresql://${DB_USER:-gupjob}:${DB_PASSWORD:-gupjob_secure_password}@postgres:5432/gupjob_user"
       REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
-      JWT_SECRET: ${JWT_SECRET:-secret-jwt-key}
       AUTH_SERVICE_URL: http://auth-service:3000
-      AUTH_SERVICE_API_KEY: ${AUTH_SERVICE_API_KEY:-super-secret-gupjob-internal-key-998877}
+      ADMIN_SERVICE_URL: http://admin-service:3001
     ports:
       - "3002:3002"
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3002/health', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); }) "]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3002/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -150,6 +139,8 @@ services:
       context: ./services/api-gateway
       dockerfile: Dockerfile
     container_name: iuroadmap-api-gateway
+    env_file:
+      - ./services/api-gateway/.env
     depends_on:
       auth-service:
         condition: service_healthy
@@ -160,9 +151,8 @@ services:
       user-service:
         condition: service_healthy
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 8080
-      JWT_SECRET: ${JWT_SECRET:-secret-jwt-key}
       AUTH_SERVICE_URL: http://auth-service:3000
       ADMIN_SERVICE_URL: http://admin-service:3001
       MENTOR_SERVICE_URL: http://mentor-service:4001
@@ -170,7 +160,7 @@ services:
     ports:
       - "8080:8080"
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080/health', (r) => { if (r.statusCode === 200) process.exit(0); else process.exit(1); })"]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:8080/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -181,8 +171,8 @@ services:
   # ===== Frontend (Optional) =====
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/web/Dockerfile
     container_name: iuroadmap-frontend
     depends_on:
       - api-gateway
@@ -217,7 +207,11 @@ services:
 networks:
   iuroadmap-network:
     driver: bridge
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: fd00:1234:5678::/64
 
 volumes:
-  postgres_data:
   redis_data:

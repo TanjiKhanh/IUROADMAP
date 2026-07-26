@@ -38,7 +38,7 @@ import { HealthController } from './health.controller';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET') || 'supersecret_dev_key',
-        signOptions: { expiresIn: '15m' }, // Access token 
+        signOptions: { expiresIn: '24h' }, // Access token 
       }),
       inject: [ConfigService],
     }),

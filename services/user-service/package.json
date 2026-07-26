@@ -9,24 +9,20 @@
     "start": "node dist/main.js",
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "start:debug": "node --inspect-brk dist/main.js",
-
     "# ========== BUILD =========": "",
     "build": "tsc",
     "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
     "prebuild": "npm run clean",
-
     "# ========== LINTING & FORMATTING =========": "",
     "lint": "eslint src --ext .ts --max-warnings 0",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
-
     "# ========== DATABASE =========": "",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:dev": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-
     "# ========== UNIT TESTS (No Database) =========": "",
     "test:unit": "jest --testPathPatterns='\\.unit\\.spec\\.ts$' --passWithNoTests --coverage",
     "test:unit:watch": "jest --testPathPatterns='\\.unit\\.spec\\.ts$' --watch",
@@ -37,11 +33,13 @@
   "license": "MIT",
   "dependencies": {
     "@nestjs/platform-express": "^10.4.20",
+    "@nestjs/swagger": "^7.4.2",
     "@prisma/client": "^4.15.0",
     "axios": "^1.4.0",
     "cache-manager": "^7.2.7",
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^3.21.4"
   },
   "devDependencies": {

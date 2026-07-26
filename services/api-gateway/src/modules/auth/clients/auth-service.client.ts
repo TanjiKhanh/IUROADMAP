@@ -19,7 +19,7 @@ import { UserResponseDto } from '../dtos';
 export class AuthServiceClient {
   private readonly logger = new Logger(AuthServiceClient.name);
   private readonly authServiceUrl =
-    process.env.AUTH_SERVICE_URL || ServiceUrls.AUTH_SERVICE;
+    (process.env.AUTH_SERVICE_URL || ServiceUrls.AUTH_SERVICE) + '/api/v1';
 
   constructor(private readonly http: HttpService) {}
 
@@ -147,51 +147,8 @@ export class AuthServiceClient {
   }
 
   /**
-   * REFRESH
-   * Your Auth service reads refresh_token from cookie (server-side).
-   * From gateway we usually just forward the request with cookies.
-   */
-  async refresh(headers: Record<string, string>) {
-    try {
-      const res = await firstValueFrom(
-        this.http.post<AuthLoginResponseDto>(
-          `${this.authServiceUrl}/auth/refresh`,
-          {},
-          {
-            headers,
-            withCredentials: true,
-          },
-        ),
-      );
-      return res.data;
-    } catch (error: any) {
-      this.logger.error(`refresh failed: ${error.message}`);
-
-      if (error.response?.status === 401) {
-        throw new HttpException(
-          {
-            status: 'error',
-            code: 'TOKEN_EXPIRED',
-            message: 'Refresh token expired or invalid',
-          },
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-
-      throw new HttpException(
-        {
-          status: 'error',
-          code: 'AUTH_SERVICE_ERROR',
-          message: 'Failed to refresh token',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  /**
    * LOGOUT
-   * Auth service clears refresh cookie and revokes refresh token.
+   * Auth service clears cookie.
    */
   async logout(headers: Record<string, string>) {
     try {

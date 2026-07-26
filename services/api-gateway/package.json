@@ -42,6 +42,7 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.2.10",
+    "@nestjs/swagger": "^7.4.0",
     "axios": "^1.6.2",
     "cache-manager": "^7.2.8",
     "dotenv": "^16.3.1",
@@ -51,7 +52,8 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@nestjs/testing": "^10.2.10",

@@ -4,7 +4,8 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
 
 export interface UserPayload {
-  userId: number;
+  userId?: number;
+  sub?: number;
   email: string;
   role: string;
   iat: number;
@@ -12,12 +13,16 @@ export interface UserPayload {
 }
 
 export const CurrentUser = createParamDecorator(
-  (data: keyof UserPayload | undefined, ctx: ExecutionContext) => {
+  (data: keyof UserPayload | string | undefined, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<Request>();
-    const user = request.user as UserPayload;
+    const user = request.user as any;
 
     if (!user) {
       return null;
+    }
+
+    if (data === 'userId' || data === 'sub') {
+      return user.userId ?? user.sub;
     }
 
     return data ? user[data] : user;

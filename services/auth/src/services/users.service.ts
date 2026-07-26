@@ -23,30 +23,6 @@ export class UsersService {
   createUser(payload: Prisma.UserCreateInput): Promise<User> {
     return this.usersRepo.create(payload);
   }
-
-  async createRefreshToken(
-    userId: number,
-    tokenHash: string,
-    expires: Date,
-    userAgent?: string,
-    ip?: string,
-  ): Promise<void> {
-    return this.usersRepo.storeRefreshToken(userId, tokenHash, expires, userAgent, ip);
-  }
-
-  async findValidRefreshTokensForUser(userId: number): Promise<Array<{ id: string; tokenHash: string; expiresAt: Date; userId: number }>> {
-    return this.usersRepo.findValidRefreshTokensForUser(userId);
-  }
-
-  // Revoke a single refresh token by id
-  async revokeRefreshToken(tokenId: string) {
-    return this.usersRepo.revokeRefreshToken(tokenId);
-  }
-
-  // Revoke all refresh tokens for a user (logout all devices)
-  async revokeAllForUser(userId: number) {
-    return this.usersRepo.revokeAllForUser(userId);
-  }
   
   // Updated findAll method to accept optional filters
   async findAll(filters: FilterUsersDto) {

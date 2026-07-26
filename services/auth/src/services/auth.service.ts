@@ -2,7 +2,6 @@ import { Injectable, Logger, UnauthorizedException, ConflictException, NotFoundE
 import { UsersService } from './users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { randomBytes } from 'crypto';
 import { MailerService } from '@nestjs-modules/mailer';
 
 // 👇 IMPORT YOUR DTOS
@@ -24,8 +23,6 @@ import { MentorClientService } from '../external/mentor-client/mentor-client.ser
 import { MentorRegisterDto } from 'src/dto/mentor-register.dto';
 @Injectable()
 export class AuthService {
-
-  private readonly REFRESH_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
@@ -42,6 +39,7 @@ export class AuthService {
   private createAccessToken(user: any) {
     const payload = { 
       sub: user.id, 
+      userId: user.id,
       email: user.email, 
       role: user.role,
       // deptId have to be added to payload for Role-Based Access Control
@@ -49,18 +47,8 @@ export class AuthService {
       
       job: user.jobPriority || (user.profile as any)?.jobPriority 
     };
-    return this.jwtService.sign(payload, { expiresIn: '15m' });
+    return this.jwtService.sign(payload, { expiresIn: '24h' });
   }
-
-  private async createAndStoreRefreshToken(userId: number, userAgent?: string, ip?: string) {
-    const plain = randomBytes(64).toString('hex');
-    const hash = await bcrypt.hash(plain, 10);
-    const expires = new Date(Date.now() + this.REFRESH_TTL_MS);
-    await this.usersService.createRefreshToken(userId, hash, expires, userAgent, ip);
-
-    return { refreshToken: `${userId}.${plain}`, expiresAt: expires };
-  }
-
   // 2.1 REGISTER LEARNER
   async registerLearner(dto: LearnerRegisterDto) { 
     // 1. Check Email
@@ -140,22 +128,9 @@ export class AuthService {
     if (!matched) throw new UnauthorizedException('Invalid credentials');
 
     const accessToken = this.createAccessToken(user);
-    const { refreshToken, expiresAt } = await this.createAndStoreRefreshToken(user.id, userAgent, ip);
-
-    // Safe user object to return
-    const safe = { 
-      id: user.id, 
-      email: user.email, 
-      name: user.name, 
-      role: user.role,
-      status: user.status
-    };
 
     return { 
-      access_token: accessToken, 
-      refresh_token: refreshToken, 
-      refresh_expires_at: expiresAt, 
-      user: safe 
+      access_token: accessToken
     };
   }
 
@@ -227,58 +202,7 @@ async resetPassword(dto: ResetPasswordDto) {
     return { success: true, message: 'Password has been updated successfully.' };
   }
 
-  async refreshToken(plainToken: string, userAgent?: string, ip?: string) {
-    if (!plainToken) throw new UnauthorizedException('Missing refresh token');
-    
-    // Decode token get userId: "userId.token"
-    const [userIdStr, tokenPart] = plainToken.split('.');
-    if (!userIdStr || !tokenPart) {
-      throw new UnauthorizedException('Invalid refresh token format');
-    }
-    
-    const userId = parseInt(userIdStr, 10);
-    if (isNaN(userId)) {
-      throw new UnauthorizedException('Invalid refresh token format');
-    }
-    
-    const tokens = await this.usersService.findValidRefreshTokensForUser(userId);
-    
-    let found = null;
-    for (const t of tokens) {
-      const ok = await bcrypt.compare(tokenPart, t.tokenHash);
-      if (ok) { found = t; break; }
-    }
-    if (!found) throw new UnauthorizedException('Invalid refresh token');
-
-    const user = await this.usersService.findById(userId);
-    if (!user) throw new UnauthorizedException('Invalid token user');
-
-    // Revoke old token 
-    await this.usersService.revokeRefreshToken(found.id);
-
-    // Create new token
-    const { refreshToken: newPlain, expiresAt } = await this.createAndStoreRefreshToken(user.id, userAgent, ip);
-    const accessToken = this.createAccessToken(user);
-
-    // Update object user and return (Thêm profile)
-    const safe = { 
-      id: user.id, 
-      email: user.email, 
-      name: user.name, 
-      role: user.role,
-      status: user.status,
-    };
-
-    return { 
-        access_token: accessToken, 
-        refresh_token: newPlain, 
-        refresh_expires_at: expiresAt, 
-        user: safe 
-    };
-  }
-
   async logout(userId: number) {
-    await this.usersService.revokeAllForUser(userId);
     return { ok: true };
   }
 

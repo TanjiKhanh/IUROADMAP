@@ -33,12 +33,7 @@ export class AuthService {
     return this.authClient.login(dto, headers);
   }
 
-  // 4. Refresh – gateway just forwards headers (cookies) to auth
-  refresh(headers: Record<string, string>): Promise<{ access_token: string }> {
-    return this.authClient.refresh(headers);
-  }
-
-  // 5. Logout – forwards headers so auth can read JWT & cookies
+  // 4. Logout – forwards headers so auth can read JWT
   logout(headers: Record<string, string>): Promise<void> {
     return this.authClient.logout(headers);
   }

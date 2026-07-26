@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, User, RefreshToken, AccountStatus, Role } from '../generated/prisma-client';
+import { Prisma, User, AccountStatus, Role } from '../generated/prisma-client';
 
 @Injectable()
 export class UsersRepository {
@@ -24,66 +24,6 @@ export class UsersRepository {
     })
   }
 
-  /**
-   * Store a hashed refresh token in the DB.
-   */
-  async storeRefreshToken(
-    userId: number,
-    tokenHash: string,
-    expires: Date,
-    userAgent?: string,
-    ip?: string,
-  ): Promise<void> {
-    try {
-      await this.prisma.refreshToken.create({
-        data: {
-          userId,
-          tokenHash,
-          expiresAt: expires,
-          userAgent,
-          ip,
-        },
-      });
-    } catch (err) {
-      this.logger.error('Failed to store refresh token', err as any);
-      throw err;
-    }
-  }
-
-  /**
-   * Find recent, non-revoked refresh tokens.
-   * Supports filtering by userId to optimize performance.
-   */
-  async findValidRefreshTokensForUser(userId?: number): Promise<Array<RefreshToken>> {
-    return this.prisma.refreshToken.findMany({
-      where: {
-        userId, // Lọc theo userId nếu có
-        revoked: false,
-        expiresAt: { gt: new Date() },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  /**
-   * Revoke a refresh token by id (mark revoked = true)
-   */
-  async revokeRefreshToken(tokenId: string) {
-    return this.prisma.refreshToken.update({
-      where: { id: tokenId },
-      data: { revoked: true },
-    });
-  }
-
-  /**
-   * Revoke all refresh tokens for a user (logout all devices)
-   */
-  async revokeAllForUser(userId: number) {
-    return this.prisma.refreshToken.updateMany({
-      where: { userId },
-      data: { revoked: true },
-    });
-  }
 
   async findAll(
     filters: { role?: Role; status?: AccountStatus; search?: string },

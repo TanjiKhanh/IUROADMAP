@@ -13,24 +13,20 @@
     "start": "node dist/main.js",
     "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "start:debug": "node --inspect-brk dist/main.js",
-
     "# ========== BUILD =========": "",
     "build": "tsc",
     "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
     "prebuild": "npm run clean",
-
     "# ========== LINTING & FORMATTING =========": "",
     "lint": "eslint src --ext .ts --max-warnings 0",
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
-
     "# ========== DATABASE =========": "",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "prisma:dev": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-
     "# ========== UNIT TESTS (No Database) =========": "",
     "test:unit": "jest --testPathPatterns='\\.unit\\.spec\\.ts$' --passWithNoTests --coverage",
     "test:unit:watch": "jest --testPathPatterns='\\.unit\\.spec\\.ts$' --watch",
@@ -44,6 +40,7 @@
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.2.10",
+    "@nestjs/swagger": "^7.4.2",
     "@prisma/client": "^5.7.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
@@ -52,7 +49,8 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@nestjs/testing": "^10.2.10",

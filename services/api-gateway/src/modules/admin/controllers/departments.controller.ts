@@ -17,8 +17,14 @@ import {
 } from '../dtos';
 import { JwtGuard } from '../../../common/guards/jwt.guard';
 import { Roles } from '../../../common/decorators/roles.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 
-@Controller('api/v1/departments')
+@ApiTags('Departments')
+@ApiBearerAuth()
+@Controller({
+  path: 'departments',
+  version: '1',
+})
 export class DepartmentsController {
   constructor(private readonly departmentsService: DepartmentsService) {}
 
@@ -26,6 +32,9 @@ export class DepartmentsController {
   @UseGuards(JwtGuard)
   @Roles('ADMIN')
   @Post()
+  @ApiOperation({ summary: 'Create a new department (Admin only)' })
+  @ApiBody({ type: CreateDepartmentDto })
+  @ApiResponse({ status: 201, description: 'Department created successfully', type: DepartmentResponseDto })
   async createDepartment(
     @Body() dto: CreateDepartmentDto,
   ): Promise<DepartmentResponseDto> {
@@ -36,6 +45,8 @@ export class DepartmentsController {
   @UseGuards(JwtGuard)
   @Roles('ADMIN')
   @Get()
+  @ApiOperation({ summary: 'Get list of all departments (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Departments retrieved successfully', type: [DepartmentResponseDto] })
   async viewDepartmentList(): Promise<DepartmentResponseDto[]> {
     return this.departmentsService.viewDepartmentList();
   }
@@ -44,6 +55,10 @@ export class DepartmentsController {
   @UseGuards(JwtGuard)
   @Roles('ADMIN')
   @Get(':id')
+  @ApiOperation({ summary: 'Get department details by ID (Admin only)' })
+  @ApiParam({ name: 'id', type: Number, description: 'Department ID' })
+  @ApiResponse({ status: 200, description: 'Department retrieved successfully', type: DepartmentResponseDto })
+  @ApiResponse({ status: 404, description: 'Department not found' })
   async viewDepartmentById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<DepartmentResponseDto> {
@@ -54,6 +69,10 @@ export class DepartmentsController {
   @UseGuards(JwtGuard)
   @Roles('ADMIN')
   @Patch(':id')
+  @ApiOperation({ summary: 'Update an existing department (Admin only)' })
+  @ApiParam({ name: 'id', type: Number, description: 'Department ID' })
+  @ApiBody({ type: UpdateDepartmentDto })
+  @ApiResponse({ status: 200, description: 'Department updated successfully', type: DepartmentResponseDto })
   async updateDepartment(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateDepartmentDto,
@@ -65,6 +84,9 @@ export class DepartmentsController {
   @UseGuards(JwtGuard)
   @Roles('ADMIN')
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a department by ID (Admin only)' })
+  @ApiParam({ name: 'id', type: Number, description: 'Department ID' })
+  @ApiResponse({ status: 204, description: 'Department deleted successfully' })
   async deleteDepartment(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<void> {

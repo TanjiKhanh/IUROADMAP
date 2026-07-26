@@ -21,8 +21,13 @@ import { ResetPasswordDto } from '../dtos/reset-password.dto';
 import { JwtGuard } from '../../../common/guards/jwt.guard';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { UserResponseDto } from '../dtos/user-response.dto';
+import { ApiTags, ApiBody, ApiOkResponse, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
-@Controller('api/v1/auth')
+@ApiTags('Auth')
+@Controller({
+  path: 'auth',
+  version: '1',
+})
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -32,6 +37,10 @@ export class AuthController {
    */
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'User login (proxies to Auth service)' })
+  @ApiBody({ type: LoginDto })
+  @ApiOkResponse({ type: AuthLoginResponseDto, description: 'Successful login' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(
     @Body() dto: LoginDto,
     @Req() req: Request,
@@ -54,6 +63,10 @@ export class AuthController {
    */
   @Post('register/learner')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Register a learner student account' })
+  @ApiBody({ type: LearnerRegisterDto })
+  @ApiResponse({ status: 201, description: 'Learner registered successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request / Validation Error' })
   async registerLearner(
     @Body() dto: LearnerRegisterDto,
   ): Promise<any> {
@@ -67,30 +80,14 @@ export class AuthController {
    */
   @Post('register/mentor')
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Register a mentor account along with profile' })
+  @ApiBody({ type: MentorRegisterDto })
+  @ApiResponse({ status: 201, description: 'Mentor registered successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request / Validation Error' })
   async registerMentor(
     @Body() dto: MentorRegisterDto,
   ): Promise<any> {
     return this.authService.registerMentor(dto);
-  }
-
-  /**
-   * Refresh token
-   * Gateway → Auth service /auth/refresh
-   * Auth service reads refresh_token from cookie.
-   */
-  @Post('refresh')
-  @HttpCode(HttpStatus.OK)
-  async refresh(@Req() req: Request): Promise<{ access_token: string }> {
-    const headers: Record<string, string> = {
-      'user-agent': req.get('user-agent') || '',
-      'x-forwarded-for':
-        (req.headers['x-forwarded-for'] as string) ||
-        req.socket.remoteAddress ||
-        '',
-      cookie: req.headers.cookie || '',
-    };
-
-    return this.authService.refresh(headers);
   }
 
   /**
@@ -99,7 +96,11 @@ export class AuthController {
    */
   @Post('logout')
   @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Logout current user' })
+  @ApiResponse({ status: 204, description: 'Logged out successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async logout(@Req() req: Request): Promise<void> {
     const headers: Record<string, string> = {
       authorization: req.headers.authorization || '',
@@ -114,6 +115,9 @@ export class AuthController {
    */
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request password reset token/link' })
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiResponse({ status: 200, description: 'Password reset email requested' })
   async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<any> {
     return this.authService.forgotPassword(dto);
   }
@@ -123,6 +127,9 @@ export class AuthController {
    */
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset password using token' })
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
   async resetPassword(@Body() dto: ResetPasswordDto): Promise<any> {
     return this.authService.resetPassword(dto);
   }
@@ -132,7 +139,11 @@ export class AuthController {
    */
   @Get('me')
   @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get current authenticated user profile' })
+  @ApiResponse({ status: 200, description: 'User profile retrieved successfully', type: UserResponseDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async me(
     @CurrentUser('userId') userId: number,
     @Req() req: Request,

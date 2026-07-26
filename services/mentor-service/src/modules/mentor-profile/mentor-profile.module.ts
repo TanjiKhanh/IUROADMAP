@@ -11,7 +11,7 @@ import { MentorProfileInternalController } from './controllers/mentor-profile.in
     PrismaModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secret',
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '24h' },
     }),
   ],
   controllers: [MentorProfileController, MentorProfileInternalController],
