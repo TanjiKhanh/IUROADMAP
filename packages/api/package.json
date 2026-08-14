@@ -1,0 +1,13 @@
+{
+  "name": "@repo/api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@repo/api-gen": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

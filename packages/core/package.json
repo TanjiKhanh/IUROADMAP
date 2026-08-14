@@ -1,0 +1,10 @@
+{
+  "name": "@repo/core",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

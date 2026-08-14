@@ -15,8 +15,8 @@ import {
   UpdateDepartmentDto,
   DepartmentResponseDto,
 } from '../dtos';
-import { JwtGuard } from '../../../common/guards/jwt.guard';
-import { Roles } from '../../../common/decorators/roles.decorator';
+import { JwtGuard } from '@iuroadmap/shared';
+import { Roles } from '@iuroadmap/shared';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('Departments')

@@ -18,11 +18,7 @@ datasource db {
   
 }
 
-enum Role {
-  STUDENT
-  MENTOR
-  ADMIN
-}
+
 
 
 enum AccountStatus {
@@ -38,7 +34,8 @@ model User {
   email        String     @unique
   password String
   name         String?
-  role         Role       @default(STUDENT)
+  roleId       Int
+  role         Role       @relation(fields: [roleId], references: [id])
   status    AccountStatus @default(ACTIVE)
 
 
@@ -47,4 +44,27 @@ model User {
   resetPasswordExpires DateTime?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+}
+
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique // e.g., "ADMIN", "STUDENT", "MENTOR"
+  description String?
+  
+  users       User[]
+  permissions Permission[]
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Permission {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique // e.g., "configuration:read", "roadmap:write"
+  description String?
+  
+  roles       Role[]
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }

@@ -18,8 +18,8 @@ import { LearnerRegisterDto } from '../dtos/learner-register.dto';
 import { MentorRegisterDto } from '../dtos/mentor-register.dto';
 import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
 import { ResetPasswordDto } from '../dtos/reset-password.dto';
-import { JwtGuard } from '../../../common/guards/jwt.guard';
-import { CurrentUser } from '../../../common/decorators/current-user.decorator';
+import { JwtGuard } from '@iuroadmap/shared';
+import { CurrentUser } from '@iuroadmap/shared';
 import { UserResponseDto } from '../dtos/user-response.dto';
 import { ApiTags, ApiBody, ApiOkResponse, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 

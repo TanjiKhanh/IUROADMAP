@@ -6,9 +6,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as path from 'path';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { ErrorInterceptor } from './common/interceptors/error.interceptor';
+import { HttpExceptionFilter } from '@iuroadmap/shared';
+import { ResponseInterceptor } from '@iuroadmap/shared';
+import { ErrorInterceptor } from '@iuroadmap/shared';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

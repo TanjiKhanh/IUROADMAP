@@ -1,0 +1,13 @@
+{
+  "name": "@repo/api-gen",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "generate": "orval --config ./orval.config.ts"
+  },
+  "devDependencies": {
+    "orval": "^6.25.0",
+    "typescript": "^5.0.0",
+    "zod": "^3.22.0"
+  }
+}

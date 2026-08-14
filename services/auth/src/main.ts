@@ -4,11 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
-import { PrismaClientExceptionFilter } from './filter/prisma-exception.filter';
-
-import { AllExceptionsFilter } from './filter/all-exceptions.filter';
-
-import { ResponseInterceptor } from './filter/response.interceptor';;
+import { HttpExceptionFilter, ErrorInterceptor, ResponseInterceptor } from '@iuroadmap/shared';;
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -49,8 +45,15 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new PrismaClientExceptionFilter(), new AllExceptionsFilter());
-  app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalFilters(
+    new HttpExceptionFilter()
+  );
+
+  // Global interceptors
+  app.useGlobalInterceptors(
+    new ResponseInterceptor(),
+    new ErrorInterceptor(),
+  );
 
   const port = process.env.PORT || 3000; // Auth Service 
 

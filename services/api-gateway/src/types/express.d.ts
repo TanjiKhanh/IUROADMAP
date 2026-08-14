@@ -1,6 +1,6 @@
 // gateway/src/types/express.d.ts
 
-import { UserPayload } from '../common/decorators/current-user.decorator';
+import { UserPayload } from '@iuroadmap/shared';
 
 declare global {
   namespace Express {

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { FilterMentorsDto } from '../dto/filter-mentors.dto';
-import { MentorResponseDto } from '../../../common/dto/mentor-response.dto';
+import { MentorResponseDto } from '../../../modules/mentor-search/dto/mentor-response.dto';
 
 interface PaginatedResult<T> {
   data: T[];

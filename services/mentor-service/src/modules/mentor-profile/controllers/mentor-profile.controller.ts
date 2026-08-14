@@ -14,11 +14,11 @@ import {
 import { MentorProfileService } from '../services/mentor-profile.service';
 import { UpdateMentorProfileDto } from '../dto/update-mentor-profile.dto';
 import { MentorProfileResponseDto } from '../dto/mentor-profile-response.dto';
-import { JwtAuthGuard } from '../../../common/guards/jwt.auth.guard';
-import { RolesGuard } from '../../../common/guards/roles.guard';
-import { CurrentUser } from '../../../common/decorators/user.decorator';
-import { UserRole } from '../../../common/enums/roles.enum';
-import { Roles } from '../../../common/decorators/roles.decorator';
+import { JwtGuard } from '@iuroadmap/shared';
+import { RoleGuard } from '@iuroadmap/shared';
+import { CurrentUser } from '@iuroadmap/shared';
+import { UserRole } from '@iuroadmap/shared';
+import { Roles } from '@iuroadmap/shared';
 
 /**
  * MentorProfileController
@@ -37,7 +37,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiParam, 
 export class MentorProfileController {
   constructor(private readonly service: MentorProfileService) {}
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtGuard, RoleGuard)
   @Roles(UserRole.ADMIN)
   @Get()
   @ApiOperation({ summary: 'List all mentor profiles (Admin only)' })
@@ -51,7 +51,7 @@ export class MentorProfileController {
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtGuard, RoleGuard)
   @Roles(UserRole.MENTOR)
   @ApiOperation({ summary: 'Get current logged-in mentor profile' })
   @ApiResponse({ status: 200, description: 'Profile retrieved successfully', type: MentorProfileResponseDto })
@@ -61,7 +61,7 @@ export class MentorProfileController {
     return this.service.getProfile(user.userId);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtGuard, RoleGuard)
   @Roles(UserRole.MENTOR)
   @HttpCode(HttpStatus.OK)
   @Put('me')
@@ -77,7 +77,7 @@ export class MentorProfileController {
     return this.service.updateProfile(user.userId, dto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtGuard, RoleGuard)
   @Roles(UserRole.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')

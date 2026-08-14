@@ -12,9 +12,9 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { Roles } from '../../../common/decorators/roles.decorator';
-import { JwtGuard } from '../../../common/guards/jwt.guard';
-import { RoleGuard } from '../../../common/guards/role.guard';
+import { Roles } from '@iuroadmap/shared';
+import { JwtGuard } from '@iuroadmap/shared';
+import { RoleGuard } from '@iuroadmap/shared';
 import { CoursesService } from '../services/courses.service';
 import {
   AdminCourseListItem,

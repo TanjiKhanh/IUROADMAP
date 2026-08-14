@@ -32,6 +32,7 @@
   "author": "your-team",
   "license": "MIT",
   "dependencies": {
+    "@iuroadmap/shared": "^1.0.0",
     "@nestjs/platform-express": "^10.4.20",
     "@nestjs/swagger": "^7.4.2",
     "@prisma/client": "^4.15.0",

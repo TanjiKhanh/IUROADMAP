@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { MentorSearchService } from '../services/mentor-search.service';
 import { FilterMentorsDto } from '../dto/filter-mentors.dto';
-import { MentorResponseDto } from '../../../common/dto/mentor-response.dto';
-import { PaginatedResponseDto } from 'src/common/dto/paginated-response.dto';
+import { MentorResponseDto } from '../../../modules/mentor-search/dto/mentor-response.dto';
+import { PaginatedResponse } from '@iuroadmap/shared';
 
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -29,7 +29,7 @@ export class MentorSearchController {
   async findAll(
     @Query(new ValidationPipe({ transform: true }))
     filters: FilterMentorsDto,
-  ): Promise<PaginatedResponseDto<MentorResponseDto>> {
+  ): Promise<PaginatedResponse<MentorResponseDto>> {
     const result = await this.mentorSearchService.findAll(filters);
 
     return {
