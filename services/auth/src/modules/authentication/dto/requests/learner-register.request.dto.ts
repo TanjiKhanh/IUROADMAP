@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength, IsIn, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsString, MinLength, MaxLength, IsIn, IsNotEmpty } from 'class-validator';
+import { EntityConstant } from '@iuroadmap/shared';
 
 export class LearnerRegisterRequestDto {
   @ApiProperty({
@@ -7,6 +8,7 @@ export class LearnerRegisterRequestDto {
     example: 'learner@example.com',
   })
   @IsEmail({}, { message: 'Invalid email format' })
+  @MaxLength(EntityConstant.Email)
   email: string;
 
   @ApiProperty({
@@ -15,7 +17,8 @@ export class LearnerRegisterRequestDto {
   })
   @IsString()
   @IsNotEmpty()
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  @MinLength(EntityConstant.PasswordMin, { message: `Password must be at least ${EntityConstant.PasswordMin} characters long` })
+  @MaxLength(EntityConstant.PasswordMax)
   password: string;
 
   @ApiPropertyOptional({

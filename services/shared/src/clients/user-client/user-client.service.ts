@@ -23,7 +23,7 @@ export class UserClientService {
       
       this.logger.log(`✅ Enrollment successful: ${slug}`);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       // Log but don't crash registration if enrollment fails
       this.logger.error(`❌ Auto-enrollment failed for ${slug}`, error.message);
       // Optional: throw error if you want registration to fail when enrollment fails

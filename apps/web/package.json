@@ -8,12 +8,12 @@
     "test:e2e": "playwright test tests/e2e",
     "test:api": "playwright test tests/api",
     "test:report": "playwright show-report playwright-report",
-    "gen:api": "orval",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@iuroadmap/api-gen": "*",
     "@iuroadmap/i18n": "*",
     "@iuroadmap/store": "*",
     "@tanstack/react-query": "^5.101.2",
@@ -24,14 +24,14 @@
     "react-hook-form": "^7.71.2",
     "react-router-dom": "^6.11.1",
     "reactflow": "^11.11.4",
-    "yup": "^1.7.1"
+    "yup": "^1.7.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.0.0",
-    "orval": "^8.20.0",
     "react-markdown": "^8.0.7",
     "typescript": "^5.1.6",
     "vite": "^5.4.21"

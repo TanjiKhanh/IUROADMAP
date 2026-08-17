@@ -27,4 +27,4 @@ import { CoursesService } from './services/courses.service';
   ],
   exports: [DepartmentsService],
 })
-export class AdminModule {}
+export class RoadmapModule {}

@@ -10,7 +10,7 @@ export class AdminClientService {
     try {
       const response = await axios.get(`${this.baseUrl}/public/departments/${departmentSlug}`);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       throw new HttpException('Failed to fetch department', error.response?.status || 500);
     }
   }

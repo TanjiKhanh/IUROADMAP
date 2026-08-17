@@ -4,7 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { RoadmapsModule } from './modules/roadmaps/roadmaps.module';
 import {AuthModule} from './modules/auth/auth.module';  
-import {  AdminModule } from './modules/admin/admin.module';
+import { RoadmapModule } from './modules/admin/admin.module';
 import { HealthController } from './gateway.controller';
 
 @Module({
@@ -15,7 +15,7 @@ import { HealthController } from './gateway.controller';
     }),
     RoadmapsModule,
     AuthModule,
-    AdminModule
+    RoadmapModule
   ],
   controllers: [HealthController],
   providers: [

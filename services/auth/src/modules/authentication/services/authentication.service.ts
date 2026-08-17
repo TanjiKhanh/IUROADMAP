@@ -39,7 +39,8 @@ export class AuthenticationService {
       sub: user.id, 
       userId: user.id,
       email: user.email, 
-      role: user.role,
+      role: user.role?.name || user.role,
+      permissions: user.role?.permissions?.map((p: any) => p.name) || [],
       deptId: user.departmentId || null, 
       job: user.jobPriority || (user.profile as any)?.jobPriority 
     };
@@ -87,7 +88,7 @@ export class AuthenticationService {
       status: AccountStatus.PENDING_APPROVAL
     } as any);
 
-    await this.mentorClientService.createMentorProfile(created.id, {
+    await this.mentorClientService.createMentorProfile(created.id as any, {
       cvUrl: dto.cvUrl,
       linkedinUrl: dto.linkedinUrl,
       industry: dto.industry,
@@ -100,7 +101,7 @@ export class AuthenticationService {
   }
 
   // 3. LOGIN
-  async login(dto: LoginRequestDto, userAgent?: string, ip?: string) { 
+  async login(dto: LoginRequestDto) { 
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) throw new UnauthorizedException('Invalid credentials');
     
@@ -176,11 +177,11 @@ export class AuthenticationService {
     return { success: true, message: 'Password has been updated successfully.' };
   }
 
-  async logout(userId: number) {
+  async logout(userId: string) {
     return { ok: true };
   }
 
-  async findUserById(id: number) {
+  async findUserById(id: string) {
     return this.usersService.findById(id);
   }
 }

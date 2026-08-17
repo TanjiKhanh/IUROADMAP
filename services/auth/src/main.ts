@@ -4,7 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
-import { HttpExceptionFilter, ErrorInterceptor, ResponseInterceptor } from '@iuroadmap/shared';;
+import { HttpExceptionFilter, ResponseInterceptor } from '@iuroadmap/shared';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -52,7 +52,6 @@ async function bootstrap() {
   // Global interceptors
   app.useGlobalInterceptors(
     new ResponseInterceptor(),
-    new ErrorInterceptor(),
   );
 
   const port = process.env.PORT || 3000; // Auth Service 

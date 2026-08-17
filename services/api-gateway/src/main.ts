@@ -6,9 +6,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as path from 'path';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from '@iuroadmap/shared';
-import { ResponseInterceptor } from '@iuroadmap/shared';
-import { ErrorInterceptor } from '@iuroadmap/shared';
+import { HttpExceptionFilter, ResponseInterceptor } from '@iuroadmap/shared';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -55,7 +53,6 @@ async function bootstrap() {
 
   // Global interceptors
   app.useGlobalInterceptors(new ResponseInterceptor());
-  app.useGlobalInterceptors(new ErrorInterceptor());
 
   // CORS
   app.enableCors({

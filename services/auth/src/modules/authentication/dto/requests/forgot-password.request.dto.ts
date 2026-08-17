@@ -1,29 +1,33 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
+import { EntityConstant } from '@iuroadmap/shared';
 
 export class ForgotPasswordRequestDto {
   @ApiProperty({
-    description: 'The email address of the user requesting password reset',
+    description: 'User email address to send reset instructions',
     example: 'user@example.com',
   })
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail({}, { message: 'Invalid email format' })
+  @MaxLength(EntityConstant.Email)
   email: string;
 }
 
 export class ResetPasswordRequestDto {
   @ApiProperty({
-    description: 'The password reset token sent via email',
-    example: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    description: 'Token received via email',
+    example: 'abc123token',
   })
+  @IsString()
   @IsNotEmpty()
   token: string;
 
   @ApiProperty({
-    description: 'The new password (minimum 8 characters)',
-    example: 'newStrongPassword123',
+    description: 'New password',
+    example: 'newSecurePassword123!',
   })
+  @IsString()
   @IsNotEmpty()
-  @MinLength(8)
+  @MinLength(EntityConstant.PasswordMin)
+  @MaxLength(EntityConstant.PasswordMax)
   newPassword: string;
 }

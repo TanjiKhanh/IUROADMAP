@@ -1,21 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
+import { EntityConstant } from '@iuroadmap/shared';
 
 export class LoginRequestDto {
   @ApiProperty({
-    description: 'The email address of the user',
-    example: 'learner@example.com',
+    description: 'User email address',
+    example: 'user@example.com',
   })
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail({}, { message: 'Invalid email format' })
+  @MaxLength(EntityConstant.Email)
   email: string;
 
   @ApiProperty({
-    description: 'The password of the user (minimum 6 characters)',
+    description: 'User password',
     example: 'password123',
   })
   @IsString()
-  @IsNotEmpty()
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  @IsNotEmpty({ message: 'Password is required' })
+  @MinLength(EntityConstant.PasswordMin, { message: `Password must be at least ${EntityConstant.PasswordMin} characters long` })
+  @MaxLength(EntityConstant.PasswordMax)
   password: string;
 }

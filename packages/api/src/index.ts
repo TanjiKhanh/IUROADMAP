@@ -1,1 +1,1 @@
-export * from "@repo/api-gen";
+export * from "@iuroadmap/api-gen";

@@ -1,22 +1,27 @@
 import { defineConfig } from 'orval';
 
 export default defineConfig({
-  api: {
-    input: './placeholder.yaml', // Replace with your actual swagger URL
+  iuroadmapApi: {
+    input: {
+      target: '../../services/api-gateway/swagger-spec.json',
+    },
     output: {
       mode: 'tags-split',
-      target: 'src/generated',
+      target: 'src/generated/endpoints/api.ts',
       schemas: 'src/generated/models',
       client: 'react-query',
-      override: {
-        mutator: {
-          path: 'src/client/custom-instance.ts',
-          name: 'customInstance',
-        },
-        zod: {
-          generate: true,
-        },
-      },
+      mock: false,
+    },
+  },
+  iuroadmapZod: {
+    input: {
+      target: '../../services/api-gateway/swagger-spec.json',
+    },
+    output: {
+      mode: 'tags-split',
+      target: 'src/generated/zod/zod.ts',
+      client: 'zod',
+      fileExtension: '.zod.ts',
     },
   },
 });

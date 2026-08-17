@@ -3,13 +3,14 @@ import {
   IsEmail, 
   IsString, 
   MinLength, 
+  MaxLength,
   IsOptional, 
   IsIn, 
   IsArray, 
   IsUrl, 
   IsNotEmpty 
 } from 'class-validator';
-import { Role } from '@iuroadmap/shared';
+import { Role, EntityConstant } from '@iuroadmap/shared';
 
 export class MentorRegisterRequestDto {
   // --- AUTHENTICATION INFO ---
@@ -18,6 +19,7 @@ export class MentorRegisterRequestDto {
     example: 'mentor@example.com',
   })
   @IsEmail({}, { message: 'Invalid email format' })
+  @MaxLength(EntityConstant.Email)
   email: string;
 
   @ApiProperty({
@@ -25,7 +27,8 @@ export class MentorRegisterRequestDto {
     example: 'password123',
   })
   @IsString()
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  @MinLength(EntityConstant.PasswordMin, { message: `Password must be at least ${EntityConstant.PasswordMin} characters long` })
+  @MaxLength(EntityConstant.PasswordMax)
   password: string;
 
   @ApiProperty({

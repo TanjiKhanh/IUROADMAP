@@ -53,8 +53,8 @@ Admin Configuration cho phép Administrators quản lý user directory (accounts
 
 **Suspend User:**
 16. Click **"Suspend"** → confirmation prompt.
-17. `POST /api/v1/iam/User/update` with `{ status: "BANNED" }`.
-18. Backend: update status → **immediately invalidate JWT** → `"User account has been suspended"`.
+17. `POST /api/v1/iam/User/softDelete/:id`.
+18. Backend: update status to `BANNED` → **immediately invalidate JWT** → `"User account has been suspended"`.
 19. User không thể đăng nhập cho đến khi unban.
 
 **Delete User (Superadmin only):**

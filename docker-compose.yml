@@ -45,13 +45,13 @@ services:
     restart: unless-stopped
 
   # ===== Admin Service =====
-  admin-service:
+  roadmap-service:
     build:
-      context: ./services/admin-service
+      context: ./services/roadmap-service
       dockerfile: Dockerfile
-    container_name: iuroadmap-admin-service
+    container_name: iuroadmap-roadmap-service
     env_file:
-      - ./services/admin-service/.env
+      - ./services/roadmap-service/.env
     depends_on:
       redis:
         condition: service_healthy
@@ -121,7 +121,7 @@ services:
       PORT: 3002
       REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
       AUTH_SERVICE_URL: http://auth-service:3000
-      ADMIN_SERVICE_URL: http://admin-service:3001
+      ADMIN_SERVICE_URL: http://roadmap-service:3001
     ports:
       - "3002:3002"
     healthcheck:
@@ -144,7 +144,7 @@ services:
     depends_on:
       auth-service:
         condition: service_healthy
-      admin-service:
+      roadmap-service:
         condition: service_healthy
       mentor-service:
         condition: service_healthy
@@ -154,7 +154,7 @@ services:
       NODE_ENV: development
       PORT: 8080
       AUTH_SERVICE_URL: http://auth-service:3000
-      ADMIN_SERVICE_URL: http://admin-service:3001
+      ADMIN_SERVICE_URL: http://roadmap-service:3001
       MENTOR_SERVICE_URL: http://mentor-service:4001
       USER_SERVICE_URL: http://user-service:3002
     ports:

@@ -21,7 +21,7 @@ class EnvironmentVariables {
 
   @IsString()
   @IsOptional()
-  ADMIN_SERVICE_URL?: string;
+  ROADMAP_SERVICE_URL?: string;
 
   @IsString()
   @IsOptional()

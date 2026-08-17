@@ -1,43 +1,4 @@
-// @iuroadmap/shared - Constants
-
-export const ErrorCodes = {
-  // Auth
-  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
-  TOKEN_EXPIRED: 'TOKEN_EXPIRED',
-  INVALID_TOKEN: 'INVALID_TOKEN',
-  NO_TOKEN: 'NO_TOKEN',
-  INSUFFICIENT_ROLE: 'INSUFFICIENT_ROLE',
-
-  // Roadmap
-  ROADMAP_NOT_FOUND: 'ROADMAP_NOT_FOUND',
-  ALREADY_ENROLLED: 'ALREADY_ENROLLED',
-  ENROLLMENT_NOT_FOUND: 'ENROLLMENT_NOT_FOUND',
-
-  // Validation
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  INVALID_INPUT: 'INVALID_INPUT',
-
-  // Service
-  SERVICE_ERROR: 'SERVICE_ERROR',
-  ADMIN_SERVICE_ERROR: 'ADMIN_SERVICE_ERROR',
-  USER_SERVICE_ERROR: 'USER_SERVICE_ERROR',
-
-  // General
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
-  NOT_FOUND: 'NOT_FOUND',
-  FORBIDDEN: 'FORBIDDEN',
-  CONFLICT: 'CONFLICT',
-} as const;
-
-export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
-
-export const HttpStatusCodes = {
-  OK: 200,
-  CREATED: 201,
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-  CONFLICT: 409,
-  INTERNAL_SERVER_ERROR: 500,
-} as const;
+export * from './error.constant';
+export * from './cache.constant';
+export * from './entity.constant';
+export * from './app.constant';

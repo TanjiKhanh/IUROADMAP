@@ -1,8 +1,8 @@
 {
-  "name": "@iuroadmap/admin-service",
+  "name": "@iuroadmap/roadmap-service",
   "version": "1.0.0",
   "private": true,
-  "description": "IUROADMAP Admin Service - Roadmap & Content Management",
+  "description": "IUROADMAP Roadmap Service - Academic Roadmap & Content Management",
   "main": "dist/main.js",
   "engines": {
     "node": ">=20.0.0",

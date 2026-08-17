@@ -3,7 +3,7 @@ import { ApiTags, ApiBody, ApiOkResponse, ApiOperation, ApiResponse, ApiBearerAu
 import { Request, Response } from 'express';
 
 import { AuthenticationService } from '../services/authentication.service';
-import { JwtAuthGuard } from '../strategies/jwt.guard';
+import { JwtGuard, CurrentUser, IJwtPayload } from '@iuroadmap/shared';
 
 // Request DTOs
 import { LoginRequestDto } from '../dto/requests/login.request.dto';
@@ -15,7 +15,7 @@ import { ForgotPasswordRequestDto, ResetPasswordRequestDto } from '../dto/reques
 import { AuthLoginResponseDto } from '../dto/responses/auth-login.response.dto';
 
 // Users module (for user lookup)
-import { UserResponseDto } from '../../users/dto/responses/user.response.dto';
+import { UserResponse } from '../../users/dto/user';
 
 @ApiTags('Auth')
 @Controller({
@@ -62,13 +62,9 @@ export class AuthenticationController {
   @ApiOkResponse({ type: AuthLoginResponseDto, description: 'Successful login' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(
-    @Body() dto: LoginRequestDto, 
-    @Req() req: Request
+    @Body() dto: LoginRequestDto
   ) {
-    const userAgent = req.get('user-agent') || '';
-    const ip = (req.headers['x-forwarded-for'] as string) || req.socket.remoteAddress || '';
-    
-    const result = await this.authService.login(dto, userAgent, ip);
+    const result = await this.authService.login(dto);
 
     return { 
       access_token: result.access_token
@@ -76,7 +72,7 @@ export class AuthenticationController {
   }
 
   // 4. LOGOUT
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT) // 204 No Content
   @Post('logout')
@@ -84,16 +80,13 @@ export class AuthenticationController {
   @ApiResponse({ status: 204, description: 'Successfully logged out' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async logout(
-    @Req() req: any, 
+    @CurrentUser('userId') userId: string, 
     @Res({ passthrough: true }) res: Response
   ) {
-    const userId = req.user?.userId; // Get from JWT Payload
     if (userId) {
       await this.authService.logout(userId);
     }
 
-    // Clear legacy refresh cookie if any
-    res.clearCookie('refresh_token', { path: '/' });
     return;
   }
 
@@ -117,24 +110,22 @@ export class AuthenticationController {
   }
 
   // 5. GET ME / FIND USER
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   @ApiOperation({ summary: 'Get user profile information by ID' })
   @ApiParam({ name: 'id', type: String, description: 'ID of the user' })
-  @ApiResponse({ status: 200, description: 'User profile retrieved successfully', type: UserResponseDto })
+  @ApiResponse({ status: 200, description: 'User profile retrieved successfully', type: UserResponse })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async findOne(@Param('id') id: string) {
-    const user = await this.authService.findUserById(Number(id));
+    const user = await this.authService.findUserById(id);
     
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    // Security: Remove password before sending
-    const { password, ...result } = user;
-    return result;
+    return user;
   }
 }
