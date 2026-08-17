@@ -5,9 +5,9 @@
   "private": true,
   "packageManager": "npm@11.12.1",
   "workspaces": [
-    "apps/*",
-    "services/*",
-    "packages/*"
+    "iuroadmap.webapp/apps/*",
+    "iuroadmap.webapp/packages/*",
+    "iuroadmap.services/*"
   ],
   "engines": {
     "node": ">=18.0.0",
@@ -19,7 +19,7 @@
     "bootstrap": "npm install && npm run build",
     "clean": "npm run clean --workspaces --if-present && node -e \"require('fs').rmSync('node_modules', {recursive: true, force: true})\" && node -e \"require('fs').rmSync('coverage', {recursive: true, force: true})\"",
     "# ========== DEVELOPMENT =========": "",
-    "gen:spec": "npm --prefix services/api-gateway run swagger:export",
+    "gen:spec": "npm --prefix iuroadmap.services/api-gateway run swagger:export",
     "gen:api": "npm run gen:spec && npm run generate --workspace=@iuroadmap/api-gen",
     "gen:api:hooks": "npm run gen:spec && npm run generate:hooks --workspace=@iuroadmap/api-gen",
     "gen:api:zod": "npm run gen:spec && npm run generate:zod --workspace=@iuroadmap/api-gen",

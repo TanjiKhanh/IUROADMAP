@@ -1,0 +1,126 @@
+// admin-service/prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("ADMIN_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma-client"
+}
+
+model DEPARTMENTS {
+  id          Int     @id @default(autoincrement())
+  slug        String  @unique
+  name        String // e.g. "Information Technology"
+  description String?
+
+  roadmaps   MAJOR_ROADMAPS[] // majors under this department
+  created_at DateTime         @default(now())
+  updated_at DateTime         @updatedAt
+
+  @@map("departments")
+}
+
+// ================= ROADMAP & COURSES =================
+
+model MAJOR_ROADMAPS {
+  id            Int     @id @default(autoincrement())
+  slug          String  @unique
+  name          String
+  total_credits Int
+  description   String?
+
+  department_id Int
+  department    DEPARTMENTS    @relation(fields: [department_id], references: [id], onDelete: Cascade)
+  courseNodes   COURSE_NODES[]
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+
+  @@map("major_roadmaps")
+}
+
+model COURSE_NODES {
+  id         Int            @id @default(autoincrement())
+  roadmap_id Int
+  roadmap    MAJOR_ROADMAPS @relation(fields: [roadmap_id], references: [id], onDelete: Cascade)
+
+  slug        String
+  name        String
+  coords      Json?
+  credits     Int
+  description String?
+
+  courseTopics          COURSE_TOPICS_NODE[]
+  prerequisitesAsSource COURSE_NODE_PREREQUISITES[] @relation("source")
+  prerequisitesAsTarget COURSE_NODE_PREREQUISITES[] @relation("target")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([roadmap_id, slug])
+  @@index([roadmap_id])
+  @@map("course_nodes")
+}
+
+model COURSE_NODE_PREREQUISITES {
+  id Int @id @default(autoincrement())
+
+  course_node_id Int
+  courseNode     COURSE_NODES @relation("target", fields: [course_node_id], references: [id], onDelete: Cascade)
+
+  prerequisite_node_id Int
+  prerequisiteNode     COURSE_NODES @relation("source", fields: [prerequisite_node_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([course_node_id, prerequisite_node_id])
+  @@index([course_node_id])
+  @@index([prerequisite_node_id])
+  @@map("course_node_prerequisites")
+}
+
+// ================= COURSE TOPICS =================
+
+model COURSE_TOPICS_NODE {
+  id Int @id @default(autoincrement())
+
+  course_node_id Int
+  courseNode     COURSE_NODES @relation(fields: [course_node_id], references: [id], onDelete: Cascade)
+
+  slug                String
+  title               String
+  description         String?
+  coords              Json?
+  learning_objectives String?
+  resources_url       String?
+
+  topicEdgesAsSource COURSE_TOPICS_EDGE[] @relation("source")
+  topicEdgesAsTarget COURSE_TOPICS_EDGE[] @relation("target")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([course_node_id, slug])
+  @@index([course_node_id])
+  @@map("course_topics_node")
+}
+
+model COURSE_TOPICS_EDGE {
+  id Int @id @default(autoincrement())
+
+  source_topic_id Int
+  sourceTopic     COURSE_TOPICS_NODE @relation("source", fields: [source_topic_id], references: [id], onDelete: Cascade)
+
+  target_topic_id Int
+  targetTopic     COURSE_TOPICS_NODE @relation("target", fields: [target_topic_id], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+
+  @@unique([source_topic_id, target_topic_id])
+  @@index([source_topic_id])
+  @@index([target_topic_id])
+  @@map("course_topics_edge")
+}

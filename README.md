@@ -146,117 +146,36 @@ Learners                    Mentors                 Admins
 
 ```
 IUROADMAP (monorepo root)
-├── frontend/                    # React Vite SPA
-│   ├── src/
-│   │   ├── auth/               # Authentication context & guards
-│   │   ├── components/         # React components (layouts, UI, roadmap)
-│   │   ├── hooks/              # Custom React hooks
-│   │   ├── pages/              # Route pages (admin, learner, mentor, public)
-│   │   ├── routes/             # Route definitions
-│   │   ├── services/           # API client services
-│   │   ├── styles/             # Global & component styles
-│   │   ├── types/              # TypeScript type definitions
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── vite.config.ts
+├── iuroadmap.webapp/            # Frontend applications & shared web packages
+│   ├── apps/
+│   │   ├── web/                # React Vite SPA
+│   │   └── mobile/             # Expo React Native App
+│   └── packages/
+│       ├── api/                # API client wrapper
+│       ├── api-gen/            # Orval Swagger generator
+│       ├── core/               # Shared core UI & types
+│       ├── i18n/               # Internationalization package
+│       └── store/              # Redux Toolkit shared store
 │
-├── services/                    # Backend microservices
-│   ├── api-gateway/            # API Gateway (request routing)
-│   │   ├── src/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── auth/                   # Authentication Service
-│   │   ├── src/
-│   │   │   ├── controllers/    # Route handlers
-│   │   │   ├── services/       # Business logic
-│   │   │   ├── dto/            # Data transfer objects
-│   │   │   ├── guards/         # Auth guards (JWT)
-│   │   │   ├── prisma/         # Database client
-│   │   │   └── __tests__/      # Test suites
-│   │   ├── package.json
-│   │   ├── jest.config.js
-│   │   └── prisma/
-│   │       ├── schema.prisma
-│   │       └── migrations/
-│   │
+├── iuroadmap.services/          # Backend microservices
+│   ├── api-gateway/            # API Gateway (NestJS, request routing)
+│   ├── auth/                   # Authentication Service (JWT, Auth guards)
 │   ├── admin-service/          # Admin & Roadmap Management
-│   │   ├── src/
-│   │   ├── package.json
-│   │   └── prisma/
-│   │
 │   ├── mentor-service/         # Mentor Profiles
-│   │   ├── src/
-│   │   │   └── modules/mentor-profile/
-│   │   │       ├── controllers/
-│   │   │       ├── services/
-│   │   │       ├── repositories/
-│   │   │       ├── dto/
-│   │   │       └── __tests__/   # Comprehensive unit & E2E tests
-│   │   ├── package.json
-│   │   ├── jest.config.js
-│   │   └── prisma/
-│   │
-│   ├── mentorship-service/     # Mentorship Connections
-│   │   ├── src/
-│   │   ├── package.json
-│   │   └── prisma/
-│   │
-│   └── user-service/           # User & Progress Tracking
-│       ├── src/
-│       ├── package.json
-│       └── prisma/
+│   ├── user-service/           # User & Progress Tracking
+│   ├── shared/                 # Shared backend utilities
+│   └── azure-pipeline/         # Azure CI/CD Pipelines
 │
-├── libs/                        # Shared Libraries
-│   └── shared-db/              # Shared database & Prisma setup
-│       ├── prisma/
-│       │   ├── schema.prisma
-│       │   └── migrations/
-│       └── src/
-│
-├── packages/                    # Shared Packages
-│   ├── contracts/              # API contracts (OpenAPI specs)
-│   ├── shared/                 # Shared utilities & types
-│   └── package.json
-│
-├── infra/                       # Infrastructure Code
-│   ├── docker/                 # Dockerfiles & Docker config
-│   ├── docker-compose.yml      # Local development compose
-│   ├── helm/                   # Kubernetes Helm charts
+├── iuroadmap.infra/             # Infrastructure & Deployment
 │   ├── k8s/                    # Kubernetes manifests
-│   └── terraform/              # Terraform IaC
+│   └── DOCKER_SETUP.md         # Docker documentation
 │
-├── scripts/                     # Development scripts
-│   ├── bootstrap.sh            # Install all dependencies
-│   ├── dev-start.sh            # Start all services
-│   ├── setup-local.sh          # Local setup script
-│   └── seed/                   # Database seed scripts
+├── iuroadmap.docs/              # Architecture & SRS Documentation
 │
-├── tests/                       # Shared test suites
-│   ├── contract-tests/         # API contract tests (Postman)
-│   ├── e2e/                    # End-to-end tests
-│   └── unit/                   # Unit test examples
-│
-├── docs/                        # Documentation
-│   ├── architecture.md         # System design
-│   ├── api-design.md           # API guidelines
-│   ├── azure-devops-ci.md      # CI/CD setup
-│   ├── FORGOT_PASSWORD_REVIEW.md
-│   └── adrs/                   # Architecture Decision Records
-│       └── 0001-monolith-vs-microservices.md
-│
-├── docker-compose.yml          # Production compose (alternative)
-├── package.json                # Root workspace config
-├── CONVENTION.md               # Code conventions
-├── LOCAL_DEV_SETUP.md          # Detailed local setup
-├── README.md                   # This file
-├── azure-pipelines.yml         # CI/CD pipeline
-├── run-all.ps1                 # PowerShell startup script
-├── start-all.bat               # Batch startup script
-└── .gitignore
-
+├── docker-compose.yml          # Local compose environment
+├── package.json                # Root workspace & script configuration
+├── turbo.json                  # Turborepo task pipeline configuration
+└── README.md
 ```
 
 ---
