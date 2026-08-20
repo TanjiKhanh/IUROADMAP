@@ -10,6 +10,7 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
+<<<<<<< HEAD:iuroadmap.services/auth/src/main.ts
   app.setGlobalPrefix('api', { exclude: ['health'] });
   app.enableVersioning({
     type: VersioningType.URI,
@@ -25,9 +26,10 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   // 1. CẤU HÌNH CORS (Quan trọng cho Cookie)
+=======
+>>>>>>> d3a04afd334d9e2f2b95cfc8b1f7a5d9618bb3d3:services/auth/src/main.ts
   app.enableCors({
-    // URL of Frontend (Ví dụ: http://localhost:5173 cho Vite)
-    origin: ['http://localhost:5173', 'http://localhost:3001'], // Thêm URL của frontend vào đây
+    origin: ['http://localhost:5173', 'http://localhost:3001'],
     credentials: true, // REQUIRED: To allow sending/receiving Cookies (HttpOnly)
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
