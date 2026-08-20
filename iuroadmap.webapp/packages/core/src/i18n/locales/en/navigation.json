@@ -1,0 +1,22 @@
+{
+  "navigation": {
+    "overview": "Overview",
+    "features": "Features",
+    "administration": "Administration",
+    "dashboard": "Dashboard",
+    "roadmap": "Roadmap",
+    "courses": "Courses",
+    "mentorship": "Mentorship",
+    "admin": "Administration",
+    "users": "Users",
+    "roles": "Roles",
+    "exploreMajors": "Explore Majors",
+    "myRoadmaps": "My Roadmaps",
+    "manageRoadmaps": "Manage Roadmaps",
+    "manageCourses": "Manage Courses",
+    "findMentors": "Find Mentors",
+    "chatWithMentors": "Chat with Mentors",
+    "mentorHub": "Mentor Hub",
+    "departments": "Departments"
+  }
+}

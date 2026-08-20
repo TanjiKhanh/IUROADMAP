@@ -1,9 +1,9 @@
 import React from 'react';
 import { CheckCircle2, ExternalLink, FileText, PlayCircle, X } from 'lucide-react';
-import { MicroTopicNode } from '../../services/roadmap.service';
+import { MicroTopicNodeDto } from '@iuroadmap/api-gen';
 
 interface MicroTopicPanelProps {
-  topic: MicroTopicNode | null;
+  topic: MicroTopicNodeDto | null;
   isOpen: boolean;
   onClose: () => void;
   continueTopicCount: number;

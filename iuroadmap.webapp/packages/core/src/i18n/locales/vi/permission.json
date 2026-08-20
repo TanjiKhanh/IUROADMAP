@@ -1,0 +1,9 @@
+{
+  "permission": {
+    "role": { "admin": "Quản trị viên", "student": "Sinh viên", "mentor": "Cố vấn" },
+    "group": { "roadmap": "Lộ trình", "course": "Khóa học", "mentorship": "Cố vấn", "user": "Quản lý người dùng", "admin": "Quản trị hệ thống" },
+    "action": { "read": "Xem", "write": "Chỉnh sửa", "manage": "Quản lý", "approve": "Phê duyệt" },
+    "status": { "active": "Đang hoạt động", "pending": "Chờ phê duyệt", "rejected": "Từ chối", "banned": "Bị khóa" },
+    "accessDenied": "Bạn không có quyền cần thiết để thực hiện thao tác này."
+  }
+}

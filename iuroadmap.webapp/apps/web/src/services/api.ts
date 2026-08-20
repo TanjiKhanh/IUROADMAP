@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { getAccessToken, setAccessToken } from '../auth/tokenStore';
 
@@ -72,3 +73,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+

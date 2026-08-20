@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
-import { authService } from '../../services/auth.service';
 import '../../styles/Register.css';
-import { MentorRegisterPayload } from '../../services/auth.service';
+import { MentorRegisterRequestDto, LearnerRegisterRequestDto } from '@iuroadmap/api-gen';
 
 // Asset Import
 import logo from '../../assets/images/logo-gupjob-primary.png';
@@ -74,14 +73,14 @@ export default function RegisterPage() {
       let payload: any;
 
       if (backendRole === 'MENTOR') {
-            payload = { ...basePayload, ...extraData } as MentorRegisterPayload;
+            payload = { ...basePayload, ...extraData } as MentorRegisterRequestDto;
             console.log('🚀 Calling MENTOR API with payload:', payload);
-            const response = await authService.registerMentor(payload);
+            const response = await register(payload);
             console.log('✅ Mentor registration successful:', response);
           } else {
-            payload = basePayload;
+            payload = basePayload as LearnerRegisterRequestDto;
             console.log('🚀 Calling LEARNER API with payload:', payload);
-            const response = await authService.register(payload);
+            const response = await register(payload);
             console.log('✅ Learner registration successful:', response);
           }
 

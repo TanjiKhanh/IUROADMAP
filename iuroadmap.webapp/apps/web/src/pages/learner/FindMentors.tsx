@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { mentorService, PaginatedResponse, MentorProfile, MentorStats } from '../../services/mentor.service';
+import { PaginatedResponse, MentorProfile, MentorStats } from '../../services/mentor.service';
+import { mentorSearchControllerGetStats, mentorSearchControllerFindAll } from '@iuroadmap/api-gen';
 import '../../styles/findMentors.css';
 
 export default function FindMentors() {
@@ -32,8 +33,8 @@ export default function FindMentors() {
       try {
         console.log('📊 Loading stats...');
         
-        const data = await mentorService.getMentorStats();
-        
+        const response: any = await mentorSearchControllerGetStats();
+        const data = response?.data;
         console.log('✅ Stats loaded:', data);
         
         if (!data?.byIndustry) {
@@ -43,7 +44,7 @@ export default function FindMentors() {
         }
         
         setStats(data);
-        const uniqueIndustries = data.byIndustry.map((item) => item.industry);
+        const uniqueIndustries = data.byIndustry.map((item: any) => item.industry);
         
         console.log('📈 Industries:', uniqueIndustries);
         
@@ -65,7 +66,12 @@ export default function FindMentors() {
       try {
         console.log('🔍 Loading mentors with filters:', filters);
         
-        const response = await mentorService.searchMentors(filters);
+        const response: any = await mentorSearchControllerFindAll({
+          industry: filters.industry,
+          search: filters.search,
+          limit: filters.limit,
+          offset: filters.offset
+        });
         
         console.log('✅ Mentors loaded:', response);
         

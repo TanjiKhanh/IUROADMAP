@@ -141,7 +141,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\TanKhanh\\Lecture\\2025-2026\\Second Semester\\Software Engineering\\Project\\IUROADMAP\\services\\user-service\\src\\generated\\prisma-client",
+      "value": "D:\\TanKhanh\\Lecture\\2025-2026\\Second Semester\\Software Engineering\\IUROADMAP\\IUROADMAP\\iuroadmap.services\\user-service\\src\\generated\\prisma-client",
       "fromEnvVar": null
     },
     "config": {

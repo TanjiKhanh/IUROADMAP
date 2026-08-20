@@ -1,8 +1,8 @@
 import React from 'react';
-import { MicroTopicNode } from '../../services/roadmap.service';
+import { MicroTopicNodeDto } from '@iuroadmap/api-gen';
 
 interface MicroRoadmapNodeCardProps {
-  topic: MicroTopicNode;
+  topic: MicroTopicNodeDto;
   index: number;
 }
 

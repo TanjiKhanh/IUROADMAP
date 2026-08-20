@@ -11,11 +11,8 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Bot, FolderKanban, AudioWaveform, CircleStar    } from 'lucide-react';
-import {
-  MicroRoadmapResponse,
-  MicroTopicNode,
-  roadmapService,
-} from '../../services/roadmap.service';
+import { roadmapsControllerGetMacroRoadmap, roadmapsControllerGetMicroRoadmap, MicroRoadmapResponseDto, MicroTopicNodeDto } from '@iuroadmap/api-gen';
+import { useRoadmapMutations } from './hooks/useRoadmapHooks';
 import MicroRoadmapNodeCard from '../../components/roadmap/MicroRoadmapNodeCard';
 import RoadmapToolbar from '../../components/roadmap/RoadmapToolbar';
 import MicroTopicPanel from '../../components/roadmap/MicroTopicPanel';
@@ -31,8 +28,8 @@ export default function MicroRoadmap() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const [microRoadmap, setMicroRoadmap] = useState<MicroRoadmapResponse | null>(null);
-  const [selectedTopic, setSelectedTopic] = useState<MicroTopicNode | null>(null);
+  const [microRoadmap, setMicroRoadmap] = useState<MicroRoadmapResponseDto | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<MicroTopicNodeDto | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isPanMode, setIsPanMode] = useState(true);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance | null>(null);
@@ -41,12 +38,13 @@ export default function MicroRoadmap() {
   const [markingComplete, setMarkingComplete] = useState(false);
   const [isCourseCompleted, setIsCourseCompleted] = useState(false);
   const [courseCredits, setCourseCredits] = useState<number>(stateData?.courseCredits || 0);
+  const roadmapMutations = useRoadmapMutations();
 
-  const mapToFlow = useCallback((data: MicroRoadmapResponse) => {
+  const mapToFlow = useCallback((data: MicroRoadmapResponseDto) => {
     const spreadX = 430;
     const spreadY = 260;
 
-    const flowNodes: Node[] = data.topics.map((topic, index) => {
+    const flowNodes: Node[] = data.topics.map((topic: any, index: any) => {
       const fallbackX = 110 + (index % 3) * spreadX;
       const fallbackY = 80 + Math.floor(index / 3) * spreadY;
 
@@ -78,7 +76,7 @@ export default function MicroRoadmap() {
     const edgeStyle = { stroke: '#7f9bc2', strokeWidth: 1.9, strokeDasharray: '4 4' };
 
     const mappedEdges = (data.edges || [])
-      .map((edge, idx) => ({
+      .map((edge: any, idx: any) => ({
         id: `micro-edge-${edge.id}-${idx}`,
         source: String(edge.from),
         target: String(edge.to),
@@ -86,10 +84,10 @@ export default function MicroRoadmap() {
         animated: false,
         style: edgeStyle,
       }))
-      .filter((edge) => nodeIdSet.has(edge.source) && nodeIdSet.has(edge.target) && edge.source !== edge.target);
+      .filter((edge: any) => nodeIdSet.has(edge.source) && nodeIdSet.has(edge.target) && edge.source !== edge.target);
 
     const reversedMappedEdges = (data.edges || [])
-      .map((edge, idx) => ({
+      .map((edge: any, idx: any) => ({
         id: `micro-edge-rev-${edge.id}-${idx}`,
         source: String(edge.to),
         target: String(edge.from),
@@ -97,7 +95,7 @@ export default function MicroRoadmap() {
         animated: false,
         style: edgeStyle,
       }))
-      .filter((edge) => nodeIdSet.has(edge.source) && nodeIdSet.has(edge.target) && edge.source !== edge.target);
+      .filter((edge: any) => nodeIdSet.has(edge.source) && nodeIdSet.has(edge.target) && edge.source !== edge.target);
 
     let flowEdges: Edge[] = mappedEdges;
 
@@ -136,7 +134,8 @@ export default function MicroRoadmap() {
       setLoading(true);
       setError(null);
 
-      const data = await roadmapService.getMicroRoadmap(Number(courseNodeId));
+      const res = await roadmapsControllerGetMicroRoadmap(Number(courseNodeId));
+      const data = res.data as any;
 
       if (!data || !Array.isArray(data.topics)) {
         setError('Micro roadmap data is invalid.');
@@ -168,8 +167,8 @@ export default function MicroRoadmap() {
   }, [courseNodeId, mapToFlow, setEdges, setNodes]);
 
   const topicById = useMemo(() => {
-    const map = new Map<string, MicroTopicNode>();
-    (microRoadmap?.topics || []).forEach((topic) => {
+    const map = new Map<string, MicroTopicNodeDto>();
+    (microRoadmap?.topics || []).forEach((topic: any) => {
       map.set(String(topic.id), topic);
     });
     return map;
@@ -179,7 +178,7 @@ export default function MicroRoadmap() {
     if (!microRoadmap || !selectedTopic) return 0;
 
     // Count remaining modules after the selected one.
-    const index = microRoadmap.topics.findIndex((topic) => topic.id === selectedTopic.id);
+    const index = microRoadmap.topics.findIndex((topic: any) => topic.id === selectedTopic.id);
     if (index === -1) return 0;
 
     return Math.max(0, microRoadmap.topics.length - index - 1);
@@ -196,8 +195,9 @@ export default function MicroRoadmap() {
 
     const syncCompletionFromMacro = async () => {
       try {
-        const data = await roadmapService.getUserRoadmapDetail(Number(id));
-        const matchedNode = data.nodes.find((node) => node.id === Number(courseNodeId));
+        const res = await roadmapsControllerGetMacroRoadmap(Number(id));
+        const data = res.data as any;
+        const matchedNode = data.nodes.find((node: any) => node.id === Number(courseNodeId));
         const currentStatus = matchedNode?.status;
 
         if (matchedNode?.credits) {
@@ -205,9 +205,13 @@ export default function MicroRoadmap() {
         }
 
         if (currentStatus === 'AVAILABLE') {
-          await roadmapService.updateCourseStatus(Number(id), Number(courseNodeId), {
-            status: 'IN_PROGRESS',
-            creditsEarned: 0,
+          await roadmapMutations.updateCourseStatus.mutateAsync({
+            userRoadmapId: Number(id),
+            courseNodeId: Number(courseNodeId),
+            data: {
+              status: 'IN_PROGRESS',
+              creditsEarned: 0,
+            }
           });
         }
 
@@ -265,9 +269,13 @@ export default function MicroRoadmap() {
 
     try {
       setMarkingComplete(true);
-      await roadmapService.updateCourseStatus(Number(id), Number(courseNodeId), {
-        status: 'COMPLETED',
-        creditsEarned: courseCredits || 0,
+      await roadmapMutations.updateCourseStatus.mutateAsync({
+        userRoadmapId: Number(id),
+        courseNodeId: Number(courseNodeId),
+        data: {
+          status: 'COMPLETED',
+          creditsEarned: courseCredits || 0,
+        }
       });
       setIsCourseCompleted(true);
     } catch (markError) {
@@ -394,3 +402,6 @@ export default function MicroRoadmap() {
     </div>
   );
 }
+
+
+

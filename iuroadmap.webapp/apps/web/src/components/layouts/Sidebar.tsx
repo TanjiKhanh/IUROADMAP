@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import logo from '../../assets/images/logo-gupjob-primary.png';
+import { RoutePaths, MenuIconsWeb } from '@iuroadmap/core';
+import { useMenu } from '../../hooks/useMenu';
 
 import {
   LayoutDashboard,
@@ -17,139 +19,137 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   PanelTop,
-  LogOut
+  LogOut,
+  LucideIcon,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
+
+const IconMap: Record<string, LucideIcon | null> = {
+  [MenuIconsWeb.layoutDashboard]: LayoutDashboard,
+  [MenuIconsWeb.map]: Map,
+  [MenuIconsWeb.bookOpen]: BookOpen,
+  [MenuIconsWeb.folder]: Folder,
+  [MenuIconsWeb.panelTop]: PanelTop,
+  [MenuIconsWeb.graduationCap]: GraduationCap,
+  [MenuIconsWeb.users]: Users,
+  [MenuIconsWeb.messageCircle]: MessageCircle,
+  [MenuIconsWeb.none]: null,
+};
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
+  const filteredMenu = useMenu();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showProBanner, setShowProBanner] = useState(true);
 
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
+
+  const toggleMenu = (title: string) => {
+    if (isCollapsed) {
+      setIsCollapsed(false);
+      setExpandedMenus((prev) => ({ ...prev, [title]: true }));
+    } else {
+      setExpandedMenus((prev) => ({ ...prev, [title]: !prev[title] }));
+    }
+  };
+
   const getNavLinkClass = ({ isActive }: { isActive: boolean }) =>
     isActive ? 'nav-link active' : 'nav-link';
 
-  // --- ADMIN ---
-  const AdminNav = () => (
-    <>
-      <div className="nav-section-label">Administration</div>
-
-      <NavLink to="/admin" end className={getNavLinkClass}>
-        <span className="nav-icon"><LayoutDashboard size={18} /></span>
-        <span className="nav-text">Dashboard</span>
-      </NavLink>
-
-      <NavLink to="/admin/roadmaps" className={getNavLinkClass}>
-        <span className="nav-icon"><Map size={18} /></span>
-        <span className="nav-text">Roadmaps</span>
-      </NavLink>
-
-      <NavLink to="/admin/courses" className={getNavLinkClass}>
-        <span className="nav-icon"><BookOpen size={18} /></span>
-        <span className="nav-text">Courses</span>
-      </NavLink>
-
-      <NavLink to="/admin/departments" className={getNavLinkClass}>
-        <span className="nav-icon"><Folder size={18} /></span>
-        <span className="nav-text">Departments</span>
-      </NavLink>
-
-      <div className="nav-section-label">System</div>
-
-      <NavLink to="/admin/users" className={getNavLinkClass}>
-        <span className="nav-icon"><Users size={18} /></span>
-        <span className="nav-text">Users</span>
-      </NavLink>
-    </>
-  );
-
-  // --- MENTOR ---
-  const MentorNav = () => (
-    <>
-      <div className="nav-section-label">Mentorship</div>
-
-      <NavLink to="/mentor/dashboard" end className={getNavLinkClass}>
-        <span className="nav-icon"><PanelTop size={18} /></span>
-        <span className="nav-text">Mentor Hub</span>
-      </NavLink>
-
-      <NavLink to="/mentor/requests" className={getNavLinkClass}>
-        <span className="nav-icon"><CheckCircle size={18} /></span>
-        <span className="nav-text">Requests</span>
-      </NavLink>
-
-      <NavLink to="/mentor/sessions" className={getNavLinkClass}>
-        <span className="nav-icon"><Calendar size={18} /></span>
-        <span className="nav-text">Sessions</span>
-      </NavLink>
-    </>
-  );
-
-  // --- LEARNER ---
-  const LearnerNav = () => (
-    <>
-      <div className="nav-section-label">Learning</div>
-
-      <NavLink to="/dashboard" end className={getNavLinkClass}>
-        <span className="nav-icon"><LayoutDashboard size={18} /></span>
-        <span className="nav-text">Dashboard</span>
-      </NavLink>
-
-      <NavLink
-        to="/dashboard/explore"
-        className={({ isActive }) =>
-          isActive || location.pathname.startsWith('/dashboard/roadmap-preview/')
-            ? 'nav-link active'
-            : 'nav-link'
-        }
-      >
-        <span className="nav-icon"><GraduationCap size={18} /></span>
-        <span className="nav-text">Explore Majors</span>
-      </NavLink>
-
-      <NavLink
-        to="/dashboard/my-courses"
-        className={({ isActive }) =>
-          isActive || location.pathname.startsWith('/dashboard/roadmap/')
-            ? 'nav-link active'
-            : 'nav-link'
-        }
-      >
-        <span className="nav-icon"><Map size={18} /></span>
-        <span className="nav-text">My Roadmaps</span>
-      </NavLink>
-
-
-      <div className="nav-section-label">Community</div>
-
-      <NavLink
-        to="/dashboard/find-mentors"
-        className={({ isActive }) => {
-          const isMentorsPage = isActive;
-          const isMentorDetail = location.pathname.startsWith('/dashboard/find-mentors');
-          return (isMentorsPage || isMentorDetail)
-            ? 'nav-link active'
-            : 'nav-link';
-        }}
-      >
-        <span className="nav-icon"><Users size={18} /></span>
-        <span className="nav-text">Find Mentors</span>
-      </NavLink>
-
-      <div className="nav-link disabled" style={{ opacity: 0.5 }}>
-        <span className="nav-icon"><MessageCircle size={18} /></span>
-        <span className="nav-text">
-          Chat with Mentors <span className="badge-pro">PRO</span>
-        </span>
-      </div>
-    </>
-  );
-
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate(RoutePaths.web.public.login);
+  };
+
+  const userRole = user?.role || 'STUDENT';
+
+  // Render navigation dynamically based on appMenuConfig
+  const renderMenuConfig = () => {
+    return filteredMenu.map((menuGroup) => {
+      return (
+        <React.Fragment key={menuGroup.key}>
+          <div className="nav-section-label">{menuGroup.groupName}</div>
+          {menuGroup.items.map((item, index) => {
+            const IconComponent = IconMap[item.iconWeb] || CheckCircle; // Fallback to CheckCircle
+            
+            // Highlight active states for specific routes (e.g. explore majors or mentors)
+            const getActiveState = ({ isActive }: { isActive: boolean }) => {
+              if (isActive) return 'nav-link active';
+              // Special cases for subpaths based on the main path
+              if (item.path && item.path === RoutePaths.web.dashboard.explore && location.pathname.startsWith('/dashboard/roadmap-preview/')) {
+                return 'nav-link active';
+              }
+              if (item.path && item.path === RoutePaths.web.dashboard.myCourses && location.pathname.startsWith('/dashboard/roadmap/')) {
+                return 'nav-link active';
+              }
+              return 'nav-link';
+            };
+
+            const isExpanded = expandedMenus[item.title];
+            const hasChildren = item.children && item.children.length > 0;
+
+            if (item.isPro) {
+              return (
+                <div key={item.title} className="nav-link disabled" style={{ opacity: 0.5 }}>
+                  <span className="nav-icon"><IconComponent size={18} /></span>
+                  <span className="nav-text">
+                    {item.title} <span className="badge-pro">PRO</span>
+                  </span>
+                </div>
+              );
+            }
+
+            return (
+              <div key={item.title} className="nav-item-container">
+                {hasChildren ? (
+                  <div className="nav-link nav-group-header" onClick={() => toggleMenu(item.title)} style={{ cursor: 'pointer' }}>
+                    <span className="nav-icon"><IconComponent size={18} /></span>
+                    <span className="nav-text">{item.title}</span>
+                    {!isCollapsed && (
+                      <span className="nav-arrow" style={{ marginLeft: 'auto' }}>
+                        {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <NavLink 
+                    to={item.path} 
+                    end={item.path === RoutePaths.web.admin.root || item.path === RoutePaths.web.dashboard.root || item.path === RoutePaths.web.mentor.dashboard}
+                    className={getActiveState}
+                  >
+                    <span className="nav-icon"><IconComponent size={18} /></span>
+                    <span className="nav-text">{item.title}</span>
+                  </NavLink>
+                )}
+
+                {hasChildren && isExpanded && !isCollapsed && (
+                  <div className="nav-sub-items" style={{ paddingLeft: '1.5rem', marginTop: '0.25rem' }}>
+                    {item.children!.map((child) => {
+                      const ChildIcon = IconMap[child.iconWeb] || CheckCircle;
+                      return (
+                        <NavLink
+                          key={child.title}
+                          to={child.path}
+                          className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+                          style={{ padding: '0.5rem 1rem', fontSize: '0.9em' }}
+                        >
+                          <span className="nav-icon"><ChildIcon size={16} /></span>
+                          <span className="nav-text">{child.title}</span>
+                        </NavLink>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </React.Fragment>
+      );
+    });
   };
 
   return (
@@ -175,25 +175,23 @@ export default function Sidebar() {
 
       {/* NAV */}
       <nav className="sidebar-nav">
-        {user?.role === 'ADMIN' && <AdminNav />}
-        {user?.role === 'MENTOR' && <MentorNav />}
-        {(!user?.role || user?.role === 'USER' || user?.role === 'STUDENT') && <LearnerNav />}
+        {renderMenuConfig()}
       </nav>
 
       {/* FOOTER */}
       <div className="sidebar-footer">
 
-        {(user?.role === 'USER' || user?.role === 'STUDENT') && showProBanner && !isCollapsed && (
+        {(userRole === 'USER' || userRole === 'STUDENT') && showProBanner && !isCollapsed && (
           <div className="pro-upsell-notification">
             <button 
               className="btn-close-upsell"
               onClick={() => setShowProBanner(false)}
             >
-              ✕
+              ×
             </button>
 
             <div className="upsell-content">
-              <h4>GUPJOB Pro</h4>
+              <h4>IUROADMAP Pro</h4>
               <p>Get verified badges & unlimited chats.</p>
               <button className="btn-upgrade">Upgrade Plan</button>
             </div>

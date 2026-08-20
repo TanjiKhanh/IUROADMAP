@@ -1,0 +1,25 @@
+{
+  "common": {
+    "appName": "IUROADMAP",
+    "welcome": "Welcome to IUROADMAP",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "noData": "No data available",
+    "retry": "Retry",
+    "language": "Language",
+    "success": "Operation completed successfully",
+    "error": "Something went wrong"
+  },
+  "error": {
+    "invalidCredentials": "Invalid email or password.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "forbidden": "You do not have permission to access this page.",
+    "notFound": "The requested resource was not found.",
+    "generic": "An unexpected error occurred. Please try again."
+  }
+}

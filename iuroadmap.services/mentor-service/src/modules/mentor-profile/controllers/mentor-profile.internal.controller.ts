@@ -1,9 +1,10 @@
-import { Controller, Post, Body, Headers, UnauthorizedException, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Delete, Param, ParseIntPipe, Body, Headers, UnauthorizedException, HttpCode, HttpStatus } from '@nestjs/common';
 import { MentorProfileService } from '../services/mentor-profile.service';
 import { CreateMentorProfileDto } from '../dto/create-mentor-profile.dto';
 
-import { ApiTags, ApiOperation, ApiResponse, ApiHeader, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiHeader, ApiBody, ApiParam, ApiExcludeController } from '@nestjs/swagger';
 
+@ApiExcludeController()
 @ApiTags('Mentor - Internal')
 @Controller('internal/mentor-profiles')
 export class MentorProfileInternalController {
@@ -29,5 +30,24 @@ export class MentorProfileInternalController {
     
     // 2. Create the profile
     return this.service.createProfile(userId, profileData);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Delete(':userId')
+  @ApiOperation({ summary: 'Internal deletion/compensation of a mentor profile (called during Saga rollback)' })
+  @ApiHeader({ name: 'x-api-key', required: true, description: 'Internal service communication API key' })
+  @ApiParam({ name: 'userId', type: 'number', description: 'User ID of the mentor' })
+  @ApiResponse({ status: 200, description: 'Mentor profile deleted successfully (compensated)' })
+  @ApiResponse({ status: 401, description: 'Invalid Internal API Key' })
+  async deleteProfile(
+    @Headers('x-api-key') apiKey: string,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    if (apiKey !== process.env.MENTOR_SERVICE_API_KEY) {
+      throw new UnauthorizedException('Invalid Internal API Key');
+    }
+
+    await this.service.deleteProfile(userId);
+    return { success: true, message: `Mentor profile for user ${userId} compensated/deleted.` };
   }
 }

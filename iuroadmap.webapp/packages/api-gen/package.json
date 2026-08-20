@@ -9,7 +9,7 @@
     "generate:hooks": "orval --config ./orval.config.ts --project iuroadmapApi",
     "generate:zod": "orval --config ./orval.config.ts --project iuroadmapZod",
     "typecheck": "tsc --noEmit",
-    "build": "tsc"
+    "build": "tsc --noEmit"
   },
   "peerDependencies": {
     "@tanstack/react-query": ">=5.0.0",

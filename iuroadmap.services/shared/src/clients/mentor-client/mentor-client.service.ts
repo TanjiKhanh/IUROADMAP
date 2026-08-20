@@ -33,4 +33,18 @@ export class MentorClientService {
       throw error;
     }
   }
+
+  async deleteMentorProfile(mentorId: number) {
+    try {
+      const response = await axios.delete(`${this.baseUrl}/internal/mentor-profiles/${mentorId}`, {
+        headers: {
+          'x-api-key': process.env.MENTOR_SERVICE_API_KEY,
+        },
+      });
+      return response.data?.data ?? response.data;
+    } catch (error: any) {
+      this.logger.error(`Failed to delete mentor profile (compensation): ${error.message}`);
+      throw error;
+    }
+  }
 }

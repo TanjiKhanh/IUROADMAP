@@ -1,8 +1,8 @@
 import { Controller, Get, VERSION_NEUTRAL } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiExcludeController } from '@nestjs/swagger';
 
 // Gateway Health Endpoint (No Auth)
-@ApiTags('Health')
+@ApiExcludeController()
 @Controller({
   version: VERSION_NEUTRAL,
 })

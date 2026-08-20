@@ -1,0 +1,9 @@
+{
+  "permission": {
+    "role": { "admin": "Administrator", "student": "Student", "mentor": "Mentor" },
+    "group": { "roadmap": "Roadmap", "course": "Course", "mentorship": "Mentorship", "user": "User management", "admin": "Administration" },
+    "action": { "read": "View", "write": "Edit", "manage": "Manage", "approve": "Approve" },
+    "status": { "active": "Active", "pending": "Pending approval", "rejected": "Rejected", "banned": "Banned" },
+    "accessDenied": "You do not have the required permission."
+  }
+}

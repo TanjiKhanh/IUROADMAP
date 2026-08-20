@@ -109,7 +109,25 @@ export class AuthenticationController {
     return this.authService.resetPassword(dto);
   }
 
-  // 5. GET ME / FIND USER
+  // 5. GET ME
+  @UseGuards(JwtGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @Get('me')
+  @ApiOperation({ summary: 'Get current user profile based on JWT token' })
+  @ApiResponse({ status: 200, description: 'Current user profile retrieved successfully', type: UserResponse })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getMe(@CurrentUser('userId') userId: string) {
+    const user = await this.authService.findUserById(userId);
+    
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return user;
+  }
+
+  // 6. GET USER BY ID
   @UseGuards(JwtGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)

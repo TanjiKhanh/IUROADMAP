@@ -15,6 +15,7 @@ import { AdminClientService, UserClientService, MentorClientService } from '@iur
 
 // Users module
 import { UsersService } from '../../users/services/users.service';
+import { RegisterMentorSaga } from '../sagas/register-mentor.saga';
 
 // Shared
 import { AccountStatus } from '@iuroadmap/shared';
@@ -30,7 +31,8 @@ export class AuthenticationService {
     private prisma: PrismaService,
     private adminClientService: AdminClientService,
     private userClientService: UserClientService,
-    private mentorClientService: MentorClientService
+    private mentorClientService: MentorClientService,
+    private registerMentorSaga: RegisterMentorSaga,
   ) {}
 
   // HELPER: CREATE TOKENS
@@ -59,7 +61,12 @@ export class AuthenticationService {
     const created = await this.usersService.createUser({
       email: dto.email,
       password: hashed, 
-      role: dto.role, 
+      role: {
+        connectOrCreate: {
+          where: { name: dto.role || 'LEARNER' },
+          create: { name: dto.role || 'LEARNER' },
+        },
+      },
       name: dto.name,
       status: AccountStatus.ACTIVE
     } as any);
@@ -71,33 +78,9 @@ export class AuthenticationService {
     };
   }
 
-  // 2.2 REGISTER MENTOR
+  // 2.2 REGISTER MENTOR (Driven by Saga Orchestrator)
   async registerMentor(dto: MentorRegisterRequestDto) {
-    const existing = await this.usersService.findByEmail(dto.email);
-    if (existing) {
-      throw new ConflictException('User already exists');
-    }
-
-    const hashed = await bcrypt.hash(dto.password, 10);
-
-    const created = await this.usersService.createUser({
-      email: dto.email,
-      password: hashed,
-      role: dto.role,
-      name: dto.name,
-      status: AccountStatus.PENDING_APPROVAL
-    } as any);
-
-    await this.mentorClientService.createMentorProfile(created.id as any, {
-      cvUrl: dto.cvUrl,
-      linkedinUrl: dto.linkedinUrl,
-      industry: dto.industry,
-      skills: dto.skills,
-      bio: dto.bio
-    });
-
-    const { password, ...safe } = created;
-    return safe;
+    return this.registerMentorSaga.execute(dto);
   }
 
   // 3. LOGIN

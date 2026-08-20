@@ -141,7 +141,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\TanKhanh\\Lecture\\2025-2026\\Second Semester\\Software Engineering\\IUROADMAP\\iuroadmap.services\\mentor-service\\src\\generated\\prisma-client",
+      "value": "D:\\TanKhanh\\Lecture\\2025-2026\\Second Semester\\Software Engineering\\IUROADMAP\\IUROADMAP\\iuroadmap.services\\mentor-service\\src\\generated\\prisma-client",
       "fromEnvVar": null
     },
     "config": {
@@ -155,12 +155,12 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\TanKhanh\\Lecture\\2025-2026\\Second Semester\\Software Engineering\\IUROADMAP\\iuroadmap.services\\mentor-service\\prisma\\schema.prisma",
+    "sourceFilePath": "D:\\TanKhanh\\Lecture\\2025-2026\\Second Semester\\Software Engineering\\IUROADMAP\\IUROADMAP\\iuroadmap.services\\mentor-service\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
     "rootEnvPath": null,
-    "schemaEnvPath": "../../../../../.env"
+    "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
   "clientVersion": "5.22.0",
@@ -169,7 +169,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -188,8 +187,8 @@ const fs = require('fs')
 config.dirname = __dirname
 if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
   const alternativePaths = [
-    "iuroadmap.services/mentor-service/src/generated/prisma-client",
-    "mentor-service/src/generated/prisma-client",
+    "src/generated/prisma-client",
+    "generated/prisma-client",
   ]
   
   const alternativePath = alternativePaths.find((altPath) => {
@@ -218,7 +217,7 @@ Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "iuroadmap.services/mentor-service/src/generated/prisma-client/query_engine-windows.dll.node")
+path.join(process.cwd(), "src/generated/prisma-client/query_engine-windows.dll.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "iuroadmap.services/mentor-service/src/generated/prisma-client/schema.prisma")
+path.join(process.cwd(), "src/generated/prisma-client/schema.prisma")

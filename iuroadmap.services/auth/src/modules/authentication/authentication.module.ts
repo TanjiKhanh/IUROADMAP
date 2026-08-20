@@ -6,6 +6,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 
 import { AuthenticationController } from './controllers/authentication.controller';
 import { AuthenticationService } from './services/authentication.service';
+import { RegisterMentorSaga } from './sagas/register-mentor.saga';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 // Users module (cross-module dependency)
@@ -57,7 +58,7 @@ import { AdminClientModule, UserClientModule, MentorClientModule } from '@iuroad
     }),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, JwtStrategy],
+  providers: [AuthenticationService, RegisterMentorSaga, JwtStrategy],
   exports: [AuthenticationService],
 })
 export class AuthenticationModule {}

@@ -10,21 +10,22 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { exploreService, Department, MajorCard } from '../../services/explore.service';
-import { roadmapService, UserRoadmapProgressDetail } from '../../services/roadmap.service';
 import RoadmapToolbar from '../../components/roadmap/RoadmapToolbar';
+import { useRoadmapMutations } from './hooks/useRoadmapHooks';
+import { roadmapsControllerGetPreviewRoadmapBySlug, MacroRoadmapResponseDto } from '@iuroadmap/api-gen';
 import '../../styles/exploreMajors.css';
 
 type DepartmentFilter = 'all' | string;
 
 type PreviewRoadmapState = {
   major: MajorCard;
-  roadmap: UserRoadmapProgressDetail;
+  roadmap: MacroRoadmapResponseDto;
 };
 
 const PREVIEW_GAP_X = 290;
 const PREVIEW_GAP_Y = 170;
 
-const buildPreviewLayout = (roadmap: UserRoadmapProgressDetail) => {
+const buildPreviewLayout = (roadmap: MacroRoadmapResponseDto) => {
   const flowNodes: Node[] = (roadmap.nodes || []).map((node, index) => {
     const hasCoords = Number.isFinite(node.coords?.x) && Number.isFinite(node.coords?.y);
 
@@ -102,6 +103,7 @@ export default function ExploreMajors() {
     allowRoadmapNav: boolean;
   } | null>(null);
   const navigate = useNavigate();
+  const roadmapMutations = useRoadmapMutations();
 
   useEffect(() => {
     const load = async () => {
@@ -208,7 +210,7 @@ export default function ExploreMajors() {
     try {
       setEnrollNotice(null);
       setEnrollingSlug(major.slug);
-      await roadmapService.enrollToRoadmap(major.slug);
+      await roadmapMutations.enrollToRoadmap.mutateAsync({ slug: major.slug });
       setEnrollNotice({
         type: 'success',
         title: 'Success!',
@@ -250,7 +252,8 @@ export default function ExploreMajors() {
       setViewingSlug(major.slug);
       setPreviewLoading(true);
 
-      const roadmap = await roadmapService.getPreviewRoadmapBySlug(major.slug);
+      const response = await roadmapsControllerGetPreviewRoadmapBySlug(major.slug);
+      const roadmap = response.data as any; // Type assertion since generated types might differ slightly
       const { flowNodes, flowEdges } = buildPreviewLayout(roadmap);
 
       setPreviewNodes(flowNodes);
@@ -519,3 +522,4 @@ export default function ExploreMajors() {
     </div>
   );
 }
+

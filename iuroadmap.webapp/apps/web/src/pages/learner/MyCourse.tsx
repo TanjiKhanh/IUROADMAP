@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { userService, UserRoadmapSummary } from '../../services/user.service';
-import { roadmapService, UserRoadmapProgressDetail } from '../../services/roadmap.service';
+
+
+import { roadmapsControllerGetMyRoadmaps, roadmapsControllerGetMacroRoadmap, MacroRoadmapResponseDto, UserRoadmapSummaryDto } from '@iuroadmap/api-gen';
 import '../../styles/myCourse.css'; // Ensure you have the CSS file from the previous step
 
-type RoadmapCourseCard = UserRoadmapSummary & {
+type RoadmapCourseCard = UserRoadmapSummaryDto & {
   completionPercentage: number;
   creditsEarned: number;
   creditsRequired: number;
@@ -20,21 +21,25 @@ export default function MyCourses() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const summaryData = await userService.getMyRoadmaps();
+        const res = await roadmapsControllerGetMyRoadmaps();
+        const summaryData = res.data as any[];
         if (!Array.isArray(summaryData)) {
           setRoadmaps([]);
           return;
         }
 
         const detailResults = await Promise.allSettled(
-          summaryData.map((roadmap) => roadmapService.getUserRoadmapDetail(roadmap.id))
+          summaryData.map(async (roadmap) => {
+            const resData = await roadmapsControllerGetMacroRoadmap(roadmap.id);
+            return resData.data;
+          })
         );
 
-        const detailById = new Map<number, UserRoadmapProgressDetail>();
+        const detailById = new Map<number, MacroRoadmapResponseDto>();
 
         detailResults.forEach((result, index) => {
           if (result.status === 'fulfilled') {
-            detailById.set(summaryData[index].id, result.value);
+            detailById.set(summaryData[index].id, result.value as MacroRoadmapResponseDto);
           }
         });
 
@@ -198,3 +203,4 @@ export default function MyCourses() {
     </div>
   );
 }
+

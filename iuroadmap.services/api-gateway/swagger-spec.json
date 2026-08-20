@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/health": {
+    "/api/v1/health": {
       "get": {
         "operationId": "HealthController_getHealth",
         "summary": "Health check endpoint",
@@ -16,299 +16,79 @@
         ]
       }
     },
-    "/api/v1/roadmaps/my": {
-      "get": {
-        "operationId": "RoadmapsController_getMyRoadmaps",
-        "summary": "Get current user roadmap summaries",
+    "/api/v1/auth/register/learner": {
+      "post": {
+        "operationId": "AuthenticationController_register",
+        "summary": "Register a new learner user",
         "parameters": [],
-        "responses": {
-          "200": {
-            "description": "User roadmap summaries retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserRoadmapSummaryDto"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/roadmaps/preview/{slug}": {
-      "get": {
-        "operationId": "RoadmapsController_getPreviewRoadmapBySlug",
-        "summary": "Preview a roadmap macro graph by major slug",
-        "parameters": [
-          {
-            "name": "slug",
-            "required": true,
-            "in": "path",
-            "description": "Major slug",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Preview roadmap macro graph retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MacroRoadmapResponseDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/roadmaps/{userRoadmapId}": {
-      "get": {
-        "operationId": "RoadmapsController_getMacroRoadmap",
-        "summary": "Get macro roadmap details and user progress by user roadmap ID",
-        "parameters": [
-          {
-            "name": "userRoadmapId",
-            "required": true,
-            "in": "path",
-            "description": "User roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Macro roadmap details retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MacroRoadmapResponseDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/roadmaps/course-nodes/{courseNodeId}/micro": {
-      "get": {
-        "operationId": "RoadmapsController_getMicroRoadmap",
-        "summary": "Get micro roadmap (topic details and graph) for a course node",
-        "parameters": [
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Micro roadmap retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MicroRoadmapResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Roadmaps"
-        ]
-      }
-    },
-    "/api/v1/roadmaps/{userRoadmapId}/courses/{courseNodeId}": {
-      "patch": {
-        "operationId": "RoadmapsController_updateCourseProgress",
-        "summary": "Update student progress (status/credits) on a specific course node",
-        "parameters": [
-          {
-            "name": "userRoadmapId",
-            "required": true,
-            "in": "path",
-            "description": "User roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "status": {
-                    "type": "string",
-                    "example": "COMPLETED"
-                  },
-                  "creditsEarned": {
-                    "type": "number",
-                    "example": 4
-                  }
-                }
+                "$ref": "#/components/schemas/LearnerRegisterRequestDto"
               }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Course progress updated successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        },
-        "tags": [
-          "Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/roadmaps/{slug}/enroll": {
-      "post": {
-        "operationId": "EnrollmentsController_enroll",
-        "summary": "Enroll current student into a major roadmap by slug",
-        "parameters": [
-          {
-            "name": "slug",
-            "required": true,
-            "in": "path",
-            "description": "Slug of the major roadmap to enroll into",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "201": {
-            "description": "Successfully enrolled into the roadmap",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EnrollmentSummaryDto"
-                }
-              }
-            }
+            "description": "Learner registered successfully"
           },
-          "401": {
-            "description": "Unauthorized"
+          "400": {
+            "description": "Bad Request / Validation Error"
           },
-          "404": {
-            "description": "Roadmap not found"
+          "409": {
+            "description": "Email or Username already exists"
           }
         },
         "tags": [
-          "Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
+          "Auth"
         ]
       }
     },
-    "/api/v1/explore/majors": {
-      "get": {
-        "operationId": "ExploreRoadmapsController_getMajors",
-        "summary": "Explore available majors grouped by department or filtered",
-        "parameters": [
-          {
-            "name": "departmentSlug",
-            "required": false,
-            "in": "query",
-            "description": "Optional department slug filter",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Exploration majors data retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExploreMajorsResponseDto"
-                }
+    "/api/v1/auth/register/mentor": {
+      "post": {
+        "operationId": "AuthenticationController_registerMentor",
+        "summary": "Register a new mentor user",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MentorRegisterRequestDto"
               }
             }
           }
         },
+        "responses": {
+          "201": {
+            "description": "Mentor registered successfully along with mentor profile"
+          },
+          "400": {
+            "description": "Bad Request / Validation Error"
+          },
+          "409": {
+            "description": "Email or Username already exists"
+          }
+        },
         "tags": [
-          "Explore"
+          "Auth"
         ]
       }
     },
     "/api/v1/auth/login": {
       "post": {
-        "operationId": "AuthController_login",
-        "summary": "User login (proxies to Auth service)",
+        "operationId": "AuthenticationController_login",
+        "summary": "User login (returns JWT token)",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginDto"
+                "$ref": "#/components/schemas/LoginRequestDto"
               }
             }
           }
@@ -333,70 +113,14 @@
         ]
       }
     },
-    "/api/v1/auth/register/learner": {
-      "post": {
-        "operationId": "AuthController_registerLearner",
-        "summary": "Register a learner student account",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LearnerRegisterDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Learner registered successfully"
-          },
-          "400": {
-            "description": "Bad Request / Validation Error"
-          }
-        },
-        "tags": [
-          "Auth"
-        ]
-      }
-    },
-    "/api/v1/auth/register/mentor": {
-      "post": {
-        "operationId": "AuthController_registerMentor",
-        "summary": "Register a mentor account along with profile",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MentorRegisterDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Mentor registered successfully"
-          },
-          "400": {
-            "description": "Bad Request / Validation Error"
-          }
-        },
-        "tags": [
-          "Auth"
-        ]
-      }
-    },
     "/api/v1/auth/logout": {
       "post": {
-        "operationId": "AuthController_logout",
-        "summary": "Logout current user",
+        "operationId": "AuthenticationController_logout",
+        "summary": "User logout",
         "parameters": [],
         "responses": {
           "204": {
-            "description": "Logged out successfully"
+            "description": "Successfully logged out"
           },
           "401": {
             "description": "Unauthorized"
@@ -414,22 +138,22 @@
     },
     "/api/v1/auth/forgot-password": {
       "post": {
-        "operationId": "AuthController_forgotPassword",
-        "summary": "Request password reset token/link",
+        "operationId": "AuthenticationController_forgotPassword",
+        "summary": "Request password reset token via email",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ForgotPasswordDto"
+                "$ref": "#/components/schemas/ForgotPasswordRequestDto"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Password reset email requested"
+            "description": "Reset email instructions sent if email exists"
           }
         },
         "tags": [
@@ -439,22 +163,25 @@
     },
     "/api/v1/auth/reset-password": {
       "post": {
-        "operationId": "AuthController_resetPassword",
-        "summary": "Reset password using token",
+        "operationId": "AuthenticationController_resetPassword",
+        "summary": "Reset user password using token",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ResetPasswordDto"
+                "$ref": "#/components/schemas/ResetPasswordRequestDto"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Password reset successfully"
+            "description": "Password successfully reset"
+          },
+          "400": {
+            "description": "Invalid or expired reset token"
           }
         },
         "tags": [
@@ -464,16 +191,16 @@
     },
     "/api/v1/auth/me": {
       "get": {
-        "operationId": "AuthController_me",
-        "summary": "Get current authenticated user profile",
+        "operationId": "AuthenticationController_getMe",
+        "summary": "Get current user profile based on JWT token",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "User profile retrieved successfully",
+            "description": "Current user profile retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResponseDto"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -492,774 +219,16 @@
         ]
       }
     },
-    "/api/v1/departments": {
-      "post": {
-        "operationId": "DepartmentsController_createDepartment",
-        "summary": "Create a new department (Admin only)",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateDepartmentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Department created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DepartmentResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Departments"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
+    "/api/v1/auth/{id}": {
       "get": {
-        "operationId": "DepartmentsController_viewDepartmentList",
-        "summary": "Get list of all departments (Admin only)",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Departments retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/DepartmentResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Departments"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/departments/{id}": {
-      "get": {
-        "operationId": "DepartmentsController_viewDepartmentById",
-        "summary": "Get department details by ID (Admin only)",
+        "operationId": "AuthenticationController_findOne",
+        "summary": "Get user profile information by ID",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
-            "description": "Department ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Department retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DepartmentResponseDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Department not found"
-          }
-        },
-        "tags": [
-          "Departments"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "patch": {
-        "operationId": "DepartmentsController_updateDepartment",
-        "summary": "Update an existing department (Admin only)",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Department ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateDepartmentDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Department updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DepartmentResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Departments"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "DepartmentsController_deleteDepartment",
-        "summary": "Delete a department by ID (Admin only)",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Department ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Department deleted successfully"
-          }
-        },
-        "tags": [
-          "Departments"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/major-roadmaps": {
-      "get": {
-        "operationId": "AdminRoadmapsController_getAllMajorRoadmaps",
-        "summary": "Get summary list of all major roadmaps (Admin only)",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "List of major roadmaps retrieved successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (Admin required)"
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/major-roadmaps/{roadmapId}/graph": {
-      "get": {
-        "operationId": "AdminRoadmapsController_getRoadmapGraph",
-        "summary": "Get full roadmap graph (nodes & prerequisite edges) for Admin",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Roadmap graph retrieved successfully"
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/major-roadmaps/{roadmapId}/courses": {
-      "post": {
-        "operationId": "AdminRoadmapsController_createCourseNode",
-        "summary": "Add a course node to a roadmap",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCourseNodeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Course node added successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminCourseNodeResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/major-roadmaps/{roadmapId}/courses/{courseNodeId}": {
-      "patch": {
-        "operationId": "AdminRoadmapsController_updateCourseNode",
-        "summary": "Update an existing course node in a roadmap",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCourseNodeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Course node updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminCourseNodeResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "AdminRoadmapsController_deleteCourseNode",
-        "summary": "Delete a course node from a roadmap",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Course node deleted successfully"
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/major-roadmaps/{roadmapId}/prerequisites": {
-      "post": {
-        "operationId": "AdminRoadmapsController_createPrerequisite",
-        "summary": "Create a prerequisite relationship edge between course nodes",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreatePrerequisiteDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Prerequisite edge created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminPrerequisiteEdgeResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/major-roadmaps/{roadmapId}/prerequisites/{edgeId}": {
-      "delete": {
-        "operationId": "AdminRoadmapsController_deletePrerequisite",
-        "summary": "Delete a prerequisite relationship edge",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "edgeId",
-            "required": true,
-            "in": "path",
-            "description": "Prerequisite edge ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Prerequisite edge deleted successfully"
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/roadmaps/{roadmapId}/graph": {
-      "get": {
-        "operationId": "AdminRoadmapsAliasController_getRoadmapGraph",
-        "summary": "Get full roadmap graph (nodes & prerequisite edges) for Admin",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Roadmap graph retrieved successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (Admin required)"
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/roadmaps/{roadmapId}/courses": {
-      "post": {
-        "operationId": "AdminRoadmapsAliasController_createCourseNode",
-        "summary": "Add a course node to a roadmap",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCourseNodeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Course node added successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminCourseNodeResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/roadmaps/{roadmapId}/courses/{courseNodeId}": {
-      "patch": {
-        "operationId": "AdminRoadmapsAliasController_updateCourseNode",
-        "summary": "Update an existing course node in a roadmap",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateCourseNodeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Course node updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminCourseNodeResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "AdminRoadmapsAliasController_deleteCourseNode",
-        "summary": "Delete a course node from a roadmap",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Course node deleted successfully"
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/roadmaps/{roadmapId}/prerequisites": {
-      "post": {
-        "operationId": "AdminRoadmapsAliasController_createPrerequisite",
-        "summary": "Create a prerequisite relationship edge between course nodes",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreatePrerequisiteDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Prerequisite edge created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AdminPrerequisiteEdgeResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/roadmaps/{roadmapId}/prerequisites/{edgeId}": {
-      "delete": {
-        "operationId": "AdminRoadmapsAliasController_deletePrerequisite",
-        "summary": "Delete a prerequisite relationship edge",
-        "parameters": [
-          {
-            "name": "roadmapId",
-            "required": true,
-            "in": "path",
-            "description": "Roadmap ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "edgeId",
-            "required": true,
-            "in": "path",
-            "description": "Prerequisite edge ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Prerequisite edge deleted successfully"
-          }
-        },
-        "tags": [
-          "Admin-Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/majors": {
-      "get": {
-        "operationId": "MajorsController_listMajors",
-        "summary": "List all major roadmaps (Admin only)",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "List of major roadmaps retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MajorResponseDto"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (Admin required)"
-          }
-        },
-        "tags": [
-          "Admin-Majors"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/majors/{slug}": {
-      "get": {
-        "operationId": "MajorsController_getMajorBySlug",
-        "summary": "Get a major roadmap by slug (Admin only)",
-        "parameters": [
-          {
-            "name": "slug",
-            "required": true,
-            "in": "path",
-            "description": "Major slug",
+            "description": "ID of the user",
             "schema": {
               "type": "string"
             }
@@ -1267,59 +236,135 @@
         ],
         "responses": {
           "200": {
-            "description": "Major roadmap retrieved successfully",
+            "description": "User profile retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MajorResponseDto"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
           },
+          "401": {
+            "description": "Unauthorized"
+          },
           "404": {
-            "description": "Major with slug not found"
+            "description": "User not found"
           }
         },
         "tags": [
-          "Admin-Majors"
+          "Auth"
         ],
         "security": [
           {
             "bearer": []
           }
         ]
-      },
-      "patch": {
-        "operationId": "MajorsController_updateMajor",
-        "summary": "Update major metadata by slug (Admin only)",
+      }
+    },
+    "/api/v1/iam/User/create": {
+      "post": {
+        "operationId": "UsersController_create",
+        "summary": "Create a new user",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "IAM - Users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/iam/User/update": {
+      "post": {
+        "operationId": "UsersController_update",
+        "summary": "Update an existing user",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "IAM - Users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/iam/User/getById/{id}": {
+      "get": {
+        "operationId": "UsersController_getById",
+        "summary": "Get user details by ID",
         "parameters": [
           {
-            "name": "slug",
+            "name": "id",
             "required": true,
             "in": "path",
-            "description": "Major slug",
+            "description": "User ID",
             "schema": {
               "type": "string"
             }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateMajorMetaPayload"
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetailResponse"
+                }
               }
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Major metadata updated successfully"
-          }
-        },
         "tags": [
-          "Admin-Majors"
+          "IAM - Users"
         ],
         "security": [
           {
@@ -1328,24 +373,285 @@
         ]
       }
     },
-    "/api/v1/admin/courses": {
+    "/api/v1/iam/User/GetByIndex": {
       "get": {
-        "operationId": "CoursesController_getCourses",
-        "summary": "Get list of all courses for Admin",
+        "operationId": "UsersController_getByIndex",
+        "summary": "Filter and paginate users",
+        "parameters": [
+          {
+            "name": "rowsPerPage",
+            "required": false,
+            "in": "query",
+            "description": "Number of rows per page",
+            "schema": {
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "currentPage",
+            "required": false,
+            "in": "query",
+            "description": "Current page number",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "keyword",
+            "required": false,
+            "in": "query",
+            "description": "Search keyword matching name or email",
+            "schema": {
+              "example": "keyword",
+              "type": "string"
+            }
+          },
+          {
+            "name": "roleId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by role ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filter by account status",
+            "schema": {
+              "enum": [
+                "PENDING_APPROVAL",
+                "ACTIVE",
+                "BANNED",
+                "REJECTED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "subscriptionTier",
+            "required": false,
+            "in": "query",
+            "description": "Filter by subscription tier",
+            "schema": {
+              "enum": [
+                "FREE",
+                "VIP",
+                "PRO"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users retrieved successfully"
+          }
+        },
+        "tags": [
+          "IAM - Users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/iam/User/softDelete/{id}": {
+      "post": {
+        "operationId": "UsersController_softDelete",
+        "summary": "Soft delete a user (change status to BANNED)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User soft deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "IAM - Users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/iam/User/delete/{id}": {
+      "post": {
+        "operationId": "UsersController_delete",
+        "summary": "Hard delete a user (Superadmin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User hard deleted successfully"
+          }
+        },
+        "tags": [
+          "IAM - Users"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/iam/Role/create": {
+      "post": {
+        "operationId": "RolesController_create",
+        "summary": "Create a new role (Admin only)",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Record created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "IAM - Roles"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/iam/Role/update": {
+      "post": {
+        "operationId": "RolesController_update",
+        "summary": "Update a role (Admin only)",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Record updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "IAM - Roles"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/iam/Role/getById/{id}": {
+      "get": {
+        "operationId": "RolesController_getById",
+        "summary": "Get record by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Record ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Record retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDetailResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "IAM - Roles"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/iam/Role/GetAllPermission": {
+      "get": {
+        "operationId": "RolesController_getAllPermissions",
+        "summary": "Get all permissions grouped",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Courses retrieved successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden (Admin required)"
+            "description": "Permissions retrieved successfully"
           }
         },
         "tags": [
-          "Courses"
+          "IAM - Roles"
         ],
         "security": [
           {
@@ -1354,68 +660,49 @@
         ]
       }
     },
-    "/api/v1/admin/courses/{courseNodeId}": {
-      "patch": {
-        "operationId": "CoursesController_updateCourseMeta",
-        "summary": "Update course node metadata",
-        "parameters": [
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAdminCourseNodeMetaDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Course metadata updated successfully"
-          }
-        },
-        "tags": [
-          "Courses"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/courses/{courseNodeId}/topics-graph": {
+    "/api/v1/iam/Role/GetByIndex": {
       "get": {
-        "operationId": "CoursesController_getCourseTopicsGraph",
-        "summary": "Get course topics micro-graph for Admin",
+        "operationId": "RolesController_getByIndex",
+        "summary": "Get paginated list of records",
         "parameters": [
           {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
+            "name": "rowsPerPage",
+            "required": false,
+            "in": "query",
+            "description": "Number of rows per page",
             "schema": {
+              "default": 20,
               "type": "number"
+            }
+          },
+          {
+            "name": "currentPage",
+            "required": false,
+            "in": "query",
+            "description": "Current page number",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "keyword",
+            "required": false,
+            "in": "query",
+            "description": "Search by role name",
+            "schema": {
+              "example": "keyword",
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Course topics graph retrieved successfully"
+            "description": "Paginated list retrieved successfully"
           }
         },
         "tags": [
-          "Courses"
+          "IAM - Roles"
         ],
         "security": [
           {
@@ -1424,252 +711,65 @@
         ]
       }
     },
-    "/api/v1/admin/courses/{courseNodeId}/topics": {
+    "/api/v1/iam/Role/ForDropdown": {
+      "get": {
+        "operationId": "RolesController_forDropdown",
+        "summary": "Get lightweight dropdown data",
+        "parameters": [
+          {
+            "name": "keyword",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dropdown data retrieved successfully"
+          }
+        },
+        "tags": [
+          "IAM - Roles"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/iam/Role/delete/{id}": {
       "post": {
-        "operationId": "CoursesController_createTopicNode",
-        "summary": "Create a topic node under a course node",
+        "operationId": "RolesController_delete",
+        "summary": "Delete a record by ID (Admin only)",
         "parameters": [
           {
-            "name": "courseNodeId",
+            "name": "id",
             "required": true,
             "in": "path",
-            "description": "Course node ID",
+            "description": "Record ID",
             "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAdminTopicNodeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Topic node created successfully"
-          }
-        },
-        "tags": [
-          "Courses"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/courses/{courseNodeId}/topics/{topicId}": {
-      "patch": {
-        "operationId": "CoursesController_updateTopicNode",
-        "summary": "Update a topic node",
-        "parameters": [
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "topicId",
-            "required": true,
-            "in": "path",
-            "description": "Topic ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAdminTopicNodeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Topic node updated successfully"
-          }
-        },
-        "tags": [
-          "Courses"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "CoursesController_deleteTopicNode",
-        "summary": "Delete a topic node",
-        "parameters": [
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "topicId",
-            "required": true,
-            "in": "path",
-            "description": "Topic ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Topic node deleted successfully"
-          }
-        },
-        "tags": [
-          "Courses"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/courses/{courseNodeId}/topics/{topicId}/coords": {
-      "patch": {
-        "operationId": "CoursesController_updateTopicCoords",
-        "summary": "Update coordinates of a topic node",
-        "parameters": [
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "topicId",
-            "required": true,
-            "in": "path",
-            "description": "Topic ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAdminTopicCoordsDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Topic coordinates updated successfully"
-          }
-        },
-        "tags": [
-          "Courses"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/courses/{courseNodeId}/topics-edges": {
-      "post": {
-        "operationId": "CoursesController_createTopicEdge",
-        "summary": "Create an edge connecting two topic nodes",
-        "parameters": [
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAdminTopicEdgeDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Topic edge created successfully"
-          }
-        },
-        "tags": [
-          "Courses"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/admin/courses/{courseNodeId}/topics-edges/{edgeId}": {
-      "delete": {
-        "operationId": "CoursesController_deleteTopicEdge",
-        "summary": "Delete a topic edge",
-        "parameters": [
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "Course node ID",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "edgeId",
-            "required": true,
-            "in": "path",
-            "description": "Edge ID",
-            "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "Topic edge deleted successfully"
+          "200": {
+            "description": "Record deleted successfully"
           }
         },
         "tags": [
-          "Courses"
+          "IAM - Roles"
         ],
         "security": [
           {
@@ -1681,7 +781,7 @@
   },
   "info": {
     "title": "IUROADMAP API Gateway",
-    "description": "The API Gateway for the IUROADMAP microservices network.",
+    "description": "Unified OpenAPI Specification for IUROADMAP Microservices Network",
     "version": "1.0",
     "contact": {}
   },
@@ -1696,500 +796,7 @@
       }
     },
     "schemas": {
-      "UserRoadmapSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Roadmap ID",
-            "example": 1
-          },
-          "userId": {
-            "type": "number",
-            "description": "User ID",
-            "example": 1
-          },
-          "title": {
-            "type": "string",
-            "description": "Roadmap title",
-            "example": "Software Engineering Core"
-          },
-          "slug": {
-            "type": "string",
-            "description": "Roadmap slug",
-            "example": "software-engineering-core"
-          },
-          "progressPercent": {
-            "type": "number",
-            "description": "Progress percentage",
-            "example": 45.5
-          },
-          "totalNodes": {
-            "type": "number",
-            "description": "Total course nodes",
-            "example": 40
-          },
-          "completedNodes": {
-            "type": "number",
-            "description": "Completed course nodes",
-            "example": 18
-          },
-          "startDate": {
-            "type": "string",
-            "description": "Start date",
-            "example": "2026-01-15T00:00:00.000Z"
-          },
-          "updatedAt": {
-            "type": "string",
-            "description": "Last updated timestamp",
-            "example": "2026-07-11T00:00:00.000Z"
-          }
-        },
-        "required": [
-          "id",
-          "userId",
-          "title",
-          "slug",
-          "progressPercent",
-          "totalNodes",
-          "completedNodes",
-          "startDate",
-          "updatedAt"
-        ]
-      },
-      "MacroRoadmapNodeDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Node ID",
-            "example": 1
-          },
-          "slug": {
-            "type": "string",
-            "description": "Node slug",
-            "example": "calculus-1"
-          },
-          "name": {
-            "type": "string",
-            "description": "Node name",
-            "example": "Calculus I"
-          },
-          "credits": {
-            "type": "number",
-            "description": "Credits required",
-            "example": 3
-          },
-          "coords": {
-            "type": "object",
-            "description": "Graph coordinates",
-            "example": {
-              "x": 0,
-              "y": 100
-            }
-          },
-          "status": {
-            "type": "string",
-            "description": "Node completion status",
-            "example": "AVAILABLE",
-            "enum": [
-              "AVAILABLE",
-              "IN_PROGRESS",
-              "COMPLETED"
-            ]
-          }
-        },
-        "required": [
-          "id",
-          "slug",
-          "name",
-          "credits",
-          "status"
-        ]
-      },
-      "MacroRoadmapEdgeDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Edge ID",
-            "example": 1
-          },
-          "from": {
-            "type": "number",
-            "description": "Source node ID",
-            "example": 1
-          },
-          "to": {
-            "type": "number",
-            "description": "Target node ID",
-            "example": 2
-          }
-        },
-        "required": [
-          "id",
-          "from",
-          "to"
-        ]
-      },
-      "MacroRoadmapResponseDto": {
-        "type": "object",
-        "properties": {
-          "userRoadmapId": {
-            "type": "number",
-            "description": "User Roadmap ID",
-            "example": 1
-          },
-          "description": {
-            "type": "string",
-            "description": "Roadmap description",
-            "example": "Core engineering curriculum"
-          },
-          "roadmapId": {
-            "type": "number",
-            "description": "Roadmap ID",
-            "example": 101
-          },
-          "completion_percentage": {
-            "type": "number",
-            "description": "Completion percentage",
-            "example": 25
-          },
-          "total_credits_earned": {
-            "type": "number",
-            "description": "Total credits earned so far",
-            "example": 30
-          },
-          "total_credits_required": {
-            "type": "number",
-            "description": "Total credits required",
-            "example": 130
-          },
-          "nodes": {
-            "description": "Macro roadmap nodes",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MacroRoadmapNodeDto"
-            }
-          },
-          "edges": {
-            "description": "Macro roadmap edges",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MacroRoadmapEdgeDto"
-            }
-          }
-        },
-        "required": [
-          "userRoadmapId",
-          "roadmapId",
-          "completion_percentage",
-          "total_credits_earned",
-          "total_credits_required",
-          "nodes",
-          "edges"
-        ]
-      },
-      "MicroTopicNodeDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Topic Node ID",
-            "example": 1
-          },
-          "slug": {
-            "type": "string",
-            "description": "Topic slug",
-            "example": "introduction-to-nestjs"
-          },
-          "title": {
-            "type": "string",
-            "description": "Topic title",
-            "example": "Introduction to NestJS"
-          },
-          "description": {
-            "type": "string",
-            "description": "Topic description",
-            "example": "Overview of NestJS concepts"
-          },
-          "coords": {
-            "type": "object",
-            "description": "Coordinates for graph rendering",
-            "example": {
-              "x": 100,
-              "y": 200
-            }
-          },
-          "learning_objectives": {
-            "type": "string",
-            "description": "Learning objectives",
-            "example": "Understand Dependency Injection"
-          },
-          "resources_url": {
-            "type": "string",
-            "description": "External resources URL",
-            "example": "https://docs.nestjs.com"
-          }
-        },
-        "required": [
-          "id",
-          "slug",
-          "title"
-        ]
-      },
-      "MicroTopicEdgeDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Edge ID",
-            "example": 1
-          },
-          "from": {
-            "type": "number",
-            "description": "Source node ID",
-            "example": 1
-          },
-          "to": {
-            "type": "number",
-            "description": "Target node ID",
-            "example": 2
-          }
-        },
-        "required": [
-          "id",
-          "from",
-          "to"
-        ]
-      },
-      "MicroRoadmapResponseDto": {
-        "type": "object",
-        "properties": {
-          "courseNodeId": {
-            "type": "number",
-            "description": "Course Node ID",
-            "example": 10
-          },
-          "topics": {
-            "description": "List of micro topics",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MicroTopicNodeDto"
-            }
-          },
-          "edges": {
-            "description": "List of edges connecting micro topics",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MicroTopicEdgeDto"
-            }
-          }
-        },
-        "required": [
-          "courseNodeId",
-          "topics",
-          "edges"
-        ]
-      },
-      "EnrollmentSummaryDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Enrollment ID",
-            "example": 1
-          },
-          "userId": {
-            "type": "number",
-            "description": "User ID",
-            "example": 101
-          },
-          "roadmapId": {
-            "type": "number",
-            "description": "Roadmap ID",
-            "example": 1
-          },
-          "slug": {
-            "type": "string",
-            "description": "Roadmap slug",
-            "example": "computer-science"
-          },
-          "name": {
-            "type": "string",
-            "description": "Roadmap name",
-            "example": "Computer Science Roadmap"
-          },
-          "total_credits_required": {
-            "type": "number",
-            "description": "Total credits required",
-            "example": 120
-          },
-          "completion_percentage": {
-            "type": "number",
-            "description": "Completion percentage",
-            "example": 25.5
-          },
-          "total_credits_earned": {
-            "type": "number",
-            "description": "Total credits earned",
-            "example": 30
-          },
-          "enrollmentDate": {
-            "type": "string",
-            "description": "Enrollment date",
-            "example": "2026-07-08T00:00:00.000Z"
-          }
-        },
-        "required": [
-          "id",
-          "userId",
-          "roadmapId",
-          "slug",
-          "name",
-          "total_credits_required",
-          "completion_percentage",
-          "total_credits_earned",
-          "enrollmentDate"
-        ]
-      },
-      "DepartmentFilterDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Department ID",
-            "example": 1
-          },
-          "slug": {
-            "type": "string",
-            "description": "Department slug",
-            "example": "school-of-computing"
-          },
-          "name": {
-            "type": "string",
-            "description": "Department name",
-            "example": "School of Computing"
-          },
-          "description": {
-            "type": "string",
-            "description": "Department description",
-            "example": "Leading computing research"
-          }
-        },
-        "required": [
-          "id",
-          "slug",
-          "name"
-        ]
-      },
-      "MajorCardDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Major ID",
-            "example": 10
-          },
-          "slug": {
-            "type": "string",
-            "description": "Major slug",
-            "example": "software-engineering"
-          },
-          "name": {
-            "type": "string",
-            "description": "Major name",
-            "example": "Software Engineering"
-          },
-          "description": {
-            "type": "string",
-            "description": "Major description",
-            "example": "Engineering software systems"
-          },
-          "totalCreditsRequired": {
-            "type": "number",
-            "description": "Total credits required",
-            "example": 130
-          },
-          "totalCourses": {
-            "type": "number",
-            "description": "Total courses",
-            "example": 45
-          },
-          "department": {
-            "type": "object",
-            "description": "Associated department",
-            "example": {
-              "id": 1,
-              "slug": "school-of-computing",
-              "name": "School of Computing"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "slug",
-          "name",
-          "totalCreditsRequired",
-          "totalCourses"
-        ]
-      },
-      "ExploreMajorsResponseDto": {
-        "type": "object",
-        "properties": {
-          "departments": {
-            "description": "List of departments for filtering",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DepartmentFilterDto"
-            }
-          },
-          "majors": {
-            "description": "List of major cards",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MajorCardDto"
-            }
-          }
-        },
-        "required": [
-          "departments",
-          "majors"
-        ]
-      },
-      "LoginDto": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "description": "The email address of the user",
-            "example": "user@example.com"
-          },
-          "password": {
-            "type": "string",
-            "description": "The password of the user (minimum 6 characters)",
-            "example": "password123"
-          }
-        },
-        "required": [
-          "email",
-          "password"
-        ]
-      },
-      "AuthLoginResponseDto": {
-        "type": "object",
-        "properties": {
-          "access_token": {
-            "type": "string",
-            "description": "JWT Access token",
-            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-          }
-        },
-        "required": [
-          "access_token"
-        ]
-      },
-      "LearnerRegisterDto": {
+      "LearnerRegisterRequestDto": {
         "type": "object",
         "properties": {
           "email": {
@@ -2221,7 +828,7 @@
           "password"
         ]
       },
-      "MentorRegisterDto": {
+      "MentorRegisterRequestDto": {
         "type": "object",
         "properties": {
           "email": {
@@ -2290,12 +897,44 @@
           "skills"
         ]
       },
-      "ForgotPasswordDto": {
+      "LoginRequestDto": {
         "type": "object",
         "properties": {
           "email": {
             "type": "string",
-            "description": "The email address of the user requesting password reset",
+            "description": "User email address",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password",
+            "example": "password123"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AuthLoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "JWT Access token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "access_token"
+        ]
+      },
+      "ForgotPasswordRequestDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email address to send reset instructions",
             "example": "user@example.com"
           }
         },
@@ -2303,18 +942,18 @@
           "email"
         ]
       },
-      "ResetPasswordDto": {
+      "ResetPasswordRequestDto": {
         "type": "object",
         "properties": {
           "token": {
             "type": "string",
-            "description": "The password reset token sent via email",
-            "example": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+            "description": "Token received via email",
+            "example": "abc123token"
           },
           "newPassword": {
             "type": "string",
-            "description": "The new password (minimum 6 characters)",
-            "example": "newStrongPassword123"
+            "description": "New password",
+            "example": "newSecurePassword123!"
           }
         },
         "required": [
@@ -2322,152 +961,247 @@
           "newPassword"
         ]
       },
-      "UserResponseDto": {
-        "type": "object",
-        "properties": {}
-      },
-      "CreateDepartmentDto": {
+      "UserResponse": {
         "type": "object",
         "properties": {
-          "slug": {
+          "id": {
             "type": "string",
-            "description": "Department slug",
-            "example": "school-of-computing"
+            "description": "User ID"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address"
           },
           "name": {
             "type": "string",
-            "description": "Department name",
-            "example": "School of Computing and Information Technology"
+            "description": "Full name"
           },
-          "description": {
+          "roleId": {
             "type": "string",
-            "description": "Department description",
-            "example": "Leading research and education in computing"
+            "description": "Role ID"
+          },
+          "status": {
+            "type": "string",
+            "description": "Account status",
+            "enum": [
+              "PENDING_APPROVAL",
+              "ACTIVE",
+              "BANNED",
+              "REJECTED"
+            ]
+          },
+          "subscriptionTier": {
+            "type": "string",
+            "description": "Subscription tier",
+            "enum": [
+              "FREE",
+              "VIP",
+              "PRO"
+            ]
+          },
+          "subscriptionExpiresAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Subscription expiration date"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Creation timestamp"
+          },
+          "canDelete": {
+            "type": "boolean",
+            "description": "Whether the current user can delete this record"
+          },
+          "canUpdate": {
+            "type": "boolean",
+            "description": "Whether the current user can update this record"
           }
         },
         "required": [
-          "slug",
+          "id",
+          "email",
+          "roleId",
+          "status",
+          "subscriptionTier",
+          "createdAt"
+        ]
+      },
+      "UserCreateRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address",
+            "example": "user@iuroadmap.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password (min 6 characters)",
+            "example": "SecurePass123"
+          },
+          "name": {
+            "type": "string",
+            "description": "Full name",
+            "example": "Nguyen Van A"
+          },
+          "roleId": {
+            "type": "string",
+            "description": "Role ID to assign",
+            "example": "uuid-role-id"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "roleId"
+        ]
+      },
+      "UserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Record ID to update"
+          },
+          "name": {
+            "type": "string",
+            "description": "Full name",
+            "example": "Nguyen Van A"
+          },
+          "roleId": {
+            "type": "string",
+            "description": "Role ID to assign",
+            "example": "uuid-role-id"
+          },
+          "status": {
+            "type": "string",
+            "description": "Account status",
+            "enum": [
+              "PENDING_APPROVAL",
+              "ACTIVE",
+              "BANNED",
+              "REJECTED"
+            ]
+          },
+          "subscriptionTier": {
+            "type": "string",
+            "description": "Subscription tier",
+            "enum": [
+              "FREE",
+              "VIP",
+              "PRO"
+            ]
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "RoleSimpleResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
           "name"
         ]
       },
-      "DepartmentResponseDto": {
+      "UserDetailResponse": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "number",
-            "description": "Department ID",
-            "example": 1
-          },
-          "slug": {
             "type": "string",
-            "description": "Department slug",
-            "example": "school-of-computing"
+            "description": "User ID"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address"
           },
           "name": {
             "type": "string",
-            "description": "Department name",
-            "example": "School of Computing and Information Technology"
+            "description": "Full name"
           },
-          "description": {
+          "roleId": {
             "type": "string",
-            "description": "Department description",
-            "example": "Leading research and education in computing"
+            "description": "Role ID"
           },
-          "created_at": {
+          "status": {
             "type": "string",
-            "description": "Creation timestamp",
-            "example": "2026-07-08T00:00:00.000Z"
+            "description": "Account status",
+            "enum": [
+              "PENDING_APPROVAL",
+              "ACTIVE",
+              "BANNED",
+              "REJECTED"
+            ]
           },
-          "updated_at": {
+          "subscriptionTier": {
             "type": "string",
-            "description": "Last update timestamp",
-            "example": "2026-07-08T00:00:00.000Z"
+            "description": "Subscription tier",
+            "enum": [
+              "FREE",
+              "VIP",
+              "PRO"
+            ]
+          },
+          "subscriptionExpiresAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Subscription expiration date"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Creation timestamp"
+          },
+          "canDelete": {
+            "type": "boolean",
+            "description": "Whether the current user can delete this record"
+          },
+          "canUpdate": {
+            "type": "boolean",
+            "description": "Whether the current user can update this record"
+          },
+          "role": {
+            "description": "Assigned Role",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RoleSimpleResponse"
+              }
+            ]
           }
         },
         "required": [
           "id",
-          "slug",
-          "name",
-          "created_at",
-          "updated_at"
+          "email",
+          "roleId",
+          "status",
+          "subscriptionTier",
+          "createdAt"
         ]
       },
-      "UpdateDepartmentDto": {
+      "RoleCreateRequest": {
         "type": "object",
         "properties": {
-          "slug": {
-            "type": "string",
-            "description": "Department slug",
-            "example": "school-of-computing"
-          },
           "name": {
             "type": "string",
-            "description": "Department name",
-            "example": "School of Computing and Information Technology"
+            "description": "The name of the role",
+            "example": "EDITOR"
           },
           "description": {
             "type": "string",
-            "description": "Department description",
-            "example": "Updated department description"
-          }
-        }
-      },
-      "CoordsDto": {
-        "type": "object",
-        "properties": {
-          "x": {
-            "type": "number",
-            "description": "X coordinate",
-            "example": 100
+            "description": "A short description of the role",
+            "example": "Can edit content"
           },
-          "y": {
-            "type": "number",
-            "description": "Y coordinate",
-            "example": 200
-          }
-        },
-        "required": [
-          "x",
-          "y"
-        ]
-      },
-      "CreateCourseNodeDto": {
-        "type": "object",
-        "properties": {
-          "slug": {
-            "type": "string",
-            "description": "Course node slug",
-            "example": "intro-to-programming"
-          },
-          "name": {
-            "type": "string",
-            "description": "Course node name",
-            "example": "Introduction to Programming"
-          },
-          "credits": {
-            "type": "number",
-            "description": "Number of credits",
-            "example": 3
-          },
-          "description": {
-            "type": "string",
-            "description": "Course description",
-            "example": "Basic programming concepts in Python"
-          },
-          "coords": {
-            "description": "UI coordinates",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/CoordsDto"
-              }
-            ]
-          },
-          "Prerequisites": {
-            "description": "Array of prerequisite node IDs",
-            "example": [
-              1,
-              2
-            ],
+          "permissionIds": {
+            "description": "List of permission IDs associated with this role",
             "type": "array",
             "items": {
               "type": "string"
@@ -2475,392 +1209,161 @@
           }
         },
         "required": [
-          "slug",
-          "name",
-          "credits"
+          "name"
         ]
       },
-      "AdminCourseNodeResponseDto": {
+      "RoleResponse": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "number",
-            "description": "Course node ID",
-            "example": 10
-          },
-          "roadmap_id": {
-            "type": "number",
-            "description": "Roadmap ID",
-            "example": 1
-          },
-          "slug": {
             "type": "string",
-            "description": "Course node slug",
-            "example": "intro-to-programming"
+            "description": "Role ID"
           },
           "name": {
             "type": "string",
-            "description": "Course node name",
-            "example": "Introduction to Programming"
-          },
-          "credits": {
-            "type": "number",
-            "description": "Number of credits",
-            "example": 3
+            "description": "Role Name"
           },
           "description": {
             "type": "string",
-            "description": "Course description",
-            "example": "Basic programming concepts in Python"
+            "description": "Role Description"
           },
-          "coords": {
-            "type": "object",
-            "description": "UI coordinates",
-            "example": {
-              "x": 100,
-              "y": 200
+          "permissionIds": {
+            "description": "List of assigned permission IDs",
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           },
-          "created_at": {
-            "type": "string",
-            "description": "Creation timestamp",
-            "example": "2026-07-08T00:00:00.000Z"
+          "canDelete": {
+            "type": "boolean",
+            "description": "Whether the current user can delete this record"
           },
-          "updated_at": {
-            "type": "string",
-            "description": "Last update timestamp",
-            "example": "2026-07-08T00:00:00.000Z"
+          "canUpdate": {
+            "type": "boolean",
+            "description": "Whether the current user can update this record"
           }
         },
         "required": [
           "id",
-          "roadmap_id",
-          "slug",
           "name",
-          "credits",
-          "created_at",
-          "updated_at"
+          "permissionIds"
         ]
       },
-      "UpdateCourseNodeDto": {
+      "RoleUpdateRequest": {
         "type": "object",
         "properties": {
-          "slug": {
+          "id": {
             "type": "string",
-            "description": "Course node slug",
-            "example": "intro-to-programming"
+            "description": "The UUID of the role to update"
           },
           "name": {
             "type": "string",
-            "description": "Course node name",
-            "example": "Introduction to Programming"
-          },
-          "credits": {
-            "type": "number",
-            "description": "Number of credits",
-            "example": 3
+            "description": "The new name of the role",
+            "example": "EDITOR_V2"
           },
           "description": {
             "type": "string",
-            "description": "Course description",
-            "example": "Basic programming concepts in Python"
+            "description": "A new short description",
+            "example": "Can edit all content"
           },
-          "coords": {
-            "description": "UI coordinates",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/CoordsDto"
-              }
-            ]
+          "normalizedName": {
+            "type": "string",
+            "description": "Normalized name of the role"
           },
-          "Prerequisites": {
-            "description": "Array of prerequisite node IDs",
-            "example": [
-              1,
-              2
-            ],
+          "permissionIds": {
+            "description": "List of permission IDs associated with this role",
             "type": "array",
             "items": {
               "type": "string"
             }
           }
-        }
-      },
-      "CreatePrerequisiteDto": {
-        "type": "object",
-        "properties": {
-          "course_node_id": {
-            "type": "number",
-            "description": "Target course node ID",
-            "example": 2
-          },
-          "prerequisite_node_id": {
-            "type": "number",
-            "description": "Prerequisite course node ID",
-            "example": 1
-          }
         },
         "required": [
-          "course_node_id",
-          "prerequisite_node_id"
+          "id"
         ]
       },
-      "AdminPrerequisiteEdgeResponseDto": {
+      "PermissionResponse": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "number",
-            "description": "Edge ID",
-            "example": 1
-          },
-          "course_node_id": {
-            "type": "number",
-            "description": "Target course node ID",
-            "example": 2
-          },
-          "prerequisite_node_id": {
-            "type": "number",
-            "description": "Prerequisite course node ID",
-            "example": 1
-          },
-          "created_at": {
             "type": "string",
-            "description": "Creation timestamp",
-            "example": "2026-07-08T00:00:00.000Z"
+            "description": "Permission ID"
           },
-          "updated_at": {
+          "displayName": {
             "type": "string",
-            "description": "Last update timestamp",
-            "example": "2026-07-08T00:00:00.000Z"
+            "description": "Display name of the permission (e.g. Write Roadmap)"
+          },
+          "normalizationName": {
+            "type": "string",
+            "description": "Normalization/Internal name of the permission (e.g. roadmap:write)"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "ID of the group this permission belongs to"
+          },
+          "isInRole": {
+            "type": "boolean",
+            "description": "Indicates whether this permission is currently assigned to the requested Role"
           }
         },
         "required": [
           "id",
-          "course_node_id",
-          "prerequisite_node_id",
-          "created_at",
-          "updated_at"
+          "normalizationName",
+          "isInRole"
         ]
       },
-      "MajorResponseDto": {
+      "PermissionGroupResponse": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "number",
-            "description": "Major ID",
-            "example": 1
-          },
-          "slug": {
             "type": "string",
-            "description": "Major slug",
-            "example": "software-engineering"
+            "description": "Permission Group ID"
+          },
+          "groupName": {
+            "type": "string",
+            "description": "Name of the Feature/Group (e.g. Roadmap, Users)"
+          },
+          "permissions": {
+            "description": "List of permissions belonging to this group",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermissionResponse"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "groupName",
+          "permissions"
+        ]
+      },
+      "RoleDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Role ID"
           },
           "name": {
             "type": "string",
-            "description": "Major name",
-            "example": "Software Engineering"
+            "description": "Role Name"
           },
-          "description": {
+          "normalizedName": {
             "type": "string",
-            "description": "Major description",
-            "example": "Comprehensive SE roadmap"
+            "description": "Normalized Role Name"
           },
-          "totalCreditsRequired": {
-            "type": "number",
-            "description": "Total credits required",
-            "example": 130
-          },
-          "totalCourses": {
-            "type": "number",
-            "description": "Total courses included",
-            "example": 42
+          "permissionGroups": {
+            "description": "List of permission groups with their permissions",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PermissionGroupResponse"
+            }
           }
         },
         "required": [
           "id",
-          "slug",
           "name",
-          "totalCreditsRequired",
-          "totalCourses"
-        ]
-      },
-      "UpdateMajorMetaPayload": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "Major name",
-            "example": "Software Engineering"
-          },
-          "description": {
-            "type": "string",
-            "description": "Major description",
-            "example": "Updated curriculum description"
-          },
-          "totalCreditsRequired": {
-            "type": "number",
-            "description": "Total credits required",
-            "example": 130
-          }
-        }
-      },
-      "UpdateAdminCourseNodeMetaDto": {
-        "type": "object",
-        "properties": {
-          "slug": {
-            "type": "string",
-            "description": "Course slug",
-            "example": "intro-to-programming"
-          },
-          "name": {
-            "type": "string",
-            "description": "Course name",
-            "example": "Introduction to Programming"
-          },
-          "credits": {
-            "type": "number",
-            "description": "Number of credits",
-            "example": 3
-          },
-          "description": {
-            "type": "string",
-            "description": "Course description",
-            "example": "Basic programming concepts in Python"
-          }
-        }
-      },
-      "TopicCoordsDto": {
-        "type": "object",
-        "properties": {
-          "x": {
-            "type": "number",
-            "description": "X coordinate",
-            "example": 150
-          },
-          "y": {
-            "type": "number",
-            "description": "Y coordinate",
-            "example": 250
-          }
-        },
-        "required": [
-          "x",
-          "y"
-        ]
-      },
-      "CreateAdminTopicNodeDto": {
-        "type": "object",
-        "properties": {
-          "slug": {
-            "type": "string",
-            "description": "Topic slug",
-            "example": "variables-and-types"
-          },
-          "title": {
-            "type": "string",
-            "description": "Topic title",
-            "example": "Variables and Data Types"
-          },
-          "description": {
-            "type": "string",
-            "description": "Topic description",
-            "example": "Understanding basic types in programming"
-          },
-          "learningObjectives": {
-            "type": "string",
-            "description": "Learning objectives",
-            "example": "Learn how to declare variables"
-          },
-          "resourcesUrl": {
-            "type": "string",
-            "description": "Resources URL",
-            "example": "https://example.com/resources/types"
-          },
-          "coords": {
-            "description": "Topic UI coordinates",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/TopicCoordsDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "slug",
-          "title"
-        ]
-      },
-      "UpdateAdminTopicNodeDto": {
-        "type": "object",
-        "properties": {
-          "slug": {
-            "type": "string",
-            "description": "Topic slug",
-            "example": "variables-and-types"
-          },
-          "title": {
-            "type": "string",
-            "description": "Topic title",
-            "example": "Variables and Data Types"
-          },
-          "description": {
-            "type": "string",
-            "description": "Topic description",
-            "example": "Understanding basic types in programming"
-          },
-          "learningObjectives": {
-            "type": "string",
-            "description": "Learning objectives",
-            "example": "Learn how to declare variables"
-          },
-          "resourcesUrl": {
-            "type": "string",
-            "description": "Resources URL",
-            "example": "https://example.com/resources/types"
-          },
-          "coords": {
-            "description": "Topic UI coordinates",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/TopicCoordsDto"
-              }
-            ]
-          }
-        }
-      },
-      "UpdateAdminTopicCoordsDto": {
-        "type": "object",
-        "properties": {
-          "coords": {
-            "description": "Topic UI coordinates",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/TopicCoordsDto"
-              }
-            ]
-          }
-        },
-        "required": [
-          "coords"
-        ]
-      },
-      "CreateAdminTopicEdgeDto": {
-        "type": "object",
-        "properties": {
-          "sourceTopicId": {
-            "type": "number",
-            "description": "Source topic ID",
-            "example": 1
-          },
-          "targetTopicId": {
-            "type": "number",
-            "description": "Target topic ID",
-            "example": 2
-          }
-        },
-        "required": [
-          "sourceTopicId",
-          "targetTopicId"
+          "permissionGroups"
         ]
       }
     }

@@ -1,11 +1,12 @@
-const { createDefaultPreset } = require("ts-jest");
-
-const tsJestTransformCfg = createDefaultPreset().transform;
-
-/** @type {import("jest").Config} **/
 module.exports = {
-  testEnvironment: "node",
+  moduleFileExtensions: ['js', 'json', 'ts'],
+  rootDir: '.',
+  testRegex: '.*\\.spec\\.ts$',
   transform: {
-    ...tsJestTransformCfg,
+    '^.+\\.(t|j)s$': ['ts-jest', { tsconfig: 'tsconfig.json' }],
+  },
+  testEnvironment: 'node',
+  moduleNameMapper: {
+    '^@iuroadmap/shared$': '<rootDir>/../shared/src/index.ts',
   },
 };

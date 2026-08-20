@@ -1,4 +1,4 @@
-import { createProxyMiddleware, Options } from 'http-proxy-middleware';
+import { createProxyMiddleware, Options, fixRequestBody } from 'http-proxy-middleware';
 import { RequestHandler } from '@nestjs/common/interfaces';
 
 /**
@@ -16,6 +16,7 @@ export const createServiceProxy = (
     changeOrigin: true, // Needed for virtual hosted sites
     secure: false,      // Set to true if you are using valid SSL certs in production
     logLevel: 'debug',  // Helps see what's happening in the terminal
+    onProxyReq: fixRequestBody, // Fixes POST request hanging because body was consumed by NestJS body-parser
   };
 
   // Rewrite cookies coming from upstream services so the browser will store

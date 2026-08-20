@@ -1,0 +1,57 @@
+/** Translation keys shared by menus and apps. Values are i18next dot paths. */
+export const Translations = {
+  common: {
+    appName: 'common.appName',
+    welcome: 'common.welcome',
+    loading: 'common.loading',
+    save: 'common.save',
+    cancel: 'common.cancel',
+    confirm: 'common.confirm',
+    back: 'common.back',
+    next: 'common.next',
+    search: 'common.search',
+    noData: 'common.noData',
+    retry: 'common.retry',
+    language: 'common.language',
+  },
+  sidebar: {
+    dashboard: 'navigation.dashboard',
+    roadmap: 'navigation.roadmap',
+    courses: 'navigation.courses',
+    mentorship: 'navigation.mentorship',
+    admin: 'navigation.admin',
+    users: 'navigation.users',
+    roles: 'navigation.roles',
+    exploreMajors: 'navigation.exploreMajors',
+    myRoadmaps: 'navigation.myRoadmaps',
+    manageRoadmaps: 'navigation.manageRoadmaps',
+    manageCourses: 'navigation.manageCourses',
+    findMentors: 'navigation.findMentors',
+    chatWithMentors: 'navigation.chatWithMentors',
+    mentorHub: 'navigation.mentorHub',
+    departments: 'navigation.departments',
+  },
+  navigation: {
+    overview: 'navigation.overview',
+    features: 'navigation.features',
+    administration: 'navigation.administration',
+  },
+  role: {
+    admin: 'permission.role.admin',
+    student: 'permission.role.student',
+    mentor: 'permission.role.mentor',
+  },
+  permission: {
+    groupRoadmap: 'permission.group.roadmap',
+    groupCourse: 'permission.group.course',
+    groupMentorship: 'permission.group.mentorship',
+    groupUser: 'permission.group.user',
+    groupAdmin: 'permission.group.admin',
+    read: 'permission.action.read',
+    write: 'permission.action.write',
+    manage: 'permission.action.manage',
+    approve: 'permission.action.approve',
+  },
+} as const;
+
+export type SupportedLanguage = 'en' | 'vi';

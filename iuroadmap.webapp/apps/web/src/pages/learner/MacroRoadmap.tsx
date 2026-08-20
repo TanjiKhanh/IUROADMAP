@@ -11,14 +11,8 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import {
-  MacroCourseStatus,
-  roadmapService,
-  UserRoadmapDetailNode,
-  UserRoadmapEdge,
-  UserRoadmapProgressDetail,
-} from '../../services/roadmap.service';
-import { userService } from '../../services/user.service';
+import { roadmapsControllerGetPreviewRoadmapBySlug, roadmapsControllerGetMacroRoadmap, roadmapsControllerGetMyRoadmaps, MacroRoadmapNodeDtoStatus, MacroRoadmapNodeDto, MacroRoadmapEdgeDto, MacroRoadmapResponseDto } from '@iuroadmap/api-gen';
+import { useRoadmapMutations } from './hooks/useRoadmapHooks';
 import RoadmapNode, { RoadmapNodeData } from '../../components/roadmap/RoadmapNode';
 import RoadmapToolbar from '../../components/roadmap/RoadmapToolbar';
 import '../../styles/roadmapDetail.css';
@@ -35,11 +29,11 @@ type ContextMenuState = {
   courseNodeId: number;
 };
 
-const VALID_STATUSES: MacroCourseStatus[] = ['AVAILABLE', 'IN_PROGRESS', 'COMPLETED'];
+const VALID_STATUSES: MacroRoadmapNodeDtoStatus[] = ['AVAILABLE', 'IN_PROGRESS', 'COMPLETED'];
 
-const normalizeStatus = (status: string): MacroCourseStatus => {
-  if (VALID_STATUSES.includes(status as MacroCourseStatus)) {
-    return status as MacroCourseStatus;
+const normalizeStatus = (status: string): MacroRoadmapNodeDtoStatus => {
+  if (VALID_STATUSES.includes(status as MacroRoadmapNodeDtoStatus)) {
+    return status as MacroRoadmapNodeDtoStatus;
   }
   return 'AVAILABLE';
 };
@@ -68,7 +62,7 @@ const calculateMacroMetrics = (flowNodes: Node<RoadmapFlowNodeData>[]) => {
   };
 };
 
-const buildMacroLayout = (nodes: UserRoadmapDetailNode[], edges: UserRoadmapEdge[]) => {
+const buildMacroLayout = (nodes: MacroRoadmapNodeDto[], edges: MacroRoadmapEdgeDto[]) => {
   const fallbackXGap = 285;
   const fallbackYGap = 155;
 
@@ -130,13 +124,14 @@ export default function MacroRoadmap() {
   const [nodes, setNodes, onNodesChange] = useNodesState<RoadmapFlowNodeData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  const [roadmap, setRoadmap] = useState<UserRoadmapProgressDetail | null>(null);
+  const [roadmap, setRoadmap] = useState<MacroRoadmapResponseDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
   const [resolvedRoadmapTitle, setResolvedRoadmapTitle] = useState<string>('');
 
   const [isPanMode, setIsPanMode] = useState(true);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance | null>(null);
+  const roadmapMutations = useRoadmapMutations();
 
   const nodeTypes = useMemo(() => ({ roadmapNode: RoadmapNode }), []);
   const routeTitleFromState = (location.state as { roadmapTitle?: string } | null)?.roadmapTitle || '';
@@ -155,7 +150,8 @@ export default function MacroRoadmap() {
 
       if (isPreviewMode && slug) {
         try {
-          const previewData = await roadmapService.getPreviewRoadmapBySlug(slug);
+          const res = await roadmapsControllerGetPreviewRoadmapBySlug(slug);
+          const previewData = res.data as any;
 
           setRoadmap(previewData);
           const { flowNodes, flowEdges } = buildMacroLayout(previewData.nodes, previewData.edges || []);
@@ -165,12 +161,10 @@ export default function MacroRoadmap() {
         } catch {
           // Fallback: if admin preview endpoint is unavailable for student role,
           // load enrolled roadmap data by matching slug/title and keep UI in preview mode.
-          const summariesResponse: any = await userService.getMyRoadmaps();
-          const summaries: any[] = Array.isArray(summariesResponse)
-            ? summariesResponse
-            : Array.isArray(summariesResponse?.data)
-              ? summariesResponse.data
-              : [];
+          const summariesResponse: any = await roadmapsControllerGetMyRoadmaps();
+          const summaries: any[] = Array.isArray(summariesResponse?.data)
+            ? summariesResponse.data
+            : [];
 
           const matched = summaries.find((item) => {
             const itemSlug = String(item?.slug || '').toLowerCase();
@@ -188,7 +182,8 @@ export default function MacroRoadmap() {
             setResolvedRoadmapTitle(matched.title);
           }
 
-          const enrolledData = await roadmapService.getUserRoadmapDetail(Number(matched.id));
+          const resEnrolled = await roadmapsControllerGetMacroRoadmap(Number(matched.id));
+          const enrolledData = resEnrolled.data as any;
           if (!enrolledData || !Array.isArray(enrolledData.nodes)) {
             setRoadmap(null);
             return;
@@ -202,7 +197,8 @@ export default function MacroRoadmap() {
         }
       }
 
-      const data = await roadmapService.getUserRoadmapDetail(Number(id));
+      const resData = await roadmapsControllerGetMacroRoadmap(Number(id));
+      const data = resData.data as any;
 
       if (!data || !Array.isArray(data.nodes)) {
         console.error('Invalid roadmap data received:', data);
@@ -214,12 +210,10 @@ export default function MacroRoadmap() {
 
       if (!routeTitleFromState) {
         try {
-          const summariesResponse: any = await userService.getMyRoadmaps();
-          const summaries: any[] = Array.isArray(summariesResponse)
-            ? summariesResponse
-            : Array.isArray(summariesResponse?.data)
-              ? summariesResponse.data
-              : [];
+          const summariesResponse: any = await roadmapsControllerGetMyRoadmaps();
+          const summaries: any[] = Array.isArray(summariesResponse?.data)
+            ? summariesResponse.data
+            : [];
           const matched = summaries.find((item) => item.id === Number(id));
           if (matched?.title) {
             setResolvedRoadmapTitle(matched.title);
@@ -258,7 +252,7 @@ export default function MacroRoadmap() {
   }, [contextMenu]);
 
   const updateCourseStatus = useCallback(
-    async (courseNodeId: number, nextStatus: MacroCourseStatus) => {
+    async (courseNodeId: number, nextStatus: MacroRoadmapNodeDtoStatus) => {
       if (isPreviewMode || !id || !roadmap) return;
 
       const nodeId = String(courseNodeId);
@@ -290,9 +284,13 @@ export default function MacroRoadmap() {
       });
 
       try {
-        await roadmapService.updateCourseStatus(Number(id), courseNodeId, {
-          status: nextStatus,
-          creditsEarned,
+        await roadmapMutations.updateCourseStatus.mutateAsync({
+          userRoadmapId: Number(id),
+          courseNodeId,
+          data: {
+            status: nextStatus as any,
+            creditsEarned,
+          }
         });
       } catch (err) {
         console.error('Failed to update status', err);
@@ -350,7 +348,7 @@ export default function MacroRoadmap() {
   }, []);
 
   const handleContextAction = useCallback(
-    async (status: MacroCourseStatus) => {
+    async (status: MacroRoadmapNodeDtoStatus) => {
       if (!contextMenu) return;
       const nodeId = contextMenu.courseNodeId;
       setContextMenu(null);
@@ -502,3 +500,6 @@ export default function MacroRoadmap() {
     </div>
   );
 }
+
+
+

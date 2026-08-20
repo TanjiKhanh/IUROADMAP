@@ -1,13 +1,15 @@
 import { createContext, useContext } from 'react';
-import { LearnerRegisterPayload,MentorRegisterPayload } from '../services/auth.service';
+import { LearnerRegisterRequestDto, MentorRegisterRequestDto } from '@iuroadmap/api-gen';
 
 // 1. Define the User Shape
 // Ensure this matches the payload your backend returns (in the JWT or /me endpoint)
 export interface User {
-  id: number;
+  userId?: string;
+  id?: number | string; // Keep for backward compatibility if used elsewhere
   email: string;
   name?: string;
-  role: 'ADMIN' | 'MENTOR' | 'USER' | 'STUDENT'; // Add all roles used in your system
+  role: 'ADMIN' | 'MENTOR' | 'USER' | 'STUDENT'; 
+  permissions?: string[];
   status?: 'PENDING_APPROVAL' | 'ACTIVE' | 'APPROVED' | 'REJECTED';
 }
 
@@ -16,8 +18,8 @@ interface AuthContextType {
   user: User | null;
   accessToken: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data:  LearnerRegisterPayload | MentorRegisterPayload) => Promise<void>;
+  login: (email: string, password: string) => Promise<any>;
+  register: (data: LearnerRegisterRequestDto | MentorRegisterRequestDto) => Promise<any>;
   logout: () => Promise<void>;
 }
 

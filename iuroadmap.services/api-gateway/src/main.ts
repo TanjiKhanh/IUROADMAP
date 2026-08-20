@@ -7,6 +7,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter, ResponseInterceptor } from '@iuroadmap/shared';
+import { SwaggerAggregatorService } from './modules/swagger/swagger-aggregator.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,18 +23,21 @@ async function bootstrap() {
   // Swagger setup
   const config = new DocumentBuilder()
     .setTitle('IUROADMAP API Gateway')
-    .setDescription('The API Gateway for the IUROADMAP microservices network.')
+    .setDescription('Unified OpenAPI Specification for IUROADMAP Microservices Network')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const baseDocument = SwaggerModule.createDocument(app, config);
+
+  // Run Aggregator to merge all microservices specs
+  const aggregator = app.get(SwaggerAggregatorService);
+  const document = await aggregator.aggregate(baseDocument);
   SwaggerModule.setup('docs', app, document);
 
-  // Write swagger specification to disk in non-production environments
+  // Write unified swagger specification to disk
   if (process.env.NODE_ENV !== 'production') {
     const specPath = path.join(__dirname, '../swagger-spec.json');
-    fs.writeFileSync(specPath, JSON.stringify(document, null, 2));
-    console.log(`📝 Swagger spec written to ${specPath}`);
+    aggregator.saveSpecToDisk(document, specPath);
   }
 
   // Validation pipe
@@ -60,7 +64,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 8080;
   await app.listen(port);
   console.log(`✅ Gateway listening on port ${port}`);
 }

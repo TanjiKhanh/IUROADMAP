@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/auth.css'; 
 import { useAuth , User } from '../../auth/AuthContext';
+import { useTranslation } from '../../hooks/useTranslation';
+import { features } from '@iuroadmap/core';
+
+const authKeys = features.auth.keys;
 
 // Import logo
 import logo from '../../assets/images/logo-gupjob-primary.png';
@@ -10,6 +14,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const { t } = useTranslation();
 
   // State manage form
   const [formData, setFormData] = useState({
@@ -49,7 +54,7 @@ export default function Login() {
 
     try {
       if (!formData.email || !formData.password) {
-        throw new Error("Please enter your full email and password.");
+        throw new Error(t(authKeys.login.errorEmptyFields));
       }
 
       console.log("Attempting login with:", formData.email);
@@ -70,7 +75,7 @@ export default function Login() {
       
     } catch (err: any) {
       console.error("Login error:", err);
-      setError(err.response?.data?.message || err.message || "Login failed. Please try again.");
+      setError(err.response?.data?.message || err.message || t(authKeys.login.errorLoginFailed));
     } finally {
       setIsLoading(false);
     }
@@ -82,8 +87,8 @@ export default function Login() {
         <Link to="/">
           <img src={logo} alt="GUPJOB Logo" className="auth-logo" />
         </Link>
-        <h1 className="auth-title">Welcome back!</h1>
-        <p className="auth-sub">Log in to continue your career journey.</p>
+        <h1 className="auth-title">{t(authKeys.login.welcomeTitle)}</h1>
+        <p className="auth-sub">{t(authKeys.login.welcomeSub)}</p>
 
         {error && (
           <div className="auth-error">
@@ -100,11 +105,11 @@ export default function Login() {
         <form className="auth-form" onSubmit={handleSubmit}>
           
           <label>
-            Email
+            {t(authKeys.login.email)}
             <input 
               type="email" 
               name="email" 
-              placeholder="name@company.com" 
+              placeholder={t(authKeys.login.emailPlaceholder)}
               value={formData.email}
               onChange={handleChange}
               required
@@ -112,13 +117,13 @@ export default function Login() {
           </label>
 
           <label>
-            Password
+            {t(authKeys.login.password)}
             <div className="password-input-wrapper">
               <input 
                 /* Logic đổi type giữa text và password */
                 type={showPassword ? "text" : "password"} 
                 name="password" 
-                placeholder="••••••••" 
+                placeholder={t(authKeys.login.passwordPlaceholder)}
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -128,7 +133,7 @@ export default function Login() {
               <span
                 className="password-toggle-icon"
                 onClick={() => setShowPassword(!showPassword)}
-                title={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? t(authKeys.login.hidePassword) : t(authKeys.login.showPassword)}
               >
                 {showPassword ? "🔓" : "🔒"} 
               </span>
@@ -138,7 +143,7 @@ export default function Login() {
 
           <div className="auth-row">
             <Link to="/forgot-password" className="link-muted">
-              Forgot password?
+              {t(authKeys.login.forgotPassword)}
             </Link>
           </div>
 
@@ -147,14 +152,14 @@ export default function Login() {
             className="btn btn--primary"
             disabled={isLoading}
           >
-            {isLoading ? 'Processing...' : 'Login'}
+            {isLoading ? t(authKeys.login.processing) : t(authKeys.login.loginBtn)}
           </button>
         </form>
 
         <div className="auth-footer">
-          Don't have an account? <Link to="/register">Register now</Link>
+          {t(authKeys.login.noAccount)} <Link to="/register">{t(authKeys.login.registerNow)}</Link>
         </div>
       </div>
     </div>
   );
-}
+}

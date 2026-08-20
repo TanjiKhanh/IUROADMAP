@@ -14,7 +14,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@iuroadmap/api-gen": "*",
-    "@iuroadmap/i18n": "*",
+    "@iuroadmap/core": "*",
     "@iuroadmap/store": "*",
     "@tanstack/react-query": "^5.101.2",
     "axios": "^1.13.2",

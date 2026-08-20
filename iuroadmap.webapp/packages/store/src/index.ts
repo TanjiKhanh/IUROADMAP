@@ -1,16 +1,13 @@
-import { configureStore, createSlice } from '@reduxjs/toolkit';
-
-const appSlice = createSlice({
-  name: 'app',
-  initialState: { version: '0.0.1' },
-  reducers: {}
-});
+import { configureStore } from '@reduxjs/toolkit';
+import appReducer from './slices/appSlice';
+export * from './slices/appSlice';
 
 export const store = configureStore({
   reducer: {
-    app: appSlice.reducer
+    app: appReducer
   }
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+

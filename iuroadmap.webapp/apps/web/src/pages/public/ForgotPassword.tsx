@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Thêm useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/auth.css';
 import logo from '../../assets/images/logo-gupjob-primary.png';
-import { authService } from '../../services/auth.service';
+import { useAuthMutations } from '../../auth/hooks/useAuthMutations';
+import { ForgotPasswordRequestDto, ResetPasswordRequestDto } from '@iuroadmap/api-gen';
 
 type Step = 'REQUEST' | 'SENT' | 'RESET';
 
 export default function ForgotPassword() {
-  const navigate = useNavigate(); // Hook để điều hướng
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>('REQUEST');
   const [email, setEmail] = useState('');
-  const [emailToken, setEmailToken] = useState(''); // ✅ Cần thêm state này
-  const [isLoading, setIsLoading] = useState(false);
+  const [emailToken, setEmailToken] = useState('');
+  
+  const authMutations = useAuthMutations();
+  const isLoading = authMutations.forgotPassword.isPending || authMutations.resetPassword.isPending;
   
   // States Reset Password
   const [newPassword, setNewPassword] = useState('');
@@ -21,15 +24,12 @@ export default function ForgotPassword() {
 
   const handleSendRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     try {
-      // Backend sẽ tạo token và gửi vào email người dùng
-      await authService.forgotPassword(email);
+      const payload: ForgotPasswordRequestDto = { email };
+      await authMutations.forgotPassword.mutateAsync({ data: payload });
       setStep('SENT');
     } catch (error) {
       alert("Email does not exist or server error");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -46,15 +46,13 @@ export default function ForgotPassword() {
       return;
     }
 
-    setIsLoading(true);
     try {
-      await authService.resetPassword(emailToken, newPassword);
+      const payload: ResetPasswordRequestDto = { token: emailToken, newPassword };
+      await authMutations.resetPassword.mutateAsync({ data: payload });
       alert("Password updated successfully!");
       navigate('/login');
     } catch (error: any) {
       alert(error.response?.data?.message || "Invalid or expired code.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
