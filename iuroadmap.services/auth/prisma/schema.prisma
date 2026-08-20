@@ -1,0 +1,93 @@
+// Auth service schema (auth-service)
+// Minimal User model and RefreshToken; this DB owns authentication data.
+// Datasource uses AUTH_DATABASE_URL
+generator client {
+  provider = "prisma-client-js"
+  // Thêm dòng binaryTargets này vào:
+  // - "native": để chạy trên máy Windows của bạn
+  // - "linux-musl-openssl-3.0.x": để chạy trên Docker (Node 18 Alpine)
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  output   = "../src/generated/prisma-client"
+
+  
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("AUTH_DATABASE_URL")
+  directUrl = env("AUTH_DIRECT_URL")
+}
+
+
+
+
+enum AccountStatus {
+  PENDING_APPROVAL 
+  ACTIVE           // Students start here, Mentors get upgraded to here
+  BANNED           // For users who violate rules; can be manually set by Admins  
+  REJECTED      
+}
+
+enum SubscriptionTier {
+  FREE
+  VIP
+  PRO
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  password     String
+  name         String?
+  roleId       String
+  role         Role       @relation(fields: [roleId], references: [id])
+  status       AccountStatus    @default(ACTIVE)
+
+  // Subscription
+  subscriptionTier      SubscriptionTier @default(FREE)
+  subscriptionExpiresAt DateTime?
+
+  // Forgot Password
+  resetPasswordToken   String?
+  resetPasswordExpires DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique // e.g., "ADMIN", "STUDENT", "MENTOR"
+  description String?
+  
+  users       User[]
+  permissions Permission[]
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model PermissionGroup {
+  id          String       @id @default(uuid())
+  name        String       @unique // e.g., "Roadmap", "Users"
+  description String?
+  
+  permissions Permission[]
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  name        String           @unique // e.g., "roadmap:write"
+  displayName String?          // e.g., "Write Roadmap"
+  description String?
+  
+  groupId     String?
+  group       PermissionGroup? @relation(fields: [groupId], references: [id])
+  
+  roles       Role[]
+
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}

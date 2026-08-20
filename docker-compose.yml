@@ -1,194 +1,217 @@
-
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: gupjob-postgres
-    env_file:
-      - ./.env.production
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./init.all.databases.sql:/docker-entrypoint-initdb.d/init.all.databases.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gupjob -d postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-    networks:
-      - gupjob-network
-    restart: unless-stopped
-
+  # ===== Redis Cache =====
   redis:
     image: redis:7-alpine
-    container_name: gupjob-redis
+    container_name: iuroadmap-redis
     ports:
       - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_secure_password}
     volumes:
-      - redis-data:/data
+      - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - gupjob-network
+      - iuroadmap-network
     restart: unless-stopped
 
-  api-gateway:
+  # ===== Auth Service =====
+  auth-service:
     build:
-      context: ./services/api-gateway
+      context: ./iuroadmap.services/auth
       dockerfile: Dockerfile
-    container_name: api-gateway
+    container_name: iuroadmap-auth-service
     env_file:
-      - ./services/api-gateway/.env.production
-    environment:
-      NODE_ENV: production
-      AUTH_SERVICE_URL: http://auth-service:3000
-      ADMIN_SERVICE_URL: http://admin-service:4100
-      USER_SERVICE_URL: http://user-service:4001
-      MENTOR_SERVICE_URL: http://mentor-service:4000
-    ports:
-      - "8080:8080"
+      - ./iuroadmap.services/auth/.env
     depends_on:
-      postgres:
+      redis:
         condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
+      MENTOR_SERVICE_URL: http://mentor-service:4001
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - iuroadmap-network
+    restart: unless-stopped
+
+  # ===== Admin Service =====
+  roadmap-service:
+    build:
+      context: ./iuroadmap.services/admin-service
+      dockerfile: Dockerfile
+    container_name: iuroadmap-roadmap-service
+    env_file:
+      - ./iuroadmap.services/admin-service/.env
+    depends_on:
       redis:
         condition: service_healthy
       auth-service:
         condition: service_healthy
-      admin-service:
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
+      AUTH_SERVICE_URL: http://auth-service:3000
+      MENTOR_SERVICE_URL: http://mentor-service:4001
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3001/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - iuroadmap-network
+    restart: unless-stopped
+
+  # ===== Mentor Service =====
+  mentor-service:
+    build:
+      context: ./iuroadmap.services/mentor-service
+      dockerfile: Dockerfile
+    container_name: iuroadmap-mentor-service
+    env_file:
+      - ./iuroadmap.services/mentor-service/.env
+    depends_on:
+      redis:
         condition: service_healthy
-      user-service:
+      auth-service:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 4001
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
+      AUTH_SERVICE_URL: http://auth-service:3000
+    ports:
+      - "4001:4001"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4001/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - iuroadmap-network
+    restart: unless-stopped
+
+  # ===== User Service =====
+  user-service:
+    build:
+      context: ./iuroadmap.services/user-service
+      dockerfile: Dockerfile
+    container_name: iuroadmap-user-service
+    env_file:
+      - ./iuroadmap.services/user-service/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-redis_secure_password}@redis:6379"
+      AUTH_SERVICE_URL: http://auth-service:3000
+      ADMIN_SERVICE_URL: http://roadmap-service:3001
+    ports:
+      - "3002:3002"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3002/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - iuroadmap-network
+    restart: unless-stopped
+
+  # ===== API Gateway =====
+  api-gateway:
+    build:
+      context: ./iuroadmap.services/api-gateway
+      dockerfile: Dockerfile
+    container_name: iuroadmap-api-gateway
+    env_file:
+      - ./iuroadmap.services/api-gateway/.env
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      roadmap-service:
         condition: service_healthy
       mentor-service:
         condition: service_healthy
-    networks:
-      - gupjob-network
-    restart: unless-stopped
+      user-service:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 8080
+      AUTH_SERVICE_URL: http://auth-service:3000
+      ADMIN_SERVICE_URL: http://roadmap-service:3001
+      MENTOR_SERVICE_URL: http://mentor-service:4001
+      USER_SERVICE_URL: http://user-service:3002
+    ports:
+      - "8080:8080"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:8080/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
+      interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
-
-  auth-service:
-    build:
-      context: ./services/auth
-      dockerfile: Dockerfile
-    container_name: auth-service
-    env_file:
-      - ./services/auth/.env.production
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
-      - gupjob-network
+      - iuroadmap-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:3000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
-  admin-service:
+  # ===== Frontend (Optional) =====
+  frontend:
     build:
-      context: ./services/admin-service
-      dockerfile: Dockerfile
-    container_name: admin-service
-    env_file:
-      - ./services/admin-service/.env.production
-    environment:
-      NODE_ENV: production
-      PORT: 4100
+      context: .
+      dockerfile: ./iuroadmap.webapp/apps/web/Dockerfile
+    container_name: iuroadmap-frontend
     depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - gupjob-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4100/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  user-service:
-    build:
-      context: ./services/user-service
-      dockerfile: Dockerfile
-    container_name: user-service
-    env_file:
-      - ./services/user-service/.env.production
+      - api-gateway
     environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://api-gateway:8080}
       NODE_ENV: production
-      PORT: 4001
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - gupjob-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4001/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  mentor-service:
-    build:
-      context: ./services/mentor-service
-      dockerfile: Dockerfile
-    container_name: mentor-service
-    env_file:
-      - ./services/mentor-service/.env.production
-    environment:
-      NODE_ENV: production
-      PORT: 4000
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - gupjob-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://127.0.0.1:4000/health', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-  nginx:
-    image: nginx:alpine
-    container_name: nginx-reverse-proxy
-    profiles:
-      - proxy
     ports:
-      - "8081:80"
+      - "5173:5173"
+    networks:
+      - iuroadmap-network
+    restart: unless-stopped
+
+  # ===== Nginx Reverse Proxy (Optional) =====
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: iuroadmap-nginx
+    depends_on:
+      - api-gateway
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-    depends_on:
-      api-gateway:
-        condition: service_healthy
+      - ./iuroadmap.infra/certs:/etc/nginx/certs:ro
     networks:
-      - gupjob-network
+      - iuroadmap-network
     restart: unless-stopped
-
-volumes:
-  pgdata:
-  redis-data:
+    profiles:
+      - proxy
 
 networks:
-  gupjob-network:
+  iuroadmap-network:
     driver: bridge
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: fd00:1234:5678::/64
+
+volumes:
+  redis_data:

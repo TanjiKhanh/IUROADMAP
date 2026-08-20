@@ -1,0 +1,39 @@
+{
+  "name": "iuroadmap.web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "test": "echo \"Playwright E2E suites configured in tests/\" && exit 0",
+    "test:e2e": "playwright test tests/e2e",
+    "test:api": "playwright test tests/api",
+    "test:report": "playwright show-report playwright-report",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@iuroadmap/api-gen": "*",
+    "@iuroadmap/core": "*",
+    "@iuroadmap/store": "*",
+    "@tanstack/react-query": "^5.101.2",
+    "axios": "^1.13.2",
+    "lucide-react": "^0.577.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.71.2",
+    "react-router-dom": "^6.11.1",
+    "reactflow": "^11.11.4",
+    "yup": "^1.7.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.0.0",
+    "react-markdown": "^8.0.7",
+    "typescript": "^5.1.6",
+    "vite": "^5.4.21"
+  }
+}

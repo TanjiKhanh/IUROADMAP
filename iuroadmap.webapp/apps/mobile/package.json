@@ -1,0 +1,27 @@
+{
+  "name": "iuroadmap.mobile",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "test": "echo \"No mobile unit tests specified\" && exit 0",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "ts:check": "tsc"
+  },
+  "dependencies": {
+    "expo": "~51.0.0",
+    "expo-status-bar": "~1.12.1",
+    "react": "18.2.0",
+    "react-native": "0.74.5",
+    "@iuroadmap/api-gen": "*",
+    "@iuroadmap/store": "*",
+    "@iuroadmap/i18n": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@types/react": "~18.2.45",
+    "typescript": "~5.3.3"
+  }
+}

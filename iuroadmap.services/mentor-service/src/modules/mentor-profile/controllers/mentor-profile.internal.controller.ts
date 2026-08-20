@@ -1,0 +1,53 @@
+import { Controller, Post, Delete, Param, ParseIntPipe, Body, Headers, UnauthorizedException, HttpCode, HttpStatus } from '@nestjs/common';
+import { MentorProfileService } from '../services/mentor-profile.service';
+import { CreateMentorProfileDto } from '../dto/create-mentor-profile.dto';
+
+import { ApiTags, ApiOperation, ApiResponse, ApiHeader, ApiBody, ApiParam, ApiExcludeController } from '@nestjs/swagger';
+
+@ApiExcludeController()
+@ApiTags('Mentor - Internal')
+@Controller('internal/mentor-profiles')
+export class MentorProfileInternalController {
+  constructor(private readonly service: MentorProfileService) {}
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  @ApiOperation({ summary: 'Internal creation of a mentor profile (called by Auth service upon registration)' })
+  @ApiHeader({ name: 'x-api-key', required: true, description: 'Internal service communication API key' })
+  @ApiBody({ schema: { type: 'object', properties: { userId: { type: 'number' }, profileData: { type: 'object' } } } })
+  @ApiResponse({ status: 201, description: 'Mentor profile created successfully internally' })
+  @ApiResponse({ status: 401, description: 'Invalid Internal API Key' })
+  async createProfile(
+    @Headers('x-api-key') apiKey: string,
+    @Body() body: any,
+  ) {
+    // 1. Verify this request actually came from the Auth Service
+    if (apiKey !== process.env.MENTOR_SERVICE_API_KEY) {
+      throw new UnauthorizedException('Invalid Internal API Key');
+    }
+
+    const { userId, profileData } = body;
+    
+    // 2. Create the profile
+    return this.service.createProfile(userId, profileData);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Delete(':userId')
+  @ApiOperation({ summary: 'Internal deletion/compensation of a mentor profile (called during Saga rollback)' })
+  @ApiHeader({ name: 'x-api-key', required: true, description: 'Internal service communication API key' })
+  @ApiParam({ name: 'userId', type: 'number', description: 'User ID of the mentor' })
+  @ApiResponse({ status: 200, description: 'Mentor profile deleted successfully (compensated)' })
+  @ApiResponse({ status: 401, description: 'Invalid Internal API Key' })
+  async deleteProfile(
+    @Headers('x-api-key') apiKey: string,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    if (apiKey !== process.env.MENTOR_SERVICE_API_KEY) {
+      throw new UnauthorizedException('Invalid Internal API Key');
+    }
+
+    await this.service.deleteProfile(userId);
+    return { success: true, message: `Mentor profile for user ${userId} compensated/deleted.` };
+  }
+}

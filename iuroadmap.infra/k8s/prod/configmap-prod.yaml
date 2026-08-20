@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: iuroadmap-config-prod
+  namespace: iuroadmap
+data:
+  LOG_LEVEL: "warn"
+  NODE_ENV: "production"

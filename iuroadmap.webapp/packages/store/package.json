@@ -1,0 +1,20 @@
+{
+  "name": "@iuroadmap/store",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"No unit tests specified\" && exit 0",
+    "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
+    "prebuild": "npm run clean"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.0.0",
+    "react-redux": "^9.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.0"
+  }
+}

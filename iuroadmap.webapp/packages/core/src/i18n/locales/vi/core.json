@@ -1,0 +1,25 @@
+{
+  "common": {
+    "appName": "IUROADMAP",
+    "welcome": "Chào mừng đến với IUROADMAP",
+    "loading": "Đang tải...",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "search": "Tìm kiếm",
+    "noData": "Không có dữ liệu",
+    "retry": "Thử lại",
+    "language": "Ngôn ngữ",
+    "success": "Thao tác đã được thực hiện thành công",
+    "error": "Đã xảy ra lỗi"
+  },
+  "error": {
+    "invalidCredentials": "Email hoặc mật khẩu không chính xác.",
+    "unauthorized": "Bạn không được phép thực hiện thao tác này.",
+    "forbidden": "Bạn không có quyền truy cập trang này.",
+    "notFound": "Không tìm thấy tài nguyên yêu cầu.",
+    "generic": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại."
+  }
+}

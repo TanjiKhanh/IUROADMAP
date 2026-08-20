@@ -1,0 +1,63 @@
+import {
+  Controller,
+  Get,
+  Query,
+  ValidationPipe,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import { MentorSearchService } from '../services/mentor-search.service';
+import { FilterMentorsDto } from '../dto/filter-mentors.dto';
+import { MentorResponseDto } from '../../../modules/mentor-search/dto/mentor-response.dto';
+import { PaginatedResponse } from '@iuroadmap/shared';
+
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+
+@ApiTags('Mentor - Search')
+@Controller('mentors')
+export class MentorSearchController {
+  constructor(private readonly mentorSearchService: MentorSearchService) {}
+
+  /**
+   * Get all mentors with optional filtering and pagination
+   * @example GET /mentors?industry=Tech&limit=10&offset=0
+   */
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Search and filter mentors with pagination' })
+  @ApiResponse({ status: 200, description: 'Mentors retrieved successfully' })
+  async findAll(
+    @Query(new ValidationPipe({ transform: true }))
+    filters: FilterMentorsDto,
+  ): Promise<PaginatedResponse<MentorResponseDto>> {
+    const result = await this.mentorSearchService.findAll(filters);
+
+    return {
+      data: result.data.map((mentor) => new MentorResponseDto(mentor)),
+      meta: {
+        ...result.meta,
+        pages: Math.ceil(result.meta.total / result.meta.limit),
+      },
+      message: 'Mentors retrieved successfully',
+    };
+  }
+
+  /**
+   * Get mentor statistics
+   * @returns Statistics about mentors wrapped in standard response
+   * @example GET /mentors/stats
+   */
+  @Get('stats')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get mentor distribution statistics across industries and skills' })
+  @ApiResponse({ status: 200, description: 'Mentor statistics retrieved successfully' })
+  async getStats() {
+    const stats = await this.mentorSearchService.getMentorStats();
+
+    // ✅ Wrap the response in standard format
+    return {
+      data: stats,
+      message: 'Mentor statistics retrieved successfully',
+    };
+  }
+}

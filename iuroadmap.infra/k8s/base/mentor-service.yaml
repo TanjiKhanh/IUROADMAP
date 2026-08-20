@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mentor-service
+  namespace: iuroadmap
+  labels:
+    app: mentor-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4001
+      targetPort: 4001
+      protocol: TCP
+      name: http
+  selector:
+    app: mentor-service
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mentor-service
+  namespace: iuroadmap
+  labels:
+    app: mentor-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mentor-service
+  template:
+    metadata:
+      labels:
+        app: mentor-service
+    spec:
+      containers:
+        - name: mentor-service
+          image: gupjob/mentor-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4001
+              name: http
+          envFrom:
+            - configMapRef:
+                name: iuroadmap-config
+          env:
+            - name: NODE_ENV
+              value: "production"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4001
+            initialDelaySeconds: 5
+            periodSeconds: 5

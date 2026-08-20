@@ -1,0 +1,22 @@
+{
+  "navigation": {
+    "overview": "Tổng quan",
+    "features": "Tính năng",
+    "administration": "Quản trị",
+    "dashboard": "Tổng quan",
+    "roadmap": "Lộ trình",
+    "courses": "Khóa học",
+    "mentorship": "Cố vấn",
+    "admin": "Quản trị",
+    "users": "Người dùng",
+    "roles": "Vai trò",
+    "exploreMajors": "Khám phá chuyên ngành",
+    "myRoadmaps": "Lộ trình của tôi",
+    "manageRoadmaps": "Quản lý lộ trình",
+    "manageCourses": "Quản lý khóa học",
+    "findMentors": "Tìm cố vấn",
+    "chatWithMentors": "Trò chuyện với cố vấn",
+    "mentorHub": "Trung tâm cố vấn",
+    "departments": "Phòng ban"
+  }
+}
