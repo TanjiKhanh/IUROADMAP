@@ -93,8 +93,8 @@ packages/store/src/
 
 - `PLAN.md` — master refactor plan
 - `docs/phases/phase-00-scaffolding.md` (this file)
-- `docs/phases/phase-01-authentication-iam.md` (update existing)
-- `docs/phases/phase-02-common-components.md`
+- `docs/phases/phase-01-uikit-auth-layout.md` 
+- `docs/phases/phase-02-uikit-composite.md`
 - `docs/phases/phase-02.1-prebuild.md`
 - `docs/phases/phase-03-admin.md`
 

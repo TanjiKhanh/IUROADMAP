@@ -1,31 +1,60 @@
-# Phase 01 — UI Kit, Auth, & Layout
+# Phase 1 — UI Kit v1 + Auth + Layout
+
+> **Status:** stub. Filled in just-in-time before Phase 1 starts; reviewed by the user before code lands.
 
 ## Goal
 
-Deliver the **complete authentication experience** and **IAM admin screens** (Role CRUD + Permission Matrix, User CRUD) for `apps/web`. When this phase is done, every FL-AUTH sub-flow described in [`FL-AUTH-authentication-rbac.md`](../../iuroadmap.docs/srs/features/FL-AUTH-authentication-rbac.md) is functional end-to-end: a guest can register/login, an admin can manage roles with the permission matrix tickbox grid, create users and assign roles, approve/reject mentors, ban/unban accounts.
+Establish the foundation every later phase relies on:
 
-**All backend APIs already exist.** This phase is **frontend-only**.
+- A first cut of the UI Kit (primitives a login + a dashboard placeholder need).
+- The provider stack (Redux via `@iuroadmap/store` + i18n via `@iuroadmap/core/i18n` + Antd `ConfigProvider` + TanStack `QueryClientProvider`).
+- The HTTP client wired into `@iuroadmap/api-gen` via axios interceptors.
+- **Centralized theme config** (Antd tokens + per-component overrides) extracted into a single file — feature code never reaches into `antd/theme` directly.
+- Desktop + mobile responsive layouts (`responsiveLayout` → `desktopLayout` | `mobileLayout`).
+- **Display-mode override** (`auto` / `desktop` / `mobile`) persisted in Redux + `localStorage`, with a toggle in the header so the user can force the mobile layout on a wide screen (testing / preference).
+- **Data-driven left sidebar** — menu items declared in a typed config (`menuConfig.ts`), not hand-rendered in JSX. Each item has `labelKey: Translations.<path>`, `icon: MenuIconsWeb.<name>`, `path: RoutePaths.web.<...>`, and an optional `pms` array reserved for Phase 2.1+ permission filtering.
+- A working login page using the Orval-generated auth mutation + generated Zod schema.
+- A working register page (Learner + Mentor tabs) using the Orval-generated auth mutations.
+- `ProtectedRoute` and a placeholder authenticated landing page (dashboard).
+- Forgot-password + reset-password flow using 6-digit code.
 
 ---
 
-## Tech Stack
+## Feature list (mapped from SRS FR IDs)
 
-| Concern | Choice | Where |
-|---|---|---|
-| Language | TypeScript ~5.1 | All files |
-| UI runtime | React 18.2 | `apps/web/` |
-| Bundler | Vite 5 | `apps/web/vite.config.ts` |
-| Router | react-router-dom v6 | `src/router/` |
-| Server state | TanStack Query v5 (`@tanstack/react-query`) | API calls, cache |
-| API codegen | `@iuroadmap/api-gen` (Orval-generated hooks + models) | `packages/api-gen/` |
-| HTTP client | axios (via `@iuroadmap/api-gen`) | Interceptors in `src/api/` |
-| App state | Redux Toolkit (`@iuroadmap/store`) | `appSlice` — token, profile, language |
-| Auth context | React Context (`AuthProvider`) | `src/auth/` |
-| Forms | react-hook-form v7 + `@hookform/resolvers` | Login, Register, Role forms |
-| Validation | Zod (generated from Swagger + custom refinements) | Form validation |
-| Icons | lucide-react | UI icons |
-| Token parsing | `@iuroadmap/core` (`parseToken`) | JWT decode |
-| Styling | CSS Modules / vanilla CSS | `src/styles/` |
+| FL-AUTH Sub-flow | FR IDs | Deliverable | Priority |
+|---|---|---|---|
+| FL-AUTH-01 Đăng ký Learner | FR-AUTH.01.1→01.7 | `Register.tsx` (tab Learner) | Must |
+| FL-AUTH-02 Đăng ký Mentor | FR-AUTH.02.1→02.5 | `Register.tsx` (tab Mentor) | Must |
+| FL-AUTH-03 Đăng nhập | FR-AUTH.03.1→03.7 | `Login.tsx` + `AuthProvider.login()` | Must |
+| FL-AUTH-04 Quên/Reset Password | FR-AUTH.04.1→04.7 | `ForgotPassword.tsx` + `ResetPassword.tsx` | Must |
+| FL-AUTH-10 Đăng xuất | FR-AUTH.10.1→10.4 | `AuthProvider.logout()` + Header button | Must |
+| FL-AUTH-11 Guard & Profile | FR-AUTH.11.1→11.7 | `ProtectedRoute`, axios interceptor, `GET /auth/me` | Must |
+
+> **Out of scope for Phase 1:** FL-AUTH-05 (Đổi mật khẩu), FL-AUTH-06 (Role CRUD), FL-AUTH-07 (User CRUD), FL-AUTH-08 (Mentor Approval), FL-AUTH-09 (Ban/Unban). These are deferred to Phase 3 (Admin).
+
+---
+
+## Backend endpoints / Swagger tags consumed
+
+| Endpoint | Method | Purpose | Swagger Tag |
+|---|---|---|---|
+| `/api/v1/auth/login` | `POST` | Đăng nhập → JWT | `auth` |
+| `/api/v1/auth/logout` | `POST` | Đăng xuất | `auth` |
+| `/api/v1/auth/me` | `GET` | Lấy profile user hiện tại (qua JWT) | `auth` |
+| `/api/v1/auth/register/learner` | `POST` | Đăng ký Learner | `auth` |
+| `/api/v1/auth/register/mentor` | `POST` | Đăng ký Mentor (→ `PENDING_APPROVAL`) | `auth` |
+| `/api/v1/auth/forgot-password` | `POST` | Yêu cầu mã 6 số reset password | `auth` |
+| `/api/v1/auth/reset-password` | `POST` | Đặt lại mật khẩu bằng mã 6 số | `auth` |
+
+---
+
+## Generated artefacts expected from `@iuroadmap/api-gen`
+
+- **Hooks:** `useAuthLogin`, `useAuthLogout`, `useAuthMe`, `useAuthRegisterLearner`, `useAuthRegisterMentor`, `useAuthForgotPassword`, `useAuthResetPassword`
+- **Zod schemas:** `loginRequestSchema`, `loginResponseSchema`, `learnerRegisterRequestSchema`, `mentorRegisterRequestSchema`, `forgotPasswordRequestSchema`, `resetPasswordRequestSchema`
+- **Models:** `LoginRequest`, `LoginResponse`, `LearnerRegisterRequestDto`, `MentorRegisterRequestDto`, `ForgotPasswordRequest`, `ResetPasswordRequest`, `UserSanitized`
+- **Refinements needed:** `confirmPassword === password` on register schemas (client-side `.refine()` — not generated by Orval). Password policy regex validation (8+ chars, 1 upper, 1 lower, 1 digit).
 
 ---
 
@@ -34,8 +63,8 @@ Deliver the **complete authentication experience** and **IAM admin screens** (Ro
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  main.tsx                                                        │
-│  Redux Provider → TranslationProvider → QueryClientProvider      │
-│    → AuthProvider → RouterProvider                               │
+│  Redux Provider → TranslationProvider → AntdProvider             │
+│    → QueryClientProvider → AuthProvider → RouterProvider          │
 └──────────────────────┬──────────────────────────────────────────┘
                        │
         ┌──────────────┴──────────────┐
@@ -45,18 +74,22 @@ Deliver the **complete authentication experience** and **IAM admin screens** (Ro
         │  /login                     │  → Login.tsx
         │  /register                  │  → Register.tsx
         │  /forgot-password           │  → ForgotPassword.tsx
+        │  /reset-password            │  → ResetPassword.tsx
         ├─────────────────────────────┤
         │ Protected Routes            │  ProtectedRoute guard (check token)
-        │  /dashboard/...             │  → LearnerDashboard, etc.
-        │  /dashboard/config/...      │  → RequirePermission guard
-        │    /config/user             │  → UserListPage.tsx      [NEW]
-        │    /config/user/create      │  → UserCreatePage.tsx    [NEW]
-        │    /config/user/:id/edit    │  → UserEditPage.tsx      [NEW]
-        │    /config/role             │  → RoleListPage.tsx      [NEW]
-        │    /config/role/create      │  → RoleCreatePage.tsx    [NEW]
-        │    /config/role/:id/edit    │  → RoleEditPage.tsx      [NEW]
-        │    /config/mentor/pending   │  → MentorApproval.tsx    [NEW]
+        │  /                          │  → ResponsiveLayout → Dashboard
         └─────────────────────────────┘
+```
+
+### Auth Token Lifecycle
+
+```
+1. Login success → store token in localStorage + Redux (appSlice.setAccessToken)
+2. Every API call → axios interceptor reads token from localStorage, sets Authorization header
+3. Page refresh (F5) → Redux resets → AuthProvider reads token from localStorage
+   → calls GET /auth/me → restores profile to Redux
+4. Logout → clear localStorage + Redux + redirect to /login
+5. Token expired / BANNED → API returns 401/403 → interceptor clears token → redirect to /login
 ```
 
 ### State Flow
@@ -67,7 +100,7 @@ Login Form → POST /auth/login → { accessToken, user }
                       ┌────────────────┤
                       ▼                ▼
               localStorage       Redux store
-              (token persist)    (appSlice.accessToken + profile)
+              (token persist)    (appSlice.accessToken + profile via parseToken)
                                        │
                                        ▼
                                   AuthContext
@@ -76,200 +109,241 @@ Login Form → POST /auth/login → { accessToken, user }
                               ┌────────┴────────┐
                               ▼                 ▼
                      ProtectedRoute      RequirePermission
-                     (token exists?)     (user.permissions.includes?)
-```
-
-### Auth Token Lifecycle
-
-```
-1. Login success → store token in localStorage + Redux
-2. Every API call → axios interceptor reads token from localStorage, sets Authorization header
-3. Page refresh (F5) → Redux resets → AuthProvider reads token from localStorage → calls GET /auth/me → restores profile to Redux
-4. Logout → clear localStorage + Redux + redirect to /login
-5. Token expired / BANNED → API returns 401/403 → interceptor clears token → redirect to /login
+                     (token exists?)     (Phase 2.1+)
 ```
 
 ---
 
-## Deliverables
+## UI Kit additions (inside `apps/web/src/uikit/`)
 
-### FR Coverage — Sub-flow ↔ Deliverable mapping
+| File | Description |
+|---|---|
+| `primitives/uiButton.tsx` | Wraps Antd `Button`. Feature code uses `<UiButton>` only. |
+| `primitives/uiInput.tsx` | Wraps Antd `Input`. |
+| `primitives/uiPasswordInput.tsx` | Wraps Antd `Input.Password`. |
+| `primitives/uiCard.tsx` | Wraps Antd `Card`. |
+| `primitives/uiSkeleton.tsx` | Wraps Antd `Skeleton`. |
+| `primitives/uiIcon.tsx` | Named icon registry wrapping `lucide-react` icons. |
+| `layout/uiRow.tsx`, `layout/uiCol.tsx` | Wraps Antd `Row`/`Col` for responsive grids. |
+| `layout/uiSpace.tsx` | Wraps Antd `Space`. |
+| `form/uiForm.tsx`, `form/uiFormItem.tsx` | Wraps Antd `Form` + `Form.Item`. |
+| `form/uiInputField.tsx` | Integration: `react-hook-form` Controller + `UiInput` + `UiFormItem` error display. |
+| `feedback/useToast.ts` | Wraps Antd `message` API. Feature code: `useToast().success(msg)`. |
+| `overlays/uiConfirm.ts` | Wraps Antd `Modal.confirm`. Feature code: `uiConfirm({ title, onOk })`. |
+| `navigation/uiMenu.tsx` | Wraps Antd `Menu`. Used by sidebar. |
+| `index.ts` | Barrel export for all UI Kit components. |
 
-| FL-AUTH Sub-flow | FR IDs | Deliverable | Priority |
-|---|---|---|---|
-| FL-AUTH-01 Đăng ký Learner | FR-AUTH.01.1→01.7 | `Register.tsx` (tab Learner) | Must |
-| FL-AUTH-02 Đăng ký Mentor | FR-AUTH.02.1→02.5 | `Register.tsx` (tab Mentor) | Must |
-| FL-AUTH-03 Đăng nhập | FR-AUTH.03.1→03.7 | `Login.tsx` + `AuthProvider.login()` | Must |
-| FL-AUTH-04 Quên/Reset Password | FR-AUTH.04.1→04.7 | `ForgotPassword.tsx` + `ResetPassword.tsx` | Must |
-| FL-AUTH-05 Đổi mật khẩu | FR-AUTH.05.1→05.4 | `ChangePassword.tsx` (modal/page) | Should |
-| FL-AUTH-06 Role & Permission Matrix | FR-AUTH.06.1→06.21 | `RoleListPage.tsx` + `RoleForm.tsx` + `PermissionMatrixForm.tsx` | Must |
-| FL-AUTH-07 User Directory | FR-AUTH.07.1→07.10 | `UserListPage.tsx` + `UserForm.tsx` | Must |
-| FL-AUTH-08 Duyệt Mentor | FR-AUTH.08.1→08.6 | `MentorApproval.tsx` | Must |
-| FL-AUTH-09 Ban/Unban | FR-AUTH.09.1→09.5 | Inline actions in `UserListPage.tsx` | Must |
-| FL-AUTH-10 Đăng xuất | FR-AUTH.10.1→10.4 | `AuthProvider.logout()` + Header button | Must |
-| FL-AUTH-11 Guard & Profile | FR-AUTH.11.1→11.13 | `ProtectedRoute`, `RequirePermission`, axios interceptor | Must |
+> **Rule:** No direct `import { Button } from 'antd'` in feature code. All Antd usage goes through `src/uikit/`.
 
 ---
 
-### New files
+## New files in `apps/web/src/`
 
 ```
 apps/web/src/
-├── views/
-│   ├── auth/
-│   │   ├── Login.tsx                    [MODIFY] — add form validation, error handling
-│   │   ├── Register.tsx                 [MODIFY] — add Mentor tab, password policy
-│   │   ├── ForgotPassword.tsx           [MODIFY] — add 6-digit code flow
-│   │   └── ResetPassword.tsx            [NEW] — new password + code validation
-│   └── config/
-│       ├── role/
-│       │   ├── RoleListPage.tsx         [NEW] — table: STT, Role name, Action (edit/delete)
-│       │   ├── RoleCreatePage.tsx       [NEW] — wraps RoleForm
-│       │   ├── RoleEditPage.tsx         [NEW] — wraps RoleForm
-│       │   ├── hooks/
-│       │   │   └── useRoleMutations.ts  [NEW] — mutation hooks for role
-│       │   └── components/
-│       │       ├── RoleForm.tsx         [NEW] — name input + PermissionMatrixForm + save/cancel
-│       │       └── PermissionMatrixForm.tsx [NEW] — grid 3 cột, group cards, parent/child checkbox
-│       ├── user/
-│       │   ├── UserListPage.tsx         [NEW] — table: name, email, role badge, status badge, actions
-│       │   ├── UserCreatePage.tsx       [NEW] — wraps UserForm
-│       │   ├── UserEditPage.tsx         [NEW] — wraps UserForm
-│       │   └── components/
-│       │       ├── UserForm.tsx         [NEW] — create/edit user, role dropdown
-│       │       └── UserStatusBadge.tsx  [NEW] — color-coded status badge component
-│       └── mentor/
-│           └── MentorApproval.tsx       [NEW] — pending list, approve/reject with reason
+├── providers/
+│   ├── antdProvider.tsx                [NEW] — ConfigProvider + theme + locale
+│   ├── queryProvider.tsx               [NEW] — QueryClientProvider setup
+│   ├── appBoot.tsx                     [NEW] — orchestrates init: i18n, zodLocale, providers
+│   ├── theme.ts                        [NEW] — exports themeTokens + themeComponents
+│   └── zodLocale.ts                    [NEW] — z.setErrorMap() for i18n Zod messages
 ├── auth/
-│   ├── AuthProvider.tsx                 [MODIFY] — cleanup, add type safety
-│   ├── ProtectedRoute.tsx               [MODIFY] — redirect logic + status check
-│   ├── RequirePermission.tsx            [MODIFY] — add 403 page instead of inline div
+│   ├── AuthProvider.tsx                [MODIFY] — cleanup, add login/register/logout/restore
+│   ├── ProtectedRoute.tsx              [MODIFY] — redirect logic + status check
 │   └── hooks/
-│       └── useAuthMutations.ts          [MODIFY] — add changePassword, approve/reject mentor
-├── components/
-│   └── ConfirmDialog.tsx                [NEW] — reusable confirm dialog (delete, ban, etc.)
+│       └── useAuthMutations.ts         [MODIFY] — typed mutations for login, register, forgot/reset
+├── layouts/
+│   ├── responsiveLayout.tsx            [NEW] — displayMode resolver → Desktop or Mobile
+│   ├── desktopLayout.tsx               [NEW] — Sider + Header + Content + <Outlet />
+│   ├── mobileLayout.tsx                [NEW] — Drawer menu + hamburger Header + <Outlet />
+│   ├── menuConfig.ts                   [NEW] — sidebarMenuConfig: AppMenuItem[]
+│   ├── sidebarMenu.tsx                 [NEW] — renders menu items from config
+│   └── displayModeToggle.tsx           [NEW] — header toggle: auto → desktop → mobile → auto
+├── views/
+│   └── auth/
+│       ├── Login.tsx                   [MODIFY] — form validation, Zod schema, error handling
+│       ├── Register.tsx                [MODIFY] — Learner tab + Mentor tab, password policy
+│       ├── ForgotPassword.tsx          [MODIFY] — email → 6-digit code flow
+│       └── ResetPassword.tsx           [NEW] — code + new password validation
 ├── router/
-│   ├── dashboard.routes.tsx             [MODIFY] — add config/role/*, config/user/*, config/mentor/*
-│   └── auth.routes.tsx                  [MODIFY] — add /reset-password route
-└── hooks/
-    └── usePermission.ts                 [NEW] — hook: hasPermission(code), hasAnyPermission([...])
+│   ├── index.tsx                       [MODIFY] — add layout wrapper, reset-password route
+│   ├── protectedRoute.tsx              [MODIFY] — token check + status guard
+│   └── auth.routes.tsx                 [MODIFY] — add /reset-password route
+├── hooks/
+│   └── useBreakpoint.ts               [NEW] — viewport width detection (768px boundary)
+├── api/
+│   └── bootstrap.ts                    [VERIFY] — axios interceptor: token injection, 401 redirect
+├── uikit/
+│   └── (see UI Kit additions above)
+└── store/
+    └── (uses @iuroadmap/store appSlice — no new store files needed)
 ```
 
 ---
 
-### Component Specifications
+## Reused `@iuroadmap/core` assets
 
-#### 1. `PermissionMatrixForm.tsx` — Permission Grid (FR-AUTH.06.8→06.13)
-
-The core component of this phase. Renders the permission selection UI.
-
-**Props:**
-```typescript
-interface PermissionMatrixProps {
-  value: string[];                    // selected permission IDs
-  onChange: (ids: string[]) => void;  // callback when selection changes
-  disabled?: boolean;                 // read-only mode (for SUPERADMIN)
-}
-```
-
-**Behavior (from FR):**
-- Loads data from `GET /iam/Role/GetAllPermission` → `{ groups: [{ id, name, permissions: [{ id, name, displayName }] }] }`
-- Grid layout: **3 columns** (responsive → 2 col tablet, 1 col mobile)
-- Each group = 1 **card** with:
-  - ☐ **Group header checkbox** (parent) — `PermissionGroup.name`
-  - Indented list of ☐ **permission checkboxes** (children) — `Permission.displayName`
-- **Parent → children:** tick group checkbox → tick ALL children. Untick group → untick ALL.
-- **Children → parent:** all children ticked → parent ☑. Some ticked → parent ▣ (indeterminate). None → parent ☐.
-- When `disabled=true`: all checkboxes rendered as checked + disabled (SUPERADMIN view).
-
-**API:** `GET /api/v1/iam/Role/GetAllPermission`
-
-#### 2. `RoleListPage.tsx` — Role List Page (FR-AUTH.06.1→06.5)
-
-| Element | Spec |
-|---|---|
-| Route | `/dashboard/config/role` |
-| Permission guard | `ROLE.AD` or `SYS.AD` |
-| Table columns | `No.` (STT), `Role` (name), `Action` (edit ✏️ + delete 🗑️) |
-| "+ Create new" button | Top-right → navigate to `/dashboard/config/role/create` |
-| Edit button | Navigate to `/dashboard/config/role/:id/edit` |
-| Delete button | Confirm dialog → `POST /iam/Role/delete/:id`. Blocked if role has users → show error `409`. System roles hide delete button. |
-| API | `GET /api/v1/iam/Role/GetByIndex` |
-
-#### 3. `RoleForm.tsx` (in `RoleCreatePage` / `RoleEditPage`) — Create / Edit Role (FR-AUTH.06.6→06.18)
-
-| Element | Spec |
-|---|---|
-| Route | `/dashboard/config/role/create` (new) or `/dashboard/config/role/:id/edit` (edit) |
-| Fields | `Role Name` (required, unique), `Description` (optional) |
-| Below fields | `<PermissionMatrixForm>` component |
-| Validation | Name not empty, name unique (server-side 409), ≥1 permission selected |
-| Save | `POST /iam/Role/create` or `POST /iam/Role/update` with `{ name, description, permissionIds[] }` |
-| Success | Redirect to RoleListPage + toast "Role created/updated successfully" |
-| Cancel | Redirect to RoleListPage. If unsaved changes → confirm dialog. |
-| Edit mode | Pre-populate name + tick existing permissions from `GET /iam/Role/getById/:id` |
-| SUPERADMIN | PermissionMatrix rendered `disabled=true` (all ticked, non-editable) |
-
-#### 4. `UserListPage.tsx` — User Directory (FR-AUTH.07.1→07.10)
-
-| Element | Spec |
-|---|---|
-| Route | `/dashboard/config/user` |
-| Permission guard | `USER.AD` |
-| Table columns | Name, Email, Role (badge), Status (color badge), CreatedAt, Action |
-| Status badges | `ACTIVE`=green, `PENDING_APPROVAL`=yellow, `BANNED`=red, `REJECTED`=gray |
-| Search | By name/email |
-| Filter | By role (dropdown), by status (dropdown) |
-| Actions | Edit, Ban/Unban (toggle), Delete (superadmin only) |
-| "+ Create user" button | Top-right → navigate to create form |
-| Self-protection | Cannot ban/delete own account (button disabled + tooltip) |
-| API | `GET /api/v1/iam/User/GetByIndex` |
-
-#### 5. `MentorApproval.tsx` — Mentor Verification (FR-AUTH.08.1→08.6)
-
-| Element | Spec |
-|---|---|
-| Route | `/dashboard/config/mentor/pending` |
-| Permission guard | `USER.AD` |
-| List | Users with `status=PENDING_APPROVAL AND role=MENTOR` |
-| Approve | Button → `PENDING_APPROVAL → ACTIVE`. Toast notification. |
-| Reject | Button → modal with **mandatory reason** textarea → `PENDING_APPROVAL → REJECTED`. |
-| API | `POST /api/v1/iam/User/approve/:id`, `POST /api/v1/iam/User/reject/:id` |
+| Asset | Path | Usage |
+|---|---|---|
+| `appSlice` (Redux) | `@iuroadmap/store` (`appSlice`) | `setAccessToken`, `clearAuth`, `selectAccessToken`, `selectTokenProfile` |
+| `parseToken()` | `@iuroadmap/core/auth/jwt.ts` | Decode JWT → `TokenProfile` |
+| `TokenProfile` | `@iuroadmap/core/auth/jwt.ts` | Interface: `sub`, `userId`, `email`, `role`, `permissions[]`, `exp`, `iat` |
+| i18n + locale JSONs | `@iuroadmap/core/i18n/*` | i18next instance + `en/*.json`, `vi/*.json` |
+| `Translations` | `@iuroadmap/core/i18n/translation.ts` | Typed i18n key index |
+| `RoutePaths` | `@iuroadmap/core/constants/routes.ts` | `RoutePaths.web.auth.login`, `.register`, `.forgotPassword`, etc. |
+| `MenuIconsWeb` | `@iuroadmap/core/constants/iconsWeb.ts` | Lucide icon names for sidebar |
+| `FeaturePms` | `@iuroadmap/core/constants/featurePms.ts` | Permission codes (reserved for Phase 2.1+) |
+| `IURoadmapMenu` | `@iuroadmap/core/menus/menu.ts` | Menu item type for sidebar config |
 
 ---
 
-## Verification
+## i18n keys to add or verify
 
-1. **Register flow**: Guest can register as Learner (→ ACTIVE) or Mentor (→ PENDING_APPROVAL). Validation: email unique, password policy (8+ chars, 1 upper, 1 lower, 1 digit), confirm password match. Errors display inline.
-2. **Login flow**: Guest enters email + password → receives JWT → stored in localStorage + Redux → redirected to dashboard. Invalid credentials → "Invalid email or password". BANNED user → "Account has been suspended".
-3. **Forgot password flow**: Enter email → receive 6-digit code → enter code + new password → password reset → redirect to login.
-4. **AuthProvider restore**: After F5 (page refresh), AuthProvider reads token from localStorage, calls `GET /auth/me`, restores profile to Redux. If token invalid/expired → redirect to login.
-5. **Protected routes**: Unauthenticated user visiting `/dashboard/*` → redirect to `/login`. Authenticated user without `ROLE.AD` visiting `/dashboard/config/role` → 403 page.
-6. **Role CRUD**:
-   - Admin visits Configuration → Roles → sees table with system roles.
-   - Click "+ Create new" → enters name → sees Permission Matrix grid (3 columns, group cards).
-   - Tick a group checkbox → all children auto-tick. Untick one child → group shows indeterminate (▣).
-   - Save → role appears in list. Edit → permissions pre-populated. Delete → confirm dialog; blocked if users assigned.
-   - SUPERADMIN role: matrix is read-only (all ticked, disabled).
-7. **User CRUD**:
-   - Admin sees user list with color-coded status badges.
-   - Create user → assign role from dropdown → password auto-generated or manual.
-   - Ban user → status changes to BANNED, user's JWT invalidated (next API call returns 403).
-   - Admin cannot ban/delete themselves.
-8. **Mentor approval**: Admin sees pending mentors → approve (→ ACTIVE) or reject (with mandatory reason → REJECTED).
-9. **Logout**: Click logout → clear localStorage + Redux → redirect to `/login`.
-10. **Existing features unchanged**: Learner dashboard, Macro/Micro Roadmap, Mentor features all still work.
+Add to both `en/auth.json` and `vi/auth.json` under `@iuroadmap/core/i18n/locales/`:
+
+| Key | English | Vietnamese |
+|---|---|---|
+| `auth.login.title` | Log In | Đăng nhập |
+| `auth.login.email` | Email | Email |
+| `auth.login.password` | Password | Mật khẩu |
+| `auth.login.submit` | Log In | Đăng nhập |
+| `auth.login.forgotPassword` | Forgot password? | Quên mật khẩu? |
+| `auth.login.noAccount` | Don't have an account? | Chưa có tài khoản? |
+| `auth.login.register` | Register | Đăng ký |
+| `auth.login.error.invalidCredentials` | Invalid email or password | Email hoặc mật khẩu không đúng |
+| `auth.login.error.banned` | Account has been suspended | Tài khoản đã bị khóa |
+| `auth.login.error.rejected` | Account application was rejected | Đơn đăng ký đã bị từ chối |
+| `auth.register.title` | Register | Đăng ký |
+| `auth.register.tabLearner` | Learner | Học viên |
+| `auth.register.tabMentor` | Mentor | Cố vấn |
+| `auth.register.name` | Full Name | Họ và tên |
+| `auth.register.email` | Email | Email |
+| `auth.register.password` | Password | Mật khẩu |
+| `auth.register.confirmPassword` | Confirm Password | Xác nhận mật khẩu |
+| `auth.register.submit` | Register | Đăng ký |
+| `auth.register.hasAccount` | Already have an account? | Đã có tài khoản? |
+| `auth.register.success` | Registration successful | Đăng ký thành công |
+| `auth.register.mentorPending` | Your mentor application is pending approval | Đơn đăng ký mentor đang chờ duyệt |
+| `auth.register.error.emailExists` | Email already exists | Email đã tồn tại |
+| `auth.register.error.passwordMismatch` | Passwords do not match | Mật khẩu không khớp |
+| `auth.forgotPassword.title` | Forgot Password | Quên mật khẩu |
+| `auth.forgotPassword.email` | Email | Email |
+| `auth.forgotPassword.submit` | Send Reset Code | Gửi mã xác nhận |
+| `auth.forgotPassword.success` | Reset code sent to your email | Mã xác nhận đã được gửi đến email |
+| `auth.resetPassword.title` | Reset Password | Đặt lại mật khẩu |
+| `auth.resetPassword.code` | 6-digit Code | Mã 6 số |
+| `auth.resetPassword.newPassword` | New Password | Mật khẩu mới |
+| `auth.resetPassword.submit` | Reset Password | Đặt lại mật khẩu |
+| `auth.resetPassword.success` | Password reset successfully | Đặt lại mật khẩu thành công |
+| `auth.resetPassword.error.expired` | Reset code has expired | Mã xác nhận đã hết hạn |
+| `auth.logout.success` | Logged out successfully | Đăng xuất thành công |
+| `common.dashboard` | Dashboard | Tổng quan |
+
+Register all new keys in `Translations.auth.*`.
+
+---
+
+## Zod localization (in-scope for Phase 1)
+
+- All default Zod error messages MUST render in the active i18next language. Implementation: a single `z.setErrorMap()` install in `providers/zodLocale.ts`, called from `appBoot` right after `initI18n()`.
+- The error map reads `i18next.t()` on every call, so it tracks language changes without re-registration.
+- Reuse existing `Translations.yupGlobal.{required, string.min, string.max, number.min, number.max, email.invalid, string.url, string.uuid, string.matches, invalidType}` keys — do not add a parallel `zodGlobal` namespace.
+- Verification: on the login page, blur the email field while empty → error reads in Vietnamese when `vi` is active and English when `en` is active. Same for the password field. No raw Zod English strings ("String must contain at least N character(s)") visible.
+
+---
+
+## Theme config (in-scope for Phase 1)
+
+- All Antd `theme.token` values + per-component `theme.components` overrides live in `providers/theme.ts`.
+- `antdProvider.tsx` consumes them via `<ConfigProvider theme={{ token, components, algorithm }}>` — that's the only place that imports from `'antd'` for theming.
+- Feature code never imports the tokens directly. If a screen needs to read the primary color, expose it via a kit helper (e.g. `UiThemeTokens` hook in a later phase). For Phase 1, raw token reads are still done inline (will be folded in Phase 2 composites).
+- Dark mode is **NOT in scope** for Phase 1 — light theme only. The shape of `themeTokens` already accommodates a future `themeAlgorithm` switch.
+
+---
+
+## Display mode (in-scope for Phase 1)
+
+- Redux `app.displayMode: 'auto' | 'desktop' | 'mobile'`. Default `'auto'`. Persisted to `localStorage` under `iuroadmap.web.displayMode`.
+- `responsiveLayout.tsx` resolves: `displayMode === 'auto' ? (breakpoint.md ? Desktop : Mobile) : displayMode === 'desktop' ? Desktop : Mobile`.
+- `displayModeToggle.tsx` renders in the header (both desktop + mobile layouts). Click cycles `auto → desktop → mobile → auto`. Icon hint: `monitor` / `smartphone` / `monitor-smartphone` (from `lucide-react`).
+- Override exists for: testing mobile UX on a desktop browser, user preference (e.g. trainer on a tablet preferring the desktop layout), QA flows.
+
+---
+
+## Sidebar menu generation (in-scope for Phase 1)
+
+- `layouts/menuConfig.ts` exports `sidebarMenuConfig: AppMenuItem[]` with shape:
+
+  ```ts
+  interface AppMenuItem {
+    key: string;
+    labelKey: string;       // a Translations.<path> string
+    icon?: string;          // MenuIconsWeb.<name> (lucide icon name)
+    path?: string;          // RoutePaths.web.<...>
+    pms?: string[];         // reserved for Phase 2.1+ permission filtering
+    children?: AppMenuItem[];
+  }
+  ```
+
+- `sidebarMenu.tsx` (used by desktop + mobile layouts) loops over the config, maps to `<UiMenu>` items, resolves labels via `t(item.labelKey)`. Selection state from `useLocation().pathname`.
+- For Phase 1, only one entry: `{ key: 'home', labelKey: Translations.common.dashboard, icon: 'home', path: RoutePaths.web.root }`. As modules ship (Phase 3+), the same file grows — feature code never touches sidebar JSX.
+- `pms` field is parsed but **not enforced** in Phase 1 (no permission service yet). Phase 2.1 adds the filter.
+
+---
+
+## Responsive notes
+
+- **Desktop (≥ 768px)**: persistent `<Sider>` with logo + nav menu; top bar with user dropdown (name + role badge) + language switcher + display-mode toggle.
+- **Mobile (< 768px)**: `<Drawer>` menu opened from a hamburger in the header. Content full-width.
+- **Login page**: centered card on desktop; full-width form with bottom-fixed submit on mobile.
+- **Register page**: centered card on desktop; full-width stacked tabs on mobile.
+- **Forgot/Reset password**: centered card, same pattern as login.
+- Boundary is `md` (768px) — same for both auto detection and the explicit Antd `<Row>` / `<Col>` responsive props used inside pages.
+
+---
+
+## Manual verification checklist
+
+- [ ] Visit `/login` → form renders, validation errors localized (email required, password required).
+- [ ] Submit invalid credentials → 401 → toast with localized message "Invalid email or password".
+- [ ] Submit BANNED account → 403 → toast "Account has been suspended".
+- [ ] Submit valid credentials → token persisted, navigate to dashboard, header shows user name + role.
+- [ ] Refresh page → still authenticated (token rehydrated from localStorage → `GET /auth/me` → profile restored).
+- [ ] Hit a protected route while logged out → redirected to `/login`.
+- [ ] Trigger a 401 from any API call → toast + redirect to login.
+- [ ] Visit `/register` → Learner tab and Mentor tab render correctly.
+- [ ] Register as Learner → `ACTIVE` → redirect to login with success toast.
+- [ ] Register as Mentor → `PENDING_APPROVAL` → redirect to login with "pending approval" message.
+- [ ] Register with duplicate email → 409 → inline error "Email already exists".
+- [ ] Password policy violation (< 8 chars, no uppercase, etc.) → inline validation error.
+- [ ] `confirmPassword` mismatch → inline error "Passwords do not match".
+- [ ] Visit `/forgot-password` → enter email → success message regardless of email existence.
+- [ ] Visit `/reset-password` → enter 6-digit code + new password → success → redirect to login.
+- [ ] Expired code → "Reset code has expired" error.
+- [ ] Click logout → clear localStorage + Redux → redirect to `/login`.
+- [ ] Switch language → all UI strings including Antd's built-ins (DatePicker, Pagination labels) update.
+- [ ] Resize browser below 768px → mobile layout kicks in (when display mode = auto).
+- [ ] Click display-mode toggle on a wide screen → forces mobile layout; click again → forces desktop; third click → back to auto. Refresh → mode persists.
+- [ ] Theme tokens: changing `colorPrimary` in `providers/theme.ts` reflects on the login button and every Antd surface (no extra wiring needed).
+- [ ] Sidebar shows only the configured items (currently one entry: Dashboard). Adding a new entry in `menuConfig.ts` makes it appear in both desktop sider and mobile drawer.
+- [ ] Zod localization: blur email field empty → error in Vietnamese when `vi` active. No raw English Zod strings visible.
 
 ---
 
 ## Out of scope (deferred)
 
-- OAuth2 / SSO / Google Sign-in — future enhancement.
-- Two-Factor Authentication (2FA) — future enhancement.
-- Refresh token rotation — current: 24h access token only.
-- Session management (multi-device awareness) — future enhancement.
-- Account lockout (5 failed attempts → 15 min lock) — should, not must.
-- Audit log viewer (admin screen to browse auth events) — Phase Admin-Config.
-- Email verification after registration — future enhancement.
-- Change password page — should priority, can defer to next sprint.
-- Export users to Excel/CSV — could priority.
+| Feature | Deferred to |
+|---|---|
+| FL-AUTH-05 Đổi mật khẩu (khi đăng nhập) | Phase 3 (Admin) |
+| FL-AUTH-06 Role CRUD + Permission Matrix | Phase 3 (Admin) |
+| FL-AUTH-07 User Directory (CRUD, search, filter) | Phase 3 (Admin) |
+| FL-AUTH-08 Duyệt Mentor Application | Phase 3 (Admin) |
+| FL-AUTH-09 Ban/Unban User | Phase 3 (Admin) |
+| `RequirePermission` guard (permission-based route gating) | Phase 2.1 (Prebuild) |
+| JWT → typed profile parsing + permission-driven sidebar | Phase 2.1 (Prebuild) |
+| Common composite components (Table, Modal, Tabs, etc.) | Phase 2 (UI Kit Composites) |
+| Any business module (Roadmap, Lecturer Review, Mentor, AI Chatbot) | Phase 4+ |
+| OAuth2 / SSO / Google Sign-in | Future enhancement |
+| Two-Factor Authentication (2FA) | Future enhancement |
+| Refresh token rotation (currently: 24h access token only) | Future enhancement |
+| Dark mode / theme algorithm switch | Phase 2+ |
