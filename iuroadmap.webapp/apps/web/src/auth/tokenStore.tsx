@@ -1,5 +1,5 @@
 // src/auth/tokenStore.ts
-const ACCESS_TOKEN_KEY = 'gupjob_access_token';
+const ACCESS_TOKEN_KEY = 'iuroadmap.web.accessToken';
 
 export const getAccessToken = (): string | null => {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
