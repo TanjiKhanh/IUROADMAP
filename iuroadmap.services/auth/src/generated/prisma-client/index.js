@@ -199,7 +199,7 @@ const config = {
   },
   "relativeEnvPaths": {
     "rootEnvPath": null,
-    "schemaEnvPath": "../../../../../.env"
+    "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
   "clientVersion": "5.22.0",
@@ -208,7 +208,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": true,
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -227,8 +227,8 @@ const fs = require('fs')
 config.dirname = __dirname
 if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
   const alternativePaths = [
-    "iuroadmap.services/auth/src/generated/prisma-client",
-    "auth/src/generated/prisma-client",
+    "src/generated/prisma-client",
+    "generated/prisma-client",
   ]
   
   const alternativePath = alternativePaths.find((altPath) => {
@@ -257,11 +257,11 @@ Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "iuroadmap.services/auth/src/generated/prisma-client/query_engine-windows.dll.node")
+path.join(process.cwd(), "src/generated/prisma-client/query_engine-windows.dll.node")
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-linux-musl-openssl-3.0.x.so.node");
-path.join(process.cwd(), "iuroadmap.services/auth/src/generated/prisma-client/libquery_engine-linux-musl-openssl-3.0.x.so.node")
+path.join(process.cwd(), "src/generated/prisma-client/libquery_engine-linux-musl-openssl-3.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "iuroadmap.services/auth/src/generated/prisma-client/schema.prisma")
+path.join(process.cwd(), "src/generated/prisma-client/schema.prisma")

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../auth/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectTokenProfile, clearAuth } from '@iuroadmap/store';
+import type { RootState } from '@iuroadmap/store';
 import logo from '../../assets/images/logo-gupjob-primary.png';
 import { RoutePaths, MenuIconsWeb } from '@iuroadmap/core';
 import { useMenu } from '../../hooks/useMenu';
@@ -38,7 +40,8 @@ const IconMap: Record<string, LucideIcon | null> = {
 };
 
 export default function Sidebar() {
-  const { user, logout } = useAuth();
+  const user = useSelector((state: RootState) => selectTokenProfile(state));
+  const dispatch = useDispatch();
   const filteredMenu = useMenu();
   const navigate = useNavigate();
   const location = useLocation();
@@ -61,7 +64,8 @@ export default function Sidebar() {
     isActive ? 'nav-link active' : 'nav-link';
 
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem('iuroadmap.web.token');
+    dispatch(clearAuth());
     navigate(RoutePaths.web.public.login);
   };
 

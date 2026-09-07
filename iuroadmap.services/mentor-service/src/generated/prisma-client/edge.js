@@ -140,7 +140,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\TanKhanh\\Lecture\\2025-2026\\Second Semester\\Software Engineering\\IUROADMAP\\IUROADMAP\\iuroadmap.services\\mentor-service\\src\\generated\\prisma-client",
+      "value": "C:\\TanKhanh\\Lecture\\2025-2026\\Second Semester\\Software Engineering\\IUROADMAP\\iuroadmap.services\\mentor-service\\src\\generated\\prisma-client",
       "fromEnvVar": null
     },
     "config": {
@@ -154,7 +154,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\TanKhanh\\Lecture\\2025-2026\\Second Semester\\Software Engineering\\IUROADMAP\\IUROADMAP\\iuroadmap.services\\mentor-service\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\TanKhanh\\Lecture\\2025-2026\\Second Semester\\Software Engineering\\IUROADMAP\\iuroadmap.services\\mentor-service\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -168,6 +168,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

@@ -1,5 +1,7 @@
 import React from 'react';
-import { useAuth } from '../../auth/AuthContext';
+import { useSelector } from 'react-redux';
+import { selectTokenProfile } from '@iuroadmap/store';
+import type { RootState } from '@iuroadmap/store';
 
 interface HeaderProps {
   title: string;
@@ -7,7 +9,7 @@ interface HeaderProps {
 }
 
 export default function Header({ title, subtitle }: HeaderProps) {
-  const { user } = useAuth();
+  const user = useSelector((state: RootState) => selectTokenProfile(state));
 
   return (
     <header className="dashboard-header">

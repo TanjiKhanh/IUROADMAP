@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException, ForbiddenException, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -41,8 +41,13 @@ export class AuthenticationService {
       sub: user.id, 
       userId: user.id,
       email: user.email, 
+      name: user.name,
       role: user.role?.name || user.role,
       permissions: user.role?.permissions?.map((p: any) => p.name) || [],
+      status: user.status,
+      subscriptionTier: user.subscriptionTier,
+      subscriptionExpiresAt: user.subscriptionExpiresAt,
+      isSuperAdmin: user.role?.name === 'SUPERADMIN',
       deptId: user.departmentId || null, 
       job: user.jobPriority || (user.profile as any)?.jobPriority 
     };
@@ -90,6 +95,14 @@ export class AuthenticationService {
     
     const matched = await bcrypt.compare(dto.password, user.password);
     if (!matched) throw new UnauthorizedException('Invalid credentials');
+
+    if (user.status === AccountStatus.BANNED) {
+      throw new ForbiddenException('Account has been suspended');
+    }
+
+    if (user.status === AccountStatus.REJECTED) {
+      throw new ForbiddenException('Account application was rejected');
+    }
 
     const accessToken = this.createAccessToken(user);
 

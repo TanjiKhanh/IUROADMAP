@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../auth/AuthContext';
+
 import { useTranslation } from '../../hooks/useTranslation';
 import { features, RoutePaths } from '@iuroadmap/core';
 import logo from '../../assets/images/logo-gupjob-primary.png';
@@ -19,6 +19,7 @@ import {
   UiCard, 
   useToast
 } from '../../uikit';
+import { authenticationControllerRegister, authenticationControllerRegisterMentor } from '@iuroadmap/api-gen';
 
 const authKeys = features.auth.keys;
 
@@ -32,7 +33,6 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { register } = useAuth();
   const { t } = useTranslation();
   const { toast, toastContextHolder } = useToast();
   
@@ -81,12 +81,12 @@ export default function RegisterPage() {
       };
 
       if (backendRole === 'MENTOR') {
-        await register({ ...basePayload, ...extraData });
+        await authenticationControllerRegisterMentor({ ...basePayload, ...extraData } as any);
         localStorage.setItem('mentorName', values.fullName);
         localStorage.setItem('mentorEmail', values.email);
         navigate(RoutePaths.web.mentor.applicationPending);
       } else {
-        await register(basePayload);
+        await authenticationControllerRegister(basePayload);
         navigate(RoutePaths.web.public.login, { state: { message: 'Registration successful! Please sign in.' } });
       }
     } catch (err: any) {

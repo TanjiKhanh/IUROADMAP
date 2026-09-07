@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../hooks/useTranslation';
-import { features, RoutePaths, parseToken } from '@iuroadmap/core';
+import { features, RoutePaths } from '@iuroadmap/core';
 import logo from '../../assets/images/logo-gupjob-primary.png';
 
 import { useForm } from 'react-hook-form';
@@ -15,12 +15,14 @@ import {
   UiIcon,
   UiInputField,
   UiSpace,
-  useBreakpoint,
   useToast,
 } from '../../uikit';
+import { useBreakpoint } from '../../hooks/useBreakpoint';
 
-import { useAppDispatch, useAppSelector, selectIsAuthenticated, setAccessToken } from '@iuroadmap/store';
-import { useAuthMutations } from '../../auth/hooks/useAuthMutations';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectIsAuthenticated, setAccessToken } from '@iuroadmap/store';
+import type { RootState } from '@iuroadmap/store';
+import { authenticationControllerLogin } from '@iuroadmap/api-gen';
 
 const authKeys = features.auth.keys;
 
@@ -40,11 +42,10 @@ interface LocationStateWithFrom {
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useAppDispatch();
-  const authenticated = useAppSelector(selectIsAuthenticated);
-  const { login } = useAuthMutations();
+  const dispatch = useDispatch();
+  const authenticated = useSelector((state: RootState) => selectIsAuthenticated(state));
   const { t } = useTranslation();
-  const { md } = useBreakpoint();
+  const { isMobile } = useBreakpoint();
   const { toast, toastContextHolder } = useToast();
 
   const form = useForm<LoginFormValues>({
@@ -61,43 +62,27 @@ export default function Login() {
     }
   }, [authenticated, navigate, redirectTarget]);
 
-  const onSubmit = form.handleSubmit((values) => {
-    login.mutate(
-      { data: { email: values.email, password: values.password } },
-      {
-        onSuccess: (res: any) => {
-          const token = res.data?.accessToken || res.accessToken;
-          if (!token) {
-            toast.error(t(authKeys.login.errorLoginFailed));
-            return;
-          }
-
-          const profile = parseToken(token);
-          if (!profile) {
-            toast.error('Invalid token received');
-            return;
-          }
-
-          try {
-            localStorage.setItem('iuroadmap.web.accessToken', token);
-          } catch { /* ignore */ }
-          
-          dispatch(setAccessToken(token));
-          toast.success('Logged in successfully');
-        },
-        onError: (error: any) => {
-          toast.error(error.response?.data?.message || error.message || t(authKeys.login.errorLoginFailed));
-        },
+  const onSubmit = form.handleSubmit(async (values) => {
+    try {
+      const res = await authenticationControllerLogin(values);
+      if (res.status === 200 && res.data?.access_token) {
+        localStorage.setItem('iuroadmap.web.token', res.data.access_token);
+        dispatch(setAccessToken(res.data.access_token));
+        toast.success('Logged in successfully');
+      } else {
+        toast.error(t(authKeys.login.errorLoginFailed));
       }
-    );
+    } catch (error: any) {
+      toast.error(error.message || t(authKeys.login.errorLoginFailed));
+    }
   });
 
   return (
-    <div className="auth-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f5f7fa' }}>
+    <div className="auth-page">
       {toastContextHolder}
       <UiCard
         style={{
-          width: md ? 420 : '100%',
+          width: isMobile ? '100%' : 420,
           maxWidth: 460,
           boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
           border: 'none',
@@ -118,19 +103,21 @@ export default function Login() {
           <UiSpace direction='vertical' size='medium' style={{ width: '100%' }}>
             <UiInputField<LoginFormValues>
               name='email'
+              control={form.control}
               label={t(authKeys.login.email)}
               placeholder={t(authKeys.login.emailPlaceholder)}
-              prefix={<UiIcon name="mail" size={18} />}
+              prefix={<UiIcon name="Mail" size={18} />}
               autoComplete='username'
               autoFocus
               required
             />
             <UiInputField<LoginFormValues>
               name='password'
+              control={form.control}
               type='password'
               label={t(authKeys.login.password)}
               placeholder={t(authKeys.login.passwordPlaceholder)}
-              prefix={<UiIcon name="lock" size={18} />}
+              prefix={<UiIcon name="Lock" size={18} />}
               autoComplete='current-password'
               required
             />

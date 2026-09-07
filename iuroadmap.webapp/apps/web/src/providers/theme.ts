@@ -1,6 +1,16 @@
 import type { ThemeConfig } from 'antd';
 import { theme } from 'antd';
 
+export const appColors = {
+  primary: '#4f46e5',
+  onPrimary: '#ffffff',
+  surface: '#f8fafc',
+  sidebarBg: '#ffffff',
+  sidebarBorder: '#e5e7eb',
+  borderOnPrimary: 'rgba(255, 255, 255, 0.2)',
+  border: '#e5e7eb',
+} as const;
+
 export const themeTokens: ThemeConfig['token'] = {
   colorPrimary: '#4f46e5',
   colorSuccess: '#10b981',

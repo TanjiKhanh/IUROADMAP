@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../auth/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectTokenProfile, clearAuth } from '@iuroadmap/store';
+import type { RootState } from '@iuroadmap/store';
 import { Clock, LogOut, Mail } from 'lucide-react';
 
 export default function ApplicationPending() {
-  const { user, logout } = useAuth();
+  const user = useSelector((state: RootState) => selectTokenProfile(state));
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [mentorName, setMentorName] = useState<string>('Mentor');
   const [isNewRegistrant, setIsNewRegistrant] = useState(false);
@@ -44,7 +47,8 @@ export default function ApplicationPending() {
   }, [user, navigate]);
 
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem('iuroadmap.web.token');
+    dispatch(clearAuth());
     navigate('/login', { replace: true });
   };
 
@@ -100,7 +104,8 @@ export default function ApplicationPending() {
               
               // Case 2: Logged in mentor - logout from session
               if (user) {
-                logout();
+                localStorage.removeItem('iuroadmap.web.token');
+                dispatch(clearAuth());
               }
               
               // Both cases: Navigate to login

@@ -15,6 +15,7 @@ export interface IURoadmapMenuItem {
   iconWeb: string;
   iconMobile: string;
   isPro?: boolean;
+  ignorePms?: boolean;
   children?: IURoadmapMenuItem[];
   isDisplayVerticalNav?: boolean;
   isDisplayVerticalNavMobile?: boolean;

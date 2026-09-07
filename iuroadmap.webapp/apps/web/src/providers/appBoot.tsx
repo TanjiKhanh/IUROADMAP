@@ -4,7 +4,7 @@ import { store } from '@iuroadmap/store';
 import { TranslationProvider, useTranslation } from '../hooks/useTranslation';
 import { AntdProvider } from './antdProvider';
 import { QueryProvider } from './queryProvider';
-import { AuthProvider } from '../auth/AuthProvider';
+import { AuthRehydrator } from '../auth/AuthRehydrator';
 import { initZodLocale, setZodLocale } from './zodLocale';
 import { bootstrapApi } from '../api/bootstrap';
 
@@ -31,9 +31,9 @@ export function AppBoot({ children }: { children: React.ReactNode }) {
         <Bootstrapper>
           <AntdProvider>
             <QueryProvider>
-              <AuthProvider>
+              <AuthRehydrator>
                 {children}
-              </AuthProvider>
+              </AuthRehydrator>
             </QueryProvider>
           </AntdProvider>
         </Bootstrapper>

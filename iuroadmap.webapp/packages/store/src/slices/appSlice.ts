@@ -22,8 +22,12 @@ export const appSlice = createSlice({
   initialState,
   reducers: {
     setAccessToken: (state, action: PayloadAction<string>) => {
-      state.accessToken = action.payload;
-      state.profile = parseToken(action.payload);
+      const profile = parseToken(action.payload);
+      state.accessToken = profile ? action.payload : null;
+      state.profile = profile;
+    },
+    setTokenProfile: (state, action: PayloadAction<TokenProfile | null>) => {
+      state.profile = action.payload;
     },
     clearAuth: (state) => {
       state.accessToken = null;
@@ -39,7 +43,7 @@ export const appSlice = createSlice({
   },
 });
 
-export const { setAccessToken, clearAuth, setInitialized, setDisplayMode } = appSlice.actions;
+export const { setAccessToken, setTokenProfile, clearAuth, setInitialized, setDisplayMode } = appSlice.actions;
 
 export const selectAccessToken = (state: { app: AppState }) => state.app.accessToken;
 export const selectIsAuthenticated = (state: { app: AppState }) => Boolean(state.app.accessToken);

@@ -4,7 +4,13 @@ import { UiMenu } from '../uikit';
 import { useLocation, useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
 
-export const SidebarMenu = ({ mode = 'inline' }: { mode?: 'inline' | 'vertical' | 'horizontal' }) => {
+export const SidebarMenu = ({
+  mode = 'inline',
+  inlineCollapsed,
+}: {
+  mode?: 'inline' | 'vertical' | 'horizontal';
+  inlineCollapsed?: boolean;
+}) => {
   const menuConfig = useMenu();
   const location = useLocation();
   const navigate = useNavigate();
@@ -43,6 +49,7 @@ export const SidebarMenu = ({ mode = 'inline' }: { mode?: 'inline' | 'vertical' 
   return (
     <UiMenu
       mode={mode}
+      inlineCollapsed={inlineCollapsed}
       selectedKeys={selectedKeys}
       defaultOpenKeys={openKeys}
       items={antdMenuItems}

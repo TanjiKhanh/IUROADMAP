@@ -89,11 +89,9 @@ The profile must expose the claims needed by the web app, including:
   fullName,
   email,
   role,
-  roles,
   permissions,
-  tenantId,
   isSuperAdmin,
-  isCustomerAdmin,
+  subscriptionTier,
   status,
   expiresAt
 }

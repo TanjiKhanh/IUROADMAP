@@ -1,5 +1,5 @@
 import { getAccessToken, removeAccessToken } from '../auth/tokenStore';
-import { store } from '@iuroadmap/store';
+import { clearAuth, store } from '@iuroadmap/store';
 import { RoutePaths } from '@iuroadmap/core';
 
 export interface BootstrapApiOptions {
@@ -35,6 +35,7 @@ export function bootstrapApi(opts: BootstrapApiOptions = {}): void {
 
       if (response.status === 401 || response.status === 403) {
         removeAccessToken();
+        store.dispatch(clearAuth());
         opts.onUnauthorized?.();
         if (window.location.pathname !== RoutePaths.web.public.login) {
           window.location.href = RoutePaths.web.public.login;
