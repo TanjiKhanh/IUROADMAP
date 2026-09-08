@@ -8,7 +8,6 @@ import { Translations } from '../i18n/translation';
 
 export interface IURoadmapMenuItem {
   roles: readonly string[] | string[];
-  permissions?: readonly string[];
   path: string;
   pathMobile: string;
   title: string;
@@ -63,7 +62,6 @@ export const navigation: IURoadmapMenu[] = [
     items: [
       {
         roles: FeaturePms.roadmap.view,
-        permissions: FeaturePms.roadmap.permissions.view,
         path: '',
         pathMobile: '',
         title: Translations.sidebar.roadmap,
@@ -74,7 +72,6 @@ export const navigation: IURoadmapMenu[] = [
         children: [
           {
             roles: FeaturePms.roadmap.view,
-            permissions: FeaturePms.roadmap.permissions.view,
             path: RoutePaths.web.dashboard.explore,
             pathMobile: RoutePaths.mobile.dashboard.explore,
             title: Translations.sidebar.exploreMajors,
@@ -85,7 +82,6 @@ export const navigation: IURoadmapMenu[] = [
           },
           {
             roles: FeaturePms.roadmap.view,
-            permissions: FeaturePms.roadmap.permissions.view,
             path: RoutePaths.web.dashboard.myCourses,
             pathMobile: RoutePaths.mobile.dashboard.myCourses,
             title: Translations.sidebar.myRoadmaps,
@@ -96,7 +92,6 @@ export const navigation: IURoadmapMenu[] = [
           },
           {
             roles: FeaturePms.roadmap.manage,
-            permissions: FeaturePms.roadmap.permissions.manage,
             path: RoutePaths.web.admin.roadmaps,
             pathMobile: RoutePaths.mobile.admin.roadmaps,
             title: Translations.sidebar.manageRoadmaps,
@@ -109,7 +104,6 @@ export const navigation: IURoadmapMenu[] = [
       },
       {
         roles: FeaturePms.course.manage,
-        permissions: FeaturePms.course.permissions.manage,
         path: '',
         pathMobile: '',
         title: Translations.sidebar.courses,
@@ -120,7 +114,6 @@ export const navigation: IURoadmapMenu[] = [
         children: [
           {
             roles: FeaturePms.course.manage,
-            permissions: FeaturePms.course.permissions.manage,
             path: RoutePaths.web.admin.courses,
             pathMobile: RoutePaths.mobile.admin.courses,
             title: Translations.sidebar.manageCourses,
@@ -186,12 +179,31 @@ export const navigation: IURoadmapMenu[] = [
     items: [
       {
         roles: FeaturePms.system.admin,
-        permissions: FeaturePms.system.permissions.admin,
         path: RoutePaths.web.admin.departments,
         pathMobile: RoutePaths.mobile.admin.departments,
         title: Translations.sidebar.departments,
         iconWeb: MenuIconsWeb.folder,
         iconMobile: MenuIconsMobile.FOLDER,
+        isDisplayVerticalNav: true,
+        isDisplayVerticalNavMobile: false,
+      },
+      {
+        roles: FeaturePms.system.userAdmin,
+        path: RoutePaths.web.config.user.root,
+        pathMobile: RoutePaths.mobile.config.user.root,
+        title: Translations.sidebar.users,
+        iconWeb: MenuIconsWeb.users,
+        iconMobile: MenuIconsMobile.USERS,
+        isDisplayVerticalNav: true,
+        isDisplayVerticalNavMobile: false,
+      },
+      {
+        roles: FeaturePms.system.roleAdmin,
+        path: RoutePaths.web.config.role.root,
+        pathMobile: RoutePaths.mobile.config.role.root,
+        title: Translations.sidebar.roles,
+        iconWeb: MenuIconsWeb.users,
+        iconMobile: MenuIconsMobile.USERS,
         isDisplayVerticalNav: true,
         isDisplayVerticalNavMobile: false,
       },

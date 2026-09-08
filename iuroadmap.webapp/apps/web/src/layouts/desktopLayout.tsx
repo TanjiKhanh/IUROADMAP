@@ -2,35 +2,31 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { appColors } from '../providers/theme';
 import { UiAppLayout, UiButton, UiContent, UiHeader, UiIcon, UiSider } from '../uikit';
-import { DisplayModeToggle } from './displayModeToggle';
 import { SidebarMenu } from './sidebarMenu';
 import {
-  HeaderUserChip,
   LanguageSwitcher,
   LayoutBreadcrumb,
-  NotificationPopover,
   SidebarBrand,
   SidebarUserCard,
-  TenantSwitcher,
 } from '../components/layout/layoutSlots';
 
+/**
+ * Desktop layout: fixed sidebar (collapsible) + header + scrollable content.
+ *
+ * Single responsibility: structural layout only.
+ * - Menu filtering is handled by `SidebarMenu` → `useSidebarMenu` → core `getProfileMenu`.
+ * - User card is handled by `SidebarUserCard`.
+ * - Breadcrumb is handled by `LayoutBreadcrumb`.
+ */
 export function DesktopLayout() {
   const [collapsed, setCollapsed] = useState(false);
 
-  // `height: 100vh; overflow: hidden` on the outermost layout disables
-  // page-level scrolling. The sidebar's inner column owns its own scroll
-  // context, and only `<UiContent>` scrolls on the main side — which is
-  // what makes the header and the sidebar feel "fixed".
   return (
     <UiAppLayout hasSider style={{ height: '100vh', overflow: 'hidden' }}>
       <UiSider
         collapsible
         collapsed={collapsed}
         onCollapse={setCollapsed}
-        // Disable Antd's built-in trigger — it renders position-fixed at the
-        // bottom of the sider and floats over `<SidebarUserCard>`. We render
-        // our own bar below the user card so it sits in-flow and aligns to
-        // the right (instead of Antd's center-aligned chevron).
         trigger={null}
         width={300}
         collapsedWidth={68}
@@ -58,9 +54,6 @@ export function DesktopLayout() {
               borderTop: `1px solid ${appColors.sidebarBorder}`,
               background: appColors.sidebarBg,
               display: 'flex',
-              // Right-align when expanded so the toggle hugs the sidebar edge.
-              // Center it when collapsed so the icon sits inside the narrow
-              // 68px column (right-align would clip into the border).
               justifyContent: collapsed ? 'center' : 'flex-end',
               flexShrink: 0,
             }}>
@@ -101,7 +94,6 @@ export function DesktopLayout() {
               color: appColors.onPrimary,
             }}>
             <LanguageSwitcher />
-            <DisplayModeToggle />
           </div>
         </UiHeader>
         <UiContent style={{ padding: 20, background: appColors.surface, overflow: 'auto', flex: 1 }}>

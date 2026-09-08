@@ -14,6 +14,8 @@ import AdminDashboard from '../views/admin/AdminDashboard';
 import ManageDepartments from '../views/admin/ManageDepartments';
 import ManageRoadmaps from '../views/admin/ManageRoadmaps';
 import ManageCourses from '../views/admin/ManageCourses';
+import { UserListPage } from '../views/config/user/userListPage';
+import { RoleListPage } from '../views/config/role/roleListPage';
 
 const dashboardRoutes: RouteObject[] = [
   {
@@ -44,22 +46,24 @@ const dashboardRoutes: RouteObject[] = [
         path: dashboardChildPath(RoutePaths.web.dashboard.microRoadmap),
         element: <MicroRoadmap />,
       },
+      // {
+      //   path: dashboardChildPath(RoutePaths.web.admin.root),
+      //   element: <AdminDashboard />,
+      // },
       {
-        path: dashboardChildPath(RoutePaths.web.admin.root),
-        element: <AdminDashboard />,
+        path: dashboardChildPath(RoutePaths.web.config.root),
+        children: [
+          {
+            path: dashboardChildPath(RoutePaths.web.config.user.root),
+            element: <UserListPage />,
+          },
+          {
+            path: dashboardChildPath(RoutePaths.web.config.role.root),
+            element: <RoleListPage />,
+          },
+        ],
       },
-      {
-        path: dashboardChildPath(RoutePaths.web.admin.roadmaps),
-        element: <ManageRoadmaps />,
-      },
-      {
-        path: dashboardChildPath(RoutePaths.web.admin.courses),
-        element: <ManageCourses />,
-      },
-      {
-        path: dashboardChildPath(RoutePaths.web.admin.departments),
-        element: <ManageDepartments />,
-      },
+
       {
         path: dashboardChildPath(RoutePaths.web.mentor.dashboard),
         element: <MentorDashboard />,

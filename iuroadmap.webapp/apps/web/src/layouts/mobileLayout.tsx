@@ -2,10 +2,16 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { appColors } from '../providers/theme';
 import { UiAppLayout, UiButton, UiContent, UiDrawer, UiHeader, UiIcon } from '../uikit';
-import { DisplayModeToggle } from './displayModeToggle';
 import { SidebarMenu } from './sidebarMenu';
 import { HeaderUserChip, LanguageSwitcher, NotificationPopover } from '../components/layout/layoutSlots';
 
+/**
+ * Mobile layout: sticky header with hamburger menu + drawer sidebar + scrollable content.
+ *
+ * Single responsibility: structural layout only.
+ * - Menu filtering is handled by `SidebarMenu` → `useSidebarMenu` → core `getProfileMenu`.
+ * - User actions are handled by `HeaderUserChip`.
+ */
 export function MobileLayout() {
   const [drawerVisible, setDrawerVisible] = useState(false);
 
@@ -32,7 +38,6 @@ export function MobileLayout() {
         />
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: appColors.onPrimary }}>
           <LanguageSwitcher />
-          <DisplayModeToggle />
           <NotificationPopover />
           <HeaderUserChip />
         </div>
@@ -44,9 +49,7 @@ export function MobileLayout() {
         open={drawerVisible}
         width={260}
         styles={{ body: { padding: 0 } }}>
-        <div onClick={() => setDrawerVisible(false)}>
-          <SidebarMenu />
-        </div>
+        <SidebarMenu onNavigate={() => setDrawerVisible(false)} />
       </UiDrawer>
       <UiContent style={{ padding: 16, background: appColors.surface, minHeight: 'calc(100vh - 64px)' }}>
         <Outlet />

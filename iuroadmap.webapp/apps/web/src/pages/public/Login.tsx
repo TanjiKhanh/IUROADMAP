@@ -99,7 +99,7 @@ export default function Login() {
           <div style={{ color: '#888', marginTop: 4 }}>{t(authKeys.login.welcomeSub)}</div>
         </div>
         
-        <UiForm form={form} onSubmit={onSubmit}>
+        <UiForm onFinish={() => onSubmit()}>
           <UiSpace direction='vertical' size='medium' style={{ width: '100%' }}>
             <UiInputField<LoginFormValues>
               name='email'

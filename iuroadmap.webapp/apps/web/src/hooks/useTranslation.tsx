@@ -6,7 +6,7 @@ type Language = 'en' | 'vi';
 interface TranslationContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (keyPath: string) => string;
+  t: (keyPath: string | undefined) => string;
 }
 
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
@@ -51,12 +51,12 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('app_language', lang);
   };
 
-  const t = (keyPath: string): string => {
-    const keys = keyPath.split('.');
-    
+  const t = (keyPath: string | undefined): string => {
+    if (!keyPath) return '';
+
     // First try the feature structure directly from features export if keyPath matches exactly
     // but the flat map is easier:
-    return (allTranslations[language] as Record<string, string>)[keyPath] || keyPath;
+    return (allTranslations[language] as unknown as Record<string, string>)[keyPath] || keyPath;
   };
 
   return (

@@ -47,12 +47,35 @@ interface LegacyPaths {
   mentorDashboard: string;
 }
 
+interface RolePaths {
+  root: string;
+  create: string;
+  edit: string;
+}
+
+interface UserPaths {
+  root: string;
+  create: string;
+  edit: string;
+  detail: string;
+  changePassword?: string;
+}
+
+interface ConfigPaths {
+  root: string;
+  role: RolePaths;
+  user: UserPaths;
+}
+
 export interface WebPathsStructure {
   public: PublicPaths;
   dashboard: DashboardPaths;
   admin: AdminPaths;
   mentor: MentorPaths;
   legacy: LegacyPaths;
+  config: ConfigPaths;
+  role: RolePaths;
+  user: UserPaths;
 }
 
 export type MobilePathsStructure = WebPathsStructure;
@@ -95,6 +118,33 @@ export const webPaths: WebPathsStructure = {
   legacy: {
     admin: '/admin/*',
     mentorDashboard: '/mentor-dashboard',
+  },
+  config: {
+    root: '/dashboard/config',
+    role: {
+      root: '/dashboard/config/roles',
+      create: '/dashboard/config/roles/create',
+      edit: '/dashboard/config/roles/:id/edit',
+    },
+    user: {
+      root: '/dashboard/config/users',
+      create: '/dashboard/config/users/create',
+      edit: '/dashboard/config/users/:id/edit',
+      detail: '/dashboard/config/users/:id',
+      changePassword: '/dashboard/config/users/:id/change-password',
+    },
+  },
+  role: {
+    root: '/dashboard/config/roles',
+    create: '/dashboard/config/roles/create',
+    edit: '/dashboard/config/roles/:id/edit',
+  },
+  user: {
+    root: '/dashboard/config/users',
+    create: '/dashboard/config/users/create',
+    edit: '/dashboard/config/users/:id/edit',
+    detail: '/dashboard/config/users/:id',
+    changePassword: '/dashboard/config/users/:id/change-password',
   },
 };
 

@@ -178,8 +178,8 @@ export default function RegisterPage() {
             </UiButton>
 
             <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-              {t(authKeys.register.hasAccount)}{' '}
-              <Link to={RoutePaths.web.public.login}>{t(authKeys.register.login)}</Link>
+              {t(authKeys.register.alreadyHaveAccount)}{' '}
+              <Link to={RoutePaths.web.public.login}>{t(authKeys.register.logInLink)}</Link>
             </div>
           </UiForm>
         )}

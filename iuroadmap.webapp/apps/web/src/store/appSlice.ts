@@ -1,9 +1,9 @@
 import { type PayloadAction, createSlice } from '@reduxjs/toolkit';
-import type { TenantDetailResponse } from '@sop/api-gen';
+import type { TenantDetailResponse } from '@iuroadmap/api-gen';
 // Shared profile model — single source of truth (also used by apps/mobile).
-import { type AuthProfile, type TokenProfile, tokenProfileToAuthProfile } from '@sop/core';
+import { type AuthProfile, type TokenProfile, tokenProfileToAuthProfile } from '@iuroadmap/core';
 
-export type { AuthProfile } from '@sop/core';
+export type { AuthProfile } from '@iuroadmap/core';
 
 export type DisplayMode = 'auto' | 'desktop' | 'mobile';
 
