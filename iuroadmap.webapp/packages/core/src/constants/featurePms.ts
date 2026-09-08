@@ -2,7 +2,7 @@ import { PMS } from '../enums/roles';
 
 export const FeaturePms = {
   dashboard: {
-    view: [PMS.DASH_USER, PMS.DASH_AD, PMS.DASH_MT],
+    view: [PMS.DASH_USER, PMS.DASH_AD, PMS.DASH_MT, PMS.RM_USER, PMS.RM_AD, PMS.USER_AD, PMS.SYS_AD],
   },
   roadmap: {
     view: [PMS.RM_USER, PMS.RM_AD],
@@ -19,7 +19,7 @@ export const FeaturePms = {
   },
   system: {
     admin: [PMS.SYS_AD],
-    userAdmin: [PMS.USER_AD],
-    roleAdmin: [PMS.ROLE_AD],
+    userAdmin: [PMS.USER_AD, PMS.SYS_AD],
+    roleAdmin: [PMS.ROLE_AD, PMS.SYS_AD, PMS.USER_AD],
   },
 };

@@ -4,6 +4,7 @@ import * as LucideIcons from 'lucide-react';
 import type { MenuProps } from 'antd';
 import { UiMenu } from '../uikit';
 import { useSidebarMenu, type AppMenuItem } from './menuConfig';
+import { useTranslation } from '../hooks/useTranslation';
 
 type AntdMenuItem = NonNullable<MenuProps['items']>[number];
 
@@ -26,23 +27,25 @@ function renderItemIcon(item: AppMenuItem): ReactNode {
  * Convert `AppMenuItem` tree → `<UiMenu>` items. Recursion handles arbitrary
  * nesting from the `appMenuConfig` (sidebar groups → items → children).
  */
-function toUiMenuItems(items: AppMenuItem[]): AntdMenuItem[] {
+function toUiMenuItems(items: AppMenuItem[], t: (key: string) => string): AntdMenuItem[] {
   return items.map((item) => {
+    const translatedLabel = t(item.label);
+    
     // Groups without a path act as group headers
     if (!item.path && item.children) {
       return {
         key: item.key,
         type: 'group' as const,
-        label: item.label,
-        children: toUiMenuItems(item.children),
+        label: translatedLabel,
+        children: toUiMenuItems(item.children, t),
       };
     }
 
     return {
       key: item.path ?? item.key,
-      label: item.label,
+      label: translatedLabel,
       icon: renderItemIcon(item),
-      children: item.children ? toUiMenuItems(item.children) : undefined,
+      children: item.children ? toUiMenuItems(item.children, t) : undefined,
     };
   });
 }
@@ -75,9 +78,10 @@ function findSelectedKey(items: AppMenuItem[], pathname: string): string | undef
 export function SidebarMenu({ inlineCollapsed, onNavigate }: SidebarMenuProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const tree = useSidebarMenu();
-  const items = toUiMenuItems(tree);
+  const items = toUiMenuItems(tree, t);
   const selectedKey = findSelectedKey(tree, location.pathname);
 
   // Find open sub-menu keys based on current path

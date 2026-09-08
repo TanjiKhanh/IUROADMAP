@@ -11,34 +11,18 @@ interface TranslationContextType {
 
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
 
-// Flatten features into a single dictionary
-const flattenObject = (obj: any, prefix = ''): Record<string, string> => {
-  return Object.keys(obj).reduce((acc: any, k: string) => {
-    const pre = prefix.length ? prefix + '.' : '';
-    if (typeof obj[k] === 'object' && obj[k] !== null && !Array.isArray(obj[k])) {
-      Object.assign(acc, flattenObject(obj[k], pre + k));
-    } else {
-      acc[pre + k] = obj[k];
-    }
-    return acc;
-  }, {});
-};
-
-// Build the complete translation dictionary
-const allTranslations = {
-  en: { ...i18n.translations.en },
-  vi: { ...i18n.translations.vi },
-};
-
-// Merge features into allTranslations
-Object.values(i18n.features).forEach((feature: any) => {
-  if (feature.locales?.en) {
-    Object.assign(allTranslations.en, flattenObject(feature.locales.en));
+// Helper to get nested value from object using dot notation
+const getNestedValue = (obj: any, path: string): string | undefined => {
+  const keys = path.split('.');
+  let current = obj;
+  
+  for (const key of keys) {
+    if (current === null || current === undefined) return undefined;
+    current = current[key];
   }
-  if (feature.locales?.vi) {
-    Object.assign(allTranslations.vi, flattenObject(feature.locales.vi));
-  }
-});
+  
+  return typeof current === 'string' ? current : undefined;
+};
 
 export const TranslationProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguage] = useState<Language>(() => {
@@ -54,9 +38,15 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
   const t = (keyPath: string | undefined): string => {
     if (!keyPath) return '';
 
-    // First try the feature structure directly from features export if keyPath matches exactly
-    // but the flat map is easier:
-    return (allTranslations[language] as unknown as Record<string, string>)[keyPath] || keyPath;
+    const translations = language === 'en' ? i18n.translations.en : i18n.translations.vi;
+    const result = getNestedValue(translations, keyPath);
+    
+    // Debug: Log first time we see a navigation key
+    if (keyPath.startsWith('navigation.') && !result) {
+      console.warn(`Translation not found for: ${keyPath}`, { translations, keyPath });
+    }
+    
+    return result || keyPath;
   };
 
   return (

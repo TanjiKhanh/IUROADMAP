@@ -6,6 +6,7 @@ import type { RootState } from '@iuroadmap/store';
 import logo from '../../assets/images/logo-gupjob-primary.png';
 import { RoutePaths, MenuIconsWeb } from '@iuroadmap/core';
 import { useMenu } from '../../hooks/useMenu';
+import { useTranslation } from '../../hooks/useTranslation';
 
 import {
   LayoutDashboard,
@@ -45,6 +46,7 @@ export default function Sidebar() {
   const filteredMenu = useMenu();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showProBanner, setShowProBanner] = useState(true);
@@ -76,9 +78,9 @@ export default function Sidebar() {
     return filteredMenu.map((menuGroup) => {
       return (
         <React.Fragment key={menuGroup.key}>
-          <div className="nav-section-label">{menuGroup.groupName}</div>
-          {menuGroup.items.map((item, index) => {
-            const IconComponent = IconMap[item.iconWeb] || CheckCircle; // Fallback to CheckCircle
+          <div className="nav-section-label">{t(menuGroup.label)}</div>
+          {menuGroup.children?.map((item, index) => {
+            const IconComponent = IconMap[item.icon] || CheckCircle; // Fallback to CheckCircle
             
             // Highlight active states for specific routes (e.g. explore majors or mentors)
             const getActiveState = ({ isActive }: { isActive: boolean }) => {
@@ -93,26 +95,27 @@ export default function Sidebar() {
               return 'nav-link';
             };
 
-            const isExpanded = expandedMenus[item.title];
+            const translatedLabel = t(item.label);
+            const isExpanded = expandedMenus[translatedLabel];
             const hasChildren = item.children && item.children.length > 0;
 
             if (item.isPro) {
               return (
-                <div key={item.title} className="nav-link disabled" style={{ opacity: 0.5 }}>
+                <div key={item.key} className="nav-link disabled" style={{ opacity: 0.5 }}>
                   <span className="nav-icon"><IconComponent size={18} /></span>
                   <span className="nav-text">
-                    {item.title} <span className="badge-pro">PRO</span>
+                    {translatedLabel} <span className="badge-pro">PRO</span>
                   </span>
                 </div>
               );
             }
 
             return (
-              <div key={item.title} className="nav-item-container">
+              <div key={item.key} className="nav-item-container">
                 {hasChildren ? (
-                  <div className="nav-link nav-group-header" onClick={() => toggleMenu(item.title)} style={{ cursor: 'pointer' }}>
+                  <div className="nav-link nav-group-header" onClick={() => toggleMenu(translatedLabel)} style={{ cursor: 'pointer' }}>
                     <span className="nav-icon"><IconComponent size={18} /></span>
-                    <span className="nav-text">{item.title}</span>
+                    <span className="nav-text">{translatedLabel}</span>
                     {!isCollapsed && (
                       <span className="nav-arrow" style={{ marginLeft: 'auto' }}>
                         {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -121,28 +124,29 @@ export default function Sidebar() {
                   </div>
                 ) : (
                   <NavLink 
-                    to={item.path} 
+                    to={item.path || '/'} 
                     end={item.path === RoutePaths.web.admin.root || item.path === RoutePaths.web.dashboard.root || item.path === RoutePaths.web.mentor.dashboard}
                     className={getActiveState}
                   >
                     <span className="nav-icon"><IconComponent size={18} /></span>
-                    <span className="nav-text">{item.title}</span>
+                    <span className="nav-text">{translatedLabel}</span>
                   </NavLink>
                 )}
 
                 {hasChildren && isExpanded && !isCollapsed && (
                   <div className="nav-sub-items" style={{ paddingLeft: '1.5rem', marginTop: '0.25rem' }}>
                     {item.children!.map((child) => {
-                      const ChildIcon = IconMap[child.iconWeb] || CheckCircle;
+                      const ChildIcon = IconMap[child.icon] || CheckCircle;
+                      const translatedChildLabel = t(child.label);
                       return (
                         <NavLink
-                          key={child.title}
-                          to={child.path}
+                          key={child.key}
+                          to={child.path || '/'}
                           className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
                           style={{ padding: '0.5rem 1rem', fontSize: '0.9em' }}
                         >
                           <span className="nav-icon"><ChildIcon size={16} /></span>
-                          <span className="nav-text">{child.title}</span>
+                          <span className="nav-text">{translatedChildLabel}</span>
                         </NavLink>
                       );
                     })}

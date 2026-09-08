@@ -65,9 +65,13 @@ export default function Login() {
   const onSubmit = form.handleSubmit(async (values) => {
     try {
       const res = await authenticationControllerLogin(values);
-      if (res.status === 200 && res.data?.access_token) {
-        localStorage.setItem('iuroadmap.web.token', res.data.access_token);
-        dispatch(setAccessToken(res.data.access_token));
+      // Backend wraps response: { status, data: { access_token }, timestamp, path }
+      // API generator wraps that as { data: <body>, status, headers }
+      const token = (res.data as any)?.data?.access_token;
+      
+      if (res.status === 200 && token) {
+        localStorage.setItem('iuroadmap.web.token', token);
+        dispatch(setAccessToken(token));
         toast.success('Logged in successfully');
       } else {
         toast.error(t(authKeys.login.errorLoginFailed));
