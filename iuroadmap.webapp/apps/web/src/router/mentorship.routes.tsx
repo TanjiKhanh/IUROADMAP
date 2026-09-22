@@ -3,7 +3,7 @@ import { RoutePaths } from '@iuroadmap/core';
 import FindMentors from '../views/learner/FindMentors';
 
 const mentorshipRoutes: RouteObject[] = [
-  { path: RoutePaths.web.dashboard.findMentors, element: <FindMentors /> },
+  { path: RoutePaths.web.roadmap.explore, element: <FindMentors /> },
 ];
 
 export default mentorshipRoutes;

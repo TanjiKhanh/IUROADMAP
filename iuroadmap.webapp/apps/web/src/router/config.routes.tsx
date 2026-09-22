@@ -18,6 +18,9 @@ import { RoleListPage } from '../views/config/role/roleListPage';
 import { RoleCreatePage } from '../views/config/role/roleCreatePage';
 import { RoleEditPage } from '../views/config/role/roleEditPage';
 
+// import { RoadmapDesignPage } from '../views/config/roadmap/roadmapDesignPage';
+// import { CourseTopicDesignPage } from '../views/config/roadmap/courseTopicDesignPage';
+
 const configRoutes: RouteObject[] = [
   // User routes
   { path: RoutePaths.web.config.user.root, element: <UserListPage /> },
@@ -39,6 +42,10 @@ const configRoutes: RouteObject[] = [
   { path: RoutePaths.web.config.major.root, element: <MajorListPage /> },
   { path: RoutePaths.web.config.major.create, element: <MajorCreatePage /> },
   { path: RoutePaths.web.config.major.edit, element: <MajorEditPage /> },
+
+  // // Roadmap Admin routes
+  // { path: RoutePaths.web.config.roadmap.designSlug, element: <RoadmapDesignPage /> },
+  // { path: RoutePaths.web.config.roadmap.courseTopics, element: <CourseTopicDesignPage /> },
 ];
 
 export default configRoutes;

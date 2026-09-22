@@ -19,7 +19,15 @@ export interface SidebarMenuProps {
  */
 function renderItemIcon(item: AppMenuItem): ReactNode {
   if (!item.icon) return undefined;
-  const IconComponent = LucideIcons[item.icon as keyof typeof LucideIcons] as React.ElementType;
+  
+  // Convert 'lucide-layout-dashboard' to 'LayoutDashboard'
+  const componentName = item.icon
+    .replace(/^lucide-/, '')
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+    
+  const IconComponent = LucideIcons[componentName as keyof typeof LucideIcons] as React.ElementType;
   return IconComponent ? <IconComponent size={16} /> : undefined;
 }
 
@@ -31,12 +39,24 @@ function toUiMenuItems(items: AppMenuItem[], t: (key: string) => string): AntdMe
   return items.map((item) => {
     const translatedLabel = t(item.label);
     
-    // Groups without a path act as group headers
+    // Groups without a path act as group headers (or expandable submenus)
     if (!item.path && item.children) {
+      // If exactly 1 child, render as a direct link (HSEVN style for single items)
+      if (item.children.length === 1 && (!item.children[0].children || item.children[0].children.length === 0)) {
+        const singleChild = item.children[0];
+        return {
+          key: singleChild.path ?? singleChild.key,
+          label: t(singleChild.label),
+          icon: renderItemIcon(singleChild) || renderItemIcon(item),
+        };
+      }
+
+      // If multiple children, render as a SubMenu (HSEVN style expandable parent)
+      // Omitting `type: 'group'` makes Ant Design render it as an expandable SubMenu
       return {
         key: item.key,
-        type: 'group' as const,
         label: translatedLabel,
+        icon: renderItemIcon(item),
         children: toUiMenuItems(item.children, t),
       };
     }

@@ -10,15 +10,15 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Bot, FolderKanban, AudioWaveform, CircleStar    } from 'lucide-react';
+import { Bot, FolderKanban, AudioWaveform, CircleStar } from 'lucide-react';
 import { roadmapsControllerGetMacroRoadmap, roadmapsControllerGetMicroRoadmap, MicroRoadmapResponseDto, MicroTopicNodeDto } from '@iuroadmap/api-gen';
-import { useRoadmapMutations } from './hooks/useRoadmapHooks';
-import MicroRoadmapNodeCard from '../../components/roadmap/MicroRoadmapNodeCard';
-import RoadmapToolbar from '../../components/roadmap/RoadmapToolbar';
-import MicroTopicPanel from '../../components/roadmap/MicroTopicPanel';
-import '../../styles/MicroRoadMap.css';
+import { useRoadmapMutations } from '../hooks/useRoadmapHooks';
+import MicroRoadmapNodeCard from '../../../components/roadmap/MicroRoadmapNodeCard';
+import RoadmapToolbar from '../../../components/roadmap/RoadmapToolbar';
+import MicroTopicPanel from '../../../components/roadmap/MicroTopicPanel';
+import '../../../styles/MicroRoadMap.css';
 
-export default function MicroRoadmap() {
+export function MicroRoadmapPage() {
   const { id, courseNodeId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -320,7 +320,7 @@ export default function MicroRoadmap() {
 
           <div className="micro-header-right" role="tablist" aria-label="Micro roadmap section tabs">
             <button type="button" className="micro-header-tab active" aria-selected="true">
-              <AudioWaveform  size={15} />
+              <AudioWaveform size={15} />
               <span>Roadmap</span>
             </button>
             <button type="button" className="micro-header-tab" aria-selected="false">
@@ -402,6 +402,3 @@ export default function MicroRoadmap() {
     </div>
   );
 }
-
-
-

@@ -13,7 +13,7 @@ type RoadmapCourseCard = UserRoadmapSummaryDto & {
   completedNodes: number;
 };
 
-export default function MyCourses() {
+export function MyCoursesPage() {
   const [roadmaps, setRoadmaps] = useState<RoadmapCourseCard[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();

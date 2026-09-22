@@ -172,6 +172,7 @@ export function UserListPage() {
           dataSource={rows}
           rowKey='id'
           loading={isLoading}
+          scroll={{ x: 'max-content' }}
           pagination={{
             current: page,
             pageSize: PAGE_SIZE,

@@ -65,8 +65,8 @@ export const navigation: IURoadmapMenu[] = [
       {
         ...displayInNavigation,
         roles: FeaturePms.roadmap.view,
-        path: RoutePaths.web.dashboard.explore,
-        pathMobile: RoutePaths.mobile.dashboard.explore,
+        path: RoutePaths.web.roadmap.explore,
+        pathMobile: RoutePaths.mobile.roadmap.explore,
         title: Translations.sidebar.exploreMajors,
         iconWeb: MenuIconsWeb.graduationCap,
         iconMobile: MenuIconsMobile.GRADUATION,
@@ -74,8 +74,8 @@ export const navigation: IURoadmapMenu[] = [
       {
         ...displayInNavigation,
         roles: FeaturePms.roadmap.view,
-        path: RoutePaths.web.dashboard.myCourses,
-        pathMobile: RoutePaths.mobile.dashboard.myCourses,
+        path: RoutePaths.web.roadmap.myCourses,
+        pathMobile: RoutePaths.mobile.roadmap.myCourses,
         title: Translations.sidebar.myRoadmaps,
         iconWeb: MenuIconsWeb.map,
         iconMobile: MenuIconsMobile.MAP,
@@ -90,15 +90,15 @@ export const navigation: IURoadmapMenu[] = [
     active: true,
     activeMobile: true,
     items: [
-      {
-        ...displayInNavigation,
-        roles: FeaturePms.community.view,
-        path: RoutePaths.web.dashboard.findMentors,
-        pathMobile: RoutePaths.mobile.dashboard.findMentors,
-        title: Translations.sidebar.findMentors,
-        iconWeb: MenuIconsWeb.users,
-        iconMobile: MenuIconsMobile.USERS,
-      },
+      // {
+      //   ...displayInNavigation,
+      //   roles: FeaturePms.community.view,
+      //   path: RoutePaths.web.dashboard?.findMentors || '/find-mentors',
+      //   pathMobile: RoutePaths.mobile.dashboard?.findMentors || 'FindMentors',
+      //   title: Translations.sidebar.findMentors,
+      //   iconWeb: MenuIconsWeb.users,
+      //   iconMobile: MenuIconsMobile.USERS,
+      // },
       {
         ...displayInNavigation,
         roles: FeaturePms.community.chat,
@@ -149,8 +149,8 @@ export const navigation: IURoadmapMenu[] = [
       {
         ...displayInNavigation,
         roles: FeaturePms.roadmap.manage,
-        path: RoutePaths.web.admin.roadmaps,
-        pathMobile: RoutePaths.mobile.admin.roadmaps,
+        path: RoutePaths.web.config.major.root,
+        pathMobile: RoutePaths.mobile.config.major.root,
         title: Translations.sidebar.major,
         iconWeb: MenuIconsWeb.map,
         iconMobile: MenuIconsMobile.MAP,

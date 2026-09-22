@@ -1,331 +1,331 @@
-import React, { useState, useEffect } from 'react';
-import { adminService, Department } from '../../services/admin.service';
-import Header from '../../components/layouts/Header';
-import Notification from '../../components/ui/Notification';
-import { Form, Input, TextArea, SubmitButton } from '../../components/ui/Forms';
-import { useForm } from '../../hooks/useForm';
+// import React, { useState, useEffect } from 'react';
+// import { adminService, Department } from '../../services/admin.service';
+// import Header from '../../components/layouts/Header';
+// import Notification from '../../components/ui/Notification';
+// import { Form, Input, TextArea, SubmitButton } from '../../components/ui/Forms';
+// import { useForm } from '../../hooks/useForm';
 
-export default function ManageDepartments() {
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [notification, setNotification] = useState<{
-    type: 'success' | 'error';
-    title: string;
-    message?: string;
-  } | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<Department | null>(null);
+// export default function ManageDepartments() {
+//   const [departments, setDepartments] = useState<Department[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [submitting, setSubmitting] = useState(false);
+//   const [deleting, setDeleting] = useState(false);
+//   const [notification, setNotification] = useState<{
+//     type: 'success' | 'error';
+//     title: string;
+//     message?: string;
+//   } | null>(null);
+//   const [pendingDelete, setPendingDelete] = useState<Department | null>(null);
   
-  // 🆕 Track Edit Mode
-  const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
+//   // 🆕 Track Edit Mode
+//   const [editingDepartment, setEditingDepartment] = useState<Department | null>(null);
 
-  // 1. Initialize Form Hook (Get 'setValues' to populate form manually)
-  const { values, handleChange, resetForm, setValues } = useForm({
-    name: '',
-    slug: '',
-    description: ''
-  });
+//   // 1. Initialize Form Hook (Get 'setValues' to populate form manually)
+//   const { values, handleChange, resetForm, setValues } = useForm({
+//     name: '',
+//     slug: '',
+//     description: ''
+//   });
 
-  // 2. Fetch Data
-  const loadDepartments = async () => {
-    try {
-      setLoading(true);
-      const data = await adminService.getAllDepartments();
-      setDepartments(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error('Failed to load departments', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+//   // 2. Fetch Data
+//   const loadDepartments = async () => {
+//     try {
+//       setLoading(true);
+//       const data = await adminService.getAllDepartments();
+//       setDepartments(Array.isArray(data) ? data : []);
+//     } catch (err) {
+//       console.error('Failed to load departments', err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  useEffect(() => {
-    loadDepartments();
-  }, []);
+//   useEffect(() => {
+//     loadDepartments();
+//   }, []);
 
-  // 🆕 Handle "Edit" Click
-  const handleEditClick = (dept: Department) => {
-    setEditingDepartment(dept);
-    setValues({
-      name: dept.name,
-      slug: dept.slug,
-      description: dept.description || ''
-    });
-    // Scroll up to form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+//   // 🆕 Handle "Edit" Click
+//   const handleEditClick = (dept: Department) => {
+//     setEditingDepartment(dept);
+//     setValues({
+//       name: dept.name,
+//       slug: dept.slug,
+//       description: dept.description || ''
+//     });
+//     // Scroll up to form
+//     window.scrollTo({ top: 0, behavior: 'smooth' });
+//   };
 
-  // 🆕 Handle "Cancel" Click
-  const handleCancelEdit = () => {
-    setEditingDepartment(null);
-    resetForm();
-  };
+//   // 🆕 Handle "Cancel" Click
+//   const handleCancelEdit = () => {
+//     setEditingDepartment(null);
+//     resetForm();
+//   };
 
-  const closeNotification = () => setNotification(null);
+//   const closeNotification = () => setNotification(null);
 
-  const getFriendlyErrorMessage = (err: any, action: string) => {
-    const backendMessage = err?.response?.data?.message;
-    if (backendMessage) {
-      return Array.isArray(backendMessage) ? backendMessage.join(', ') : backendMessage;
-    }
+//   const getFriendlyErrorMessage = (err: any, action: string) => {
+//     const backendMessage = err?.response?.data?.message;
+//     if (backendMessage) {
+//       return Array.isArray(backendMessage) ? backendMessage.join(', ') : backendMessage;
+//     }
 
-    if (err?.response?.status === 502) {
-      return `The department service is unavailable right now, so ${action} could not be completed.`;
-    }
+//     if (err?.response?.status === 502) {
+//       return `The department service is unavailable right now, so ${action} could not be completed.`;
+//     }
 
-    return `Something went wrong while trying to ${action}. Please try again.`;
-  };
+//     return `Something went wrong while trying to ${action}. Please try again.`;
+//   };
 
-  const handleSuccess = (message: string) => {
-    setNotification({ type: 'success', title: 'Success', message });
-  };
+//   const handleSuccess = (message: string) => {
+//     setNotification({ type: 'success', title: 'Success', message });
+//   };
 
-  const handleFailure = (err: any, action: string) => {
-    setNotification({
-      type: 'error',
-      title: 'Update Failed',
-      message: getFriendlyErrorMessage(err, action),
-    });
-  };
+//   const handleFailure = (err: any, action: string) => {
+//     setNotification({
+//       type: 'error',
+//       title: 'Update Failed',
+//       message: getFriendlyErrorMessage(err, action),
+//     });
+//   };
 
-  // 3. Handle Submit (Create OR Update)
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      if (editingDepartment !== null) {
-        await adminService.updateDepartment(editingDepartment.id!, values);
-        handleSuccess('Department updated successfully.');
-      } else {
-        await adminService.createDepartment(values);
-        handleSuccess('Department created successfully.');
-      }
+//   // 3. Handle Submit (Create OR Update)
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setSubmitting(true);
+//     try {
+//       if (editingDepartment !== null) {
+//         await adminService.updateDepartment(editingDepartment.id!, values);
+//         handleSuccess('Department updated successfully.');
+//       } else {
+//         await adminService.createDepartment(values);
+//         handleSuccess('Department created successfully.');
+//       }
       
-      handleCancelEdit(); // Reset form and mode
-      loadDepartments(); // Refresh list
-    } catch (err: any) {
-      handleFailure(err, editingDepartment !== null ? 'update this department' : 'create this department');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+//       handleCancelEdit(); // Reset form and mode
+//       loadDepartments(); // Refresh list
+//     } catch (err: any) {
+//       handleFailure(err, editingDepartment !== null ? 'update this department' : 'create this department');
+//     } finally {
+//       setSubmitting(false);
+//     }
+//   };
 
-  // 4. Handle Delete
-  const handleDelete = async (id: number) => {
-    try {
-      setDeleting(true);
-      await adminService.deleteDepartment(id);
-      handleSuccess('Department deleted successfully.');
-      loadDepartments();
-      if (editingDepartment?.id === id) handleCancelEdit();
-      setPendingDelete(null);
-    } catch (err: any) {
-      handleFailure(err, 'delete this department');
-    } finally {
-      setDeleting(false);
-    }
-  };
+//   // 4. Handle Delete
+//   const handleDelete = async (id: number) => {
+//     try {
+//       setDeleting(true);
+//       await adminService.deleteDepartment(id);
+//       handleSuccess('Department deleted successfully.');
+//       loadDepartments();
+//       if (editingDepartment?.id === id) handleCancelEdit();
+//       setPendingDelete(null);
+//     } catch (err: any) {
+//       handleFailure(err, 'delete this department');
+//     } finally {
+//       setDeleting(false);
+//     }
+//   };
 
-  return (
-    <>
-      <Header 
-        title="Manage Departments 📂" 
-        subtitle="Create and configure your learning domains"
-      />
+//   return (
+//     <>
+//       <Header 
+//         title="Manage Departments 📂" 
+//         subtitle="Create and configure your learning domains"
+//       />
 
-          {notification && (
-        <Notification
-          type={notification.type}
-          title={notification.title}
-          message={notification.message}
-          duration={4000}
-          onClose={closeNotification}
-        />
-      )}
+//           {notification && (
+//         <Notification
+//           type={notification.type}
+//           title={notification.title}
+//           message={notification.message}
+//           duration={4000}
+//           onClose={closeNotification}
+//         />
+//       )}
 
-      <div className="admin-content-area">
-        <div className="admin-grid">
+//       <div className="admin-content-area">
+//         <div className="admin-grid">
           
-          {/* --- FORM SECTION --- */}
-          <div className="card">
-            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
-              <h3>{editingDepartment ? 'Edit Department' : 'Add New Department'}</h3>
+//           {/* --- FORM SECTION --- */}
+//           <div className="card">
+//             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'}}>
+//               <h3>{editingDepartment ? 'Edit Department' : 'Add New Department'}</h3>
               
-              {/* 🆕 Cancel Button */}
-              {editingDepartment && (
-                <button 
-                  type="button" 
-                  onClick={handleCancelEdit}
-                  style={{background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.9rem'}}
-                >
-                  Cancel ✕
-                </button>
-              )}
-            </div>
+//               {/* 🆕 Cancel Button */}
+//               {editingDepartment && (
+//                 <button 
+//                   type="button" 
+//                   onClick={handleCancelEdit}
+//                   style={{background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.9rem'}}
+//                 >
+//                   Cancel ✕
+//                 </button>
+//               )}
+//             </div>
 
-            <Form onSubmit={handleSubmit}>
-              <Input 
-                label="Department Name"
-                name="name"
-                value={values.name}
-                onChange={handleChange}
-                placeholder="e.g. Computer Science"
-                required
-              />
+//             <Form onSubmit={handleSubmit}>
+//               <Input 
+//                 label="Department Name"
+//                 name="name"
+//                 value={values.name}
+//                 onChange={handleChange}
+//                 placeholder="e.g. Computer Science"
+//                 required
+//               />
 
-              <Input 
-                label="Slug"
-                name="slug"
-                value={values.slug}
-                onChange={handleChange}
-                placeholder="e.g. computer-science"
-                required
-              />
+//               <Input 
+//                 label="Slug"
+//                 name="slug"
+//                 value={values.slug}
+//                 onChange={handleChange}
+//                 placeholder="e.g. computer-science"
+//                 required
+//               />
 
-              <TextArea 
-                label="Description"
-                name="description"
-                value={values.description}
-                onChange={handleChange}
-                placeholder="Short description..."
-              />
+//               <TextArea 
+//                 label="Description"
+//                 name="description"
+//                 value={values.description}
+//                 onChange={handleChange}
+//                 placeholder="Short description..."
+//               />
 
-              <SubmitButton isLoading={submitting}>
-                {editingDepartment ? 'Update Department' : '+ Create Department'}
-              </SubmitButton>
-            </Form>
-          </div>
+//               <SubmitButton isLoading={submitting}>
+//                 {editingDepartment ? 'Update Department' : '+ Create Department'}
+//               </SubmitButton>
+//             </Form>
+//           </div>
 
-          {/* --- LIST TABLE --- */}
-          <div className="card">
-            <h3>Existing Departments</h3>
-            {loading ? <p>Loading...</p> : (
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Slug</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {departments.map(dept => (
-                    <tr key={dept.id} style={{background: editingDepartment?.id === dept.id ? '#f0f9ff' : 'transparent'}}>
-                      <td>{dept.id}</td>
-                      <td><strong>{dept.name}</strong></td>
-                      <td><code>{dept.slug}</code></td>
-                      <td>
-                        <div style={{display: 'flex', gap: '8px'}}>
-                          {/* 🆕 Edit Button */}
-                                <button 
-                            className="btn-icon"
-                            onClick={() => handleEditClick(dept)}
-                            title="Edit Department"
-                            style={{
-                              background: '#e0e7ff',
-                              color: '#4338ca',
-                              border: 'none',
-                              borderRadius: '6px',
-                              width: '32px',
-                              height: '32px',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                          >
-                            E
-                          </button>
+//           {/* --- LIST TABLE --- */}
+//           <div className="card">
+//             <h3>Existing Departments</h3>
+//             {loading ? <p>Loading...</p> : (
+//               <table className="admin-table">
+//                 <thead>
+//                   <tr>
+//                     <th>ID</th>
+//                     <th>Name</th>
+//                     <th>Slug</th>
+//                     <th>Action</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {departments.map(dept => (
+//                     <tr key={dept.id} style={{background: editingDepartment?.id === dept.id ? '#f0f9ff' : 'transparent'}}>
+//                       <td>{dept.id}</td>
+//                       <td><strong>{dept.name}</strong></td>
+//                       <td><code>{dept.slug}</code></td>
+//                       <td>
+//                         <div style={{display: 'flex', gap: '8px'}}>
+//                           {/* 🆕 Edit Button */}
+//                                 <button 
+//                             className="btn-icon"
+//                             onClick={() => handleEditClick(dept)}
+//                             title="Edit Department"
+//                             style={{
+//                               background: '#e0e7ff',
+//                               color: '#4338ca',
+//                               border: 'none',
+//                               borderRadius: '6px',
+//                               width: '32px',
+//                               height: '32px',
+//                               cursor: 'pointer',
+//                               display: 'flex',
+//                               alignItems: 'center',
+//                               justifyContent: 'center'
+//                             }}
+//                           >
+//                             E
+//                           </button>
 
-                          <button 
-                            className="btn-danger-sm" 
-                            onClick={() => setPendingDelete(dept)}
-                            title="Delete"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {departments.length === 0 && (
-                    <tr><td colSpan={4}>No departments found.</td></tr>
-                  )}
-                </tbody>
-              </table>
-            )}
-          </div>
+//                           <button 
+//                             className="btn-danger-sm" 
+//                             onClick={() => setPendingDelete(dept)}
+//                             title="Delete"
+//                           >
+//                             🗑️
+//                           </button>
+//                         </div>
+//                       </td>
+//                     </tr>
+//                   ))}
+//                   {departments.length === 0 && (
+//                     <tr><td colSpan={4}>No departments found.</td></tr>
+//                   )}
+//                 </tbody>
+//               </table>
+//             )}
+//           </div>
 
-        </div>
-      </div>
+//         </div>
+//       </div>
 
-      {pendingDelete && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(15, 23, 42, 0.45)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '16px',
-          }}
-        >
-          <div
-            style={{
-              width: '100%',
-              maxWidth: '460px',
-              background: '#ffffff',
-              borderRadius: '14px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 12px 28px rgba(15, 23, 42, 0.2)',
-              padding: '20px',
-            }}
-          >
-            <h3 style={{ margin: '0 0 8px', color: '#0f172a' }}>Delete Department?</h3>
-            <p style={{ margin: 0, color: '#475569', lineHeight: 1.5 }}>
-              You are about to delete <strong>{pendingDelete.name}</strong>. This may affect linked courses and roadmaps.
-            </p>
+//       {pendingDelete && (
+//         <div
+//           style={{
+//             position: 'fixed',
+//             inset: 0,
+//             background: 'rgba(15, 23, 42, 0.45)',
+//             display: 'flex',
+//             alignItems: 'center',
+//             justifyContent: 'center',
+//             zIndex: 1000,
+//             padding: '16px',
+//           }}
+//         >
+//           <div
+//             style={{
+//               width: '100%',
+//               maxWidth: '460px',
+//               background: '#ffffff',
+//               borderRadius: '14px',
+//               border: '1px solid #e2e8f0',
+//               boxShadow: '0 12px 28px rgba(15, 23, 42, 0.2)',
+//               padding: '20px',
+//             }}
+//           >
+//             <h3 style={{ margin: '0 0 8px', color: '#0f172a' }}>Delete Department?</h3>
+//             <p style={{ margin: 0, color: '#475569', lineHeight: 1.5 }}>
+//               You are about to delete <strong>{pendingDelete.name}</strong>. This may affect linked courses and roadmaps.
+//             </p>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '18px' }}>
-              <button
-                type="button"
-                onClick={() => setPendingDelete(null)}
-                disabled={deleting}
-                style={{
-                  border: '1px solid #cbd5e1',
-                  background: '#ffffff',
-                  color: '#334155',
-                  borderRadius: '8px',
-                  padding: '8px 14px',
-                  cursor: deleting ? 'not-allowed' : 'pointer',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(pendingDelete.id!)}
-                disabled={deleting}
-                style={{
-                  border: 'none',
-                  background: '#dc2626',
-                  color: '#ffffff',
-                  borderRadius: '8px',
-                  padding: '8px 14px',
-                  cursor: deleting ? 'not-allowed' : 'pointer',
-                  opacity: deleting ? 0.7 : 1,
-                }}
-              >
-                {deleting ? 'Deleting...' : 'Delete Department'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
+//             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '18px' }}>
+//               <button
+//                 type="button"
+//                 onClick={() => setPendingDelete(null)}
+//                 disabled={deleting}
+//                 style={{
+//                   border: '1px solid #cbd5e1',
+//                   background: '#ffffff',
+//                   color: '#334155',
+//                   borderRadius: '8px',
+//                   padding: '8px 14px',
+//                   cursor: deleting ? 'not-allowed' : 'pointer',
+//                 }}
+//               >
+//                 Cancel
+//               </button>
+//               <button
+//                 type="button"
+//                 onClick={() => handleDelete(pendingDelete.id!)}
+//                 disabled={deleting}
+//                 style={{
+//                   border: 'none',
+//                   background: '#dc2626',
+//                   color: '#ffffff',
+//                   borderRadius: '8px',
+//                   padding: '8px 14px',
+//                   cursor: deleting ? 'not-allowed' : 'pointer',
+//                   opacity: deleting ? 0.7 : 1,
+//                 }}
+//               >
+//                 {deleting ? 'Deleting...' : 'Delete Department'}
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// }

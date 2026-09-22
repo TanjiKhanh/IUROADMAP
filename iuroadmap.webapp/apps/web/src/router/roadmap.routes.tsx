@@ -1,16 +1,16 @@
 import type { RouteObject } from 'react-router-dom';
 import { RoutePaths } from '@iuroadmap/core';
-import ExploreMajors from '../views/learner/ExploreMajors';
-import MacroRoadmap from '../views/learner/MacroRoadmap';
-import MicroRoadmap from '../views/learner/MicroRoadmap';
-import MyCourses from '../views/learner/MyCourses';
+import { ExploreMajorsPage } from '../views/explore/exploreMajorsPage';
+import { MyCoursesPage } from '../views/my-courses/myCoursesPage';
+import { MacroRoadmapPage } from '../views/roadmap/viewer/macroRoadmapPage';
+import { MicroRoadmapPage } from '../views/roadmap/viewer/microRoadmapPage';
 
 const roadmapRoutes: RouteObject[] = [
-  { path: RoutePaths.web.dashboard.explore, element: <ExploreMajors /> },
-  { path: RoutePaths.web.dashboard.myCourses, element: <MyCourses /> },
-  { path: RoutePaths.web.dashboard.roadmap, element: <MacroRoadmap /> },
-  { path: RoutePaths.web.dashboard.roadmapPreview, element: <MacroRoadmap /> },
-  { path: RoutePaths.web.dashboard.microRoadmap, element: <MicroRoadmap /> },
+  { path: RoutePaths.web.roadmap.explore, element: <ExploreMajorsPage /> },
+  { path: RoutePaths.web.roadmap.myCourses, element: <MyCoursesPage /> },
+  { path: RoutePaths.web.roadmap.roadmap, element: <MacroRoadmapPage /> },
+  { path: RoutePaths.web.roadmap.roadmapPreview, element: <MacroRoadmapPage /> },
+  { path: RoutePaths.web.roadmap.microRoadmap, element: <MicroRoadmapPage /> },
 ];
 
 export default roadmapRoutes;

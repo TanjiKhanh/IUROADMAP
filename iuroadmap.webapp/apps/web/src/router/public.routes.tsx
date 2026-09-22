@@ -8,10 +8,7 @@ const publicRoutes: RouteObject[] = [
     path: RoutePaths.web.public.root,
     element: <Landing />,
   },
-  {
-    path: RoutePaths.web.mentor.applicationPending,
-    element: <ApplicationPending />,
-  },
+
 ];
 
 export default publicRoutes;

@@ -45,8 +45,8 @@ export function UserForm({
   const form = useForm<UserFormValues>({
     defaultValues: { ...emptyDefaults(), ...defaultValues },
     resolver: zodResolver(
-      isEdit ? IamUsersZod.UsersControllerUpdateBody.omit({ id: true }) : IamUsersZod.UsersControllerCreateBody,
-    ) as never,
+      (isEdit ? IamUsersZod.UsersControllerUpdateBody.omit({ id: true }) : IamUsersZod.UsersControllerCreateBody) as any
+    ),
     mode: 'onSubmit',
     reValidateMode: 'onChange',
   });

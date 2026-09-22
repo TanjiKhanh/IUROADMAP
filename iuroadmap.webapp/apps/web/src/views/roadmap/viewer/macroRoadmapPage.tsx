@@ -12,10 +12,10 @@ import 'reactflow/dist/style.css';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { roadmapsControllerGetPreviewRoadmapBySlug, roadmapsControllerGetMacroRoadmap, roadmapsControllerGetMyRoadmaps, MacroRoadmapNodeDtoStatus, MacroRoadmapNodeDto, MacroRoadmapEdgeDto, MacroRoadmapResponseDto } from '@iuroadmap/api-gen';
-import { useRoadmapMutations } from './hooks/useRoadmapHooks';
-import RoadmapNode, { RoadmapNodeData } from '../../components/roadmap/RoadmapNode';
-import RoadmapToolbar from '../../components/roadmap/RoadmapToolbar';
-import '../../styles/roadmapDetail.css';
+import { useRoadmapMutations } from '../hooks/useRoadmapHooks';
+import RoadmapNode, { RoadmapNodeData } from '../../../components/roadmap/RoadmapNode';
+import RoadmapToolbar from '../../../components/roadmap/RoadmapToolbar';
+import '../../../styles/roadmapDetail.css';
 
 type RoadmapFlowNodeData = RoadmapNodeData & {
   courseNodeId: number;
@@ -76,9 +76,9 @@ const buildMacroLayout = (nodes: MacroRoadmapNodeDto[], edges: MacroRoadmapEdgeD
       position: hasValidCoords
         ? { x: Number(x), y: Number(y) }
         : {
-            x: (index % 4) * fallbackXGap,
-            y: Math.floor(index / 4) * fallbackYGap,
-          },
+          x: (index % 4) * fallbackXGap,
+          y: Math.floor(index / 4) * fallbackYGap,
+        },
       type: 'roadmapNode',
       data: {
         courseNodeId: node.id,
@@ -116,7 +116,7 @@ const buildMacroLayout = (nodes: MacroRoadmapNodeDto[], edges: MacroRoadmapEdgeD
   return { flowNodes, flowEdges };
 };
 
-export default function MacroRoadmap() {
+export function MacroRoadmapPage() {
   const { id, slug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -456,7 +456,7 @@ export default function MacroRoadmap() {
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
             }}
-            
+
             nodeStrokeWidth={3}
             nodeColor={(n) => {
               const status = n.data?.status;
@@ -500,6 +500,3 @@ export default function MacroRoadmap() {
     </div>
   );
 }
-
-
-
