@@ -1,18 +1,29 @@
 import { type PayloadAction, createSlice } from '@reduxjs/toolkit';
-import type { TenantDetailResponse } from '@iuroadmap/api-gen';
-// Shared profile model — single source of truth (also used by apps/mobile).
-import { type AuthProfile, type TokenProfile, tokenProfileToAuthProfile } from '@iuroadmap/core';
+import { parseToken, type TokenProfile } from '@iuroadmap/core';
 
-export type { AuthProfile } from '@iuroadmap/core';
+export interface AuthProfile extends TokenProfile {
+  name?: string;
+}
+
+export interface TenantDetailResponse {
+  id: string;
+  name?: string;
+  [key: string]: unknown;
+}
+
+function tokenProfileToAuthProfile(profile: TokenProfile): AuthProfile {
+  return { ...profile, name: profile.fullName };
+}
 
 export type DisplayMode = 'auto' | 'desktop' | 'mobile';
 
 export interface AppState {
   accessToken: string | null;
+  isInitialized: boolean;
   /** Mirror of the JWT-derived profile for components reading via selectors. */
   profile: AuthProfile | null;
   /** Full parsed token — kept for callers needing the raw `expiresAt`, etc. */
-  tokenProfile: TokenProfile | null;
+  tokenProfile: AuthProfile | null;
   language: 'en' | 'vi';
   displayMode: DisplayMode;
   /**
@@ -72,6 +83,7 @@ function readInitialTenantId(): string | null {
 
 const initialState: AppState = {
   accessToken: readInitialToken(),
+  isInitialized: false,
   profile: null,
   tokenProfile: null,
   language: readInitialLanguage(),
@@ -87,13 +99,18 @@ const appSlice = createSlice({
   reducers: {
     setAccessToken(state, action: PayloadAction<string | null>) {
       state.accessToken = action.payload;
+      state.tokenProfile = action.payload ? parseToken(action.payload) : null;
+      state.profile = state.tokenProfile ? tokenProfileToAuthProfile(state.tokenProfile) : null;
+    },
+    setInitialized(state, action: PayloadAction<boolean>) {
+      state.isInitialized = action.payload;
     },
     setProfile(state, action: PayloadAction<AuthProfile | null>) {
       state.profile = action.payload;
     },
     setTokenProfile(state, action: PayloadAction<TokenProfile | null>) {
-      state.tokenProfile = action.payload;
-      state.profile = action.payload ? tokenProfileToAuthProfile(action.payload) : null;
+      state.tokenProfile = action.payload ? tokenProfileToAuthProfile(action.payload) : null;
+      state.profile = state.tokenProfile;
     },
     setLanguage(state, action: PayloadAction<'en' | 'vi'>) {
       state.language = action.payload;
@@ -123,6 +140,7 @@ const appSlice = createSlice({
 
 export const {
   setAccessToken,
+  setInitialized,
   setProfile,
   setTokenProfile,
   setLanguage,
@@ -132,6 +150,7 @@ export const {
   setShowTenantPicker,
   signOut,
 } = appSlice.actions;
+export const clearAuth = signOut;
 export const appReducer = appSlice.reducer;
 
 export const APP_STORAGE_KEYS = {

@@ -2,8 +2,9 @@ import { useEffect } from 'react';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IamRolesZod, type RoleCreateRequest } from '@iuroadmap/api-gen';
-import { Form, Input, Row, Col, Button, Card, Space } from 'antd';
+import { UiForm, UiRow, UiCol, UiCard, UiInputField, UiFormActions } from '../../../../uikit';
 import { PermissionMatrixForm } from './permissionMatrixForm';
+import { useTranslation } from '../../../../hooks/useTranslation';
 
 export type RoleFormValues = RoleCreateRequest;
 
@@ -26,6 +27,7 @@ export function RoleForm({
   onSubmit,
   onCancel,
 }: RoleFormProps) {
+  const { t } = useTranslation();
   const form = useForm<RoleFormValues>({
     defaultValues: { ...emptyDefaults(), ...defaultValues } as RoleFormValues,
     resolver: zodResolver(IamRolesZod.RolesControllerCreateBody) as never,
@@ -43,38 +45,30 @@ export function RoleForm({
   };
 
   return (
-    <Form layout="vertical" onFinish={handleSubmit(submit)}>
-      <Card title="Role Info" style={{ marginBottom: 16 }}>
-        <Row gutter={[16, 0]}>
-          <Col xs={24} md={12}>
-            <Form.Item 
-              label="Role Name" 
-              required 
-              validateStatus={errors.name ? 'error' : ''}
-              help={errors.name?.message}
-            >
-              <Controller
-                name="name"
-                control={control}
-                render={({ field }) => <Input {...field} />}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Card>
+    <UiForm layout="vertical" onFinish={handleSubmit(submit)}>
+      <UiCard title={t('config.role.info')} style={{ marginBottom: 16 }}>
+        <UiRow gutter={[16, 0]}>
+          <UiCol xs={24} md={12}>
+            <UiInputField
+              name="name"
+              control={control as any}
+              label={t('config.role.name')}
+              required
+            />
+          </UiCol>
+        </UiRow>
+      </UiCard>
 
-      <Card title="Permission Matrix" style={{ marginBottom: 16 }}>
+      <UiCard title={t('config.role.permissionMatrix')} style={{ marginBottom: 16 }}>
         <PermissionMatrixForm<RoleFormValues> control={control} name='permissionIds' />
-      </Card>
+      </UiCard>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-        <Space>
-          {onCancel ? <Button onClick={onCancel} disabled={loading}>Cancel</Button> : null}
-          <Button type="primary" htmlType="submit" loading={loading}>
-            {submitLabel ?? "Save"}
-          </Button>
-        </Space>
-      </div>
-    </Form>
+      <UiFormActions
+        loading={loading}
+        submitLabel={submitLabel ?? t('config.common.save')}
+        cancelLabel={t('config.common.cancel')}
+        onCancel={onCancel}
+      />
+    </UiForm>
   );
 }

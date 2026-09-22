@@ -21,5 +21,22 @@
     "forbidden": "Bạn không có quyền truy cập trang này.",
     "notFound": "Không tìm thấy tài nguyên yêu cầu.",
     "generic": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại."
+  },
+  "yupGlobal": {
+    "required": "Trường này là bắt buộc",
+    "invalidType": "Giá trị không hợp lệ",
+    "string": {
+      "min": "Phải có ít nhất ${min} ký tự",
+      "max": "Phải có tối đa ${max} ký tự",
+      "url": "Vui lòng nhập URL hợp lệ",
+      "uuid": "Vui lòng nhập UUID hợp lệ"
+    },
+    "number": {
+      "min": "Phải lớn hơn hoặc bằng ${min}",
+      "max": "Phải nhỏ hơn hoặc bằng ${max}"
+    },
+    "email": {
+      "invalid": "Vui lòng nhập email hợp lệ"
+    }
   }
 }

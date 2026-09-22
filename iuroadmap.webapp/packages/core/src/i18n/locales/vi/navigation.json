@@ -1,9 +1,14 @@
 {
   "navigation": {
+      "root": "Trang chủ",
+      "roadmapGroup": "Lộ trình",
+      "mentorshipGroup": "Cố vấn",
+      "config": "Cấu hình hệ thống",
     "overview": "Tổng quan",
     "features": "Tính năng",
     "administration": "Quản trị",
     "dashboard": "Tổng quan",
+      "major": "Chuyên ngành",
     "roadmap": "Lộ trình",
     "courses": "Khóa học",
     "mentorship": "Cố vấn",

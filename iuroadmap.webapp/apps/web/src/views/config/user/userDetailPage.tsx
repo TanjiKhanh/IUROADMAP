@@ -1,10 +1,12 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUsersControllerGetById, type UserDetailResponse } from '@iuroadmap/api-gen';
 import { RoutePaths } from '@iuroadmap/core';
-import { Card, Descriptions, Result, Skeleton, Button, Space } from 'antd';
+import { UiCard, UiDescriptions, UiResult, UiSkeleton, UiButton, UiSpace } from '../../../uikit';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 export function UserDetailPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { id = '' } = useParams<{ id: string }>();
 
   const { data: raw, isLoading, isError } = useUsersControllerGetById(id, {
@@ -13,41 +15,41 @@ export function UserDetailPage() {
   const record = raw?.data as any as UserDetailResponse | undefined;
 
   if (isLoading) {
-    return <Skeleton active paragraph={{ rows: 8 }} />;
+    return <UiSkeleton active paragraph={{ rows: 8 }} />;
   }
   if (!id || isError || !record) {
-    return <Result status='error' title="Failed to load" />;
+    return <UiResult status='error' title={t('config.common.failedToLoad')} />;
   }
 
   const items = [
-    { label: "Full Name", children: record.name },
-    { label: "Email", children: record.email },
-    { label: "Role", children: record.role?.name ?? '' },
-    { label: 'Status', children: record.status },
-    { label: 'Subscription Tier', children: record.subscriptionTier },
-    { label: 'Subscription Expires At', children: record.subscriptionExpiresAt ?? 'N/A' },
-    { label: 'Created At', children: record.createdAt ? new Date(record.createdAt).toLocaleString() : '' },
+    { label: t('config.user.fullName'), children: record.name },
+    { label: t('config.user.email'), children: record.email },
+    { label: t('config.user.role'), children: record.role?.name ?? '' },
+    { label: t('config.user.status'), children: record.status },
+    { label: t('config.user.subscriptionTier'), children: record.subscriptionTier },
+    { label: t('config.user.subscriptionExpiresAt'), children: record.subscriptionExpiresAt ?? t('config.common.notAvailable') },
+    { label: t('config.user.createdAt'), children: record.createdAt ? new Date(record.createdAt).toLocaleString() : '' },
   ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button 
+        <UiButton 
           type="primary" 
           onClick={() => navigate(RoutePaths.web.user.edit.replace(':id', id))}
         >
-          "Edit"
-        </Button>
+          {t('config.common.edit')}
+        </UiButton>
       </div>
 
-      <Card title="General Info" size="small">
-        <Descriptions items={items.map((item, index) => ({ key: index.toString(), ...item }))} column={{ xs: 1, sm: 2 }} />
-      </Card>
+      <UiCard title={t('config.user.info')} size="small">
+        <UiDescriptions items={items.map((item, index) => ({ key: index.toString(), ...item }))} column={{ xs: 1, sm: 2 }} />
+      </UiCard>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button onClick={() => navigate(RoutePaths.web.user.root)}>
-          Back
-        </Button>
+        <UiButton onClick={() => navigate(RoutePaths.web.user.root)}>
+          {t('config.common.back')}
+        </UiButton>
       </div>
     </div>
   );

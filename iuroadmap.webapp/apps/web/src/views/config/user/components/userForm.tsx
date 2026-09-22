@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
-import { Form, Input, Row, Col, Button, Card, Space, Select } from 'antd';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IamUsersZod } from '@iuroadmap/api-gen';
+import { UiForm, UiRow, UiCol, UiCard, UiInputField, UiSelectField, UiFormActions } from '../../../../uikit';
 import { useRolesControllerGetByIndex } from '@iuroadmap/api-gen';
+import { useTranslation } from '../../../../hooks/useTranslation';
 
 export interface UserFormValues {
   name: string;
@@ -38,15 +41,20 @@ export function UserForm({
   onSubmit,
   onCancel,
 }: UserFormProps) {
+  const { t } = useTranslation();
   const form = useForm<UserFormValues>({
     defaultValues: { ...emptyDefaults(), ...defaultValues },
+    resolver: zodResolver(
+      isEdit ? IamUsersZod.UsersControllerUpdateBody.omit({ id: true }) : IamUsersZod.UsersControllerCreateBody,
+    ) as never,
     mode: 'onSubmit',
     reValidateMode: 'onChange',
   });
   const { handleSubmit, reset, control, formState: { errors } } = form;
 
   const { data: rawRoles, isLoading: rolesLoading } = useRolesControllerGetByIndex({ rowsPerPage: 100 });
-  const roles = (rawRoles?.data as any)?.datas ?? [];
+  const rolesResponse = rawRoles?.data as any;
+  const roles = (rolesResponse?.data ?? rolesResponse)?.datas ?? [];
 
   useEffect(() => {
     if (defaultValues) reset({ ...emptyDefaults(), ...defaultValues });
@@ -57,120 +65,85 @@ export function UserForm({
   };
 
   return (
-    <Form layout="vertical" onFinish={handleSubmit(submit)}>
-      <Card title="General Info" style={{ marginBottom: 16 }}>
-        <Row gutter={[16, 0]}>
-          <Col xs={24} md={12}>
-            <Form.Item 
-              label="Full Name" 
-              required 
-              validateStatus={errors.name ? 'error' : ''}
-              help={errors.name?.message}
-            >
-              <Controller
-                name="name"
-                control={control}
-                render={({ field }) => <Input {...field} />}
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item 
-              label="Email" 
-              required={!isEdit}
-              validateStatus={errors.email ? 'error' : ''}
-              help={errors.email?.message}
-            >
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => <Input {...field} disabled={isEdit} />}
-              />
-            </Form.Item>
-          </Col>
-          {!isEdit ? (
-            <Col xs={24} md={12}>
-              <Form.Item 
-                label="Password" 
-                required 
-                validateStatus={errors.password ? 'error' : ''}
-                help={errors.password?.message}
-              >
-                <Controller
-                  name="password"
-                  control={control}
-                  render={({ field }) => <Input.Password {...field} />}
-                />
-              </Form.Item>
-            </Col>
-          ) : null}
-          <Col xs={24} md={12}>
-            <Form.Item 
-              label="Role" 
+    <UiForm layout="vertical" onFinish={handleSubmit(submit)}>
+      <UiCard title={t('config.user.info')} style={{ marginBottom: 16 }}>
+        <UiRow gutter={[16, 0]}>
+          <UiCol xs={24} md={12}>
+            <UiInputField
+              name="name"
+              control={control as any}
+              label={t('config.user.fullName')}
               required
-              validateStatus={errors.roleId ? 'error' : ''}
-              help={errors.roleId?.message}
-            >
-              <Controller
-                name="roleId"
-                control={control}
-                render={({ field }) => (
-                  <Select {...field} loading={rolesLoading}>
-                    {roles.map((r: any) => (
-                      <Select.Option key={r.id} value={r.id}>{r.name}</Select.Option>
-                    ))}
-                  </Select>
-                )}
+            />
+          </UiCol>
+          <UiCol xs={24} md={12}>
+            <UiInputField
+              name="email"
+              control={control as any}
+              label={t('config.user.email')}
+              required={!isEdit}
+            />
+          </UiCol>
+          {!isEdit ? (
+            <UiCol xs={24} md={12}>
+              <UiInputField
+                name="password"
+                control={control as any}
+                label={t('config.user.password')}
+                type="password"
+                required
               />
-            </Form.Item>
-          </Col>
+            </UiCol>
+          ) : null}
+          <UiCol xs={24} md={12}>
+            <UiSelectField
+              name="roleId"
+              control={control as any}
+              label={t('config.user.role')}
+              required
+              loading={rolesLoading}
+              options={roles.map((r: any) => ({ label: r.name, value: r.id }))}
+            />
+          </UiCol>
 
           {isEdit ? (
             <>
-              <Col xs={24} md={12}>
-                <Form.Item label="Status">
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <Select {...field} options={[
-                        { label: 'ACTIVE', value: 'ACTIVE' },
-                        { label: 'PENDING_APPROVAL', value: 'PENDING_APPROVAL' },
-                        { label: 'BANNED', value: 'BANNED' },
-                        { label: 'REJECTED', value: 'REJECTED' },
-                      ]} />
-                    )}
-                  />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={12}>
-                <Form.Item label="Subscription Tier">
-                  <Controller
-                    name="subscriptionTier"
-                    control={control}
-                    render={({ field }) => (
-                      <Select {...field} options={[
-                        { label: 'FREE', value: 'FREE' },
-                        { label: 'VIP', value: 'VIP' },
-                        { label: 'PRO', value: 'PRO' },
-                      ]} />
-                    )}
-                  />
-                </Form.Item>
-              </Col>
+              <UiCol xs={24} md={12}>
+                <UiSelectField
+                  name="status"
+                  control={control as any}
+                  label={t('config.user.status')}
+                  options={[
+                    { label: t('config.user.active'), value: 'ACTIVE' },
+                    { label: t('config.user.pendingApproval'), value: 'PENDING_APPROVAL' },
+                    { label: t('config.user.banned'), value: 'BANNED' },
+                    { label: t('config.user.rejected'), value: 'REJECTED' },
+                  ]}
+                />
+              </UiCol>
+              <UiCol xs={24} md={12}>
+                <UiSelectField
+                  name="subscriptionTier"
+                  control={control as any}
+                  label={t('config.user.subscriptionTier')}
+                  options={[
+                    { label: t('config.user.free'), value: 'FREE' },
+                    { label: t('config.user.vip'), value: 'VIP' },
+                    { label: t('config.user.pro'), value: 'PRO' },
+                  ]}
+                />
+              </UiCol>
             </>
           ) : null}
-        </Row>
-      </Card>
+        </UiRow>
+      </UiCard>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-        <Space>
-          {onCancel ? <Button onClick={onCancel} disabled={loading}>Cancel</Button> : null}
-          <Button type="primary" htmlType="submit" loading={loading}>
-            {submitLabel ?? "Save"}
-          </Button>
-        </Space>
-      </div>
-    </Form>
+      <UiFormActions
+        loading={loading}
+        submitLabel={submitLabel ?? t('config.common.save')}
+        cancelLabel={t('config.common.cancel')}
+        onCancel={onCancel}
+      />
+    </UiForm>
   );
 }

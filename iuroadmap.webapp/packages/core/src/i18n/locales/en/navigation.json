@@ -1,9 +1,14 @@
 {
   "navigation": {
+      "root": "Dashboard",
+      "roadmapGroup": "Roadmap",
+      "mentorshipGroup": "Mentorship",
+      "config": "System Configuration",
     "overview": "Overview",
     "features": "Features",
     "administration": "Administration",
     "dashboard": "Dashboard",
+      "major": "Major",
     "roadmap": "Roadmap",
     "courses": "Courses",
     "mentorship": "Mentorship",

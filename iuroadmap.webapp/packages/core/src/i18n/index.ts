@@ -15,7 +15,11 @@ export const resources = {
 export const getTranslation = (lang: 'en' | 'vi', key: string) => {
   const locale = translations[lang] as Record<string, unknown>;
   const fallback = translations.en as Record<string, unknown>;
-  return locale[key] || fallback[key] || key;
+  const resolve = (source: Record<string, unknown>) => key.split('.').reduce<unknown>((value, part) => {
+    return value && typeof value === 'object' ? (value as Record<string, unknown>)[part] : undefined;
+  }, source);
+
+  return resolve(locale) || resolve(fallback) || key;
 };
 
 export { features };

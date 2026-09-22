@@ -4,13 +4,23 @@ import {
   useUsersControllerGetByIndex,
   useUsersControllerDelete,
   type UserDetailResponse,
+  useRolesControllerGetByIndex,
 } from '@iuroadmap/api-gen';
 import { RoutePaths } from '@iuroadmap/core';
-import { Table, Button, Tooltip, Typography, Space } from 'antd';
-import { EyeOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import {
+  UiTable,
+  UiButton,
+  UiTooltip,
+  UiSpace,
+  UiColumnsType,
+  UiEyeIcon,
+  UiEditIcon,
+  UiDeleteIcon,
+  UiPageHeader
+} from '../../../uikit';
 import { useConfirmAndDelete } from '../../../hooks/useConfirmAndDelete';
 import { useListUrlState } from '../../../hooks/useListUrlState';
+import { useTranslation } from '../../../hooks/useTranslation';
 import { UserFilterForm, type UserFilterValue } from './components/userFilterForm';
 
 const PAGE_SIZE = 20;
@@ -48,6 +58,7 @@ function filterFromParams(params: URLSearchParams): {
 
 export function UserListPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { mutateAsync: remove } = useUsersControllerDelete();
   const onDelete = useConfirmAndDelete({ mutateAsync: remove });
 
@@ -63,79 +74,90 @@ export function UserListPage() {
     keyword: filter.keyword ?? undefined,
     roleId: filter.roleId ?? undefined,
   });
-  const data = raw?.data as any as UserListData | undefined;
+  const data = (raw?.data as any)?.data as UserListData | undefined;
   const rows = data?.datas ?? [];
   const totalRows = data?.totalRows ?? 0;
 
-  const columns = useMemo<ColumnsType<UserDetailResponse>>(
+  const { data: rawRoles } = useRolesControllerGetByIndex({ rowsPerPage: 100 });
+  const roles = ((rawRoles?.data as any)?.data as any)?.datas ?? [];
+  
+  const roleMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of roles) {
+      if (r.id) map.set(r.id, r.name ?? '');
+    }
+    return map;
+  }, [roles]);
+
+  const columns = useMemo<UiColumnsType<UserDetailResponse>>(
     () => [
       {
         key: 'name',
-        title: "Full Name",
+        title: t('config.user.fullName'),
         dataIndex: 'name',
         render: (value, row) => (
-          <Button type="link"
+          <UiButton type="link"
             onClick={() => navigate(RoutePaths.web.user.detail.replace(':id', row.id ?? ''))}
           >
             {(value as string | null) ?? ''}
-          </Button>
+          </UiButton>
         ),
       },
       {
         key: 'email',
-        title: "Email",
+        title: t('config.user.email'),
         dataIndex: 'email',
       },
       {
         key: 'roleName',
-        title: "Role",
-        render: (_v, row) => row.role?.name ?? '',
+        title: t('config.user.role'),
+        render: (_v, row) => row.role?.name ?? roleMap.get(row.roleId) ?? '',
       },
       {
         key: 'actions',
-        title: "Actions",
+        title: t('config.common.actions'),
         align: 'right',
         width: 160,
         render: (_v, row) => (
-          <Space>
-            <Tooltip title="View Detail">
-              <Button
+          <UiSpace>
+            <UiTooltip title={t('config.user.viewDetail')}>
+              <UiButton
                 size='small'
                 type='text'
-                icon={<EyeOutlined />}
+                icon={<UiEyeIcon />}
                 onClick={() => navigate(RoutePaths.web.user.detail.replace(':id', row.id ?? ''))}
               />
-            </Tooltip>
-            <Tooltip title="Edit">
-              <Button
+            </UiTooltip>
+            <UiTooltip title={t('config.common.edit')}>
+              <UiButton
                 size='small'
                 type='text'
-                icon={<EditOutlined />}
+                icon={<UiEditIcon />}
                 onClick={() => navigate(RoutePaths.web.user.edit.replace(':id', row.id ?? ''))}
               />
-            </Tooltip>
-            <Tooltip title="Delete">
-              <Button
+            </UiTooltip>
+            <UiTooltip title={t('config.common.delete')}>
+              <UiButton
                 size='small'
                 type='text'
                 danger
-                icon={<DeleteOutlined />}
+                icon={<UiDeleteIcon />}
                 onClick={() => onDelete({ id: row.id ?? '' })}
               />
-            </Tooltip>
-          </Space>
+            </UiTooltip>
+          </UiSpace>
         ),
       },
     ],
-    [navigate, onDelete],
+    [navigate, onDelete, t],
   );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Typography.Title level={4} style={{ margin: 0 }}>Users</Typography.Title>
-        <Button type="primary" onClick={() => navigate(RoutePaths.web.user.create)}>Add</Button>
-      </div>
+      <UiPageHeader 
+        title={t('config.user.list')} 
+        action={<UiButton type="primary" onClick={() => navigate(RoutePaths.web.user.create)}>+ {t('config.common.add')}</UiButton>} 
+      />
 
       <div style={{ marginBottom: 16 }}>
         <UserFilterForm
@@ -145,7 +167,7 @@ export function UserListPage() {
       </div>
 
       <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: 8, padding: 16 }}>
-        <Table
+        <UiTable
           columns={columns}
           dataSource={rows}
           rowKey='id'

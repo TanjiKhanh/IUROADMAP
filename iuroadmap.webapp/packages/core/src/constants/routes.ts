@@ -65,6 +65,16 @@ interface ConfigPaths {
   root: string;
   role: RolePaths;
   user: UserPaths;
+  department: {
+    root: string;
+    create: string;
+    edit: string;
+  };
+  major: {
+    root: string;
+    create: string;
+    edit: string;
+  };
 }
 
 export interface WebPathsStructure {
@@ -132,6 +142,16 @@ export const webPaths: WebPathsStructure = {
       edit: '/dashboard/config/users/:id/edit',
       detail: '/dashboard/config/users/:id',
       changePassword: '/dashboard/config/users/:id/change-password',
+    },
+    department: {
+      root: '/dashboard/config/departments',
+      create: '/dashboard/config/departments/create',
+      edit: '/dashboard/config/departments/:id/edit',
+    },
+    major: {
+      root: '/dashboard/config/majors',
+      create: '/dashboard/config/majors/create',
+      edit: '/dashboard/config/majors/:id/edit',
     },
   },
   role: {

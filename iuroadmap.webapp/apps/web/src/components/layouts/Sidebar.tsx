@@ -81,7 +81,7 @@ export default function Sidebar() {
           <div className="nav-section-label">{t(menuGroup.label)}</div>
           {menuGroup.children?.map((item, index) => {
             const IconComponent = IconMap[item.icon] || CheckCircle; // Fallback to CheckCircle
-            
+
             // Highlight active states for specific routes (e.g. explore majors or mentors)
             const getActiveState = ({ isActive }: { isActive: boolean }) => {
               if (isActive) return 'nav-link active';
@@ -123,8 +123,8 @@ export default function Sidebar() {
                     )}
                   </div>
                 ) : (
-                  <NavLink 
-                    to={item.path || '/'} 
+                  <NavLink
+                    to={item.path || '/'}
                     end={item.path === RoutePaths.web.admin.root || item.path === RoutePaths.web.dashboard.root || item.path === RoutePaths.web.mentor.dashboard}
                     className={getActiveState}
                   >
@@ -191,7 +191,7 @@ export default function Sidebar() {
 
         {(userRole === 'USER' || userRole === 'STUDENT') && showProBanner && !isCollapsed && (
           <div className="pro-upsell-notification">
-            <button 
+            <button
               className="btn-close-upsell"
               onClick={() => setShowProBanner(false)}
             >

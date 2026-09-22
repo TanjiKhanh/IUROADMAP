@@ -7,7 +7,11 @@
  */
 
 export interface RoleCreateRequest {
-  /** The name of the role */
+  /**
+     * The name of the role
+     * @minLength 1
+     * @maxLength 100
+     */
   name: string;
   /** A short description of the role */
   description?: string;

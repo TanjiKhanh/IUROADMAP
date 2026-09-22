@@ -46,7 +46,7 @@ export default function ForgotPassword() {
           <img src={logo} alt="Logo" className="auth-logo" />
         </Link>
         <h1 className="auth-title">{t(authKeys.forgotPassword.title)}</h1>
-        
+
         {submitted ? (
           <div>
             <div style={{ backgroundColor: '#eff6ff', color: '#1e40af', padding: '12px 16px', borderRadius: '8px', marginBottom: '1.5rem', textAlign: 'center' }}>
@@ -63,7 +63,7 @@ export default function ForgotPassword() {
             </p>
             <UiForm onFinish={handleSubmit(onSubmit)}>
               <UiInputField control={control} name="email" label={t(authKeys.login.email)} placeholder="Enter your email address" />
-              
+
               <UiButton type="primary" htmlType="submit" loading={isSubmitting} block size="large" style={{ marginTop: '1rem' }}>
                 {isSubmitting ? t(authKeys.login.processing) : t(authKeys.forgotPassword.submitBtn)}
               </UiButton>

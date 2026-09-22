@@ -1,25 +1,28 @@
 import { useNavigate } from 'react-router-dom';
 import { useRolesControllerCreate } from '@iuroadmap/api-gen';
 import { RoutePaths } from '@iuroadmap/core';
-import { message } from 'antd';
+import { useToast } from '../../../uikit';
 import { RoleForm } from './components/roleForm';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 export function RoleCreatePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { toast } = useToast();
   const { mutateAsync: create, isPending } = useRolesControllerCreate();
 
   return (
     <RoleForm
       loading={isPending}
-      submitLabel="Create"
+      submitLabel={t('config.common.add')}
       onCancel={() => navigate(RoutePaths.web.role.root)}
       onSubmit={async (values) => {
         try {
           await create({ data: values });
-          message.success("Success");
+          toast.success(t('config.common.success'));
           navigate(RoutePaths.web.role.root);
         } catch (err: any) {
-          message.error(err?.response?.data?.message ?? err?.message ?? "Failed to create");
+          toast.error(err?.response?.data?.message ?? err?.message ?? t('config.role.createFailed'));
         }
       }}
     />

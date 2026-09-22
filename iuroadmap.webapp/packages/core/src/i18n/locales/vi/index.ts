@@ -6,6 +6,7 @@ import learner from './learner.json';
 import mentor from './mentor.json';
 import admin from './admin-portal.json';
 import permission from './permission.json';
+import config from './config.json';
 
 export default {
   ...core,
@@ -16,4 +17,5 @@ export default {
   ...mentor,
   admin,
   ...permission,
+  ...config,
 };

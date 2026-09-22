@@ -11,7 +11,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "paths": {
+      "@iuroadmap/store": ["store"]
+    }
   },
   "include": ["src"]
 }

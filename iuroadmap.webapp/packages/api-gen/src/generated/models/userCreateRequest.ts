@@ -7,12 +7,23 @@
  */
 
 export interface UserCreateRequest {
-  /** Email address */
+  /**
+     * Email address
+     * @maxLength 100
+     */
   email: string;
-  /** Password (min 6 characters) */
+  /**
+     * Password (min 6 characters)
+     * @minLength 6
+     * @maxLength 30
+     */
   password: string;
-  /** Full name */
-  name?: string;
+  /**
+     * Full name
+     * @minLength 1
+     * @maxLength 100
+     */
+  name: string;
   /** Role ID to assign */
   roleId: string;
 }

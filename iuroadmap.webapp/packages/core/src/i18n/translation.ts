@@ -16,6 +16,7 @@ export const Translations = {
   },
   sidebar: {
     dashboard: 'navigation.dashboard',
+      major: 'navigation.major',
     roadmap: 'navigation.roadmap',
     courses: 'navigation.courses',
     mentorship: 'navigation.mentorship',
@@ -32,6 +33,10 @@ export const Translations = {
     departments: 'navigation.departments',
   },
   navigation: {
+    root: 'navigation.root',
+    roadmap: 'navigation.roadmapGroup',
+    mentorship: 'navigation.mentorshipGroup',
+    config: 'navigation.config',
     overview: 'navigation.overview',
     features: 'navigation.features',
     administration: 'navigation.administration',

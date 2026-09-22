@@ -2,18 +2,22 @@ import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRolesControllerGetById, useRolesControllerUpdate, type RoleDetailResponse } from '@iuroadmap/api-gen';
 import { RoutePaths } from '@iuroadmap/core';
-import { Skeleton, Result, Card, message } from 'antd';
+import { UiSkeleton, UiResult, useToast } from '../../../uikit';
 import { RoleForm, type RoleFormValues } from './components/roleForm';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 export function RoleEditPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { id = '' } = useParams<{ id: string }>();
+  const { toast } = useToast();
   const { mutateAsync: update, isPending } = useRolesControllerUpdate();
 
   const { data: raw, isLoading, isError } = useRolesControllerGetById(id, {
     query: { enabled: Boolean(id) },
   });
-  const record = raw?.data as any as RoleDetailResponse | undefined;
+  const responseData = raw?.data as any;
+  const record = (responseData?.data ?? responseData) as RoleDetailResponse | undefined;
 
   const defaults = useMemo<Partial<RoleFormValues> | undefined>(() => {
     if (!record) return undefined;
@@ -29,28 +33,26 @@ export function RoleEditPage() {
     };
   }, [record]);
 
-  if (isLoading) return <Skeleton active paragraph={{ rows: 6 }} />;
+  if (isLoading) return <UiSkeleton active paragraph={{ rows: 6 }} />;
   if (isError || !record) {
-    return <Result status='error' title="Failed to load" />;
+    return <UiResult status='error' title={t('config.common.failedToLoad')} />;
   }
 
   return (
-    <Card title="Edit Role" style={{ margin: '0 auto', maxWidth: 800 }}>
-      <RoleForm
-        defaultValues={defaults}
-        loading={isPending}
-        submitLabel="Save"
-        onCancel={() => navigate(RoutePaths.web.role.root)}
-        onSubmit={async (values) => {
-          try {
-            await update({ data: { ...values, id, name: values.name ?? '' } });
-            message.success("Success");
-            navigate(RoutePaths.web.role.root);
-          } catch (err: any) {
-            message.error(err?.response?.data?.message ?? err?.message ?? "Failed");
-          }
-        }}
-      />
-    </Card>
+    <RoleForm
+      defaultValues={defaults}
+      loading={isPending}
+      submitLabel={t('config.common.save')}
+      onCancel={() => navigate(RoutePaths.web.role.root)}
+      onSubmit={async (values) => {
+        try {
+          await update({ data: { ...values, id, name: values.name ?? '' } });
+          toast.success(t('config.common.success'));
+          navigate(RoutePaths.web.role.root);
+        } catch (err: any) {
+          toast.error(err?.response?.data?.message ?? err?.message ?? t('config.common.failedToLoad'));
+        }
+      }}
+    />
   );
 }

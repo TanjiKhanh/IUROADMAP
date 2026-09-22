@@ -3,26 +3,26 @@ import { IsString, IsNotEmpty, IsEmail, IsOptional, IsUUID, MaxLength, MinLength
 import { EntityConstant } from '@iuroadmap/shared';
 
 export class UserCreateRequest {
-  @ApiProperty({ description: 'Email address', example: 'user@iuroadmap.com' })
+  @ApiProperty({ description: 'Email address', example: 'user@iuroadmap.com', format: 'email', maxLength: EntityConstant.Email })
   @IsEmail()
   @IsNotEmpty()
   @MaxLength(EntityConstant.Email)
   email!: string;
 
-  @ApiProperty({ description: 'Password (min 6 characters)', example: 'SecurePass123' })
+  @ApiProperty({ description: 'Password (min 6 characters)', example: 'SecurePass123', minLength: EntityConstant.PasswordMin, maxLength: EntityConstant.PasswordMax })
   @IsString()
   @IsNotEmpty()
   @MinLength(EntityConstant.PasswordMin)
   @MaxLength(EntityConstant.PasswordMax)
   password!: string;
 
-  @ApiPropertyOptional({ description: 'Full name', example: 'Nguyen Van A' })
+  @ApiProperty({ description: 'Full name', example: 'Nguyen Van A', minLength: 1, maxLength: EntityConstant.Fullname })
   @IsString()
-  @IsOptional()
   @MaxLength(EntityConstant.Fullname)
-  name?: string;
+  @IsNotEmpty()
+  name!: string;
 
-  @ApiProperty({ description: 'Role ID to assign', example: 'uuid-role-id' })
+  @ApiProperty({ description: 'Role ID to assign', example: 'uuid-role-id', format: 'uuid' })
   @IsString()
   @IsNotEmpty()
   @IsUUID('4')

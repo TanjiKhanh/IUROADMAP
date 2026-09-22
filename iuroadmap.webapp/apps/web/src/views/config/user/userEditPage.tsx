@@ -2,18 +2,22 @@ import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUsersControllerGetById, useUsersControllerUpdate, type UserDetailResponse } from '@iuroadmap/api-gen';
 import { RoutePaths } from '@iuroadmap/core';
-import { Result, Skeleton, Card, message } from 'antd';
+import { UiResult, UiSkeleton, useToast } from '../../../uikit';
 import { UserForm, type UserFormValues } from './components/userForm';
+import { useTranslation } from '../../../hooks/useTranslation';
 
 export function UserEditPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { id = '' } = useParams<{ id: string }>();
+  const { toast } = useToast();
   const { mutateAsync: update, isPending } = useUsersControllerUpdate();
 
   const { data: raw, isLoading, isError } = useUsersControllerGetById(id, {
     query: { enabled: Boolean(id) },
   });
-  const record = raw?.data as any as UserDetailResponse | undefined;
+  const responseData = raw?.data as any;
+  const record = (responseData?.data ?? responseData) as UserDetailResponse | undefined;
 
   const defaults = useMemo<Partial<UserFormValues> | undefined>(() => {
     if (!record) return undefined;
@@ -27,31 +31,29 @@ export function UserEditPage() {
     };
   }, [record]);
 
-  if (isLoading) return <Skeleton active paragraph={{ rows: 6 }} />;
+  if (isLoading) return <UiSkeleton active paragraph={{ rows: 6 }} />;
   if (isError || !record) {
-    return <Result status='error' title="Failed to load" />;
+    return <UiResult status='error' title={t('config.common.failedToLoad')} />;
   }
 
   return (
-    <Card title="Edit" style={{ margin: '0 auto', maxWidth: 800 }}>
-      <UserForm
-        defaultValues={defaults}
-        loading={isPending}
-        isEdit
-        submitLabel="Save"
-        onCancel={() => navigate(RoutePaths.web.user.root)}
-        onSubmit={async (values) => {
-          try {
-            const { password, ...rest } = values;
-            const payload = password ? { ...rest, id, password } : { ...rest, id };
-            await update({ data: payload as any });
-            message.success("Success");
-            navigate(RoutePaths.web.user.root);
-          } catch (err: any) {
-            message.error(err?.response?.data?.message ?? err?.message ?? "Failed");
-          }
-        }}
-      />
-    </Card>
+    <UserForm
+      defaultValues={defaults}
+      loading={isPending}
+      isEdit
+      submitLabel={t('config.common.save')}
+      onCancel={() => navigate(RoutePaths.web.user.root)}
+      onSubmit={async (values) => {
+        try {
+          const { password, ...rest } = values;
+          const payload = password ? { ...rest, id, password } : { ...rest, id };
+          await update({ data: payload as any });
+            toast.success(t('config.common.success'));
+          navigate(RoutePaths.web.user.root);
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message ?? err?.message ?? t('config.common.failedToLoad'));
+        }
+      }}
+    />
   );
 }

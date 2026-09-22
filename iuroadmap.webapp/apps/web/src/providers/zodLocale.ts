@@ -31,6 +31,8 @@ export function initZodLocale() {
         message = getTranslation(currentLang, 'yupGlobal.email.invalid') as string;
       } else if (issue.validation === 'url') {
         message = getTranslation(currentLang, 'yupGlobal.string.url') as string;
+      } else if (issue.validation === 'uuid') {
+        message = getTranslation(currentLang, 'yupGlobal.string.uuid') as string;
       }
     }
     

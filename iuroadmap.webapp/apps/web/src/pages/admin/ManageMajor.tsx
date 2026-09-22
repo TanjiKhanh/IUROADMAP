@@ -6,7 +6,7 @@ import Notification from '../../components/ui/Notification';
 import { Form, Input, TextArea, SubmitButton } from '../../components/ui/Forms';
 import { useForm } from '../../hooks/useForm';
 
-export default function ManageRoadmaps() {
+export default function MajorRoadmap() {
   const navigate = useNavigate();
   const [majors, setMajors] = useState<Major[]>([]);
   const [loading, setLoading] = useState(true);

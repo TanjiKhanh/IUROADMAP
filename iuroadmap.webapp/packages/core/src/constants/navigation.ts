@@ -4,8 +4,6 @@ import { MenuIconsWeb } from './iconsWeb';
 import { MenuIconsMobile } from './iconsMobile';
 import { Translations } from '../i18n/translation';
 
-
-
 export interface IURoadmapMenuItem {
   roles: readonly string[] | string[];
   path: string;
@@ -31,185 +29,134 @@ export interface IURoadmapMenu {
   pathMobile?: string;
 }
 
+const displayInNavigation = {
+  isDisplayVerticalNav: true,
+  isDisplayVerticalNavMobile: false,
+};
+
 export const navigation: IURoadmapMenu[] = [
   {
-    activeMobile: true,
-    active: true,
+    key: 'root-menu',
+    groupName: Translations.navigation.root,
     iconWeb: MenuIconsWeb.layoutDashboard,
     iconMobile: MenuIconsMobile.DASHBOARD,
-    key: 'dashboard-menu',
-    groupName: Translations.navigation.overview,
+    active: true,
+    activeMobile: true,
     items: [
       {
+        ...displayInNavigation,
         roles: FeaturePms.dashboard.view,
         path: RoutePaths.web.dashboard.root,
         pathMobile: RoutePaths.mobile.dashboard.root,
         title: Translations.sidebar.dashboard,
         iconWeb: MenuIconsWeb.layoutDashboard,
         iconMobile: MenuIconsMobile.DASHBOARD,
-        isDisplayVerticalNav: true,
-        isDisplayVerticalNavMobile: false,
-      }
+      },
     ],
   },
   {
-    activeMobile: true,
-    active: true,
+    key: 'roadmap-menu',
+    groupName: Translations.navigation.roadmap,
     iconWeb: MenuIconsWeb.map,
     iconMobile: MenuIconsMobile.MAP,
-    key: 'features-menu',
-    groupName: Translations.navigation.features,
+    active: true,
+    activeMobile: true,
     items: [
       {
+        ...displayInNavigation,
         roles: FeaturePms.roadmap.view,
-        path: '',
-        pathMobile: '',
-        title: Translations.sidebar.roadmap,
+        path: RoutePaths.web.dashboard.explore,
+        pathMobile: RoutePaths.mobile.dashboard.explore,
+        title: Translations.sidebar.exploreMajors,
+        iconWeb: MenuIconsWeb.graduationCap,
+        iconMobile: MenuIconsMobile.GRADUATION,
+      },
+      {
+        ...displayInNavigation,
+        roles: FeaturePms.roadmap.view,
+        path: RoutePaths.web.dashboard.myCourses,
+        pathMobile: RoutePaths.mobile.dashboard.myCourses,
+        title: Translations.sidebar.myRoadmaps,
         iconWeb: MenuIconsWeb.map,
         iconMobile: MenuIconsMobile.MAP,
-        isDisplayVerticalNav: true,
-        isDisplayVerticalNavMobile: false,
-        children: [
-          {
-            roles: FeaturePms.roadmap.view,
-            path: RoutePaths.web.dashboard.explore,
-            pathMobile: RoutePaths.mobile.dashboard.explore,
-            title: Translations.sidebar.exploreMajors,
-            iconWeb: MenuIconsWeb.graduationCap,
-            iconMobile: MenuIconsMobile.GRADUATION,
-            isDisplayVerticalNav: true,
-            isDisplayVerticalNavMobile: false,
-          },
-          {
-            roles: FeaturePms.roadmap.view,
-            path: RoutePaths.web.dashboard.myCourses,
-            pathMobile: RoutePaths.mobile.dashboard.myCourses,
-            title: Translations.sidebar.myRoadmaps,
-            iconWeb: MenuIconsWeb.map,
-            iconMobile: MenuIconsMobile.MAP,
-            isDisplayVerticalNav: true,
-            isDisplayVerticalNavMobile: false,
-          },
-          {
-            roles: FeaturePms.roadmap.manage,
-            path: RoutePaths.web.admin.roadmaps,
-            pathMobile: RoutePaths.mobile.admin.roadmaps,
-            title: Translations.sidebar.manageRoadmaps,
-            iconWeb: MenuIconsWeb.map,
-            iconMobile: MenuIconsMobile.MAP,
-            isDisplayVerticalNav: true,
-            isDisplayVerticalNavMobile: false,
-          },
-        ]
-      },
-      {
-        roles: FeaturePms.course.manage,
-        path: '',
-        pathMobile: '',
-        title: Translations.sidebar.courses,
-        iconWeb: MenuIconsWeb.bookOpen,
-        iconMobile: MenuIconsMobile.BOOK,
-        isDisplayVerticalNav: true,
-        isDisplayVerticalNavMobile: false,
-        children: [
-          {
-            roles: FeaturePms.course.manage,
-            path: RoutePaths.web.admin.courses,
-            pathMobile: RoutePaths.mobile.admin.courses,
-            title: Translations.sidebar.manageCourses,
-            iconWeb: MenuIconsWeb.bookOpen,
-            iconMobile: MenuIconsMobile.BOOK,
-            isDisplayVerticalNav: true,
-            isDisplayVerticalNavMobile: false,
-          }
-        ]
-      },
-      {
-        roles: FeaturePms.community.view,
-        path: '',
-        pathMobile: '',
-        title: Translations.sidebar.mentorship,
-        iconWeb: MenuIconsWeb.users,
-        iconMobile: MenuIconsMobile.USERS,
-        isDisplayVerticalNav: true,
-        isDisplayVerticalNavMobile: false,
-        children: [
-          {
-            roles: FeaturePms.community.view,
-            path: RoutePaths.web.dashboard.findMentors,
-            pathMobile: RoutePaths.mobile.dashboard.findMentors,
-            title: Translations.sidebar.findMentors,
-            iconWeb: MenuIconsWeb.users,
-            iconMobile: MenuIconsMobile.USERS,
-            isDisplayVerticalNav: true,
-            isDisplayVerticalNavMobile: false,
-          },
-          {
-            roles: FeaturePms.community.chat,
-            path: '/dashboard/chat-mentors',
-            pathMobile: 'DashboardChatMentors',
-            title: Translations.sidebar.chatWithMentors,
-            iconWeb: MenuIconsWeb.messageCircle,
-            iconMobile: MenuIconsMobile.MESSAGE,
-            isPro: true,
-            isDisplayVerticalNav: true,
-            isDisplayVerticalNavMobile: false,
-          },
-          {
-            roles: FeaturePms.community.mentor_hub,
-            path: RoutePaths.web.mentor.dashboard,
-            pathMobile: RoutePaths.mobile.mentor.dashboard,
-            title: Translations.sidebar.mentorHub,
-            iconWeb: MenuIconsWeb.panelTop,
-            iconMobile: MenuIconsMobile.PANEL,
-            isDisplayVerticalNav: true,
-            isDisplayVerticalNavMobile: false,
-          },
-        ]
       },
     ],
   },
   {
-    activeMobile: true,
+    key: 'mentorship-menu',
+    groupName: Translations.navigation.mentorship,
+    iconWeb: MenuIconsWeb.users,
+    iconMobile: MenuIconsMobile.USERS,
     active: true,
-    iconWeb: MenuIconsWeb.folder,
-    iconMobile: MenuIconsMobile.FOLDER,
-    key: 'system-menu',
-    groupName: Translations.navigation.administration,
+    activeMobile: true,
     items: [
       {
-        roles: FeaturePms.system.admin,
-        path: RoutePaths.web.admin.departments,
-        pathMobile: RoutePaths.mobile.admin.departments,
-        title: Translations.sidebar.departments,
-        iconWeb: MenuIconsWeb.folder,
-        iconMobile: MenuIconsMobile.FOLDER,
-        isDisplayVerticalNav: true,
-        isDisplayVerticalNavMobile: false,
+        ...displayInNavigation,
+        roles: FeaturePms.community.view,
+        path: RoutePaths.web.dashboard.findMentors,
+        pathMobile: RoutePaths.mobile.dashboard.findMentors,
+        title: Translations.sidebar.findMentors,
+        iconWeb: MenuIconsWeb.users,
+        iconMobile: MenuIconsMobile.USERS,
       },
       {
+        ...displayInNavigation,
+        roles: FeaturePms.community.chat,
+        path: '/dashboard/chat-mentors',
+        pathMobile: 'DashboardChatMentors',
+        title: Translations.sidebar.chatWithMentors,
+        iconWeb: MenuIconsWeb.messageCircle,
+        iconMobile: MenuIconsMobile.MESSAGE,
+        isPro: true,
+      },
+    ],
+  },
+  {
+    key: 'config-menu',
+    groupName: Translations.navigation.config,
+    iconWeb: MenuIconsWeb.folder,
+    iconMobile: MenuIconsMobile.FOLDER,
+    active: true,
+    activeMobile: true,
+    items: [
+      {
+        ...displayInNavigation,
         roles: FeaturePms.system.userAdmin,
         path: RoutePaths.web.config.user.root,
         pathMobile: RoutePaths.mobile.config.user.root,
         title: Translations.sidebar.users,
         iconWeb: MenuIconsWeb.users,
         iconMobile: MenuIconsMobile.USERS,
-        isDisplayVerticalNav: true,
-        isDisplayVerticalNavMobile: false,
       },
       {
+        ...displayInNavigation,
         roles: FeaturePms.system.roleAdmin,
         path: RoutePaths.web.config.role.root,
         pathMobile: RoutePaths.mobile.config.role.root,
         title: Translations.sidebar.roles,
         iconWeb: MenuIconsWeb.users,
         iconMobile: MenuIconsMobile.USERS,
-        isDisplayVerticalNav: true,
-        isDisplayVerticalNavMobile: false,
+      },
+      {
+        ...displayInNavigation,
+        roles: FeaturePms.system.admin,
+        path: RoutePaths.web.config.department.root,
+        pathMobile: RoutePaths.mobile.config.department.root,
+        title: Translations.sidebar.departments,
+        iconWeb: MenuIconsWeb.folder,
+        iconMobile: MenuIconsMobile.FOLDER,
+      },
+      {
+        ...displayInNavigation,
+        roles: FeaturePms.roadmap.manage,
+        path: RoutePaths.web.admin.roadmaps,
+        pathMobile: RoutePaths.mobile.admin.roadmaps,
+        title: Translations.sidebar.major,
+        iconWeb: MenuIconsWeb.map,
+        iconMobile: MenuIconsMobile.MAP,
       },
     ],
   },
 ];
 
 export const appMenuConfig = navigation;
-
