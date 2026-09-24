@@ -42,16 +42,16 @@ export function UserEditPage() {
       loading={isPending}
       isEdit
       submitLabel={t('config.common.save')}
-      onCancel={() => navigate(RoutePaths.web.user.root)}
+      onCancel={() => navigate(RoutePaths.web.config.user.root)}
       onSubmit={async (values) => {
         try {
           const { password, ...rest } = values;
           const payload = password ? { ...rest, id, password } : { ...rest, id };
           await update({ data: payload as any });
-            toast.success(t('config.common.success'));
-          navigate(RoutePaths.web.user.root);
+          toast.success(t('config.common.success'));
+          navigate(RoutePaths.web.config.user.root);
         } catch (err: any) {
-            toast.error(err?.response?.data?.message ?? err?.message ?? t('config.common.failedToLoad'));
+          toast.error(err?.response?.data?.message ?? err?.message ?? t('config.common.failedToLoad'));
         }
       }}
     />

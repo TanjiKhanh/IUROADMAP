@@ -12,7 +12,9 @@ export function UserDetailPage() {
   const { data: raw, isLoading, isError } = useUsersControllerGetById(id, {
     query: { enabled: Boolean(id) },
   });
-  const record = raw?.data as any as UserDetailResponse | undefined;
+
+  const responseData = raw?.data as any;
+  const record = (responseData?.data ?? responseData) as UserDetailResponse | undefined;
 
   if (isLoading) {
     return <UiSkeleton active paragraph={{ rows: 8 }} />;
@@ -34,9 +36,9 @@ export function UserDetailPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <UiButton 
-          type="primary" 
-          onClick={() => navigate(RoutePaths.web.user.edit.replace(':id', id))}
+        <UiButton
+          type="primary"
+          onClick={() => navigate(RoutePaths.web.config.user.edit.replace(':id', id))}
         >
           {t('config.common.edit')}
         </UiButton>
@@ -47,7 +49,7 @@ export function UserDetailPage() {
       </UiCard>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <UiButton onClick={() => navigate(RoutePaths.web.user.root)}>
+        <UiButton onClick={() => navigate(RoutePaths.web.config.user.root)}>
           {t('config.common.back')}
         </UiButton>
       </div>

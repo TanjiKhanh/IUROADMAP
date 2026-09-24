@@ -80,7 +80,7 @@ export function UserListPage() {
 
   const { data: rawRoles } = useRolesControllerGetByIndex({ rowsPerPage: 100 });
   const roles = ((rawRoles?.data as any)?.data as any)?.datas ?? [];
-  
+
   const roleMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const r of roles) {
@@ -97,7 +97,7 @@ export function UserListPage() {
         dataIndex: 'name',
         render: (value, row) => (
           <UiButton type="link"
-            onClick={() => navigate(RoutePaths.web.user.detail.replace(':id', row.id ?? ''))}
+            onClick={() => navigate(RoutePaths.web.config.user.detail.replace(':id', row.id ?? ''))}
           >
             {(value as string | null) ?? ''}
           </UiButton>
@@ -125,7 +125,7 @@ export function UserListPage() {
                 size='small'
                 type='text'
                 icon={<UiEyeIcon />}
-                onClick={() => navigate(RoutePaths.web.user.detail.replace(':id', row.id ?? ''))}
+                onClick={() => navigate(RoutePaths.web.config.user.detail.replace(':id', row.id ?? ''))}
               />
             </UiTooltip>
             <UiTooltip title={t('config.common.edit')}>
@@ -133,7 +133,7 @@ export function UserListPage() {
                 size='small'
                 type='text'
                 icon={<UiEditIcon />}
-                onClick={() => navigate(RoutePaths.web.user.edit.replace(':id', row.id ?? ''))}
+                onClick={() => navigate(RoutePaths.web.config.user.edit.replace(':id', row.id ?? ''))}
               />
             </UiTooltip>
             <UiTooltip title={t('config.common.delete')}>
@@ -154,9 +154,9 @@ export function UserListPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <UiPageHeader 
-        title={t('config.user.list')} 
-        action={<UiButton type="primary" onClick={() => navigate(RoutePaths.web.user.create)}>+ {t('config.common.add')}</UiButton>} 
+      <UiPageHeader
+        title={t('config.user.list')}
+        action={<UiButton type="primary" onClick={() => navigate(RoutePaths.web.config.user.create)}>+ {t('config.common.add')}</UiButton>}
       />
 
       <div style={{ marginBottom: 16 }}>

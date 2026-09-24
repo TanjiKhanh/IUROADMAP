@@ -15,12 +15,12 @@ export function RoleCreatePage() {
     <RoleForm
       loading={isPending}
       submitLabel={t('config.common.add')}
-      onCancel={() => navigate(RoutePaths.web.role.root)}
+      onCancel={() => navigate(RoutePaths.web.config.role.root)}
       onSubmit={async (values) => {
         try {
           await create({ data: values });
           toast.success(t('config.common.success'));
-          navigate(RoutePaths.web.role.root);
+          navigate(RoutePaths.web.config.role.root);
         } catch (err: any) {
           toast.error(err?.response?.data?.message ?? err?.message ?? t('config.role.createFailed'));
         }

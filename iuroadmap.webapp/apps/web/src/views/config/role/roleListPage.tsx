@@ -77,7 +77,7 @@ export function RoleListPage() {
                 size='small'
                 type='text'
                 icon={<UiEditIcon />}
-                onClick={() => navigate(RoutePaths.web.role.edit.replace(':id', row.id ?? ''))}
+                onClick={() => navigate(RoutePaths.web.config.role.edit.replace(':id', row.id ?? ''))}
               />
             </UiTooltip>
             <UiTooltip title={t('config.common.delete')}>
@@ -98,9 +98,9 @@ export function RoleListPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <UiPageHeader 
-        title={t('config.role.list')} 
-        action={<UiButton type="primary" onClick={() => navigate(RoutePaths.web.role.create)}>{t('config.common.add')}</UiButton>} 
+      <UiPageHeader
+        title={t('config.role.list')}
+        action={<UiButton type="primary" onClick={() => navigate(RoutePaths.web.config.role.create)}>{t('config.common.add')}</UiButton>}
       />
 
       <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: 8, padding: 16 }}>

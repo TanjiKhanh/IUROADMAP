@@ -43,12 +43,12 @@ export function RoleEditPage() {
       defaultValues={defaults}
       loading={isPending}
       submitLabel={t('config.common.save')}
-      onCancel={() => navigate(RoutePaths.web.role.root)}
+      onCancel={() => navigate(RoutePaths.web.config.role.root)}
       onSubmit={async (values) => {
         try {
           await update({ data: { ...values, id, name: values.name ?? '' } });
           toast.success(t('config.common.success'));
-          navigate(RoutePaths.web.role.root);
+          navigate(RoutePaths.web.config.role.root);
         } catch (err: any) {
           toast.error(err?.response?.data?.message ?? err?.message ?? t('config.common.failedToLoad'));
         }
