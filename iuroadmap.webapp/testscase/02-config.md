@@ -2,41 +2,35 @@
 
 **Document Version:** 1.0  
 **Module Scope:** Config Module — User Management & Role Management  
-**Reference:** `src/views/config/user/`, `src/views/config/role/`  
-**Automation Targets:**
-- API specs: `tests/api/config/user/user.spec.ts`, `tests/api/config/role/role.spec.ts`
-- E2E specs: `tests/e2e/specs/config/user.spec.ts`, `tests/e2e/specs/config/role.spec.ts`
+**Reference:** `src/views/config/user/`, `src/views/config/role/`
 
 ---
 
 ## 1. Coverage Matrix
 
-| Feature | API Coverage | E2E Coverage | Test IDs |
+| # | Feature | Test ID | Pass/Fail |
 |---|---|---|---|
-| User — List / Paginate | ✅ | ✅ | `TC-USR-01` |
-| User — Filter by keyword | ✅ | ✅ | `TC-USR-02` |
-| User — Filter by role | ✅ | ✅ | `TC-USR-03` |
-| User — Create (happy) | ✅ | ✅ | `TC-USR-04` |
-| User — Create (validation) | ✅ | ✅ | `TC-USR-05` |
-| User — View Detail | ✅ | ✅ | `TC-USR-06` |
-| User — Edit / Update | ✅ | ✅ | `TC-USR-07` |
-| User — Delete | ✅ | ✅ | `TC-USR-08` |
-| User — Get Profile | ✅ | — | `TC-USR-09` |
-| User — Non-existent ID | ✅ | ✅ | `TC-USR-10` |
-| User — Invalid UUID format | ✅ | — | `TC-USR-11` |
-| User — Pagination boundary | ✅ | ✅ | `TC-USR-12` |
-| Role — List / Paginate | ✅ | ✅ | `TC-ROL-01` |
-| Role — Create (happy) | ✅ | ✅ | `TC-ROL-02` |
-| Role — Create with permissions | ✅ | ✅ | `TC-ROL-03` |
-| Role — Create (validation) | ✅ | ✅ | `TC-ROL-04` |
-| Role — View Detail (by ID) | ✅ | ✅ | `TC-ROL-05` |
-| Role — Edit / Update | ✅ | ✅ | `TC-ROL-06` |
-| Role — Update empty name | ✅ | ✅ | `TC-ROL-07` |
-| Role — Delete | ✅ | ✅ | `TC-ROL-08` |
-| Role — Get all permissions | ✅ | ✅ | `TC-ROL-09` |
-| Role — Non-existent ID | ✅ | ✅ | `TC-ROL-10` |
-| Role — Pagination boundary | ✅ | ✅ | `TC-ROL-11` |
-| Role — Search by keySearch | ✅ | — | `TC-ROL-12` |
+| 1 | User — List / Paginate | `TC-USR-01` | |
+| 2 | User — Filter by keyword | `TC-USR-02` | |
+| 3 | User — Filter by role | `TC-USR-03` | |
+| 4 | User — Create (happy path) | `TC-USR-04` | |
+| 5 | User — Create (validation) | `TC-USR-05` | |
+| 6 | User — View Detail | `TC-USR-06` | |
+| 7 | User — Edit / Update | `TC-USR-07` | |
+| 8 | User — Delete | `TC-USR-08` | |
+| 9 | User — Non-existent ID | `TC-USR-09` | |
+| 10 | User — Pagination boundary | `TC-USR-10` | |
+| 11 | Role — List / Paginate | `TC-ROL-01` | |
+| 12 | Role — Create (happy path) | `TC-ROL-02` | |
+| 13 | Role — Create with permissions | `TC-ROL-03` | |
+| 14 | Role — Create (validation) | `TC-ROL-04` | |
+| 15 | Role — View / Edit Detail | `TC-ROL-05` | |
+| 16 | Role — Edit / Update | `TC-ROL-06` | |
+| 17 | Role — Update empty name | `TC-ROL-07` | |
+| 18 | Role — Delete | `TC-ROL-08` | |
+| 19 | Role — Permission matrix | `TC-ROL-09` | |
+| 20 | Role — Non-existent ID | `TC-ROL-10` | |
+| 21 | Role — Pagination boundary | `TC-ROL-11` | |
 
 ---
 
@@ -44,15 +38,14 @@
 
 ### TC-USR-01: List Users with Pagination
 
-- **Layer:** API + E2E
-- **Preconditions:** Au<table border="1" style="border-collapse: collapse; width: 100%;">
+<table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
     <td width="50%"><b>Test Case #:</b> TC-USR-01</td>
     <td width="50%"><b>Test Case Name:</b> List Users with Pagination</td>
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — User Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -63,7 +56,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test list users with pagination</td>
+    <td colspan="2"><b>Short Description:</b> Verify that the User Management page displays the user list table with correct columns, data, and an add button.</td>
   </tr>
 </table>
 
@@ -71,10 +64,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>Authenticated admin user</li>
-  <li>At least one user seeded in the system</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>At least one user exists in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -82,26 +77,47 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `POST /user/getbyindex` with `{ currentPage: 1, rowsPerPage: 20 }`.</td>
-      <td>Assert response `totalRows >= 0`, `datas` is an array. If `datas.length > 0`, assert `datas[0].id` and `datas[0].name` are defined.</td>
+      <td>Navigate to the User Management page (<code>/config/users</code>)</td>
+      <td>The User Management page loads successfully</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Navigate to `/config/users`.</td>
-      <td>Assert the page heading is visible. Assert the table is visible with at least the header row. Assert column headers include name, email, role, and actions. Assert the "+ Thêm" add button is visible.</td>
+      <td>Observe the page heading</td>
+      <td>The page heading "Quản lý người dùng" is displayed</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">3</td>
+      <td>Observe the user list table</td>
+      <td>The table is visible with column headers: Name, Email, Role, and Actions</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">4</td>
+      <td>Check that user data rows are displayed</td>
+      <td>At least one user row is shown in the table with name, email, and role filled</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">5</td>
+      <td>Observe the "+ Thêm" button</td>
+      <td>The add button is visible at the top of the page</td>
       <td></td>
       <td></td>
     </tr>
@@ -114,7 +130,7 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>User list renders with correct columns.</li>
+        <li>User list is displayed correctly with all expected columns and data</li>
       </ul>
     </td>
   </tr>
@@ -131,7 +147,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — User Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -142,7 +158,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test filter users by keyword</td>
+    <td colspan="2"><b>Short Description:</b> Verify that users can filter the user list by entering a keyword in the search input.</td>
   </tr>
 </table>
 
@@ -150,9 +166,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>At least one user exists</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>At least one user exists in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -160,40 +179,40 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `POST /user/getbyindex` with `{ currentPage: 1, rowsPerPage: 20, keyword: "test" }`.</td>
-      <td>Assert response is defined.</td>
+      <td>Navigate to the User Management page</td>
+      <td>The User Management page loads with the user list</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Navigate to `/config/users`.</td>
-      <td></td>
+      <td>Type a search term (e.g., "test") in the keyword input field</td>
+      <td>The keyword input accepts the text</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Type a search term in the keyword input.</td>
-      <td></td>
+      <td>Click the "Tìm kiếm" (Search) button</td>
+      <td>The URL updates to include the keyword query parameter. The table re-fetches and displays only matching users.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Click the "Tìm kiếm" button.</td>
-      <td>Assert the URL updates to include the keyword query parameter.</td>
+      <td>Clear the keyword input and click "Tìm kiếm" again</td>
+      <td>The table resets and shows all users again</td>
       <td></td>
       <td></td>
     </tr>
@@ -206,7 +225,7 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Filter updates the URL and re-fetches data.</li>
+        <li>The keyword filter works correctly and the URL reflects the search state</li>
       </ul>
     </td>
   </tr>
@@ -223,7 +242,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — User Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -234,7 +253,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test filter users by role</td>
+    <td colspan="2"><b>Short Description:</b> Verify that users can filter the user list by selecting a role from the dropdown.</td>
   </tr>
 </table>
 
@@ -242,10 +261,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>At least one role exists</li>
-  <li>The role dropdown in filter loads</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>At least one role exists in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -253,47 +274,40 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `POST /user/getbyindex` with a valid `roleId`.</td>
-      <td>Assert response is defined.</td>
+      <td>Navigate to the User Management page</td>
+      <td>The page loads with the filter section visible</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Navigate to `/config/users`.</td>
-      <td></td>
+      <td>Click the Role select dropdown</td>
+      <td>The dropdown opens and displays a list of available roles</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Click the role select dropdown.</td>
-      <td>Assert it loads role options.</td>
+      <td>Select the first available role from the dropdown</td>
+      <td>The selected role is shown in the dropdown</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Select the first available role.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">5</td>
-      <td>Click "Tìm kiếm".</td>
-      <td>Assert the URL contains the `roleId` parameter.</td>
+      <td>Click the "Tìm kiếm" (Search) button</td>
+      <td>The URL updates to contain the <code>roleId</code> parameter. The table re-fetches and displays only users with the selected role.</td>
       <td></td>
       <td></td>
     </tr>
@@ -306,7 +320,7 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Role filter is functional and updates URL state.</li>
+        <li>Role filter is functional and correctly filters the user list</li>
       </ul>
     </td>
   </tr>
@@ -323,7 +337,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — User Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -334,7 +348,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test create user (happy path)</td>
+    <td colspan="2"><b>Short Description:</b> Verify that a new user can be created successfully with all required fields filled in correctly.</td>
   </tr>
 </table>
 
@@ -342,9 +356,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>At least one role exists for selection</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>At least one role exists for selection</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -352,68 +369,61 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `POST /user/create` with `{ name, email, password, roleId }`.</td>
-      <td>Assert no error is thrown.</td>
+      <td>Navigate to the Create User page (<code>/config/users/create</code>)</td>
+      <td>The create user form is displayed with empty fields</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Cleanup: delete the user in `afterAll`.</td>
-      <td></td>
+      <td>Fill "Họ và tên" (Full Name) with a unique name (e.g., <code>Test User 001</code>)</td>
+      <td>The field accepts the input</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Navigate to `/config/users/create`.</td>
-      <td></td>
+      <td>Fill "Email" with a valid unique email (e.g., <code>testuser001@test.com</code>)</td>
+      <td>The field accepts the input</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Fill "Họ và tên" with a unique name `E2E User <timestamp>`.</td>
-      <td></td>
+      <td>Fill "Mật khẩu" (Password) with <code>TestPass@123</code></td>
+      <td>The field accepts the input (password masked)</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">5</td>
-      <td>Fill "Email" with a unique valid email `e2euser<timestamp>@test.com`.</td>
-      <td></td>
+      <td>Open the "Vai trò" (Role) dropdown and select the first available role</td>
+      <td>The selected role is displayed in the dropdown</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">6</td>
-      <td>Fill "Mật khẩu" with `TestPass@123`.</td>
-      <td></td>
+      <td>Click the Submit button</td>
+      <td>A success toast message appears. The system redirects to the User Management page (<code>/config/users</code>).</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">7</td>
-      <td>Open the "Vai trò" dropdown and select the first available role.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">8</td>
-      <td>Click the submit button.</td>
-      <td>Assert a success toast appears. Assert the current URL is `/config/users`. Assert the new user name is visible somewhere in the table (or search for it).</td>
+      <td>Search for the newly created user name in the user list</td>
+      <td>The new user is visible in the table</td>
       <td></td>
       <td></td>
     </tr>
@@ -426,7 +436,8 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>User created successfully and visible in the list.</li>
+        <li>New user is created and stored successfully</li>
+        <li>New user appears in the user list table</li>
       </ul>
     </td>
   </tr>
@@ -443,7 +454,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — User Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -454,7 +465,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test create user — validation errors</td>
+    <td colspan="2"><b>Short Description:</b> Verify that the create user form shows validation errors when required fields are left empty or filled incorrectly.</td>
   </tr>
 </table>
 
@@ -462,9 +473,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>On the create user form</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>User is on the Create User page</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -472,40 +486,54 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Navigate to `/config/users/create`.</td>
-      <td></td>
+      <td>Navigate to the Create User page (<code>/config/users/create</code>)</td>
+      <td>The create user form is displayed</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Click the submit button immediately without filling any fields.</td>
-      <td>Assert a validation error message appears for the "Họ và tên" field. Assert a validation error message appears for the "Email" field. Assert a validation error message appears for the "Mật khẩu" field. Assert the page has NOT navigated away.</td>
+      <td>Leave all fields empty and click the Submit button</td>
+      <td>System shows validation error for "Họ và tên" (Full Name) field</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Call `POST /user/create` with `{ name: '' }` — assert error.</td>
-      <td></td>
+      <td>Observe the Email field validation</td>
+      <td>System shows validation error for "Email" field</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Call `POST /user/create` with `{ email: '' }` — assert error.</td>
+      <td>Observe the Password field validation</td>
+      <td>System shows validation error for "Mật khẩu" (Password) field</td>
       <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">5</td>
+      <td>Verify the page has NOT navigated away</td>
+      <td>The URL remains on <code>/config/users/create</code>. No success toast is shown. Form is not submitted.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">6</td>
+      <td>Fill "Email" with an invalid format (e.g., <code>not-an-email</code>), leave other fields valid, then submit</td>
+      <td>System shows email format validation error</td>
       <td></td>
       <td></td>
     </tr>
@@ -518,7 +546,9 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>All required field validations trigger; form is not submitted.</li>
+        <li>All required field validations trigger correctly</li>
+        <li>Form is not submitted when validation fails</li>
+        <li>No new user is created in the system</li>
       </ul>
     </td>
   </tr>
@@ -535,7 +565,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — User Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -546,7 +576,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test view user detail page</td>
+    <td colspan="2"><b>Short Description:</b> Verify that clicking the view icon on a user row displays the user detail page with all information and action buttons.</td>
   </tr>
 </table>
 
@@ -554,9 +584,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>At least one user exists</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>At least one user exists in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -564,40 +597,47 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Get a user ID from the list.</td>
-      <td></td>
+      <td>Navigate to the User Management page</td>
+      <td>The user list is displayed</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Call `GET /user/getbyid/<id>`.</td>
-      <td>Assert `id`, `name`, `email` are defined.</td>
+      <td>Click the eye icon (view detail) for the first user row</td>
+      <td>The system navigates to the user detail page. The URL changes to <code>/config/users/&lt;id&gt;</code>.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Navigate to `/config/users`.</td>
-      <td></td>
+      <td>Observe the detail card content</td>
+      <td>The detail card is visible and shows user information (name, email, role, etc.)</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Click the eye icon (view detail button) for the first user row.</td>
-      <td>Assert the URL changes to `/config/users/<id>`. Assert the detail card is visible. Assert the "Chỉnh sửa" (Edit) button is visible. Assert the "Quay lại" (Back) button is visible.</td>
+      <td>Observe the action buttons</td>
+      <td>The "Chỉnh sửa" (Edit) button and "Quay lại" (Back) button are visible</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">5</td>
+      <td>Click the "Quay lại" (Back) button</td>
+      <td>The system navigates back to the User Management list page</td>
       <td></td>
       <td></td>
     </tr>
@@ -610,7 +650,8 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>User detail page renders all fields correctly.</li>
+        <li>User detail page displays all fields correctly</li>
+        <li>Navigation between list and detail pages works</li>
       </ul>
     </td>
   </tr>
@@ -627,7 +668,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — User Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -638,7 +679,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test edit user (update)</td>
+    <td colspan="2"><b>Short Description:</b> Verify that an existing user can be edited with updated information and the changes are saved successfully.</td>
   </tr>
 </table>
 
@@ -646,9 +687,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>A user with known ID exists</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>A user with known data exists in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -656,61 +700,54 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Create a user.</td>
-      <td></td>
+      <td>Navigate to the User Management page</td>
+      <td>The user list is displayed</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Call `POST /user/update` with modified `name`.</td>
-      <td>Assert no error is thrown.</td>
+      <td>Click the edit icon (pencil) for a user row</td>
+      <td>The system navigates to the edit form. The URL changes to <code>/config/users/&lt;id&gt;/edit</code>.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Cleanup.</td>
-      <td></td>
+      <td>Observe the edit form fields</td>
+      <td>The "Họ và tên" field is pre-filled with the user's current name. The "Status" and "SubscriptionTier" dropdowns are visible (edit-only fields).</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Navigate to `/config/users`.</td>
-      <td></td>
+      <td>Clear the "Họ và tên" field and type a new name (e.g., <code>Updated User Name</code>)</td>
+      <td>The field accepts the new input</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">5</td>
-      <td>Click the edit icon for a user row.</td>
-      <td>Assert the URL changes to `/config/users/<id>/edit`. Assert the "Họ và tên" field is pre-filled. Assert the "Status" and "SubscriptionTier" dropdowns are visible (edit-only fields).</td>
+      <td>Click the Save button</td>
+      <td>A success toast message appears. The system redirects to the User Management page (<code>/config/users</code>).</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">6</td>
-      <td>Clear and re-type the name field with a new value.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">7</td>
-      <td>Click save.</td>
-      <td>Assert success toast appears. Assert redirect to `/config/users`.</td>
+      <td>Search for the updated user name in the user list</td>
+      <td>The updated name is visible in the table</td>
       <td></td>
       <td></td>
     </tr>
@@ -723,7 +760,8 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>User updated; edit-only fields visible only in edit mode.</li>
+        <li>User information is updated successfully</li>
+        <li>Edit-only fields (Status, SubscriptionTier) are visible only in edit mode</li>
       </ul>
     </td>
   </tr>
@@ -740,7 +778,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — User Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -751,7 +789,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test delete user</td>
+    <td colspan="2"><b>Short Description:</b> Verify that a user can be deleted from the system through the delete action with confirmation dialog.</td>
   </tr>
 </table>
 
@@ -759,9 +797,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>A deletable user exists (not the currently logged-in admin)</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>A deletable user exists (not the currently logged-in admin)</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -769,61 +810,47 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Create a user.</td>
-      <td></td>
+      <td>Navigate to the User Management page</td>
+      <td>The user list is displayed</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Call `POST /user/delete/<id>`.</td>
-      <td>Assert no error is thrown.</td>
+      <td>Locate the user to be deleted in the table</td>
+      <td>The user row is visible in the table</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Create a test user via API.</td>
-      <td></td>
+      <td>Click the delete (trash) icon for that user row</td>
+      <td>A confirmation dialog appears asking to confirm deletion</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Navigate to `/config/users`.</td>
-      <td></td>
+      <td>Click the Confirm button in the dialog</td>
+      <td>A success toast message is shown. The user row is removed from the table.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">5</td>
-      <td>Find the row for the test user.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">6</td>
-      <td>Click the delete (trash) icon.</td>
-      <td>Assert a confirmation dialog appears.</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">7</td>
-      <td>Click confirm.</td>
-      <td>Assert the row is removed from the table. Assert a success toast is shown.</td>
+      <td>Search for the deleted user name in the list</td>
+      <td>The deleted user is no longer found in the table</td>
       <td></td>
       <td></td>
     </tr>
@@ -836,7 +863,8 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>User deleted and removed from list.</li>
+        <li>User is deleted and removed from the system</li>
+        <li>User no longer appears in the user list</li>
       </ul>
     </td>
   </tr>
@@ -844,87 +872,16 @@
 
 ---
 
-### TC-USR-09: Get Current User Profile
+### TC-USR-09: Non-Existent User ID — Error Handling
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
     <td width="50%"><b>Test Case #:</b> TC-USR-09</td>
-    <td width="50%"><b>Test Case Name:</b> Get Current User Profile</td>
-  </tr>
-  <tr>
-    <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
-  </tr>
-  <tr>
-    <td><b>Designed by:</b> Le Hoang Khanh</td>
-    <td><b>Design Date:</b> April 17, 2026</td>
-  </tr>
-  <tr>
-    <td><b>Executed by:</b> Nguyen Tan Khanh</td>
-    <td><b>Execution Date:</b> </td>
-  </tr>
-  <tr>
-    <td colspan="2"><b>Short Description:</b> Test get current user profile</td>
-  </tr>
-</table>
-
-<br/>
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>Authenticated user</li>
-</ul></td>
-  </tr>
-</table>
-
-<br/>
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <thead>
-    <tr style="background-color: #f2f2f2;">
-      <th>Step</th>
-      <th>Action</th>
-      <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
-      <th>Comment</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center;">1</td>
-      <td>Call `GET /user/profile`.</td>
-      <td>Assert `id` and `fullName` (or `name`) are defined strings.</td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
-
-<br/>
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <tr>
-    <td><b>Post-conditions:</b><br/>
-      <ul>
-        <li>Profile returns valid user data.</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
----
-
-### TC-USR-10: Non-Existent User ID — Error Handling
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <tr>
-    <td width="50%"><b>Test Case #:</b> TC-USR-10</td>
     <td width="50%"><b>Test Case Name:</b> Non-Existent User ID — Error Handling</td>
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — User Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -935,7 +892,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test non-existent user id — error handling</td>
+    <td colspan="2"><b>Short Description:</b> Verify that navigating to a user detail page with a non-existent ID displays an appropriate error message.</td>
   </tr>
 </table>
 
@@ -943,9 +900,11 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>None (uses a fake UUID)</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -953,26 +912,26 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `GET /user/getbyid/<NON_EXISTENT_UUID>` — assert error is thrown.</td>
-      <td></td>
+      <td>Navigate directly to a user detail page with a fake UUID (e.g., <code>/config/users/00000000-0000-0000-0000-000000000000</code>)</td>
+      <td>The system displays an error message (e.g., "Không thể tải dữ liệu") or an error result component</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Navigate to `/config/users/00000000-0000-0000-0000-000000000000`.</td>
-      <td>Assert an error result component is rendered (e.g., "Không thể tải dữ liệu").</td>
+      <td>Verify no crash or blank page occurs</td>
+      <td>The error is handled gracefully with a user-friendly message</td>
       <td></td>
       <td></td>
     </tr>
@@ -985,7 +944,7 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Non-existent ID is handled gracefully with an error UI.</li>
+        <li>Non-existent user ID is handled gracefully with an appropriate error UI</li>
       </ul>
     </td>
   </tr>
@@ -993,94 +952,16 @@
 
 ---
 
-### TC-USR-11: Invalid UUID Format
+### TC-USR-10: Pagination Boundary
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td width="50%"><b>Test Case #:</b> TC-USR-11</td>
-    <td width="50%"><b>Test Case Name:</b> Invalid UUID Format</td>
-  </tr>
-  <tr>
-    <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
-  </tr>
-  <tr>
-    <td><b>Designed by:</b> Le Hoang Khanh</td>
-    <td><b>Design Date:</b> April 17, 2026</td>
-  </tr>
-  <tr>
-    <td><b>Executed by:</b> Nguyen Tan Khanh</td>
-    <td><b>Execution Date:</b> </td>
-  </tr>
-  <tr>
-    <td colspan="2"><b>Short Description:</b> Test invalid uuid format</td>
-  </tr>
-</table>
-
-<br/>
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>None</li>
-</ul></td>
-  </tr>
-</table>
-
-<br/>
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <thead>
-    <tr style="background-color: #f2f2f2;">
-      <th>Step</th>
-      <th>Action</th>
-      <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
-      <th>Comment</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center;">1</td>
-      <td>Call `GET /user/getbyid/not-a-valid-uuid` — assert error is thrown.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">2</td>
-      <td>Call `GET /user/getbyid/''` — assert error is thrown.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
-
-<br/>
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <tr>
-    <td><b>Post-conditions:</b><br/>
-      <ul>
-        <li>Invalid UUID format rejected.</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
----
-
-### TC-USR-12: Pagination Boundary
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <tr>
-    <td width="50%"><b>Test Case #:</b> TC-USR-12</td>
+    <td width="50%"><b>Test Case #:</b> TC-USR-10</td>
     <td width="50%"><b>Test Case Name:</b> Pagination Boundary</td>
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — User Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -1091,7 +972,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test pagination boundary</td>
+    <td colspan="2"><b>Short Description:</b> Verify that pagination works correctly at boundary conditions (first page, last page, next/previous navigation).</td>
   </tr>
 </table>
 
@@ -1099,9 +980,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>Multiple users exist</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>Multiple users exist in the system (enough for at least 2 pages)</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -1109,40 +993,40 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Fetch first page with `rowsPerPage: 5`.</td>
-      <td></td>
+      <td>Navigate to the User Management page</td>
+      <td>The first page of users is displayed. Pagination controls are visible.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Calculate last page = `Math.ceil(totalRows / 5)`.</td>
-      <td></td>
+      <td>Click the Next Page button in the pagination</td>
+      <td>The page number increments. The table updates with a new set of user rows.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Fetch last page and assert data is defined.</td>
-      <td></td>
+      <td>Click the Previous Page button</td>
+      <td>The page number decrements. The table returns to the previous set of users.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Navigate to `/config/users`.</td>
-      <td>If the pagination shows more than one page, click the next page button. Assert page number changes and table updates.</td>
+      <td>Navigate to the last page using pagination controls</td>
+      <td>The last page is displayed with remaining users. The Next button is disabled or hidden.</td>
       <td></td>
       <td></td>
     </tr>
@@ -1155,7 +1039,7 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Pagination works at boundaries.</li>
+        <li>Pagination navigates correctly at all boundaries</li>
       </ul>
     </td>
   </tr>
@@ -1174,7 +1058,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -1185,7 +1069,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test list roles with pagination</td>
+    <td colspan="2"><b>Short Description:</b> Verify that the Role Management page displays the role list table with correct columns and an add button.</td>
   </tr>
 </table>
 
@@ -1193,10 +1077,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>Authenticated admin</li>
-  <li>At least one role seeded</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>At least one role exists in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -1204,26 +1090,40 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `POST /role/GetByIndex` with `{ currentPage: 1, rowsPerPage: 20 }`.</td>
-      <td>Assert `totalRows >= 0`, `datas` is array. If `datas.length > 0`, assert `datas[0].id` and `datas[0].name` are defined.</td>
+      <td>Navigate to the Role Management page (<code>/config/roles</code>)</td>
+      <td>The Role Management page loads successfully</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Navigate to `/config/roles`.</td>
-      <td>Assert page heading is visible. Assert the table renders with "Tên vai trò" and "Thao tác" columns. Assert the "+ Thêm" button is visible.</td>
+      <td>Observe the page heading</td>
+      <td>The page heading is displayed</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">3</td>
+      <td>Observe the role list table</td>
+      <td>The table renders with "Tên vai trò" (Role Name) and "Thao tác" (Actions) columns</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">4</td>
+      <td>Observe the "+ Thêm" button</td>
+      <td>The add button is visible at the top of the page</td>
       <td></td>
       <td></td>
     </tr>
@@ -1236,7 +1136,7 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Role list renders correctly.</li>
+        <li>Role list is displayed correctly with all expected columns</li>
       </ul>
     </td>
   </tr>
@@ -1253,7 +1153,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -1264,7 +1164,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test create role (happy path)</td>
+    <td colspan="2"><b>Short Description:</b> Verify that a new role can be created successfully with a valid name.</td>
   </tr>
 </table>
 
@@ -1272,9 +1172,11 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>None</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -1282,47 +1184,40 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `POST /role/create` with `{ name: "Test Role <timestamp>", permissionIds: [] }`.</td>
-      <td>Assert returned `roleId` is a non-empty string.</td>
+      <td>Navigate to the Create Role page (<code>/config/roles/create</code>)</td>
+      <td>The create role form is displayed with an empty name field and the permission matrix</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Cleanup: delete in `afterAll`.</td>
-      <td></td>
+      <td>Fill "Tên vai trò" (Role Name) with a unique name (e.g., <code>Test Role 001</code>)</td>
+      <td>The field accepts the input</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Navigate to `/config/roles/create`.</td>
-      <td></td>
+      <td>Click the Save button</td>
+      <td>A success toast message appears. The system redirects to the Role Management page (<code>/config/roles</code>).</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Fill "Tên vai trò" with a unique name `E2E Role <timestamp>`.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">5</td>
-      <td>Click save.</td>
-      <td>Assert success toast appears. Assert redirect to `/config/roles`. Assert the new role name is visible in the table.</td>
+      <td>Search for the newly created role name in the role list</td>
+      <td>The new role is visible in the table</td>
       <td></td>
       <td></td>
     </tr>
@@ -1335,7 +1230,8 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Role created and visible in list.</li>
+        <li>New role is created and stored successfully</li>
+        <li>New role appears in the role list table</li>
       </ul>
     </td>
   </tr>
@@ -1352,7 +1248,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -1363,7 +1259,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test create role with permissions selected</td>
+    <td colspan="2"><b>Short Description:</b> Verify that a new role can be created with specific permissions selected from the permission matrix.</td>
   </tr>
 </table>
 
@@ -1371,9 +1267,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>At least one permission group/item exists</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>At least one permission group exists in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -1381,61 +1280,47 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `GET /role/GetAllPermissions` to get available permissions.</td>
-      <td>If permissions exist, create role with `permissionIds: [first_permission_id]`. Assert `roleId` returned.</td>
+      <td>Navigate to the Create Role page</td>
+      <td>The create role form is displayed with the permission matrix visible</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Fetch role by ID and verify permission is assigned.</td>
-      <td></td>
+      <td>Fill "Tên vai trò" (Role Name) with a unique name</td>
+      <td>The field accepts the input</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Cleanup.</td>
-      <td></td>
+      <td>In the permission matrix, check one individual permission checkbox</td>
+      <td>The checkbox is checked. If partially selected in a group, the group header shows an indeterminate state.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Navigate to `/config/roles/create`.</td>
-      <td></td>
+      <td>Click the Save button</td>
+      <td>A success toast appears. The system redirects to the Role Management page.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">5</td>
-      <td>Fill role name.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">6</td>
-      <td>In the permission matrix, check one individual permission checkbox.</td>
-      <td>Assert that group card shows an indeterminate state (if partially selected).</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">7</td>
-      <td>Click save.</td>
-      <td>Assert success and redirect.</td>
+      <td>Open the newly created role in edit mode</td>
+      <td>The previously selected permission is still checked in the permission matrix</td>
       <td></td>
       <td></td>
     </tr>
@@ -1448,7 +1333,8 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Role with permissions created and persisted.</li>
+        <li>Role with specific permissions is created and persisted</li>
+        <li>Permissions are saved correctly and visible when editing</li>
       </ul>
     </td>
   </tr>
@@ -1465,7 +1351,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -1476,7 +1362,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test create role — validation error (empty name)</td>
+    <td colspan="2"><b>Short Description:</b> Verify that the create role form shows a validation error when the role name is left empty.</td>
   </tr>
 </table>
 
@@ -1484,9 +1370,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>On the create role form</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>User is on the Create Role page</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -1494,40 +1383,33 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `POST /role/create` with `{ name: '', permissionIds: [] }` — assert error.</td>
-      <td></td>
+      <td>Navigate to the Create Role page</td>
+      <td>The create role form is displayed</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Call `POST /role/create` with `{ name: '   \t  ', permissionIds: [] }` — assert error.</td>
-      <td></td>
+      <td>Leave the "Tên vai trò" (Role Name) field empty and click Submit</td>
+      <td>System shows a validation error message for the role name field</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Navigate to `/config/roles/create`.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">4</td>
-      <td>Click submit without entering a name.</td>
-      <td>Assert validation error appears for the "Tên vai trò" field. Assert the URL did NOT change.</td>
+      <td>Verify the page has NOT navigated away</td>
+      <td>The URL remains on the create role page. No success toast is shown. Form is not submitted.</td>
       <td></td>
       <td></td>
     </tr>
@@ -1540,7 +1422,8 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Empty name validation fires; form not submitted.</li>
+        <li>Empty name validation fires correctly</li>
+        <li>No role is created in the system</li>
       </ul>
     </td>
   </tr>
@@ -1557,7 +1440,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -1568,7 +1451,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test view role data in edit form</td>
+    <td colspan="2"><b>Short Description:</b> Verify that clicking the edit icon on a role row opens the edit form pre-populated with existing role data.</td>
   </tr>
 </table>
 
@@ -1576,9 +1459,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>A role with known ID exists</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>A role with known data exists in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -1586,47 +1472,40 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Create a role.</td>
-      <td></td>
+      <td>Navigate to the Role Management page</td>
+      <td>The role list is displayed</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Call `GET /role/getbyid/<id>`.</td>
-      <td>Assert `id`, `name`, `permissionGroups` are defined.</td>
+      <td>Click the edit icon for a role row</td>
+      <td>The system navigates to the edit form. The URL changes to <code>/config/roles/&lt;id&gt;/edit</code>.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Cleanup.</td>
-      <td></td>
+      <td>Observe the "Tên vai trò" (Role Name) field</td>
+      <td>The field is pre-populated with the role's current name</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Navigate to `/config/roles`.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">5</td>
-      <td>Click the edit icon for a role row.</td>
-      <td>Assert the URL changes to `/config/roles/<id>/edit`. Assert the "Tên vai trò" field is pre-populated with the role's name. Assert the permission matrix is rendered (even if empty).</td>
+      <td>Observe the permission matrix section</td>
+      <td>The permission matrix is rendered (even if no permissions are selected)</td>
       <td></td>
       <td></td>
     </tr>
@@ -1639,7 +1518,7 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Edit form is pre-populated with existing role data.</li>
+        <li>Edit form is correctly pre-populated with existing role data</li>
       </ul>
     </td>
   </tr>
@@ -1656,7 +1535,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -1667,7 +1546,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test edit role name (update)</td>
+    <td colspan="2"><b>Short Description:</b> Verify that an existing role's name can be updated successfully through the edit form.</td>
   </tr>
 </table>
 
@@ -1675,9 +1554,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>A role exists</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>A role exists in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -1685,68 +1567,40 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Create a role.</td>
-      <td></td>
+      <td>Navigate to the edit form of an existing role (<code>/config/roles/&lt;id&gt;/edit</code>)</td>
+      <td>The edit form is displayed with the current role name pre-filled</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Fetch by ID to get current `permissionIds`.</td>
-      <td></td>
+      <td>Clear the "Tên vai trò" field and type a new name (e.g., <code>Updated Role Name</code>)</td>
+      <td>The field accepts the new input</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Call `POST /role/update` with a new `name`.</td>
-      <td></td>
+      <td>Click the Save button</td>
+      <td>A success toast message appears. The system redirects to the Role Management page (<code>/config/roles</code>).</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Fetch again and assert `name` changed.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">5</td>
-      <td>Cleanup.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">6</td>
-      <td>Navigate to `/config/roles/<id>/edit`.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">7</td>
-      <td>Clear the "Tên vai trò" field and type a new name.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">8</td>
-      <td>Click save.</td>
-      <td>Assert success toast shown. Assert redirect to `/config/roles`. Assert the updated name is visible in the list.</td>
+      <td>Verify the updated role name in the role list</td>
+      <td>The updated name is visible in the table</td>
       <td></td>
       <td></td>
     </tr>
@@ -1759,7 +1613,7 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Role name updated successfully.</li>
+        <li>Role name is updated successfully in the system</li>
       </ul>
     </td>
   </tr>
@@ -1776,7 +1630,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -1787,7 +1641,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test update role with empty name — validation</td>
+    <td colspan="2"><b>Short Description:</b> Verify that updating a role with an empty name triggers a validation error and prevents submission.</td>
   </tr>
 </table>
 
@@ -1795,9 +1649,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>A role exists</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>A role exists in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -1805,54 +1662,33 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Create a role.</td>
-      <td></td>
+      <td>Navigate to the edit form of an existing role</td>
+      <td>The edit form is displayed with the role name pre-filled</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Call `POST /role/update` with `{ id, name: '', permissionIds: [] }` — assert error.</td>
-      <td></td>
+      <td>Clear the "Tên vai trò" field completely (leave it empty)</td>
+      <td>The field is now empty</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Cleanup.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">4</td>
-      <td>Navigate to `/config/roles/<id>/edit`.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">5</td>
-      <td>Clear the name field completely.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">6</td>
-      <td>Click save.</td>
-      <td>Assert validation error for the name field. Assert no navigation occurred.</td>
+      <td>Click the Save button</td>
+      <td>System shows a validation error for the name field. No navigation occurs. No success toast is shown.</td>
       <td></td>
       <td></td>
     </tr>
@@ -1865,7 +1701,8 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Empty name blocked by validation.</li>
+        <li>Empty name is blocked by validation</li>
+        <li>Role name is not changed in the system</li>
       </ul>
     </td>
   </tr>
@@ -1882,7 +1719,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -1893,7 +1730,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test delete role</td>
+    <td colspan="2"><b>Short Description:</b> Verify that a role can be deleted from the system through the delete action with confirmation dialog.</td>
   </tr>
 </table>
 
@@ -1901,9 +1738,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>A deletable role exists (not assigned to any user)</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>A deletable role exists (not assigned to any user)</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -1911,61 +1751,47 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Create a role.</td>
-      <td></td>
+      <td>Navigate to the Role Management page</td>
+      <td>The role list is displayed</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Call `POST /role/delete/<id>`.</td>
-      <td>Assert no error. Assert `GET /role/getbyid/<id>` throws.</td>
+      <td>Locate the role to be deleted in the table</td>
+      <td>The role row is visible</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Create a test role via API.</td>
-      <td></td>
+      <td>Click the delete (trash) icon for that role row</td>
+      <td>A confirmation dialog appears asking to confirm deletion</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Navigate to `/config/roles`.</td>
-      <td></td>
+      <td>Click the Confirm button in the dialog</td>
+      <td>A success toast message is shown. The role row is removed from the table.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">5</td>
-      <td>Find the test role row.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">6</td>
-      <td>Click the delete (trash) icon.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">7</td>
-      <td>Confirm deletion in the dialog.</td>
-      <td>Assert row removed from table. Assert success toast shown.</td>
+      <td>Search for the deleted role name in the list</td>
+      <td>The deleted role is no longer found in the table</td>
       <td></td>
       <td></td>
     </tr>
@@ -1978,7 +1804,8 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Role deleted and removed from list.</li>
+        <li>Role is deleted and removed from the system</li>
+        <li>Role no longer appears in the role list</li>
       </ul>
     </td>
   </tr>
@@ -1986,16 +1813,16 @@
 
 ---
 
-### TC-ROL-09: Permission Matrix Renders All Groups
+### TC-ROL-09: Permission Matrix — Group Toggle
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
     <td width="50%"><b>Test Case #:</b> TC-ROL-09</td>
-    <td width="50%"><b>Test Case Name:</b> Permission Matrix Renders All Groups</td>
+    <td width="50%"><b>Test Case Name:</b> Permission Matrix — Group Toggle</td>
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -2006,7 +1833,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test permission matrix renders all groups</td>
+    <td colspan="2"><b>Short Description:</b> Verify that the permission matrix renders all permission groups and the group-level toggle (select all / deselect all) works correctly.</td>
   </tr>
 </table>
 
@@ -2014,9 +1841,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>Permissions are seeded in the system</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>Permissions are seeded in the system</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -2024,40 +1854,47 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `GET /role/GetAllPermissions`.</td>
-      <td>Assert array length `>= 0`. If not empty, assert `groupName` and `permissions` array in first group.</td>
+      <td>Navigate to the Create Role page</td>
+      <td>The permission matrix section is visible</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Navigate to `/config/roles/create`.</td>
-      <td>Assert the permission matrix section is visible. If permissions exist, assert at least one group card is rendered. Assert group header checkboxes are clickable.</td>
+      <td>Observe the permission groups</td>
+      <td>At least one permission group card is rendered (if permissions exist)</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Click a group header checkbox — assert all child permissions become checked.</td>
-      <td></td>
+      <td>Click a group header checkbox (select all)</td>
+      <td>All child permission checkboxes within that group become checked</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">4</td>
-      <td>Click again — assert all child permissions become unchecked.</td>
+      <td>Click the same group header checkbox again (deselect all)</td>
+      <td>All child permission checkboxes within that group become unchecked</td>
       <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td style="text-align: center;">5</td>
+      <td>Check only one individual permission within a group</td>
+      <td>The group header checkbox shows an indeterminate state (partially selected)</td>
       <td></td>
       <td></td>
     </tr>
@@ -2070,7 +1907,8 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Permission matrix renders and group-toggle works.</li>
+        <li>Permission matrix renders correctly</li>
+        <li>Group-level toggle and indeterminate states work as expected</li>
       </ul>
     </td>
   </tr>
@@ -2087,7 +1925,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -2098,7 +1936,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test non-existent role id — error handling</td>
+    <td colspan="2"><b>Short Description:</b> Verify that navigating to a role edit page with a non-existent ID displays an appropriate error message.</td>
   </tr>
 </table>
 
@@ -2106,9 +1944,11 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>None</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -2116,40 +1956,26 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Call `GET /role/getbyid/<NON_EXISTENT_UUID>` — assert error.</td>
-      <td></td>
+      <td>Navigate directly to a role edit page with a fake UUID (e.g., <code>/config/roles/00000000-0000-0000-0000-000000000000/edit</code>)</td>
+      <td>The system displays an error message (e.g., "Không thể tải dữ liệu") or an error result component</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Call `POST /role/update` with `id: NON_EXISTENT_UUID` — assert error.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">3</td>
-      <td>Call `POST /role/delete/<NON_EXISTENT_UUID>` — assert error.</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td style="text-align: center;">4</td>
-      <td>Navigate to `/config/roles/00000000-0000-0000-0000-000000000000/edit`.</td>
-      <td>Assert an error result component or "Không thể tải dữ liệu" message is shown.</td>
+      <td>Verify no crash or blank page occurs</td>
+      <td>The error is handled gracefully with a user-friendly message</td>
       <td></td>
       <td></td>
     </tr>
@@ -2162,7 +1988,7 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Non-existent ID handled gracefully.</li>
+        <li>Non-existent role ID is handled gracefully with an appropriate error UI</li>
       </ul>
     </td>
   </tr>
@@ -2179,7 +2005,7 @@
   </tr>
   <tr>
     <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
+    <td><b>Subsystem:</b> Configuration — Role Management</td>
   </tr>
   <tr>
     <td><b>Designed by:</b> Le Hoang Khanh</td>
@@ -2190,7 +2016,7 @@
     <td><b>Execution Date:</b> </td>
   </tr>
   <tr>
-    <td colspan="2"><b>Short Description:</b> Test role pagination boundary</td>
+    <td colspan="2"><b>Short Description:</b> Verify that pagination on the Role Management page works correctly at boundary conditions.</td>
   </tr>
 </table>
 
@@ -2198,9 +2024,12 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>Multiple roles exist</li>
-</ul></td>
+    <td><b>Pre-conditions:</b><br/>
+      <ul>
+        <li>User is logged in as an admin</li>
+        <li>Multiple roles exist in the system (enough for at least 2 pages)</li>
+      </ul>
+    </td>
   </tr>
 </table>
 
@@ -2208,33 +2037,33 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
+    <tr style="background-color: #4472C4; color: white;">
       <th>Step</th>
       <th>Action</th>
       <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
+      <th>Pass/Fail</th>
       <th>Comment</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td style="text-align: center;">1</td>
-      <td>Get `totalRows` from first page with `rowsPerPage: 5`.</td>
-      <td></td>
+      <td>Navigate to the Role Management page</td>
+      <td>The first page of roles is displayed. Pagination controls are visible.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">2</td>
-      <td>Navigate to last page (`Math.ceil(totalRows / 5)`).</td>
-      <td>Assert data is defined.</td>
+      <td>Click the Next Page button in the pagination</td>
+      <td>The page number increments. The table updates with a new set of role rows.</td>
       <td></td>
       <td></td>
     </tr>
     <tr>
       <td style="text-align: center;">3</td>
-      <td>Navigate to `/config/roles`.</td>
-      <td>If multiple pages exist, click the next page pagination button. Assert page number changes.</td>
+      <td>Navigate to the last page using pagination controls</td>
+      <td>The last page is displayed with remaining roles. The Next button is disabled or hidden.</td>
       <td></td>
       <td></td>
     </tr>
@@ -2247,7 +2076,7 @@
   <tr>
     <td><b>Post-conditions:</b><br/>
       <ul>
-        <li>Pagination navigates correctly.</li>
+        <li>Pagination navigates correctly at all boundaries</li>
       </ul>
     </td>
   </tr>
@@ -2255,97 +2084,31 @@
 
 ---
 
-### TC-ROL-12: Search Roles by Keyword (API Only)
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <tr>
-    <td width="50%"><b>Test Case #:</b> TC-ROL-12</td>
-    <td width="50%"><b>Test Case Name:</b> Search Roles by Keyword (API Only)</td>
-  </tr>
-  <tr>
-    <td><b>System:</b> IUROADMAP</td>
-    <td><b>Subsystem:</b> Configuration</td>
-  </tr>
-  <tr>
-    <td><b>Designed by:</b> Le Hoang Khanh</td>
-    <td><b>Design Date:</b> April 17, 2026</td>
-  </tr>
-  <tr>
-    <td><b>Executed by:</b> Nguyen Tan Khanh</td>
-    <td><b>Execution Date:</b> </td>
-  </tr>
-  <tr>
-    <td colspan="2"><b>Short Description:</b> Test search roles by keyword (api only)</td>
-  </tr>
-</table>
-
-<br/>
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <tr>
-    <td><b>Pre-conditions:</b><br/><ul>
-  <li>None</li>
-</ul></td>
-  </tr>
-</table>
-
-<br/>
+## 4. Test Environment Requirements
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
   <thead>
-    <tr style="background-color: #f2f2f2;">
-      <th>Step</th>
-      <th>Action</th>
-      <th>Expected System Response</th>
-      <th>Pass/ Fail</th>
-      <th>Comment</th>
+    <tr style="background-color: #4472C4; color: white;">
+      <th>Requirement</th>
+      <th>Detail</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="text-align: center;">1</td>
-      <td>Call `POST /role/GetByIndex` with `{ currentPage: 1, rowsPerPage: 10, keySearch: 'Admin' }`.</td>
-      <td>Assert `totalRows >= 0` and `datas` is array. If results returned, assert each role name is defined.</td>
-      <td></td>
-      <td></td>
+      <td>Authentication</td>
+      <td>Seeded admin user with valid credentials</td>
+    </tr>
+    <tr>
+      <td>Base URL</td>
+      <td>Default: <code>http://localhost:5173</code></td>
+    </tr>
+    <tr>
+      <td>Seed data</td>
+      <td>At least 1 role and 1 admin user in the database</td>
+    </tr>
+    <tr>
+      <td>Cleanup</td>
+      <td>All test-created records should be deleted after test execution</td>
     </tr>
   </tbody>
 </table>
-
-<br/>
-
-<table border="1" style="border-collapse: collapse; width: 100%;">
-  <tr>
-    <td><b>Post-conditions:</b><br/>
-      <ul>
-        <li>Keyword search works without error.</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-role, 1 admin user in the database |
-| Cleanup | All created records deleted in `afterAll` or via API before assertions |
-
----
-
-## 5. Test Commands
-
-```bash
-# Run User API tests
-npx playwright test --project=api tests/api/config/user/user.spec.ts --reporter=list
-
-# Run Role API tests
-npx playwright test --project=api tests/api/config/role/role.spec.ts --reporter=list
-
-# Run all config API tests
-npx playwright test --project=api tests/api/config/ --reporter=list
-
-# Run User E2E tests
-npx playwright test --project=e2e tests/e2e/specs/config/user.spec.ts --reporter=list
-
-# Run Role E2E tests
-npx playwright test --project=e2e tests/e2e/specs/config/role.spec.ts --reporter=list
-
-# Run all config E2E tests
-npx playwright test --project=e2e tests/e2e/specs/config/ --reporter=list
-```
