@@ -7,10 +7,6 @@ import path from 'path';
  */
 export interface AuthState {
   accessToken: string;
-  tenantId: string;
-  companyId: string;
-  areaId: string;
-  loginUserId: string;
 }
 
 const AUTH_FILE_PATH = path.join(__dirname, '../../.auth/user.json');
@@ -48,14 +44,7 @@ export function getStoredAuthToken(): string | null {
   return state?.accessToken ?? null;
 }
 
-/**
- * Get stored tenant ID
- * @returns The tenant ID or null if not found
- */
-export function getStoredTenantId(): string | null {
-  const state = getStoredAuthState();
-  return state?.tenantId ?? null;
-}
+
 
 /**
  * Clear stored authentication state

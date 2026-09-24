@@ -1,0 +1,23 @@
+{
+  "name": "iuroadmap-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API and E2E tests for IUROADMAP application",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test api --project=api",
+    "test:api:auth": "playwright test api/auth --project=api",
+    "test:api:config": "playwright test api/config --project=api",
+    "test:e2e": "playwright test e2e/specs --project=e2e",
+    "test:e2e:config": "playwright test e2e/specs/config --project=e2e",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1",
+    "@types/node": "^25.2.0",
+    "dotenv": "^17.2.3",
+    "typescript": "5.8.2"
+  }
+}

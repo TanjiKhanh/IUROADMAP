@@ -41,11 +41,17 @@ export default defineConfig({
     {
       name: 'api-setup',
       testMatch: /api\/auth\/auth\.setup\.ts/,
+      use: {
+        baseURL: process.env.API_BASE_URL || 'http://localhost:8080',
+      },
     },
     {
       name: 'api',
       testMatch: /api\/(?!auth).*\.spec\.ts/,
       dependencies: ['api-setup'],
+      use: {
+        baseURL: process.env.API_BASE_URL || 'http://localhost:8080',
+      },
     },
     // PTW specs are fully self-contained (they log in themselves and create every fixture),
     // so they do not need the shared `api-setup` auth state.
@@ -66,7 +72,7 @@ export default defineConfig({
       dependencies: ['e2e-setup'],
       use: {
         ...devices['Desktop Chrome'],
-        storageState: '.auth/e2e-hsse-user.json',
+        storageState: '.auth/e2e-iuroadmap-user.json',
       },
     },
 
@@ -86,7 +92,7 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         baseURL: process.env.HSSE_WEB_BASE_URL || process.env.WEB_BASE_URL || 'http://localhost:3002',
-        storageState: '.auth/e2e-hsse-user.json',
+        storageState: '.auth/e2e-iuroadmap-user.json',
       },
     },
 
