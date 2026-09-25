@@ -1,10 +1,11 @@
-import { Modal, message } from 'antd';
+import { Modal } from 'antd';
 
 export interface UseConfirmAndDeleteProps {
   mutateAsync: (args: any) => Promise<any>;
+  onError?: (message: string) => void;
 }
 
-export function useConfirmAndDelete({ mutateAsync }: UseConfirmAndDeleteProps) {
+export function useConfirmAndDelete({ mutateAsync, onError }: UseConfirmAndDeleteProps) {
   return (args: any) => {
     Modal.confirm({
       title: 'Are you sure you want to delete this record?',
@@ -15,9 +16,8 @@ export function useConfirmAndDelete({ mutateAsync }: UseConfirmAndDeleteProps) {
       onOk: async () => {
         try {
           await mutateAsync(args);
-          message.success('Deleted successfully');
         } catch (error: any) {
-          message.error(error?.response?.data?.message ?? error?.message ?? 'Failed to delete');
+          onError?.(error?.response?.data?.message ?? error?.message ?? 'Failed to delete');
         }
       },
     });

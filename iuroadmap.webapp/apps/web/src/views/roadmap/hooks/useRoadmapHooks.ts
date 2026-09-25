@@ -3,7 +3,7 @@ import {
   useRoadmapsControllerUpdateCourseProgress,
   useEnrollmentsControllerEnroll,
   useRoadmapsControllerGetPreviewRoadmapBySlug,
-  useRoadmapsControllerGetMacroRoadmap,
+  useUserRoadmapsControllerGetOverview,
   useRoadmapsControllerGetMicroRoadmap,
 } from '@iuroadmap/api-gen';
 
@@ -28,7 +28,7 @@ export function useRoadmapQueries() {
       useRoadmapsControllerGetPreviewRoadmapBySlug(slug, { query: options }),
       
     useGetUserRoadmapDetail: (id: number, options?: any) => 
-      useRoadmapsControllerGetMacroRoadmap(id, { query: options }),
+      useUserRoadmapsControllerGetOverview(id, { query: options }),
       
     useGetMicroRoadmap: (courseNodeId: number, options?: any) => 
       useRoadmapsControllerGetMicroRoadmap(courseNodeId, { query: options }),

@@ -15,7 +15,7 @@ export const GATEWAY_ROUTES: RouteMapping[] = [
     target: ServiceUrls.MENTOR_SERVICE,
   },
   {
-    prefixes: ['users'],
+    prefixes: ['users', 'user'],
     target: ServiceUrls.USER_SERVICE,
   },
   {

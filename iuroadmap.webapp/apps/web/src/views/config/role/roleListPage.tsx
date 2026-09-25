@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRolesControllerGetByIndex, useRolesControllerDelete, type RoleResponse } from '@iuroadmap/api-gen';
+import { useRolesControllerGetByIndex, type RoleResponse } from '@iuroadmap/api-gen';
 import { RoutePaths } from '@iuroadmap/core';
 import {
   UiTable,
@@ -10,11 +10,13 @@ import {
   UiColumnsType,
   UiEditIcon,
   UiDeleteIcon,
-  UiPageHeader
+  UiPageHeader,
+  UiResult
 } from '../../../uikit';
 import { useConfirmAndDelete } from '../../../hooks/useConfirmAndDelete';
 import { useListUrlState } from '../../../hooks/useListUrlState';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { useRoleMutations } from './hooks/useRoleMutations';
 
 const PAGE_SIZE = 20;
 
@@ -31,8 +33,12 @@ export function RoleListPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const { mutateAsync: remove } = useRolesControllerDelete();
-  const onDelete = useConfirmAndDelete({ mutateAsync: remove });
+  const { remove } = useRoleMutations();
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const onDelete = useConfirmAndDelete({
+    mutateAsync: remove.mutateAsync,
+    onError: setErrorMessage,
+  });
 
   const { page, changePage } = useListUrlState<RoleFilter>({
     defaultFilter: {},
@@ -98,6 +104,7 @@ export function RoleListPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {errorMessage ? <UiResult status='error' title={errorMessage} /> : null}
       <UiPageHeader
         title={t('config.role.list')}
         action={<UiButton type="primary" onClick={() => navigate(RoutePaths.web.config.role.create)}>{t('config.common.add')}</UiButton>}

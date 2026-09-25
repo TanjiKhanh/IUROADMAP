@@ -1,31 +1,37 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUsersControllerCreate } from '@iuroadmap/api-gen';
 import { RoutePaths } from '@iuroadmap/core';
-import { useToast } from '../../../uikit';
+import { UiResult, useToast } from '../../../uikit';
 import { UserForm } from './components/userForm';
 
 import { useTranslation } from '../../../hooks/useTranslation';
+import { useUserMutations } from './hooks/useUserMutations';
 
 export function UserCreatePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { toast } = useToast();
-  const { mutateAsync: create, isPending } = useUsersControllerCreate();
+  const { create } = useUserMutations();
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   return (
-    <UserForm
-      loading={isPending}
-      submitLabel={t('config.user.create')}
-      onCancel={() => navigate(RoutePaths.web.config.user.root)}
-      onSubmit={async (values) => {
-        try {
-          await create({ data: values });
-          toast.success(t('config.common.success'));
-          navigate(RoutePaths.web.config.user.root);
-        } catch (err: any) {
-          toast.error(err?.response?.data?.message ?? err?.message ?? t('config.common.failedToLoad'));
-        }
-      }}
-    />
+    <>
+      {errorMessage ? <UiResult status='error' title={errorMessage} /> : null}
+      <UserForm
+        loading={create.isPending}
+        submitLabel={t('config.user.create')}
+        onCancel={() => navigate(RoutePaths.web.config.user.root)}
+        onSubmit={async (values) => {
+          setErrorMessage(undefined);
+          try {
+            await create.mutateAsync({ data: values });
+            toast.success(t('config.common.success'));
+            navigate(RoutePaths.web.config.user.root);
+          } catch (err: any) {
+            setErrorMessage(err?.response?.data?.message ?? err?.message ?? t('config.common.failedToLoad'));
+          }
+        }}
+      />
+    </>
   );
 }

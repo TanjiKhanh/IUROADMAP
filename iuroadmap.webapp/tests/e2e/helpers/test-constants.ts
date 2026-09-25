@@ -40,7 +40,7 @@ export const SELECTORS = {
   toastError: '.ant-message-error, .ant-notification-notice-error',
   /** Ant Design confirmation modal */
   confirmModal: '.ant-modal-confirm',
-  confirmOkBtn: '.ant-modal-confirm .ant-btn-primary, .ant-popconfirm .ant-btn-primary',
+  confirmOkBtn: '.ant-modal-confirm .ant-btn-primary, .ant-modal-confirm .ant-btn-dangerous, .ant-popconfirm .ant-btn-primary, .ant-popconfirm .ant-btn-dangerous',
   confirmCancelBtn: '.ant-modal-confirm .ant-btn:not(.ant-btn-primary)',
   /** Ant Design spinner / loading */
   spinner: '.ant-spin-spinning',

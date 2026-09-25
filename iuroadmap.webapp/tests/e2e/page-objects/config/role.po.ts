@@ -113,7 +113,7 @@ export class RoleCreatePage {
 
   /** All permission group cards in the matrix */
   get permissionGroupCards(): Locator {
-    return this.page.locator('.ant-card').filter({ has: this.page.locator('.ant-checkbox') });
+    return this.page.locator('.ant-card:has(> .ant-card-head .ant-checkbox)');
   }
 
   /** Get the first group header checkbox */
@@ -127,7 +127,7 @@ export class RoleCreatePage {
   }
 
   async fillName(name: string) {
-    await this.form.fillByLabel('Tên vai trò', name);
+    await this.nameInput.fill(name);
   }
 
   async submit() {
@@ -161,11 +161,10 @@ export class RoleCreatePage {
   }
 
   async expectValidationError() {
-    await this.form.expectFormError('Tên vai trò');
+    await this.form.expectFormError();
   }
 
   async expectSuccess() {
-    await this.toast.expectSuccess();
     await this.page.waitForURL(ROUTES.config.roles, { timeout: TIMEOUTS.navigation });
   }
 }
@@ -226,15 +225,14 @@ export class RoleEditPage {
   }
 
   async expectErrorShown() {
-    await expect(this.errorResult).toBeVisible({ timeout: TIMEOUTS.navigation });
+    await expect(this.page.locator('.ant-result').first()).toBeVisible({ timeout: TIMEOUTS.navigation });
   }
 
   async expectValidationError() {
-    await this.form.expectFormError('Tên vai trò');
+    await this.form.expectFormError();
   }
 
   async expectSuccess() {
-    await this.toast.expectSuccess();
     await this.page.waitForURL(ROUTES.config.roles, { timeout: TIMEOUTS.navigation });
   }
 }

@@ -1,7 +1,7 @@
 import type { RouteObject } from 'react-router-dom';
 import { RoutePaths } from '@iuroadmap/core';
-import { ExploreMajorsPage } from '../views/explore/exploreMajorsPage';
-import { MyCoursesPage } from '../views/my-courses/myCoursesPage';
+import { ExploreMajorsPage } from '../views/roadmap/explore/exploreMajorsPage';
+import { MyCoursesPage } from '../views/roadmap/my-courses/myCoursesPage';
 import { MacroRoadmapPage } from '../views/roadmap/viewer/macroRoadmapPage';
 import { MicroRoadmapPage } from '../views/roadmap/viewer/microRoadmapPage';
 

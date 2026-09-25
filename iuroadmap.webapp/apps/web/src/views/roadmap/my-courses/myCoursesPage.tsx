@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
-import { roadmapsControllerGetMyRoadmaps, roadmapsControllerGetMacroRoadmap, MacroRoadmapResponseDto, UserRoadmapSummaryDto } from '@iuroadmap/api-gen';
-import '../../styles/myCourse.css'; // Ensure you have the CSS file from the previous step
+import { userRoadmapsControllerGetMyRoadmaps, userRoadmapsControllerGetOverview, MacroRoadmapResponseDto, UserRoadmapSummaryDto } from '@iuroadmap/api-gen';
+import '../../../styles/myCourse.css'; // Ensure you have the CSS file from the previous step
 
 type RoadmapCourseCard = UserRoadmapSummaryDto & {
   completionPercentage: number;
@@ -21,7 +21,7 @@ export function MyCoursesPage() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await roadmapsControllerGetMyRoadmaps();
+        const res = await userRoadmapsControllerGetMyRoadmaps();
         const summaryData = res.data as any[];
         if (!Array.isArray(summaryData)) {
           setRoadmaps([]);
@@ -30,8 +30,8 @@ export function MyCoursesPage() {
 
         const detailResults = await Promise.allSettled(
           summaryData.map(async (roadmap) => {
-            const resData = await roadmapsControllerGetMacroRoadmap(roadmap.id);
-            return resData.data;
+            const resData = await userRoadmapsControllerGetOverview(roadmap.id);
+            return resData.data as unknown as MacroRoadmapResponseDto;
           })
         );
 
@@ -96,7 +96,7 @@ export function MyCoursesPage() {
 
   return (
     <div className="courses-container">
-      
+
       {/* Page Header (Rendered inside the page now) */}
       <div className="page-header">
         <h1 className="page-title">My Courses</h1>
@@ -106,13 +106,13 @@ export function MyCoursesPage() {
       {/* --- SECTION 1: FIELD-SPECIFIC COURSES (Real Data) --- */}
       <section className="course-section">
         <h2 className="section-title">Field-Specific Courses</h2>
-        
+
         <div className="courses-grid">
           {roadmaps.length === 0 ? (
             <div className="empty-state-card" style={{ padding: '2rem', textAlign: 'center', gridColumn: '1 / -1', background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
               <p style={{ marginBottom: '1rem', color: '#64748b' }}>No active courses found.</p>
-              <button 
-                onClick={() => navigate('/dashboard/explore')} 
+              <button
+                onClick={() => navigate('/dashboard/explore')}
                 style={{ background: '#0f172a', color: 'white', padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
               >
                 Explore Catalog →
@@ -122,7 +122,7 @@ export function MyCoursesPage() {
             roadmaps.map((course) => {
               const status = getStatus(course.completionPercentage);
               const metricLabel = status.type === 'not-started' ? 'Status' : 'Progress';
-              
+
               return (
                 <div key={course.id} className={`course-grid-card ${status.type}`}>
                   <div className="card-top">
@@ -137,10 +137,10 @@ export function MyCoursesPage() {
                       <span className="label-text">{metricLabel}</span>
                       <span className="label-percent">{status.text}</span>
                     </div>
-                    
+
                     <div className="progress-track">
-                      <div 
-                        className="progress-fill" 
+                      <div
+                        className="progress-fill"
                         style={{ width: `${course.completionPercentage}%` }}
                       ></div>
                     </div>
@@ -149,7 +149,7 @@ export function MyCoursesPage() {
                       Credits {course.creditsEarned}/{course.creditsRequired || 0} · Courses {course.completedNodes}/{course.totalNodes || 0}
                     </div>
 
-                    <div 
+                    <div
                       className="action-link"
                       onClick={() => navigate(`/dashboard/roadmap/${course.id}`, {
                         state: { roadmapTitle: course.title }
@@ -168,9 +168,9 @@ export function MyCoursesPage() {
       {/* --- SECTION 2: OPTIONAL COURSES (Static Mock) --- */}
       <section className="course-section">
         <h2 className="section-title">Optional Courses</h2>
-        
+
         <div className="courses-grid">
-          
+
           {/* Mock Card 1: IELTS */}
           <div className="course-grid-card not-started">
             <div className="card-top">
@@ -180,7 +180,7 @@ export function MyCoursesPage() {
               </p>
             </div>
             <div className="card-progress-section">
-              <span className="badge-tag" style={{backgroundColor: '#dbeafe', color: '#1e40af'}}>Available</span>
+              <span className="badge-tag" style={{ backgroundColor: '#dbeafe', color: '#1e40af' }}>Available</span>
             </div>
           </div>
 

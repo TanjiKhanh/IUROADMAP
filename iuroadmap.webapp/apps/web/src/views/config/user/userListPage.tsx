@@ -1,8 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   useUsersControllerGetByIndex,
-  useUsersControllerDelete,
   type UserDetailResponse,
   useRolesControllerGetByIndex,
 } from '@iuroadmap/api-gen';
@@ -16,12 +15,14 @@ import {
   UiEyeIcon,
   UiEditIcon,
   UiDeleteIcon,
-  UiPageHeader
+  UiPageHeader,
+  UiResult
 } from '../../../uikit';
 import { useConfirmAndDelete } from '../../../hooks/useConfirmAndDelete';
 import { useListUrlState } from '../../../hooks/useListUrlState';
 import { useTranslation } from '../../../hooks/useTranslation';
 import { UserFilterForm, type UserFilterValue } from './components/userFilterForm';
+import { useUserMutations } from './hooks/useUserMutations';
 
 const PAGE_SIZE = 20;
 
@@ -59,8 +60,12 @@ function filterFromParams(params: URLSearchParams): {
 export function UserListPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { mutateAsync: remove } = useUsersControllerDelete();
-  const onDelete = useConfirmAndDelete({ mutateAsync: remove });
+  const { remove } = useUserMutations();
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const onDelete = useConfirmAndDelete({
+    mutateAsync: remove.mutateAsync,
+    onError: setErrorMessage,
+  });
 
   const { filter, page, applyFilter, changePage } = useListUrlState<UserFilterValue>({
     defaultFilter: DEFAULT_FILTER,
@@ -154,6 +159,7 @@ export function UserListPage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {errorMessage ? <UiResult status='error' title={errorMessage} /> : null}
       <UiPageHeader
         title={t('config.user.list')}
         action={<UiButton type="primary" onClick={() => navigate(RoutePaths.web.config.user.create)}>+ {t('config.common.add')}</UiButton>}

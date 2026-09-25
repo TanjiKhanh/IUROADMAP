@@ -10,9 +10,9 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { useExploreRoadmapsControllerGetMajors, DepartmentFilterDto, MajorCardDto, roadmapsControllerGetPreviewRoadmapBySlug, MacroRoadmapResponseDto } from '@iuroadmap/api-gen';
-import RoadmapToolbar from '../../components/roadmap/RoadmapToolbar';
-import { useRoadmapMutations } from '../roadmap/hooks/useRoadmapHooks';
-import '../../styles/exploreMajors.css';
+import RoadmapToolbar from '../../../components/roadmap/RoadmapToolbar';
+import { useRoadmapMutations } from '../hooks/useRoadmapHooks';
+import '../../../styles/exploreMajors.css';
 
 type DepartmentFilter = 'all' | string;
 

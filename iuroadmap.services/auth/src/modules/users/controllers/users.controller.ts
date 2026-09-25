@@ -67,7 +67,7 @@ export class UsersController {
   }
 
   @Post('delete/:id')
-  @Roles('SUPERADMIN')
+  @Roles('ADMIN', 'SUPERADMIN')
   @ApiOperation({ summary: 'Hard delete a user (Superadmin only)' })
   @ApiParam({ name: 'id', type: String, description: 'User ID' })
   @ApiResponse({ status: 200, description: 'User hard deleted successfully' })

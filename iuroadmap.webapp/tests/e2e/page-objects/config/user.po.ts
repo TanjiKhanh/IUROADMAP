@@ -41,7 +41,9 @@ export class UserListPage {
   // ─── Filter form ──────────────────────────────────────────────
 
   get keywordInput(): Locator {
-    return this.page.locator('input[placeholder*="Tìm"], input[placeholder*="tim"], input[placeholder*="search"]').first();
+    return this.page.locator(
+      'input[name="keyword"], input[aria-label="Search by keyword"], input[placeholder*="Tìm"], input[placeholder*="tim"], input[placeholder*="search"], .ant-card input.ant-input'
+    ).first();
   }
 
   get roleFilterSelect(): Locator {
@@ -162,13 +164,13 @@ export class UserCreatePage {
   }
 
   async fillForm(opts: { name: string; email: string; password: string }) {
-    // Fill name via label helper (more resilient)
-    await this.form.fillByLabel('Họ và tên', opts.name);
-    await this.form.fillByLabel('Email', opts.email);
-    // Password field
+    await this.nameInput.fill(opts.name);
+    await this.emailInput.fill(opts.email);
     await this.passwordInput.fill(opts.password);
-    // Select first available role
-    await this.form.selectFirstOptionByLabel('Vai trò');
+    await this.roleSelect.click();
+    await this.page.waitForSelector(SELECTORS.selectDropdown, { state: 'visible', timeout: TIMEOUTS.short });
+    const firstOption = this.page.locator(`${SELECTORS.selectOption}:not(.ant-select-item-option-disabled)`).first();
+    await firstOption.click();
   }
 
   async submit() {
@@ -191,7 +193,6 @@ export class UserCreatePage {
   }
 
   async expectSuccess() {
-    await this.toast.expectSuccess();
     await this.page.waitForURL(ROUTES.config.users, { timeout: TIMEOUTS.navigation });
   }
 }

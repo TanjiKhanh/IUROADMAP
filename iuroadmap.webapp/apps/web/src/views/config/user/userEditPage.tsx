@@ -1,23 +1,29 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useUsersControllerGetById, useUsersControllerUpdate, type UserDetailResponse } from '@iuroadmap/api-gen';
+import { useUsersControllerGetById, type UserDetailResponse } from '@iuroadmap/api-gen';
 import { RoutePaths } from '@iuroadmap/core';
 import { UiResult, UiSkeleton, useToast } from '../../../uikit';
 import { UserForm, type UserFormValues } from './components/userForm';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { useUserMutations } from './hooks/useUserMutations';
 
 export function UserEditPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { id = '' } = useParams<{ id: string }>();
   const { toast } = useToast();
-  const { mutateAsync: update, isPending } = useUsersControllerUpdate();
+  const { update } = useUserMutations();
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   const { data: raw, isLoading, isError } = useUsersControllerGetById(id, {
     query: { enabled: Boolean(id) },
   });
   const responseData = raw?.data as any;
-  const record = (responseData?.data ?? responseData) as UserDetailResponse | undefined;
+  const candidate = responseData?.data ?? responseData;
+  const record =
+    candidate && typeof candidate.id === 'string' && candidate.id.length > 0
+      ? (candidate as UserDetailResponse)
+      : undefined;
 
   const defaults = useMemo<Partial<UserFormValues> | undefined>(() => {
     if (!record) return undefined;
@@ -37,23 +43,27 @@ export function UserEditPage() {
   }
 
   return (
-    <UserForm
-      defaultValues={defaults}
-      loading={isPending}
-      isEdit
-      submitLabel={t('config.common.save')}
-      onCancel={() => navigate(RoutePaths.web.config.user.root)}
-      onSubmit={async (values) => {
-        try {
-          const { password, ...rest } = values;
-          const payload = password ? { ...rest, id, password } : { ...rest, id };
-          await update({ data: payload as any });
-          toast.success(t('config.common.success'));
-          navigate(RoutePaths.web.config.user.root);
-        } catch (err: any) {
-          toast.error(err?.response?.data?.message ?? err?.message ?? t('config.common.failedToLoad'));
-        }
-      }}
-    />
+    <>
+      {errorMessage ? <UiResult status='error' title={errorMessage} /> : null}
+      <UserForm
+        defaultValues={defaults}
+        loading={update.isPending}
+        isEdit
+        submitLabel={t('config.common.save')}
+        onCancel={() => navigate(RoutePaths.web.config.user.root)}
+        onSubmit={async (values) => {
+          setErrorMessage(undefined);
+          try {
+            const { password, ...rest } = values;
+            const payload = password ? { ...rest, id, password } : { ...rest, id };
+            await update.mutateAsync({ data: payload as any });
+            toast.success(t('config.common.success'));
+            navigate(RoutePaths.web.config.user.root);
+          } catch (err: any) {
+            setErrorMessage(err?.response?.data?.message ?? err?.message ?? t('config.common.failedToLoad'));
+          }
+        }}
+      />
+    </>
   );
 }

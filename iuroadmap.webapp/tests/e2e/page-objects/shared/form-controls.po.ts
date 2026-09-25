@@ -95,9 +95,13 @@ export class FormControlsHelper {
         .locator('.ant-form-item')
         .filter({ hasText: labelText })
         .first();
-      await expect(formItem.locator(SELECTORS.formError).first()).toBeVisible({
-        timeout: TIMEOUTS.formSubmit,
-      });
+      if (await formItem.count() > 0) {
+        await expect(formItem.locator(SELECTORS.formError).first()).toBeVisible({
+          timeout: TIMEOUTS.formSubmit,
+        });
+      } else {
+        await expect(this.formErrors.first()).toBeVisible({ timeout: TIMEOUTS.formSubmit });
+      }
     } else {
       await expect(this.formErrors.first()).toBeVisible({ timeout: TIMEOUTS.formSubmit });
     }

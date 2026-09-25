@@ -14,7 +14,11 @@ export function UserDetailPage() {
   });
 
   const responseData = raw?.data as any;
-  const record = (responseData?.data ?? responseData) as UserDetailResponse | undefined;
+  const candidate = responseData?.data ?? responseData;
+  const record =
+    candidate && typeof candidate.id === 'string' && candidate.id.length > 0
+      ? (candidate as UserDetailResponse)
+      : undefined;
 
   if (isLoading) {
     return <UiSkeleton active paragraph={{ rows: 8 }} />;
