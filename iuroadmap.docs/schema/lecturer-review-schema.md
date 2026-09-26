@@ -2,6 +2,8 @@
 
 > **Version:** 2.0 — Mở rộng từ `mentor-schema.md` gốc thành hệ thống Đánh giá Giảng viên toàn diện.
 
+> ⚠️ **Thay đổi 2026-09-26 (Roadmap v2, D17):** `LecturerProfile` được thay bằng bảng `LECTURERS` trong **roadmap-service**, và `LecturerCourseAssignment` được thay bằng `COURSE_OFFERING_LECTURERS` (giảng viên theo môn và năm học, có `term_in_year`). Xem [`roadmap-schema.md`](roadmap-schema.md). Khi làm FL-LR, chỉ thêm các bảng review (`StudentReview`, `ReviewHelpful`, `ReviewReport`, …) tham chiếu tới hai bảng đó; các cột điểm trung bình của giảng viên chuyển thành số liệu tính từ review. Sơ đồ bên dưới là thiết kế cũ, chưa cập nhật.
+
 ```mermaid
 erDiagram
     LecturerProfile {

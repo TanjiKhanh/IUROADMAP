@@ -5,7 +5,6 @@
  * Unified OpenAPI Specification for IUROADMAP Microservices Network
  * OpenAPI spec version: 1.0
  */
-import type { DepartmentsControllerGetByIndexSortOrder } from './departmentsControllerGetByIndexSortOrder';
 
 export type DepartmentsControllerGetByIndexParams = {
 /**
@@ -20,8 +19,4 @@ currentPage?: number;
  * Search keyword
  */
 keyword?: string;
-sortOrder?: DepartmentsControllerGetByIndexSortOrder;
-sortBy?: string;
-pageSize?: number;
-page?: number;
 };

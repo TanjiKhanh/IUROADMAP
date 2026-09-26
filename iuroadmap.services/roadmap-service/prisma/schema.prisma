@@ -1,4 +1,7 @@
-// admin-service/prisma/schema.prisma
+// roadmap-service/prisma/schema.prisma — Roadmap v2
+// Source of truth: iuroadmap.docs/schema/roadmap-schema.md (v2.1)
+// Constraints Prisma cannot express (partial unique indexes, CHECKs) are added by hand
+// in the migration SQL. Every user id is the auth User.id (uuid string), never a FK.
 
 datasource db {
   provider = "postgresql"
@@ -10,119 +13,518 @@ generator client {
   output   = "../src/generated/prisma-client"
 }
 
+// ================= ENUMS =================
+
+enum RoadmapVersionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum TermKind {
+  REGULAR
+  SUMMER
+  ELECTIVE_POOL
+}
+
+enum RoadmapNodeKind {
+  COURSE
+  ELECTIVE_SLOT
+}
+
+enum RelationType {
+  PREREQUISITE
+  PREVIOUS
+  COREQUISITE
+}
+
+enum StudentRoadmapStatus {
+  ENROLLED
+  COMPLETED
+  DROPPED
+}
+
+enum DeltaOrigin {
+  BASE
+  CUSTOM
+}
+
+enum CourseResultStatus {
+  IN_PROGRESS
+  GRADED
+}
+
+enum GradingMode {
+  SCORE
+  PASS_FAIL
+}
+
+enum OfferingStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum TermInYear {
+  SEMESTER_1
+  SEMESTER_2
+  SUMMER
+}
+
+enum LecturerRole {
+  LECTURER
+  TA
+}
+
+enum LecturerStatus {
+  ACTIVE
+  INACTIVE
+  RETIRED
+}
+
+enum CommentStatus {
+  VISIBLE
+  FLAGGED
+  HIDDEN
+  DELETED
+}
+
+enum CommentReportReason {
+  SPAM
+  OFFENSIVE
+  OFF_TOPIC
+  MISINFORMATION
+  OTHER
+}
+
+enum CommentReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+}
+
+// ================= ORGANISATION =================
 
 model DEPARTMENTS {
-  id          Int        @id @default(autoincrement())
-  slug        String     @unique
-  name        String     // e.g. "Information Technology"
+  id          Int              @id @default(autoincrement())
+  slug        String           @unique
+  name        String
   description String?
 
-  roadmaps    MAJOR_ROADMAPS[]  // majors under this department
-  created_at          DateTime                      @default(now())
-  updated_at          DateTime                      @updatedAt
+  majors      MAJOR_ROADMAPS[]
+  lecturers   LECTURERS[]
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
 
   @@map("departments")
 }
 
-// ================= ROADMAP & COURSES =================
-
 model MAJOR_ROADMAPS {
-  id                  Int                           @id @default(autoincrement())
-  slug                String                        @unique
-  name                String
-  total_credits       Int
-  description           String?
+  id              Int                @id @default(autoincrement())
+  slug            String             @unique
+  name            String
+  description     String?
+  department_id   Int
+  department      DEPARTMENTS        @relation(fields: [department_id], references: [id], onDelete: Restrict)
 
-  department_id       Int
-  department          DEPARTMENTS                    @relation(fields: [department_id], references: [id], onDelete: Cascade)
-  courseNodes         COURSE_NODES[]
-  created_at          DateTime                      @default(now())
-  updated_at          DateTime                      @updatedAt
+  versions        ROADMAP_VERSIONS[]
+  studentRoadmaps STUDENT_ROADMAPS[]
+  created_at      DateTime           @default(now())
+  updated_at      DateTime           @updatedAt
 
+  @@index([department_id])
   @@map("major_roadmaps")
 }
 
-model COURSE_NODES {
-  id                  Int                           @id @default(autoincrement())
-  roadmap_id          Int
-  roadmap             MAJOR_ROADMAPS                @relation(fields: [roadmap_id], references: [id], onDelete: Cascade)
-  
-  slug                String
-  name                String
-  coords              Json?
-  credits             Int
-  description         String?
+// ================= COURSE CATALOG =================
 
-  courseTopics        COURSE_TOPICS_NODE[]
-  prerequisitesAsSource   COURSE_NODE_PREREQUISITES[]   @relation("source")
-  prerequisitesAsTarget   COURSE_NODE_PREREQUISITES[]   @relation("target")
+model COURSE_CATEGORIES {
+  id           Int       @id @default(autoincrement())
+  code         String    @unique
+  name         String
+  fill_color   String
+  border_color String
+  sort_order   Int       @default(0)
 
-  created_at          DateTime                      @default(now())
-  updated_at          DateTime                      @updatedAt
+  courses      COURSES[]
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
 
-  @@unique([roadmap_id, slug])
-  @@index([roadmap_id])
-  @@map("course_nodes")
+  @@map("course_categories")
 }
 
-model COURSE_NODE_PREREQUISITES {
-  id                      Int                   @id @default(autoincrement())
-  
-  course_node_id          Int
-  courseNode              COURSE_NODES          @relation("target", fields: [course_node_id], references: [id], onDelete: Cascade)
-  
-  prerequisite_node_id    Int
-  prerequisiteNode        COURSE_NODES          @relation("source", fields: [prerequisite_node_id], references: [id], onDelete: Cascade)
+model COURSES {
+  id                    Int                 @id @default(autoincrement())
+  code                  String              @unique
+  name                  String
+  theory_credits        Int
+  lab_credits           Int                 @default(0)
+  category_id           Int
+  category              COURSE_CATEGORIES   @relation(fields: [category_id], references: [id], onDelete: Restrict)
+  grading_mode          GradingMode         @default(SCORE)
+  counts_toward_gpa     Boolean             @default(true)
+  counts_toward_credits Boolean             @default(true)
+  description           String?
 
-  created_at              DateTime              @default(now())
-  updated_at              DateTime              @updatedAt
+  roadmapNodes          ROADMAP_NODES[]
+  studentNodeDeltas     STUDENT_NODE_DELTAS[]
+  offerings             COURSE_OFFERINGS[]
+  comments              COURSE_COMMENTS[]
+  created_at            DateTime            @default(now())
+  updated_at            DateTime            @updatedAt
 
-  @@unique([course_node_id, prerequisite_node_id])
-  @@index([course_node_id])
-  @@index([prerequisite_node_id])
-  @@map("course_node_prerequisites")
+  @@index([category_id])
+  @@map("courses")
 }
 
-// ================= COURSE TOPICS =================
+// ================= COURSE OFFERING (course in one academic year) =================
+
+model COURSE_OFFERINGS {
+  id                  Int                         @id @default(autoincrement())
+  course_id           Int
+  course              COURSES                     @relation(fields: [course_id], references: [id], onDelete: Restrict)
+  academic_year       Int
+  status              OfferingStatus              @default(DRAFT)
+  student_guide       String?                     @db.Text
+  syllabus_url        String?
+  weight_process      Int?
+  weight_midterm      Int?
+  weight_final        Int?
+  has_project         Boolean                     @default(false)
+  project_description String?                     @db.Text
+  copied_from_id      Int?
+
+  lecturers           COURSE_OFFERING_LECTURERS[]
+  topics              COURSE_TOPICS_NODE[]
+  created_at          DateTime                    @default(now())
+  updated_at          DateTime                    @updatedAt
+
+  @@unique([course_id, academic_year])
+  @@index([academic_year, status])
+  @@map("course_offerings")
+}
+
+model LECTURERS {
+  id            Int                         @id @default(autoincrement())
+  full_name     String
+  title         String?
+  department_id Int
+  department    DEPARTMENTS                 @relation(fields: [department_id], references: [id], onDelete: Restrict)
+  email         String?                     @unique
+  status        LecturerStatus              @default(ACTIVE)
+
+  offerings     COURSE_OFFERING_LECTURERS[]
+  created_at    DateTime                    @default(now())
+  updated_at    DateTime                    @updatedAt
+
+  @@index([department_id])
+  @@map("lecturers")
+}
+
+model COURSE_OFFERING_LECTURERS {
+  id           Int              @id @default(autoincrement())
+  offering_id  Int
+  offering     COURSE_OFFERINGS @relation(fields: [offering_id], references: [id], onDelete: Cascade)
+  lecturer_id  Int
+  lecturer     LECTURERS        @relation(fields: [lecturer_id], references: [id], onDelete: Restrict)
+  role         LecturerRole     @default(LECTURER)
+  term_in_year TermInYear?
+
+  @@unique([offering_id, lecturer_id, term_in_year])
+  @@index([lecturer_id])
+  @@map("course_offering_lecturers")
+}
+
+// ================= CURRICULUM BY YEAR (table keeps the name ROADMAP_VERSIONS) =================
+
+model ROADMAP_VERSIONS {
+  id              Int                  @id @default(autoincrement())
+  roadmap_id      Int
+  roadmap         MAJOR_ROADMAPS       @relation(fields: [roadmap_id], references: [id], onDelete: Cascade)
+  cohort_year     Int
+  revision_no     Int?
+  total_credits   Int
+  decision_ref    String?
+  status          RoadmapVersionStatus @default(DRAFT)
+  revision        Int                  @default(0)
+  published_at    DateTime?
+  published_by    String?              @db.Uuid
+
+  terms           ROADMAP_TERMS[]
+  nodes           ROADMAP_NODES[]
+  edges           ROADMAP_EDGES[]
+  studentRoadmaps STUDENT_ROADMAPS[]
+  created_at      DateTime             @default(now())
+  updated_at      DateTime             @updatedAt
+
+  @@unique([roadmap_id, cohort_year, revision_no])
+  @@index([roadmap_id, cohort_year, status])
+  @@map("roadmap_versions")
+}
+
+model ROADMAP_TERMS {
+  id          Int              @id @default(autoincrement())
+  version_id  Int
+  version     ROADMAP_VERSIONS @relation(fields: [version_id], references: [id], onDelete: Cascade)
+  term_key    String           @db.Uuid
+  order_index Int
+  kind        TermKind
+  semester_no Int?
+
+  nodes       ROADMAP_NODES[]
+
+  @@unique([version_id, term_key])
+  @@unique([version_id, order_index])
+  @@map("roadmap_terms")
+}
+
+model ROADMAP_NODES {
+  id                  Int              @id @default(autoincrement())
+  version_id          Int
+  version             ROADMAP_VERSIONS @relation(fields: [version_id], references: [id], onDelete: Cascade)
+  node_key            String           @db.Uuid
+  term_id             Int
+  term                ROADMAP_TERMS    @relation(fields: [term_id], references: [id], onDelete: Cascade)
+  row_index           Int
+  kind                RoadmapNodeKind
+  course_id           Int?
+  course              COURSES?         @relation(fields: [course_id], references: [id], onDelete: Restrict)
+  slot_label          String?
+  slot_theory_credits Int?
+  slot_lab_credits    Int?
+  elective_group      String?
+  choice_group        String?
+  condition           String?
+
+  edgesOut            ROADMAP_EDGES[]  @relation("source")
+  edgesIn             ROADMAP_EDGES[]  @relation("target")
+
+  @@unique([version_id, node_key])
+  @@unique([term_id, row_index])
+  @@unique([version_id, course_id])
+  @@index([course_id])
+  @@map("roadmap_nodes")
+}
+
+model ROADMAP_EDGES {
+  id             Int              @id @default(autoincrement())
+  version_id     Int
+  version        ROADMAP_VERSIONS @relation(fields: [version_id], references: [id], onDelete: Cascade)
+  edge_key       String           @db.Uuid
+  source_node_id Int
+  sourceNode     ROADMAP_NODES    @relation("source", fields: [source_node_id], references: [id], onDelete: Cascade)
+  target_node_id Int
+  targetNode     ROADMAP_NODES    @relation("target", fields: [target_node_id], references: [id], onDelete: Cascade)
+  type           RelationType
+
+  @@unique([version_id, edge_key])
+  @@unique([source_node_id, target_node_id])
+  @@index([target_node_id])
+  @@map("roadmap_edges")
+}
+
+// ================= COURSE TOPICS (micro roadmap of one offering) =================
 
 model COURSE_TOPICS_NODE {
-  id                      Int                   @id @default(autoincrement())
-  
-  course_node_id          Int
-  courseNode              COURSE_NODES          @relation(fields: [course_node_id], references: [id], onDelete: Cascade)
-  
-  slug                    String
-  title                   String
-  description             String?
-  coords                  Json?
-  learning_objectives     String?
-  resources_url           String?
+  id                  Int                  @id @default(autoincrement())
+  offering_id         Int
+  offering            COURSE_OFFERINGS     @relation(fields: [offering_id], references: [id], onDelete: Cascade)
+  slug                String
+  title               String
+  description         String?
+  coords              Json?
+  learning_objectives String?
+  resources_url       String?
+  estimated_hours     Decimal?             @db.Decimal(6, 1)
 
-  topicEdgesAsSource      COURSE_TOPICS_EDGE[]  @relation("source")
-  topicEdgesAsTarget      COURSE_TOPICS_EDGE[]  @relation("target")
+  topicEdgesAsSource  COURSE_TOPICS_EDGE[] @relation("source")
+  topicEdgesAsTarget  COURSE_TOPICS_EDGE[] @relation("target")
+  created_at          DateTime             @default(now())
+  updated_at          DateTime             @updatedAt
 
-  created_at              DateTime              @default(now())
-  updated_at              DateTime              @updatedAt
-
-  @@unique([course_node_id, slug])
-  @@index([course_node_id])
+  @@unique([offering_id, slug])
+  @@index([offering_id])
   @@map("course_topics_node")
 }
 
 model COURSE_TOPICS_EDGE {
-  id                      Int                   @id @default(autoincrement())
-  
-  source_topic_id         Int
-  sourceTopic             COURSE_TOPICS_NODE    @relation("source", fields: [source_topic_id], references: [id], onDelete: Cascade)
-  
-  target_topic_id         Int
-  targetTopic             COURSE_TOPICS_NODE    @relation("target", fields: [target_topic_id], references: [id], onDelete: Cascade)
-
-  created_at              DateTime              @default(now())
+  id              Int                @id @default(autoincrement())
+  source_topic_id Int
+  sourceTopic     COURSE_TOPICS_NODE @relation("source", fields: [source_topic_id], references: [id], onDelete: Cascade)
+  target_topic_id Int
+  targetTopic     COURSE_TOPICS_NODE @relation("target", fields: [target_topic_id], references: [id], onDelete: Cascade)
+  created_at      DateTime           @default(now())
 
   @@unique([source_topic_id, target_topic_id])
-  @@index([source_topic_id])
   @@index([target_topic_id])
   @@map("course_topics_edge")
 }
 
+// ================= STUDENT ROADMAP (overlay) =================
+
+model STUDENT_ROADMAPS {
+  id         Int                      @id @default(autoincrement())
+  user_id    String                   @db.Uuid
+  roadmap_id Int
+  roadmap    MAJOR_ROADMAPS           @relation(fields: [roadmap_id], references: [id], onDelete: Restrict)
+  version_id Int
+  version    ROADMAP_VERSIONS         @relation(fields: [version_id], references: [id], onDelete: Restrict)
+  status     StudentRoadmapStatus     @default(ENROLLED)
+  revision   Int                      @default(0)
+
+  termDeltas STUDENT_TERM_DELTAS[]
+  nodeDeltas STUDENT_NODE_DELTAS[]
+  edgeDeltas STUDENT_EDGE_DELTAS[]
+  results    STUDENT_COURSE_RESULTS[]
+  created_at DateTime                 @default(now())
+  updated_at DateTime                 @updatedAt
+
+  @@unique([user_id, roadmap_id])
+  @@index([version_id])
+  @@map("student_roadmaps")
+}
+
+model STUDENT_TERM_DELTAS {
+  id                 Int              @id @default(autoincrement())
+  student_roadmap_id Int
+  studentRoadmap     STUDENT_ROADMAPS @relation(fields: [student_roadmap_id], references: [id], onDelete: Cascade)
+  term_key           String           @db.Uuid
+  origin             DeltaOrigin
+  kind               TermKind?
+  after_term_key     String?          @db.Uuid
+  custom_label       String?
+  academic_year      Int?
+  term_in_year       TermInYear?
+
+  @@unique([student_roadmap_id, term_key])
+  @@map("student_term_deltas")
+}
+
+model STUDENT_NODE_DELTAS {
+  id                    Int              @id @default(autoincrement())
+  student_roadmap_id    Int
+  studentRoadmap        STUDENT_ROADMAPS @relation(fields: [student_roadmap_id], references: [id], onDelete: Cascade)
+  node_key              String           @db.Uuid
+  origin                DeltaOrigin
+  term_key              String?          @db.Uuid
+  row_order             Decimal?         @db.Decimal(12, 6)
+  course_id             Int?
+  course                COURSES?         @relation(fields: [course_id], references: [id], onDelete: Restrict)
+  custom_code           String?
+  custom_name           String?
+  custom_theory_credits Int?
+  custom_lab_credits    Int?
+  created_at            DateTime         @default(now())
+  updated_at            DateTime         @updatedAt
+
+  @@unique([student_roadmap_id, node_key])
+  @@index([course_id])
+  @@map("student_node_deltas")
+}
+
+model STUDENT_EDGE_DELTAS {
+  id                 Int              @id @default(autoincrement())
+  student_roadmap_id Int
+  studentRoadmap     STUDENT_ROADMAPS @relation(fields: [student_roadmap_id], references: [id], onDelete: Cascade)
+  edge_key           String           @db.Uuid
+  source_node_key    String           @db.Uuid
+  target_node_key    String           @db.Uuid
+  type               RelationType
+
+  @@unique([student_roadmap_id, edge_key])
+  @@unique([student_roadmap_id, source_node_key, target_node_key])
+  @@map("student_edge_deltas")
+}
+
+model STUDENT_COURSE_RESULTS {
+  id                 Int                @id @default(autoincrement())
+  student_roadmap_id Int
+  studentRoadmap     STUDENT_ROADMAPS   @relation(fields: [student_roadmap_id], references: [id], onDelete: Cascade)
+  node_key           String             @db.Uuid
+  status             CourseResultStatus
+  weight_process     Int?
+  weight_midterm     Int?
+  weight_final       Int?
+  score_process      Decimal?           @db.Decimal(4, 1)
+  score_midterm      Decimal?           @db.Decimal(4, 1)
+  score_final        Decimal?           @db.Decimal(4, 1)
+  total_score        Int?
+  is_passed          Boolean?
+  note               String?
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+
+  @@unique([student_roadmap_id, node_key])
+  @@map("student_course_results")
+}
+
+// ================= COURSE COMMENTS (post-moderation) =================
+
+model COURSE_COMMENTS {
+  id                   Int                      @id @default(autoincrement())
+  course_id            Int
+  course               COURSES                  @relation(fields: [course_id], references: [id], onDelete: Restrict)
+  parent_id            Int?
+  parent               COURSE_COMMENTS?         @relation("replies", fields: [parent_id], references: [id], onDelete: Restrict)
+  replies              COURSE_COMMENTS[]        @relation("replies")
+  user_id              String                   @db.Uuid
+  academic_year        Int?
+  author_display_name  String?
+  content              String                   @db.Text
+  status               CommentStatus            @default(VISIBLE)
+  pending_report_count Int                      @default(0)
+  edited_at            DateTime?
+  moderated_by         String?                  @db.Uuid
+  moderated_at         DateTime?
+  moderation_reason    String?
+
+  reports              COURSE_COMMENT_REPORTS[]
+  created_at           DateTime                 @default(now())
+  updated_at           DateTime                 @updatedAt
+
+  @@index([course_id, parent_id, status, created_at])
+  @@index([status, pending_report_count])
+  @@index([user_id, created_at])
+  @@map("course_comments")
+}
+
+model COURSE_COMMENT_REPORTS {
+  id          Int                 @id @default(autoincrement())
+  comment_id  Int
+  comment     COURSE_COMMENTS     @relation(fields: [comment_id], references: [id], onDelete: Cascade)
+  reporter_id String              @db.Uuid
+  reason      CommentReportReason
+  note        String?
+  status      CommentReportStatus @default(PENDING)
+  created_at  DateTime            @default(now())
+
+  @@unique([comment_id, reporter_id])
+  @@map("course_comment_reports")
+}
+
+// ================= GRADING CONFIG =================
+
+model GRADE_SCALES {
+  id          Int      @id @default(autoincrement())
+  letter      String   @unique
+  min_score   Int
+  max_score   Int
+  grade_point Decimal  @db.Decimal(3, 2)
+  is_passing  Boolean
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("grade_scales")
+}
+
+// Classification is decided on the 100-point GPA (IU handbook): min inclusive, max exclusive
+// (the highest band includes 100).
+model ACADEMIC_CLASSIFICATIONS {
+  id         Int      @id @default(autoincrement())
+  label_key  String   @unique
+  min_gpa100 Decimal  @db.Decimal(4, 1)
+  max_gpa100 Decimal  @db.Decimal(4, 1)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("academic_classifications")
+}

@@ -9,88 +9,162 @@ import * as zod from 'zod';
 
 
 /**
- * @summary Create a new major
+ * @summary Create a major
  */
-export const ManagementControllerCreateResponse = zod.void()
+export const majorsControllerCreateBodySlugMax = 100;
+
+export const majorsControllerCreateBodyNameMax = 200;
+
+export const majorsControllerCreateBodyDescriptionMax = 1000;
+
+
+
+export const MajorsControllerCreateBody = zod.object({
+  "slug": zod.string().max(majorsControllerCreateBodySlugMax).describe('Unique kebab-case slug'),
+  "name": zod.string().max(majorsControllerCreateBodyNameMax).describe('Major name'),
+  "departmentId": zod.number().describe('Department ID'),
+  "description": zod.string().max(majorsControllerCreateBodyDescriptionMax).optional().describe('Description')
+})
+
+export const MajorsControllerCreateResponse = zod.object({
+  "id": zod.number(),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "departmentId": zod.number(),
+  "departmentName": zod.string(),
+  "curriculumCount": zod.number().describe('Number of curricula (all years, all statuses)'),
+  "publishedYears": zod.array(zod.number()).describe('Cohort years that have a PUBLISHED curriculum'),
+  "learnerCount": zod.number().describe('Learners who cloned a curriculum of this major'),
+  "canDelete": zod.boolean().describe('False once a curriculum has been published (BR-RM-02)'),
+  "canUpdate": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
 
 /**
  * @summary Update a major
  */
-export const ManagementControllerUpdateResponse = zod.unknown()
+export const majorsControllerUpdateBodySlugMax = 100;
 
-/**
- * @summary Get major by ID
- */
-export const ManagementControllerGetByIdParams = zod.object({
-  "id": zod.number().describe('Major ID')
+export const majorsControllerUpdateBodyNameMax = 200;
+
+export const majorsControllerUpdateBodyDescriptionMax = 1000;
+
+
+
+export const MajorsControllerUpdateBody = zod.object({
+  "id": zod.number().describe('Major ID'),
+  "slug": zod.string().max(majorsControllerUpdateBodySlugMax).optional(),
+  "name": zod.string().max(majorsControllerUpdateBodyNameMax).optional(),
+  "departmentId": zod.number().optional().describe('Move the major to another department'),
+  "description": zod.string().max(majorsControllerUpdateBodyDescriptionMax).optional()
 })
 
-export const ManagementControllerGetByIdResponse = zod.unknown()
-
-/**
- * @summary Get paginated list of majors
- */
-export const ManagementControllerGetByIndexQueryParams = zod.object({
-  "departmentSlug": zod.string().optional().describe('Filter by department slug'),
-  "departmentId": zod.number().optional().describe('Filter by department ID'),
-  "sortOrder": zod.enum(['asc', 'desc']).optional(),
-  "sortBy": zod.string().optional(),
-  "keyword": zod.string().optional(),
-  "rowsPerPage": zod.number().optional(),
-  "currentPage": zod.number().optional()
+export const MajorsControllerUpdateResponse = zod.object({
+  "id": zod.number(),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "departmentId": zod.number(),
+  "departmentName": zod.string(),
+  "curriculumCount": zod.number().describe('Number of curricula (all years, all statuses)'),
+  "publishedYears": zod.array(zod.number()).describe('Cohort years that have a PUBLISHED curriculum'),
+  "learnerCount": zod.number().describe('Learners who cloned a curriculum of this major'),
+  "canDelete": zod.boolean().describe('False once a curriculum has been published (BR-RM-02)'),
+  "canUpdate": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
 })
 
-export const ManagementControllerGetByIndexResponse = zod.unknown()
+/**
+ * @summary Get a major by id
+ */
+export const MajorsControllerGetByIdParams = zod.object({
+  "id": zod.number()
+})
+
+export const MajorsControllerGetByIdResponse = zod.object({
+  "id": zod.number(),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "departmentId": zod.number(),
+  "departmentName": zod.string(),
+  "curriculumCount": zod.number().describe('Number of curricula (all years, all statuses)'),
+  "publishedYears": zod.array(zod.number()).describe('Cohort years that have a PUBLISHED curriculum'),
+  "learnerCount": zod.number().describe('Learners who cloned a curriculum of this major'),
+  "canDelete": zod.boolean().describe('False once a curriculum has been published (BR-RM-02)'),
+  "canUpdate": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
 
 /**
- * @summary Get majors for dropdown selection
+ * @summary Paginated list of majors
  */
-export const ManagementControllerForDropdownQueryParams = zod.object({
+export const majorsControllerGetByIndexQueryRowsPerPageDefault = 20;
+export const majorsControllerGetByIndexQueryCurrentPageDefault = 1;
+
+export const MajorsControllerGetByIndexQueryParams = zod.object({
+  "rowsPerPage": zod.number().default(majorsControllerGetByIndexQueryRowsPerPageDefault).describe('Number of rows per page'),
+  "currentPage": zod.number().default(majorsControllerGetByIndexQueryCurrentPageDefault).describe('Current page number'),
+  "keyword": zod.string().optional().describe('Search keyword'),
+  "departmentId": zod.number().optional().describe('Only majors of this department')
+})
+
+export const majorsControllerGetByIndexResponseOneCurrentPageDefault = 1;
+
+export const MajorsControllerGetByIndexResponse = zod.object({
+  "rowsPerPage": zod.number().describe('Number of rows per page'),
+  "currentPage": zod.number().default(majorsControllerGetByIndexResponseOneCurrentPageDefault).describe('Current page number'),
+  "totalRows": zod.number().describe('Total number of rows'),
+  "datas": zod.array(zod.array()).optional().describe('Array of data items'),
+  "totalPage": zod.number().describe('Total number of pages')
+}).and(zod.object({
+  "datas": zod.array(zod.object({
+  "id": zod.number(),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "departmentId": zod.number(),
+  "departmentName": zod.string(),
+  "curriculumCount": zod.number().describe('Number of curricula (all years, all statuses)'),
+  "publishedYears": zod.array(zod.number()).describe('Cohort years that have a PUBLISHED curriculum'),
+  "learnerCount": zod.number().describe('Learners who cloned a curriculum of this major'),
+  "canDelete": zod.boolean().describe('False once a curriculum has been published (BR-RM-02)'),
+  "canUpdate": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})).optional()
+}))
+
+/**
+ * @summary Majors for dropdowns (public: used by Explore filters)
+ */
+export const MajorsControllerForDropdownQueryParams = zod.object({
   "keyword": zod.string().optional(),
   "limit": zod.number().optional(),
-  "parentId": zod.number().optional().describe('Department ID for cascading filter')
+  "departmentId": zod.number().optional()
 })
 
-export const ManagementControllerForDropdownResponseItem = zod.object({
+export const MajorsControllerForDropdownResponseItem = zod.object({
   "id": zod.string().describe('Record ID'),
   "label": zod.string().describe('Display label'),
   "metadata": zod.object({
 
 }).passthrough().optional().describe('Optional metadata')
 })
-export const ManagementControllerForDropdownResponse = zod.array(ManagementControllerForDropdownResponseItem)
+export const MajorsControllerForDropdownResponse = zod.array(MajorsControllerForDropdownResponseItem)
 
 /**
- * @summary Delete a major
+ * @summary Delete a major (blocked once a curriculum has been published)
  */
-export const ManagementControllerDeleteParams = zod.object({
-  "id": zod.number().describe('Major ID')
+export const MajorsControllerDeleteParams = zod.object({
+  "id": zod.number()
 })
 
-export const ManagementControllerDeleteResponse = zod.unknown()
-
-/**
- * @summary Update major metadata by slug
- */
-export const ManagementControllerUpdateMajorMetaParams = zod.object({
-  "slug": zod.string().describe('Major slug')
-})
-
-export const ManagementControllerUpdateMajorMetaBody = zod.object({
-  "name": zod.string().optional(),
-  "description": zod.string().optional(),
-  "totalCreditsRequired": zod.number().optional()
-})
-
-export const ManagementControllerUpdateMajorMetaResponse = zod.object({
-  "id": zod.number().describe('Major ID'),
-  "slug": zod.string().describe('Major slug'),
-  "name": zod.string().describe('Major name'),
-  "description": zod.string().optional().describe('Major description'),
-  "totalCreditsRequired": zod.number().describe('Total credits required'),
-  "totalCourses": zod.number().describe('Total courses in major'),
-  "department": zod.object({
-
-}).passthrough().optional().describe('Associated department object')
+export const MajorsControllerDeleteResponse = zod.object({
+  "success": zod.boolean()
 })
 

@@ -133,7 +133,7 @@ node_modules/
 *.sqlite
 *.sqlite3
 *.db
-migrations/
+# Prisma migrations MUST be committed (prisma/migrations). Do not ignore them.
 
 # ==========================================
 # 🔐 Sensitive Files

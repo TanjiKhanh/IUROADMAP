@@ -20,8 +20,8 @@ IUROADMAP bao gồm 7 module chính:
 | Module | Viết tắt | Trạng thái | FR chi tiết | Business Flow |
 |---|---|---|---|---|
 | Authentication & RBAC | AUTH | ✅ Implemented | [`FL-AUTH-authentication-rbac.md`](features/FL-AUTH-authentication-rbac.md) ★ | [`00-authentication-rbac.md`](../business-flow/00-authentication-rbac.md) |
-| Learner Portal | LEARNER | ✅ Implemented | [`FL-LRN-learner-portal.md`](features/FL-LRN-learner-portal.md) | [`01-learner-portal.md`](../business-flow/01-learner-portal.md) |
-| Roadmap Management | ROADMAP | ✅ Implemented | [`FL-RDM-roadmap-management.md`](features/FL-RDM-roadmap-management.md) | [`02-roadmap-management.md`](../business-flow/02-roadmap-management.md) |
+| Learner Portal | LEARNER | 🔲 v2 Planned (v1 backend gỡ ở refactor) | [`FL-LRN-learner-portal.md`](features/FL-LRN-learner-portal.md) | [`01-learner-portal.md`](../business-flow/01-learner-portal.md) |
+| Roadmap Management | ROADMAP | 🔲 v2 Planned (Dept/Major CRUD ✅) | [`FL-RDM-roadmap-management.md`](features/FL-RDM-roadmap-management.md) | [`02-roadmap-management.md`](../business-flow/02-roadmap-management.md) |
 | Lecturer Review & Assessment | LR | ⚠️ Chưa implement | [`FL-LR-lecturer-review.md`](features/FL-LR-lecturer-review.md) | [`03-lecturer-review.md`](../business-flow/03-lecturer-review.md) |
 | Admin Configuration | CONFIG | ✅ Implemented | [`FL-CFG-admin-configuration.md`](features/FL-CFG-admin-configuration.md) | [`04-admin-configuration.md`](../business-flow/04-admin-configuration.md) |
 | Mentor Portal | MENTOR | ✅ Implemented | [`FL-MNT-mentor-portal.md`](features/FL-MNT-mentor-portal.md) | [`05-mentor-portal.md`](../business-flow/05-mentor-portal.md) |
@@ -39,8 +39,8 @@ srs/
 └── features/                           ← Chi tiết FR theo module
     ├── _OVERVIEW.md                    ← Bản đồ flow tổng quan
     ├── FL-AUTH-authentication-rbac.md  ← ★ Chi tiết (11 sub-flows)
-    ├── FL-LRN-learner-portal.md       ← Stub
-    ├── FL-RDM-roadmap-management.md   ← Stub
+    ├── FL-LRN-learner-portal.md       ← ★ Chi tiết v2 (12 sub-flows)
+    ├── FL-RDM-roadmap-management.md   ← ★ Chi tiết v2 (11 sub-flows)
     ├── FL-LR-lecturer-review.md       ← Stub
     ├── FL-CFG-admin-configuration.md  ← Stub
     ├── FL-MNT-mentor-portal.md        ← Stub
@@ -102,13 +102,13 @@ srs/
 
 ### FR-LRN: Learner Portal
 
-**File:** [`features/FL-LRN-learner-portal.md`](features/FL-LRN-learner-portal.md) — 10 FR (stub)
+**File:** [`features/FL-LRN-learner-portal.md`](features/FL-LRN-learner-portal.md) — v2: My Roadmap cá nhân hoá (overlay), nhập điểm theo học kỳ, GPA. Thiết kế: [`roadmap-v2-design.md`](../architecture/roadmap-v2-design.md)
 
 ---
 
 ### FR-RDM: Roadmap Management
 
-**File:** [`features/FL-RDM-roadmap-management.md`](features/FL-RDM-roadmap-management.md) — 8 FR (stub)
+**File:** [`features/FL-RDM-roadmap-management.md`](features/FL-RDM-roadmap-management.md) — v2: Semester canvas, Curriculum Version, Course catalog, 3 loại quan hệ, thang điểm. Thiết kế: [`roadmap-v2-design.md`](../architecture/roadmap-v2-design.md)
 
 ---
 
@@ -146,6 +146,8 @@ srs/
 | Browse Majors/Courses | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Clone Roadmap | — | ✅ | — | — | — | — |
 | Track Progress | — | ✅ | — | — | — | — |
+| Personalize Roadmap & Enter Grades | — | ✅ | — | — | — | — |
+| Publish Curriculum Version | — | — | — | ✅ | ✅ | — |
 | Submit Review | — | ✅ | — | — | — | — |
 | Browse Reviews | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | AI Chatbot (limited) | ✅ | — | — | — | — | — |

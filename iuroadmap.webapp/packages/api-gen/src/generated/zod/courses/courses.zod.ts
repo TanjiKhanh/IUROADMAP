@@ -9,126 +9,215 @@ import * as zod from 'zod';
 
 
 /**
- * @summary Get list of all courses for Admin
+ * @summary Create a course in the shared catalog
  */
-export const CoursesControllerGetCoursesResponse = zod.unknown()
+export const coursesControllerCreateBodyCodeMax = 20;
+
+export const coursesControllerCreateBodyNameMax = 200;
+
+export const coursesControllerCreateBodyTheoryCreditsMin = 0;
+
+export const coursesControllerCreateBodyLabCreditsMin = 0;
+
+export const coursesControllerCreateBodyCountsTowardGpaDefault = true;
+export const coursesControllerCreateBodyCountsTowardCreditsDefault = true;
+export const coursesControllerCreateBodyDescriptionMax = 1000;
+
+
+
+export const CoursesControllerCreateBody = zod.object({
+  "code": zod.string().max(coursesControllerCreateBodyCodeMax).describe('Unique course code'),
+  "name": zod.string().max(coursesControllerCreateBodyNameMax).describe('Course name'),
+  "theoryCredits": zod.number().min(coursesControllerCreateBodyTheoryCreditsMin).describe('Theory credits (LT)'),
+  "labCredits": zod.number().min(coursesControllerCreateBodyLabCreditsMin).describe('Lab credits (TH)'),
+  "categoryId": zod.number().describe('Course category ID'),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']).optional(),
+  "countsTowardGpa": zod.boolean().default(coursesControllerCreateBodyCountsTowardGpaDefault).describe('Counted in GPA'),
+  "countsTowardCredits": zod.boolean().default(coursesControllerCreateBodyCountsTowardCreditsDefault).describe('Counted toward graduation credits (false for Intensive English)'),
+  "description": zod.string().max(coursesControllerCreateBodyDescriptionMax).optional().describe('General description (stable across years)')
+})
+
+export const CoursesControllerCreateResponse = zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "theoryCredits": zod.number(),
+  "labCredits": zod.number(),
+  "credits": zod.number().describe('theoryCredits + labCredits'),
+  "categoryId": zod.number(),
+  "categoryCode": zod.string(),
+  "categoryName": zod.string(),
+  "fillColor": zod.string(),
+  "borderColor": zod.string(),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']),
+  "countsTowardGpa": zod.boolean(),
+  "countsTowardCredits": zod.boolean(),
+  "description": zod.string().optional(),
+  "canDelete": zod.boolean(),
+  "canUpdate": zod.boolean()
+})
 
 /**
- * @summary Update course node metadata
+ * @summary Update a course
  */
-export const CoursesControllerUpdateCourseMetaParams = zod.object({
-  "courseNodeId": zod.number().describe('Course node ID')
+export const coursesControllerUpdateBodyCodeMax = 20;
+
+export const coursesControllerUpdateBodyNameMax = 200;
+
+export const coursesControllerUpdateBodyTheoryCreditsMin = 0;
+
+export const coursesControllerUpdateBodyLabCreditsMin = 0;
+
+export const coursesControllerUpdateBodyDescriptionMax = 1000;
+
+
+
+export const CoursesControllerUpdateBody = zod.object({
+  "id": zod.number(),
+  "code": zod.string().max(coursesControllerUpdateBodyCodeMax).optional(),
+  "name": zod.string().max(coursesControllerUpdateBodyNameMax).optional(),
+  "theoryCredits": zod.number().min(coursesControllerUpdateBodyTheoryCreditsMin).optional(),
+  "labCredits": zod.number().min(coursesControllerUpdateBodyLabCreditsMin).optional(),
+  "categoryId": zod.number().optional(),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']).optional(),
+  "countsTowardGpa": zod.boolean().optional(),
+  "countsTowardCredits": zod.boolean().optional(),
+  "description": zod.string().max(coursesControllerUpdateBodyDescriptionMax).optional()
 })
 
-export const CoursesControllerUpdateCourseMetaBody = zod.object({
-  "slug": zod.string().optional().describe('Course slug'),
-  "name": zod.string().optional().describe('Course name'),
-  "credits": zod.number().optional().describe('Number of credits'),
-  "description": zod.string().optional().describe('Course description')
+export const CoursesControllerUpdateResponse = zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "theoryCredits": zod.number(),
+  "labCredits": zod.number(),
+  "credits": zod.number().describe('theoryCredits + labCredits'),
+  "categoryId": zod.number(),
+  "categoryCode": zod.string(),
+  "categoryName": zod.string(),
+  "fillColor": zod.string(),
+  "borderColor": zod.string(),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']),
+  "countsTowardGpa": zod.boolean(),
+  "countsTowardCredits": zod.boolean(),
+  "description": zod.string().optional(),
+  "canDelete": zod.boolean(),
+  "canUpdate": zod.boolean()
 })
-
-export const CoursesControllerUpdateCourseMetaResponse = zod.unknown()
 
 /**
- * @summary Get course topics micro-graph for Admin
+ * @summary Get a course with the curricula that use it
  */
-export const CoursesControllerGetCourseTopicsGraphParams = zod.object({
-  "courseNodeId": zod.number().describe('Course node ID')
+export const CoursesControllerGetByIdParams = zod.object({
+  "id": zod.number()
 })
 
-export const CoursesControllerGetCourseTopicsGraphResponse = zod.unknown()
+export const CoursesControllerGetByIdResponse = zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "theoryCredits": zod.number(),
+  "labCredits": zod.number(),
+  "credits": zod.number().describe('theoryCredits + labCredits'),
+  "categoryId": zod.number(),
+  "categoryCode": zod.string(),
+  "categoryName": zod.string(),
+  "fillColor": zod.string(),
+  "borderColor": zod.string(),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']),
+  "countsTowardGpa": zod.boolean(),
+  "countsTowardCredits": zod.boolean(),
+  "description": zod.string().optional(),
+  "canDelete": zod.boolean(),
+  "canUpdate": zod.boolean(),
+  "usedIn": zod.array(zod.object({
+  "versionId": zod.number(),
+  "majorId": zod.number(),
+  "majorName": zod.string(),
+  "majorSlug": zod.string(),
+  "cohortYear": zod.number(),
+  "status": zod.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
+})).describe('Curricula that use this course'),
+  "offeringYears": zod.array(zod.number()).describe('Academic years that have an offering')
+})
 
 /**
- * @summary Create a topic node under a course node
+ * @summary Paginated list of courses (filter by keyword, category, major, grading mode)
  */
-export const CoursesControllerCreateTopicNodeParams = zod.object({
-  "courseNodeId": zod.number().describe('Course node ID')
+export const coursesControllerGetByIndexQueryRowsPerPageDefault = 20;
+export const coursesControllerGetByIndexQueryCurrentPageDefault = 1;
+
+export const CoursesControllerGetByIndexQueryParams = zod.object({
+  "rowsPerPage": zod.number().default(coursesControllerGetByIndexQueryRowsPerPageDefault).describe('Number of rows per page'),
+  "currentPage": zod.number().default(coursesControllerGetByIndexQueryCurrentPageDefault).describe('Current page number'),
+  "keyword": zod.string().optional().describe('Search keyword'),
+  "categoryId": zod.number().optional().describe('Filter by category'),
+  "majorId": zod.number().optional().describe('Courses used in at least one curriculum of this major (FR-RDM.00.6)'),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']).optional()
 })
 
-export const CoursesControllerCreateTopicNodeBody = zod.object({
-  "slug": zod.string().describe('Topic slug'),
-  "title": zod.string().describe('Topic title'),
-  "description": zod.string().optional().describe('Topic description'),
-  "learningObjectives": zod.string().optional().describe('Learning objectives'),
-  "resourcesUrl": zod.string().optional().describe('Resources URL'),
-  "coords": zod.object({
-  "x": zod.number().describe('X coordinate'),
-  "y": zod.number().describe('Y coordinate')
-}).optional().describe('Topic UI coordinates')
-})
+export const coursesControllerGetByIndexResponseOneCurrentPageDefault = 1;
 
-export const CoursesControllerCreateTopicNodeResponse = zod.void()
+export const CoursesControllerGetByIndexResponse = zod.object({
+  "rowsPerPage": zod.number().describe('Number of rows per page'),
+  "currentPage": zod.number().default(coursesControllerGetByIndexResponseOneCurrentPageDefault).describe('Current page number'),
+  "totalRows": zod.number().describe('Total number of rows'),
+  "datas": zod.array(zod.array()).optional().describe('Array of data items'),
+  "totalPage": zod.number().describe('Total number of pages')
+}).and(zod.object({
+  "datas": zod.array(zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "theoryCredits": zod.number(),
+  "labCredits": zod.number(),
+  "credits": zod.number().describe('theoryCredits + labCredits'),
+  "categoryId": zod.number(),
+  "categoryCode": zod.string(),
+  "categoryName": zod.string(),
+  "fillColor": zod.string(),
+  "borderColor": zod.string(),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']),
+  "countsTowardGpa": zod.boolean(),
+  "countsTowardCredits": zod.boolean(),
+  "description": zod.string().optional(),
+  "canDelete": zod.boolean(),
+  "canUpdate": zod.boolean()
+})).optional()
+}))
 
 /**
- * @summary Update a topic node
+ * @summary Courses for the canvas sidebar and the learner course picker
  */
-export const CoursesControllerUpdateTopicNodeParams = zod.object({
-  "courseNodeId": zod.number().describe('Course node ID'),
-  "topicId": zod.number().describe('Topic ID')
+export const CoursesControllerForDropdownQueryParams = zod.object({
+  "keyword": zod.string().optional(),
+  "limit": zod.number().optional(),
+  "categoryId": zod.number().optional()
 })
 
-export const CoursesControllerUpdateTopicNodeBody = zod.object({
-  "slug": zod.string().optional().describe('Topic slug'),
-  "title": zod.string().optional().describe('Topic title'),
-  "description": zod.string().optional().describe('Topic description'),
-  "learningObjectives": zod.string().optional().describe('Learning objectives'),
-  "resourcesUrl": zod.string().optional().describe('Resources URL'),
-  "coords": zod.object({
-  "x": zod.number().describe('X coordinate'),
-  "y": zod.number().describe('Y coordinate')
-}).optional().describe('Topic UI coordinates')
+export const CoursesControllerForDropdownResponseItem = zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "theoryCredits": zod.number(),
+  "labCredits": zod.number(),
+  "categoryCode": zod.string(),
+  "fillColor": zod.string(),
+  "borderColor": zod.string(),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']),
+  "countsTowardGpa": zod.boolean(),
+  "countsTowardCredits": zod.boolean()
 })
-
-export const CoursesControllerUpdateTopicNodeResponse = zod.unknown()
+export const CoursesControllerForDropdownResponse = zod.array(CoursesControllerForDropdownResponseItem)
 
 /**
- * @summary Delete a topic node
+ * @summary Delete a course (blocked while referenced)
  */
-export const CoursesControllerDeleteTopicNodeParams = zod.object({
-  "courseNodeId": zod.number().describe('Course node ID'),
-  "topicId": zod.number().describe('Topic ID')
+export const CoursesControllerDeleteParams = zod.object({
+  "id": zod.number()
 })
 
-export const CoursesControllerDeleteTopicNodeResponse = zod.void()
-
-/**
- * @summary Update coordinates of a topic node
- */
-export const CoursesControllerUpdateTopicCoordsParams = zod.object({
-  "courseNodeId": zod.number().describe('Course node ID'),
-  "topicId": zod.number().describe('Topic ID')
+export const CoursesControllerDeleteResponse = zod.object({
+  "success": zod.boolean()
 })
-
-export const CoursesControllerUpdateTopicCoordsBody = zod.object({
-  "coords": zod.object({
-  "x": zod.number().describe('X coordinate'),
-  "y": zod.number().describe('Y coordinate')
-}).describe('Topic UI coordinates')
-})
-
-export const CoursesControllerUpdateTopicCoordsResponse = zod.unknown()
-
-/**
- * @summary Create an edge connecting two topic nodes
- */
-export const CoursesControllerCreateTopicEdgeParams = zod.object({
-  "courseNodeId": zod.number().describe('Course node ID')
-})
-
-export const CoursesControllerCreateTopicEdgeBody = zod.object({
-  "sourceTopicId": zod.number().describe('Source topic ID'),
-  "targetTopicId": zod.number().describe('Target topic ID')
-})
-
-export const CoursesControllerCreateTopicEdgeResponse = zod.void()
-
-/**
- * @summary Delete a topic edge
- */
-export const CoursesControllerDeleteTopicEdgeParams = zod.object({
-  "courseNodeId": zod.number().describe('Course node ID'),
-  "edgeId": zod.number().describe('Edge ID')
-})
-
-export const CoursesControllerDeleteTopicEdgeResponse = zod.void()
 

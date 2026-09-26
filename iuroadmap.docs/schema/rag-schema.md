@@ -2,6 +2,7 @@
 
 > **Status:** Planned — Future Phase
 > **Mục đích:** Data layer cho AI chatbot, chuẩn bị sẵn cấu trúc để index structured data từ toàn bộ hệ thống IUROADMAP.
+> **Cập nhật Roadmap v2 (2026-09-26):** `LecturerProfile` → `LECTURERS`; `CourseAssessmentCriteria` → trọng số và đề cương trong `COURSE_OFFERINGS`. Nguồn index nên thêm `COURSE_OFFERINGS` (lưu ý cho SV, project, theo năm học) và `COURSE_COMMENTS` có `status = VISIBLE`. Xem [`roadmap-schema.md`](roadmap-schema.md).
 
 ```mermaid
 erDiagram

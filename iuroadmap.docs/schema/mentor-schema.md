@@ -1,5 +1,7 @@
 # Lecturer (Review) Service Schema
 
+> ⚠️ **Tài liệu cũ.** Đã được thay bởi [`lecturer-review-schema.md`](lecturer-review-schema.md). Từ Roadmap v2 (D17), bảng giảng viên là `LECTURERS` trong roadmap-service ([`roadmap-schema.md`](roadmap-schema.md)).
+
 ```mermaid
 erDiagram
     LecturerProfile {

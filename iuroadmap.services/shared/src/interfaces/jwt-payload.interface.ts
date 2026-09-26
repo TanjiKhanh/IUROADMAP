@@ -2,6 +2,7 @@ export interface IJwtPayload {
   sub: number;
   userId: number;
   email: string;
+  name?: string | null;
   role: string;
   deptId?: number | null;
   job?: string | null;

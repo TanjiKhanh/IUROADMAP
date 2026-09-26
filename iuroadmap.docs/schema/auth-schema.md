@@ -99,7 +99,7 @@ stateDiagram-v2
 
 ## Delete Strategy
 - **Soft Delete**: Đổi `status` thành `BANNED` (Admin)
-- **Hard Delete**: Chỉ `SUPERADMIN` mới được phép (`BR-CFG-05`). Cascade xóa: `user_roadmaps`, `user_course_progress`, tokens.
+- **Hard Delete**: Chỉ `SUPERADMIN` mới được phép (`BR-CFG-05`). Xoá tokens trong auth. Từ Roadmap v2, roadmap của learner nằm ở roadmap-service (`STUDENT_ROADMAPS`), nên auth gọi roadmap-service qua HTTP client để xoá roadmap và ẩn danh hoá bình luận (xem [`roadmap-schema.md`](roadmap-schema.md) § Xoá user). `user_roadmaps`, `user_course_progress` của v1 đã bị bỏ.
 - **Self-delete prevention**: Admin không thể xóa tài khoản chính mình (`BR-CFG-03`)
 
 ---

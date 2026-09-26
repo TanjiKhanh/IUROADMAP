@@ -26,10 +26,13 @@ import type {
 
 import type {
   DropdownItemDto,
-  MajorDto,
-  ManagementControllerForDropdownParams,
-  ManagementControllerGetByIndexParams,
-  ManagementControllerUpdateMajorMetaBody
+  MajorCreateRequest,
+  MajorResponse,
+  MajorUpdateRequest,
+  MajorsControllerForDropdownParams,
+  MajorsControllerGetByIndex200,
+  MajorsControllerGetByIndexParams,
+  SuccessResponse
 } from '../../models';
 
 
@@ -51,19 +54,31 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export type managementControllerCreateResponse201 = {
-  data: void
+export type majorsControllerCreateResponse201 = {
+  data: MajorResponse
   status: 201
 }
 
-export type managementControllerCreateResponseSuccess = (managementControllerCreateResponse201) & {
+export type majorsControllerCreateResponse401 = {
+  data: void
+  status: 401
+}
+
+export type majorsControllerCreateResponse403 = {
+  data: void
+  status: 403
+}
+
+export type majorsControllerCreateResponseSuccess = (majorsControllerCreateResponse201) & {
   headers: Headers;
 };
-;
+export type majorsControllerCreateResponseError = (majorsControllerCreateResponse401 | majorsControllerCreateResponse403) & {
+  headers: Headers;
+};
 
-export type managementControllerCreateResponse = (managementControllerCreateResponseSuccess)
+export type majorsControllerCreateResponse = (majorsControllerCreateResponseSuccess | majorsControllerCreateResponseError)
 
-export const getManagementControllerCreateUrl = () => {
+export const getMajorsControllerCreateUrl = () => {
 
 
 
@@ -72,35 +87,35 @@ export const getManagementControllerCreateUrl = () => {
 }
 
 /**
- * @summary Create a new major
+ * @summary Create a major
  */
-export const managementControllerCreate = async ( options?: RequestInit): Promise<managementControllerCreateResponse> => {
+export const majorsControllerCreate = async (majorCreateRequest: MajorCreateRequest, options?: RequestInit): Promise<majorsControllerCreateResponse> => {
 
-  const res = await fetch(getManagementControllerCreateUrl(),
+  const res = await fetch(getMajorsControllerCreateUrl(),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(majorCreateRequest)
   }
 )
 
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: managementControllerCreateResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as managementControllerCreateResponse
+  const data: majorsControllerCreateResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as majorsControllerCreateResponse
 }
 
 
 
 
 
-export const getManagementControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof managementControllerCreate>>, TError,void, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof managementControllerCreate>>, TError,void, TContext> => {
+export const getMajorsControllerCreateMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof majorsControllerCreate>>, TError,{data: MajorCreateRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof majorsControllerCreate>>, TError,{data: MajorCreateRequest}, TContext> => {
 
-const mutationKey = ['managementControllerCreate'];
+const mutationKey = ['majorsControllerCreate'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -110,10 +125,10 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof managementControllerCreate>>, void> = () => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof majorsControllerCreate>>, {data: MajorCreateRequest}> = (props) => {
+          const {data} = props ?? {};
 
-
-          return  managementControllerCreate(fetchOptions)
+          return  majorsControllerCreate(data,fetchOptions)
         }
 
 
@@ -123,36 +138,48 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type ManagementControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof managementControllerCreate>>>
-
-    export type ManagementControllerCreateMutationError = unknown
+    export type MajorsControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof majorsControllerCreate>>>
+    export type MajorsControllerCreateMutationBody = MajorCreateRequest
+    export type MajorsControllerCreateMutationError = void
 
     /**
- * @summary Create a new major
+ * @summary Create a major
  */
-export const useManagementControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof managementControllerCreate>>, TError,void, TContext>, fetch?: RequestInit}
+export const useMajorsControllerCreate = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof majorsControllerCreate>>, TError,{data: MajorCreateRequest}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof managementControllerCreate>>,
+        Awaited<ReturnType<typeof majorsControllerCreate>>,
         TError,
-        void,
+        {data: MajorCreateRequest},
         TContext
       > => {
-      return useMutation(getManagementControllerCreateMutationOptions(options), queryClient);
+      return useMutation(getMajorsControllerCreateMutationOptions(options), queryClient);
     }
-    export type managementControllerUpdateResponse200 = {
-  data: void
+    export type majorsControllerUpdateResponse200 = {
+  data: MajorResponse
   status: 200
 }
 
-export type managementControllerUpdateResponseSuccess = (managementControllerUpdateResponse200) & {
+export type majorsControllerUpdateResponse401 = {
+  data: void
+  status: 401
+}
+
+export type majorsControllerUpdateResponse403 = {
+  data: void
+  status: 403
+}
+
+export type majorsControllerUpdateResponseSuccess = (majorsControllerUpdateResponse200) & {
   headers: Headers;
 };
-;
+export type majorsControllerUpdateResponseError = (majorsControllerUpdateResponse401 | majorsControllerUpdateResponse403) & {
+  headers: Headers;
+};
 
-export type managementControllerUpdateResponse = (managementControllerUpdateResponseSuccess)
+export type majorsControllerUpdateResponse = (majorsControllerUpdateResponseSuccess | majorsControllerUpdateResponseError)
 
-export const getManagementControllerUpdateUrl = () => {
+export const getMajorsControllerUpdateUrl = () => {
 
 
 
@@ -163,33 +190,33 @@ export const getManagementControllerUpdateUrl = () => {
 /**
  * @summary Update a major
  */
-export const managementControllerUpdate = async ( options?: RequestInit): Promise<managementControllerUpdateResponse> => {
+export const majorsControllerUpdate = async (majorUpdateRequest: MajorUpdateRequest, options?: RequestInit): Promise<majorsControllerUpdateResponse> => {
 
-  const res = await fetch(getManagementControllerUpdateUrl(),
+  const res = await fetch(getMajorsControllerUpdateUrl(),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(majorUpdateRequest)
   }
 )
 
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: managementControllerUpdateResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as managementControllerUpdateResponse
+  const data: majorsControllerUpdateResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as majorsControllerUpdateResponse
 }
 
 
 
 
 
-export const getManagementControllerUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof managementControllerUpdate>>, TError,void, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof managementControllerUpdate>>, TError,void, TContext> => {
+export const getMajorsControllerUpdateMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof majorsControllerUpdate>>, TError,{data: MajorUpdateRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof majorsControllerUpdate>>, TError,{data: MajorUpdateRequest}, TContext> => {
 
-const mutationKey = ['managementControllerUpdate'];
+const mutationKey = ['majorsControllerUpdate'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -199,10 +226,10 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof managementControllerUpdate>>, void> = () => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof majorsControllerUpdate>>, {data: MajorUpdateRequest}> = (props) => {
+          const {data} = props ?? {};
 
-
-          return  managementControllerUpdate(fetchOptions)
+          return  majorsControllerUpdate(data,fetchOptions)
         }
 
 
@@ -212,43 +239,48 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type ManagementControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof managementControllerUpdate>>>
-
-    export type ManagementControllerUpdateMutationError = unknown
+    export type MajorsControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof majorsControllerUpdate>>>
+    export type MajorsControllerUpdateMutationBody = MajorUpdateRequest
+    export type MajorsControllerUpdateMutationError = void
 
     /**
  * @summary Update a major
  */
-export const useManagementControllerUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof managementControllerUpdate>>, TError,void, TContext>, fetch?: RequestInit}
+export const useMajorsControllerUpdate = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof majorsControllerUpdate>>, TError,{data: MajorUpdateRequest}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof managementControllerUpdate>>,
+        Awaited<ReturnType<typeof majorsControllerUpdate>>,
         TError,
-        void,
+        {data: MajorUpdateRequest},
         TContext
       > => {
-      return useMutation(getManagementControllerUpdateMutationOptions(options), queryClient);
+      return useMutation(getMajorsControllerUpdateMutationOptions(options), queryClient);
     }
-    export type managementControllerGetByIdResponse200 = {
-  data: void
+    export type majorsControllerGetByIdResponse200 = {
+  data: MajorResponse
   status: 200
 }
 
-export type managementControllerGetByIdResponse404 = {
+export type majorsControllerGetByIdResponse401 = {
   data: void
-  status: 404
+  status: 401
 }
 
-export type managementControllerGetByIdResponseSuccess = (managementControllerGetByIdResponse200) & {
+export type majorsControllerGetByIdResponse403 = {
+  data: void
+  status: 403
+}
+
+export type majorsControllerGetByIdResponseSuccess = (majorsControllerGetByIdResponse200) & {
   headers: Headers;
 };
-export type managementControllerGetByIdResponseError = (managementControllerGetByIdResponse404) & {
+export type majorsControllerGetByIdResponseError = (majorsControllerGetByIdResponse401 | majorsControllerGetByIdResponse403) & {
   headers: Headers;
 };
 
-export type managementControllerGetByIdResponse = (managementControllerGetByIdResponseSuccess | managementControllerGetByIdResponseError)
+export type majorsControllerGetByIdResponse = (majorsControllerGetByIdResponseSuccess | majorsControllerGetByIdResponseError)
 
-export const getManagementControllerGetByIdUrl = (id: number,) => {
+export const getMajorsControllerGetByIdUrl = (id: number,) => {
 
 
 
@@ -257,11 +289,11 @@ export const getManagementControllerGetByIdUrl = (id: number,) => {
 }
 
 /**
- * @summary Get major by ID
+ * @summary Get a major by id
  */
-export const managementControllerGetById = async (id: number, options?: RequestInit): Promise<managementControllerGetByIdResponse> => {
+export const majorsControllerGetById = async (id: number, options?: RequestInit): Promise<majorsControllerGetByIdResponse> => {
 
-  const res = await fetch(getManagementControllerGetByIdUrl(id),
+  const res = await fetch(getMajorsControllerGetByIdUrl(id),
   {
     ...options,
     method: 'GET'
@@ -273,77 +305,77 @@ export const managementControllerGetById = async (id: number, options?: RequestI
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: managementControllerGetByIdResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as managementControllerGetByIdResponse
+  const data: majorsControllerGetByIdResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as majorsControllerGetByIdResponse
 }
 
 
 
 
 
-export const getManagementControllerGetByIdQueryKey = (id: number,) => {
+export const getMajorsControllerGetByIdQueryKey = (id: number,) => {
     return [
     `/api/v1/majors/getById/${id}`
     ] as const;
     }
 
 
-export const getManagementControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof managementControllerGetById>>, TError = void>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetById>>, TError, TData>>, fetch?: RequestInit}
+export const getMajorsControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof majorsControllerGetById>>, TError = void>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetById>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getManagementControllerGetByIdQueryKey(id);
+  const queryKey =  queryOptions?.queryKey ?? getMajorsControllerGetByIdQueryKey(id);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof managementControllerGetById>>> = ({ signal }) => managementControllerGetById(id, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof majorsControllerGetById>>> = ({ signal }) => majorsControllerGetById(id, { signal, ...fetchOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type ManagementControllerGetByIdQueryResult = NonNullable<Awaited<ReturnType<typeof managementControllerGetById>>>
-export type ManagementControllerGetByIdQueryError = void
+export type MajorsControllerGetByIdQueryResult = NonNullable<Awaited<ReturnType<typeof majorsControllerGetById>>>
+export type MajorsControllerGetByIdQueryError = void
 
 
-export function useManagementControllerGetById<TData = Awaited<ReturnType<typeof managementControllerGetById>>, TError = void>(
- id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetById>>, TError, TData>> & Pick<
+export function useMajorsControllerGetById<TData = Awaited<ReturnType<typeof majorsControllerGetById>>, TError = void>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetById>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof managementControllerGetById>>,
+          Awaited<ReturnType<typeof majorsControllerGetById>>,
           TError,
-          Awaited<ReturnType<typeof managementControllerGetById>>
+          Awaited<ReturnType<typeof majorsControllerGetById>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useManagementControllerGetById<TData = Awaited<ReturnType<typeof managementControllerGetById>>, TError = void>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetById>>, TError, TData>> & Pick<
+export function useMajorsControllerGetById<TData = Awaited<ReturnType<typeof majorsControllerGetById>>, TError = void>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetById>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof managementControllerGetById>>,
+          Awaited<ReturnType<typeof majorsControllerGetById>>,
           TError,
-          Awaited<ReturnType<typeof managementControllerGetById>>
+          Awaited<ReturnType<typeof majorsControllerGetById>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useManagementControllerGetById<TData = Awaited<ReturnType<typeof managementControllerGetById>>, TError = void>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetById>>, TError, TData>>, fetch?: RequestInit}
+export function useMajorsControllerGetById<TData = Awaited<ReturnType<typeof majorsControllerGetById>>, TError = void>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetById>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get major by ID
+ * @summary Get a major by id
  */
 
-export function useManagementControllerGetById<TData = Awaited<ReturnType<typeof managementControllerGetById>>, TError = void>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetById>>, TError, TData>>, fetch?: RequestInit}
+export function useMajorsControllerGetById<TData = Awaited<ReturnType<typeof majorsControllerGetById>>, TError = void>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetById>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getManagementControllerGetByIdQueryOptions(id,options)
+  const queryOptions = getMajorsControllerGetByIdQueryOptions(id,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -355,19 +387,31 @@ export function useManagementControllerGetById<TData = Awaited<ReturnType<typeof
 
 
 
-export type managementControllerGetByIndexResponse200 = {
-  data: void
+export type majorsControllerGetByIndexResponse200 = {
+  data: MajorsControllerGetByIndex200
   status: 200
 }
 
-export type managementControllerGetByIndexResponseSuccess = (managementControllerGetByIndexResponse200) & {
+export type majorsControllerGetByIndexResponse401 = {
+  data: void
+  status: 401
+}
+
+export type majorsControllerGetByIndexResponse403 = {
+  data: void
+  status: 403
+}
+
+export type majorsControllerGetByIndexResponseSuccess = (majorsControllerGetByIndexResponse200) & {
   headers: Headers;
 };
-;
+export type majorsControllerGetByIndexResponseError = (majorsControllerGetByIndexResponse401 | majorsControllerGetByIndexResponse403) & {
+  headers: Headers;
+};
 
-export type managementControllerGetByIndexResponse = (managementControllerGetByIndexResponseSuccess)
+export type majorsControllerGetByIndexResponse = (majorsControllerGetByIndexResponseSuccess | majorsControllerGetByIndexResponseError)
 
-export const getManagementControllerGetByIndexUrl = (params?: ManagementControllerGetByIndexParams,) => {
+export const getMajorsControllerGetByIndexUrl = (params?: MajorsControllerGetByIndexParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -383,11 +427,11 @@ export const getManagementControllerGetByIndexUrl = (params?: ManagementControll
 }
 
 /**
- * @summary Get paginated list of majors
+ * @summary Paginated list of majors
  */
-export const managementControllerGetByIndex = async (params?: ManagementControllerGetByIndexParams, options?: RequestInit): Promise<managementControllerGetByIndexResponse> => {
+export const majorsControllerGetByIndex = async (params?: MajorsControllerGetByIndexParams, options?: RequestInit): Promise<majorsControllerGetByIndexResponse> => {
 
-  const res = await fetch(getManagementControllerGetByIndexUrl(params),
+  const res = await fetch(getMajorsControllerGetByIndexUrl(params),
   {
     ...options,
     method: 'GET'
@@ -399,77 +443,77 @@ export const managementControllerGetByIndex = async (params?: ManagementControll
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: managementControllerGetByIndexResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as managementControllerGetByIndexResponse
+  const data: majorsControllerGetByIndexResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as majorsControllerGetByIndexResponse
 }
 
 
 
 
 
-export const getManagementControllerGetByIndexQueryKey = (params?: ManagementControllerGetByIndexParams,) => {
+export const getMajorsControllerGetByIndexQueryKey = (params?: MajorsControllerGetByIndexParams,) => {
     return [
     `/api/v1/majors/GetByIndex`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getManagementControllerGetByIndexQueryOptions = <TData = Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError = unknown>(params?: ManagementControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
+export const getMajorsControllerGetByIndexQueryOptions = <TData = Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError = void>(params?: MajorsControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getManagementControllerGetByIndexQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getMajorsControllerGetByIndexQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof managementControllerGetByIndex>>> = ({ signal }) => managementControllerGetByIndex(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof majorsControllerGetByIndex>>> = ({ signal }) => majorsControllerGetByIndex(params, { signal, ...fetchOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type ManagementControllerGetByIndexQueryResult = NonNullable<Awaited<ReturnType<typeof managementControllerGetByIndex>>>
-export type ManagementControllerGetByIndexQueryError = unknown
+export type MajorsControllerGetByIndexQueryResult = NonNullable<Awaited<ReturnType<typeof majorsControllerGetByIndex>>>
+export type MajorsControllerGetByIndexQueryError = void
 
 
-export function useManagementControllerGetByIndex<TData = Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError = unknown>(
- params: undefined |  ManagementControllerGetByIndexParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError, TData>> & Pick<
+export function useMajorsControllerGetByIndex<TData = Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError = void>(
+ params: undefined |  MajorsControllerGetByIndexParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof managementControllerGetByIndex>>,
+          Awaited<ReturnType<typeof majorsControllerGetByIndex>>,
           TError,
-          Awaited<ReturnType<typeof managementControllerGetByIndex>>
+          Awaited<ReturnType<typeof majorsControllerGetByIndex>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useManagementControllerGetByIndex<TData = Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError = unknown>(
- params?: ManagementControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError, TData>> & Pick<
+export function useMajorsControllerGetByIndex<TData = Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError = void>(
+ params?: MajorsControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof managementControllerGetByIndex>>,
+          Awaited<ReturnType<typeof majorsControllerGetByIndex>>,
           TError,
-          Awaited<ReturnType<typeof managementControllerGetByIndex>>
+          Awaited<ReturnType<typeof majorsControllerGetByIndex>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useManagementControllerGetByIndex<TData = Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError = unknown>(
- params?: ManagementControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
+export function useMajorsControllerGetByIndex<TData = Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError = void>(
+ params?: MajorsControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get paginated list of majors
+ * @summary Paginated list of majors
  */
 
-export function useManagementControllerGetByIndex<TData = Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError = unknown>(
- params?: ManagementControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
+export function useMajorsControllerGetByIndex<TData = Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError = void>(
+ params?: MajorsControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getManagementControllerGetByIndexQueryOptions(params,options)
+  const queryOptions = getMajorsControllerGetByIndexQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -481,19 +525,19 @@ export function useManagementControllerGetByIndex<TData = Awaited<ReturnType<typ
 
 
 
-export type managementControllerForDropdownResponse200 = {
+export type majorsControllerForDropdownResponse200 = {
   data: DropdownItemDto[]
   status: 200
 }
 
-export type managementControllerForDropdownResponseSuccess = (managementControllerForDropdownResponse200) & {
+export type majorsControllerForDropdownResponseSuccess = (majorsControllerForDropdownResponse200) & {
   headers: Headers;
 };
 ;
 
-export type managementControllerForDropdownResponse = (managementControllerForDropdownResponseSuccess)
+export type majorsControllerForDropdownResponse = (majorsControllerForDropdownResponseSuccess)
 
-export const getManagementControllerForDropdownUrl = (params?: ManagementControllerForDropdownParams,) => {
+export const getMajorsControllerForDropdownUrl = (params?: MajorsControllerForDropdownParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -509,11 +553,11 @@ export const getManagementControllerForDropdownUrl = (params?: ManagementControl
 }
 
 /**
- * @summary Get majors for dropdown selection
+ * @summary Majors for dropdowns (public: used by Explore filters)
  */
-export const managementControllerForDropdown = async (params?: ManagementControllerForDropdownParams, options?: RequestInit): Promise<managementControllerForDropdownResponse> => {
+export const majorsControllerForDropdown = async (params?: MajorsControllerForDropdownParams, options?: RequestInit): Promise<majorsControllerForDropdownResponse> => {
 
-  const res = await fetch(getManagementControllerForDropdownUrl(params),
+  const res = await fetch(getMajorsControllerForDropdownUrl(params),
   {
     ...options,
     method: 'GET'
@@ -525,77 +569,77 @@ export const managementControllerForDropdown = async (params?: ManagementControl
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: managementControllerForDropdownResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as managementControllerForDropdownResponse
+  const data: majorsControllerForDropdownResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as majorsControllerForDropdownResponse
 }
 
 
 
 
 
-export const getManagementControllerForDropdownQueryKey = (params?: ManagementControllerForDropdownParams,) => {
+export const getMajorsControllerForDropdownQueryKey = (params?: MajorsControllerForDropdownParams,) => {
     return [
     `/api/v1/majors/ForDropdown`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getManagementControllerForDropdownQueryOptions = <TData = Awaited<ReturnType<typeof managementControllerForDropdown>>, TError = unknown>(params?: ManagementControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerForDropdown>>, TError, TData>>, fetch?: RequestInit}
+export const getMajorsControllerForDropdownQueryOptions = <TData = Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError = unknown>(params?: MajorsControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getManagementControllerForDropdownQueryKey(params);
+  const queryKey =  queryOptions?.queryKey ?? getMajorsControllerForDropdownQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof managementControllerForDropdown>>> = ({ signal }) => managementControllerForDropdown(params, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof majorsControllerForDropdown>>> = ({ signal }) => majorsControllerForDropdown(params, { signal, ...fetchOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof managementControllerForDropdown>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type ManagementControllerForDropdownQueryResult = NonNullable<Awaited<ReturnType<typeof managementControllerForDropdown>>>
-export type ManagementControllerForDropdownQueryError = unknown
+export type MajorsControllerForDropdownQueryResult = NonNullable<Awaited<ReturnType<typeof majorsControllerForDropdown>>>
+export type MajorsControllerForDropdownQueryError = unknown
 
 
-export function useManagementControllerForDropdown<TData = Awaited<ReturnType<typeof managementControllerForDropdown>>, TError = unknown>(
- params: undefined |  ManagementControllerForDropdownParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerForDropdown>>, TError, TData>> & Pick<
+export function useMajorsControllerForDropdown<TData = Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError = unknown>(
+ params: undefined |  MajorsControllerForDropdownParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof managementControllerForDropdown>>,
+          Awaited<ReturnType<typeof majorsControllerForDropdown>>,
           TError,
-          Awaited<ReturnType<typeof managementControllerForDropdown>>
+          Awaited<ReturnType<typeof majorsControllerForDropdown>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useManagementControllerForDropdown<TData = Awaited<ReturnType<typeof managementControllerForDropdown>>, TError = unknown>(
- params?: ManagementControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerForDropdown>>, TError, TData>> & Pick<
+export function useMajorsControllerForDropdown<TData = Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError = unknown>(
+ params?: MajorsControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof managementControllerForDropdown>>,
+          Awaited<ReturnType<typeof majorsControllerForDropdown>>,
           TError,
-          Awaited<ReturnType<typeof managementControllerForDropdown>>
+          Awaited<ReturnType<typeof majorsControllerForDropdown>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useManagementControllerForDropdown<TData = Awaited<ReturnType<typeof managementControllerForDropdown>>, TError = unknown>(
- params?: ManagementControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerForDropdown>>, TError, TData>>, fetch?: RequestInit}
+export function useMajorsControllerForDropdown<TData = Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError = unknown>(
+ params?: MajorsControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get majors for dropdown selection
+ * @summary Majors for dropdowns (public: used by Explore filters)
  */
 
-export function useManagementControllerForDropdown<TData = Awaited<ReturnType<typeof managementControllerForDropdown>>, TError = unknown>(
- params?: ManagementControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof managementControllerForDropdown>>, TError, TData>>, fetch?: RequestInit}
+export function useMajorsControllerForDropdown<TData = Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError = unknown>(
+ params?: MajorsControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof majorsControllerForDropdown>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getManagementControllerForDropdownQueryOptions(params,options)
+  const queryOptions = getMajorsControllerForDropdownQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -607,26 +651,36 @@ export function useManagementControllerForDropdown<TData = Awaited<ReturnType<ty
 
 
 
-export type managementControllerDeleteResponse200 = {
-  data: void
+export type majorsControllerDeleteResponse200 = {
+  data: SuccessResponse
   status: 200
 }
 
-export type managementControllerDeleteResponse404 = {
+export type majorsControllerDeleteResponse401 = {
   data: void
-  status: 404
+  status: 401
 }
 
-export type managementControllerDeleteResponseSuccess = (managementControllerDeleteResponse200) & {
+export type majorsControllerDeleteResponse403 = {
+  data: void
+  status: 403
+}
+
+export type majorsControllerDeleteResponse409 = {
+  data: void
+  status: 409
+}
+
+export type majorsControllerDeleteResponseSuccess = (majorsControllerDeleteResponse200) & {
   headers: Headers;
 };
-export type managementControllerDeleteResponseError = (managementControllerDeleteResponse404) & {
+export type majorsControllerDeleteResponseError = (majorsControllerDeleteResponse401 | majorsControllerDeleteResponse403 | majorsControllerDeleteResponse409) & {
   headers: Headers;
 };
 
-export type managementControllerDeleteResponse = (managementControllerDeleteResponseSuccess | managementControllerDeleteResponseError)
+export type majorsControllerDeleteResponse = (majorsControllerDeleteResponseSuccess | majorsControllerDeleteResponseError)
 
-export const getManagementControllerDeleteUrl = (id: number,) => {
+export const getMajorsControllerDeleteUrl = (id: number,) => {
 
 
 
@@ -635,11 +689,11 @@ export const getManagementControllerDeleteUrl = (id: number,) => {
 }
 
 /**
- * @summary Delete a major
+ * @summary Delete a major (blocked once a curriculum has been published)
  */
-export const managementControllerDelete = async (id: number, options?: RequestInit): Promise<managementControllerDeleteResponse> => {
+export const majorsControllerDelete = async (id: number, options?: RequestInit): Promise<majorsControllerDeleteResponse> => {
 
-  const res = await fetch(getManagementControllerDeleteUrl(id),
+  const res = await fetch(getMajorsControllerDeleteUrl(id),
   {
     ...options,
     method: 'POST'
@@ -651,19 +705,19 @@ export const managementControllerDelete = async (id: number, options?: RequestIn
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: managementControllerDeleteResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as managementControllerDeleteResponse
+  const data: majorsControllerDeleteResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as majorsControllerDeleteResponse
 }
 
 
 
 
 
-export const getManagementControllerDeleteMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof managementControllerDelete>>, TError,{id: number}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof managementControllerDelete>>, TError,{id: number}, TContext> => {
+export const getMajorsControllerDeleteMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof majorsControllerDelete>>, TError,{id: number}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof majorsControllerDelete>>, TError,{id: number}, TContext> => {
 
-const mutationKey = ['managementControllerDelete'];
+const mutationKey = ['majorsControllerDelete'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -673,10 +727,10 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof managementControllerDelete>>, {id: number}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof majorsControllerDelete>>, {id: number}> = (props) => {
           const {id} = props ?? {};
 
-          return  managementControllerDelete(id,fetchOptions)
+          return  majorsControllerDelete(id,fetchOptions)
         }
 
 
@@ -686,110 +740,20 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type ManagementControllerDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof managementControllerDelete>>>
+    export type MajorsControllerDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof majorsControllerDelete>>>
 
-    export type ManagementControllerDeleteMutationError = void
+    export type MajorsControllerDeleteMutationError = void
 
     /**
- * @summary Delete a major
+ * @summary Delete a major (blocked once a curriculum has been published)
  */
-export const useManagementControllerDelete = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof managementControllerDelete>>, TError,{id: number}, TContext>, fetch?: RequestInit}
+export const useMajorsControllerDelete = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof majorsControllerDelete>>, TError,{id: number}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof managementControllerDelete>>,
+        Awaited<ReturnType<typeof majorsControllerDelete>>,
         TError,
         {id: number},
         TContext
       > => {
-      return useMutation(getManagementControllerDeleteMutationOptions(options), queryClient);
-    }
-    export type managementControllerUpdateMajorMetaResponse200 = {
-  data: MajorDto
-  status: 200
-}
-
-export type managementControllerUpdateMajorMetaResponseSuccess = (managementControllerUpdateMajorMetaResponse200) & {
-  headers: Headers;
-};
-;
-
-export type managementControllerUpdateMajorMetaResponse = (managementControllerUpdateMajorMetaResponseSuccess)
-
-export const getManagementControllerUpdateMajorMetaUrl = (slug: string,) => {
-
-
-
-
-  return `/api/v1/majors/${slug}`
-}
-
-/**
- * @summary Update major metadata by slug
- */
-export const managementControllerUpdateMajorMeta = async (slug: string,
-    managementControllerUpdateMajorMetaBody: ManagementControllerUpdateMajorMetaBody, options?: RequestInit): Promise<managementControllerUpdateMajorMetaResponse> => {
-
-  const res = await fetch(getManagementControllerUpdateMajorMetaUrl(slug),
-  {
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(managementControllerUpdateMajorMetaBody)
-  }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: managementControllerUpdateMajorMetaResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as managementControllerUpdateMajorMetaResponse
-}
-
-
-
-
-
-export const getManagementControllerUpdateMajorMetaMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof managementControllerUpdateMajorMeta>>, TError,{slug: string;data: ManagementControllerUpdateMajorMetaBody}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof managementControllerUpdateMajorMeta>>, TError,{slug: string;data: ManagementControllerUpdateMajorMetaBody}, TContext> => {
-
-const mutationKey = ['managementControllerUpdateMajorMeta'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof managementControllerUpdateMajorMeta>>, {slug: string;data: ManagementControllerUpdateMajorMetaBody}> = (props) => {
-          const {slug,data} = props ?? {};
-
-          return  managementControllerUpdateMajorMeta(slug,data,fetchOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ManagementControllerUpdateMajorMetaMutationResult = NonNullable<Awaited<ReturnType<typeof managementControllerUpdateMajorMeta>>>
-    export type ManagementControllerUpdateMajorMetaMutationBody = ManagementControllerUpdateMajorMetaBody
-    export type ManagementControllerUpdateMajorMetaMutationError = unknown
-
-    /**
- * @summary Update major metadata by slug
- */
-export const useManagementControllerUpdateMajorMeta = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof managementControllerUpdateMajorMeta>>, TError,{slug: string;data: ManagementControllerUpdateMajorMetaBody}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof managementControllerUpdateMajorMeta>>,
-        TError,
-        {slug: string;data: ManagementControllerUpdateMajorMetaBody},
-        TContext
-      > => {
-      return useMutation(getManagementControllerUpdateMajorMetaMutationOptions(options), queryClient);
+      return useMutation(getMajorsControllerDeleteMutationOptions(options), queryClient);
     }

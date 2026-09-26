@@ -13,7 +13,7 @@ Cột **Nguồn** truy vết tài liệu gốc.
 
 > **Ngôn ngữ / trạng thái actor:** giữ mã trạng thái tiếng Anh (`ACTIVE`, `BANNED`,…) + vai trò (`ADMIN`, `LEARNER`,…) như DB + business logic.
 >
-> **Tên bảng/cột trong FR = vật lý** (`User`, `Role`, `Permission`, `PermissionGroup`…) — [`auth-schema.md`](../schema/auth-schema.md).
+> **Tên bảng/cột trong FR = vật lý** (`User`, `Role`, `Permission`, `PermissionGroup`…) — [`auth-schema.md`](../../schema/auth-schema.md).
 
 ---
 
@@ -35,8 +35,8 @@ Cột **Nguồn** truy vết tài liệu gốc.
 | FL | Tên flow | Trigger chính | Actor | Trạng thái liên quan | File chi tiết |
 |---|---|---|---|---|---|
 | **FL-AUTH** | Authentication & RBAC | Đăng ký / Đăng nhập / Quản lý IAM | Guest, Admin, Superadmin | `ACTIVE`, `PENDING_APPROVAL`, `BANNED`, `REJECTED` | [`FL-AUTH-authentication-rbac.md`](FL-AUTH-authentication-rbac.md) |
-| **FL-LRN** | Learner Portal | Learner browse / enroll / track | Guest, Learner | — | [`FL-LRN-learner-portal.md`](FL-LRN-learner-portal.md) |
-| **FL-RDM** | Roadmap Management | Admin CRUD roadmap data | Admin | — | [`FL-RDM-roadmap-management.md`](FL-RDM-roadmap-management.md) |
+| **FL-LRN** | Learner Portal | Learner browse / clone / chỉnh My Roadmap / nhập điểm | Guest, Learner | `ENROLLED`, `COMPLETED`, `DROPPED` | [`FL-LRN-learner-portal.md`](FL-LRN-learner-portal.md) |
+| **FL-RDM** | Roadmap Management | Admin soạn CTĐT theo học kỳ / publish version | Admin | `DRAFT`, `PUBLISHED`, `ARCHIVED` | [`FL-RDM-roadmap-management.md`](FL-RDM-roadmap-management.md) |
 | **FL-LR** | Lecturer Review & Assessment | Student submit review | Learner, Admin, System | `PENDING`, `APPROVED`, `REJECTED`, `FLAGGED` | [`FL-LR-lecturer-review.md`](FL-LR-lecturer-review.md) |
 | **FL-CFG** | Admin Configuration | Admin quản trị hệ thống | Admin, Superadmin | — | [`FL-CFG-admin-configuration.md`](FL-CFG-admin-configuration.md) |
 | **FL-MNT** | Mentor Portal | Mentor quản lý mentorship | Learner, Mentor | `PENDING`, `ACCEPTED`, `DECLINED` | [`FL-MNT-mentor-portal.md`](FL-MNT-mentor-portal.md) |
@@ -53,6 +53,7 @@ Cột **Nguồn** truy vết tài liệu gốc.
 | Manage Users | — | — | — | ✅ | ✅ | — |
 | Browse Majors/Courses | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Clone Roadmap & Track | — | ✅ | — | — | — | — |
+| Personalize Roadmap & Enter Grades | — | ✅ | — | — | — | — |
 | CRUD Roadmap Data | — | — | — | ✅ | ✅ | — |
 | Submit/Browse Reviews | ✅(view) | ✅ | ✅(view) | ✅ | ✅ | — |
 | Moderate Reviews | — | — | — | ✅ | ✅ | ✅ |
@@ -68,8 +69,8 @@ Cột **Nguồn** truy vết tài liệu gốc.
 | Flow | Business Flow Doc | Schema | API Base |
 |---|---|---|---|
 | FL-AUTH | [`00-authentication-rbac.md`](../../business-flow/00-authentication-rbac.md) | [`auth-schema.md`](../../schema/auth-schema.md) | `/api/v1/auth/*`, `/api/v1/iam/*` |
-| FL-LRN | [`01-learner-portal.md`](../../business-flow/01-learner-portal.md) | [`roadmap-schema.md`](../../schema/roadmap-schema.md) | `/api/v1/roadmap/*`, `/api/v1/progress/*` |
-| FL-RDM | [`02-roadmap-management.md`](../../business-flow/02-roadmap-management.md) | [`roadmap-schema.md`](../../schema/roadmap-schema.md) | `/api/v1/admin/roadmap/*` |
+| FL-LRN | [`01-learner-portal.md`](../../business-flow/01-learner-portal.md) | [`roadmap-schema.md`](../../schema/roadmap-schema.md) | `/api/explore/*`, `/api/student-roadmaps/*` |
+| FL-RDM | [`02-roadmap-management.md`](../../business-flow/02-roadmap-management.md) | [`roadmap-schema.md`](../../schema/roadmap-schema.md) | `/api/courses/*`, `/api/admin/roadmaps/*`, `/api/admin/roadmap-versions/*`, `/api/admin/grade-scales/*` |
 | FL-LR | [`03-lecturer-review.md`](../../business-flow/03-lecturer-review.md) | [`lecturer-review-schema.md`](../../schema/lecturer-review-schema.md) | `/api/v1/lecturers/*`, `/api/v1/reviews/*` |
 | FL-CFG | [`04-admin-configuration.md`](../../business-flow/04-admin-configuration.md) | [`user-schema.md`](../../schema/user-schema.md) | `/api/v1/admin/*` |
 | FL-MNT | [`05-mentor-portal.md`](../../business-flow/05-mentor-portal.md) | [`mentor-schema.md`](../../schema/mentor-schema.md) | `/api/v1/mentor/*` |

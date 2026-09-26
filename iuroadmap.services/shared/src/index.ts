@@ -13,3 +13,4 @@ export * from './clients';
 export * from './pipes';
 export * from './utils';
 export * from './saga';
+export * from './roadmap-engine';
