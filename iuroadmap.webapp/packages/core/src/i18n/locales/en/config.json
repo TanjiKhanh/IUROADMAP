@@ -1,0 +1,67 @@
+{
+  "config": {
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "back": "Back",
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "search": "Search",
+      "actions": "Actions",
+      "noData": "No Data",
+      "failedToLoad": "Failed to load",
+      "success": "Success",
+      "id": "ID",
+      "notAvailable": "N/A"
+    },
+    "department": {
+      "info": "Department Info",
+      "create": "Create Department",
+      "edit": "Edit Department",
+      "name": "Department Name",
+      "slug": "Slug",
+      "description": "Description",
+      "descriptionPlaceholder": "Short description...",
+      "namePlaceholder": "e.g. Computer Science",
+      "slugPlaceholder": "e.g. computer-science",
+      "list": "Departments",
+      "created": "Department created successfully",
+      "updated": "Department updated successfully",
+      "createFailed": "Failed to create department",
+      "updateFailed": "Failed to update department",
+      "loadFailed": "Failed to load department"
+    },
+    "role": {
+      "info": "Role Info",
+      "permissionMatrix": "Permission Matrix",
+      "name": "Role Name",
+      "list": "Roles",
+      "createFailed": "Failed to create role"
+    },
+    "user": {
+      "info": "General Info",
+      "create": "Create",
+      "edit": "Edit",
+      "fullName": "Full Name",
+      "email": "Email",
+      "password": "Password",
+      "role": "Role",
+      "status": "Status",
+      "subscriptionTier": "Subscription Tier",
+      "subscriptionExpiresAt": "Subscription Expires At",
+      "createdAt": "Created At",
+      "list": "Users",
+      "searchPlaceholder": "Search by keyword",
+      "rolePlaceholder": "Select a role",
+      "viewDetail": "View Detail",
+      "active": "ACTIVE",
+      "pendingApproval": "PENDING_APPROVAL",
+      "banned": "BANNED",
+      "rejected": "REJECTED",
+      "free": "FREE",
+      "vip": "VIP",
+      "pro": "PRO"
+    }
+  }
+}

@@ -54,5 +54,47 @@ export const AppConstant = {
     USER: 'USER_MANAGEMENT',
     ROADMAP: 'ROADMAP_MANAGEMENT',
     LECTURER: 'LECTURER_REVIEW_MANAGEMENT',
-  }
+  },
+
+  /**
+   * Roadmap v2 (semester curriculum + student overlay)
+   */
+  Roadmap: {
+    /** REGULAR terms created for a blank curriculum draft */
+    DefaultSemesterCount: 8,
+    /** Max terms (base + custom) in one student roadmap */
+    MaxTermCount: 16,
+    /** Publish warning threshold per term */
+    MaxCreditsPerTerm: 24,
+    /** Smallest gap between two row_order values before a rebalance */
+    RowOrderEpsilon: 1e-6,
+    /** Decimal places stored for row_order */
+    RowOrderScale: 6,
+    /** Score scale upper bound (hệ 100) */
+    MaxScore: 100,
+    /** Grade point scale upper bound (hệ 4) */
+    MaxGradePoint: 4,
+    /** Weights must sum to this value */
+    WeightTotal: 100,
+    /** Minimum estimated hours of a topic (BR-RM-06) */
+    MinTopicHours: 0.1,
+  },
+
+  /**
+   * Valid range for cohort_year / academic_year
+   */
+  AcademicYear: {
+    Min: 2000,
+    Max: 2100,
+  },
+
+  CourseComment: {
+    MaxPerWindow: 5,
+    WindowMinutes: 10,
+  },
+
+  Moderation: {
+    /** Pending reports needed to auto-flag a comment (shared with FL-LR) */
+    ReportThreshold: 3,
+  },
 } as const;

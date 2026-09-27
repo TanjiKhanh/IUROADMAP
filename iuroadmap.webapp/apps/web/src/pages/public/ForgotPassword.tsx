@@ -1,149 +1,80 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../../styles/auth.css';
+import { useTranslation } from '../../hooks/useTranslation';
+import { features, RoutePaths } from '@iuroadmap/core';
+import { authService } from '../../services/auth.service';
 import logo from '../../assets/images/logo-gupjob-primary.png';
-import { useAuthMutations } from '../../auth/hooks/useAuthMutations';
-import { ForgotPasswordRequestDto, ResetPasswordRequestDto } from '@iuroadmap/api-gen';
 
-type Step = 'REQUEST' | 'SENT' | 'RESET';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { UiForm, UiInputField, UiButton, UiCard, useToast } from '../../uikit';
+
+const authKeys = features.auth.keys;
+
+const forgotSchema = z.object({
+    email: z.string().email(),
+});
+
+type ForgotFormValues = z.infer<typeof forgotSchema>;
 
 export default function ForgotPassword() {
-  const navigate = useNavigate();
-  const [step, setStep] = useState<Step>('REQUEST');
-  const [email, setEmail] = useState('');
-  const [emailToken, setEmailToken] = useState('');
-  
-  const authMutations = useAuthMutations();
-  const isLoading = authMutations.forgotPassword.isPending || authMutations.resetPassword.isPending;
-  
-  // States Reset Password
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const { toast, toastContextHolder } = useToast();
+    const [submitted, setSubmitted] = useState(false);
 
-  const handleSendRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const payload: ForgotPasswordRequestDto = { email };
-      await authMutations.forgotPassword.mutateAsync({ data: payload });
-      setStep('SENT');
-    } catch (error) {
-      alert("Email does not exist or server error");
-    }
-  };
+    const { control, handleSubmit, formState: { isSubmitting } } = useForm<ForgotFormValues>({
+        resolver: zodResolver(forgotSchema),
+        defaultValues: { email: '' },
+    });
 
-  const handleUpdatePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (newPassword !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
+    const onSubmit = async (data: ForgotFormValues) => {
+        try {
+            await authService.forgotPassword(data.email);
+            setSubmitted(true);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || err.message || 'Failed to request password reset');
+        }
+    };
 
-    if (newPassword.length < 8) {
-      alert("Password must be at least 8 characters long.");
-      return;
-    }
+    return (
+        <div className="auth-page">
+            {toastContextHolder}
+            <UiCard className="auth-card" bordered={false}>
+                <Link to="/">
+                    <img src={logo} alt="Logo" className="auth-logo" />
+                </Link>
+                <h1 className="auth-title">{t(authKeys.forgotPassword.title)}</h1>
 
-    try {
-      const payload: ResetPasswordRequestDto = { token: emailToken, newPassword };
-      await authMutations.resetPassword.mutateAsync({ data: payload });
-      alert("Password updated successfully!");
-      navigate('/login');
-    } catch (error: any) {
-      alert(error.response?.data?.message || "Invalid or expired code.");
-    }
-  };
+                {submitted ? (
+                    <div>
+                        <div style={{ backgroundColor: '#eff6ff', color: '#1e40af', padding: '12px 16px', borderRadius: '8px', marginBottom: '1.5rem', textAlign: 'center' }}>
+                            Password reset link sent! Check your email.
+                        </div>
+                        <UiButton block type="primary" size="large" onClick={() => navigate(RoutePaths.web.public.login)}>
+                            {t(authKeys.forgotPassword.backToLogin)}
+                        </UiButton>
+                    </div>
+                ) : (
+                    <>
+                        <p className="auth-sub" style={{ marginBottom: '2rem' }}>
+                            {t(authKeys.forgotPassword.subtitle)}
+                        </p>
+                        <UiForm onFinish={handleSubmit(onSubmit)}>
+                            <UiInputField control={control} name="email" label={t(authKeys.login.email)} placeholder="Enter your email address" />
 
-  return (
-    <div className="auth-page">
-      {/* --- STEP 1: REQUEST EMAIL --- */}
-      {step === 'REQUEST' && (
-        <div className="auth-card">
-          <Link to="/"><img src={logo} alt="GUPJOB Logo" className="auth-logo" /></Link>
-          <h1 className="auth-title">Forgot Password?</h1>
-          <p className="auth-sub">Enter the email associated with your account.</p>
-          <form className="auth-form" onSubmit={handleSendRequest}>
-            <label> Email
-              <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </label>
-            <button type="submit" className="btn btn--primary" disabled={isLoading}>
-              {isLoading ? 'Sending...' : 'Send Reset Link'}
-            </button>
-          </form>
-          <div className="auth-footer">
-            <Link to="/login" className="link-muted">← Back to Login</Link>
-          </div>
+                            <UiButton type="primary" htmlType="submit" loading={isSubmitting} block size="large" style={{ marginTop: '1rem' }}>
+                                {isSubmitting ? t(authKeys.login.processing) : t(authKeys.forgotPassword.submitBtn)}
+                            </UiButton>
+                        </UiForm>
+
+                        <div className="auth-footer" style={{ marginTop: '2rem' }}>
+                            <Link to={RoutePaths.web.public.login}>{t(authKeys.forgotPassword.backToLogin)}</Link>
+                        </div>
+                    </>
+                )}
+            </UiCard>
         </div>
-      )}
-
-      {/* --- STEP 2: EMAIL SENT SUCCESS --- */}
-      {step === 'SENT' && (
-        <div className="auth-card" style={{ textAlign: 'center' }}>
-          <div className="success-circle" style={{ margin: '0 auto 20px', backgroundColor: '#e6fffa', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-             <span style={{ color: '#38a169', fontSize: '24px' }}>✓</span>
-          </div>
-          <h1 className="auth-title">Reset Code Sent!</h1>
-          <p className="auth-sub">Check your inbox at <strong>{email}</strong></p>
-          <button className="btn btn--primary" onClick={() => setStep('RESET')}>
-            I have the code
-          </button>
-        </div>
-      )}
-
-      {/* --- STEP 3: SET NEW PASSWORD --- */}
-      {step === 'RESET' && (
-        <div className="auth-card">
-          <h1 className="auth-title">Set a New Password</h1>
-          <p className="auth-sub">Enter the 6-digit code from your email and your new password.</p>
-
-          <form className="auth-form" onSubmit={handleUpdatePassword}>
-            {/* ✅ Thêm Input nhập Mã Token 6 số */}
-            <label>
-              Verification Code
-              <input 
-                type="text" 
-                placeholder="Ex: 123456" 
-                maxLength={6}
-                value={emailToken} 
-                onChange={(e) => setEmailToken(e.target.value)} 
-                required 
-              />
-            </label>
-
-            <label>
-              New Password
-              <div className="password-input-wrapper" style={{ position: 'relative' }}>
-                <input type={showPassword ? "text" : "password"} placeholder="••••••••" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required />
-                <span onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }}>
-                  {showPassword ? "🔓" : "🔒"}
-                </span>
-              </div>
-            </label>
-
-            <label>
-              Confirm New Password
-              <div className="password-input-wrapper" style={{ position: 'relative' }}>
-                <input type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
-                <span onClick={() => setShowConfirmPassword(!showConfirmPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }}>
-                  {showConfirmPassword ? "🔓" : "🔒"}
-                </span>
-              </div>
-            </label>
-
-            <div className="password-requirements">
-               <div style={{ color: newPassword.length >= 8 ? '#05c34e' : '#718096' }}>○ Must be at least 8 characters</div>
-               <div style={{ color: /[0-9!@#$%^&*]/.test(newPassword) ? '#05c34e' : '#718096' }}>○ Contains a number or symbol</div>
-               <div style={{ color: /[A-Z]/.test(newPassword) ? '#05c34e' : '#718096' }}>○ Contains an uppercase letter</div>
-            </div>
-
-            <button type="submit" className="btn btn--primary" disabled={isLoading}>
-              {isLoading ? 'Updating...' : 'Update Password'}
-            </button>
-          </form>
-        </div>
-      )}
-    </div>
-  );
+    );
 }

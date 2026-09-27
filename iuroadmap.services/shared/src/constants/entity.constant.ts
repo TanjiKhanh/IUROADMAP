@@ -65,4 +65,46 @@ export const EntityConstant = {
    * Length is 100
    */
   Email: 100,
+
+  // ================= Roadmap v2 =================
+
+  /**
+   * Course code, e.g. "IT013IU" (max 20)
+   */
+  CourseCode: 20,
+
+  /**
+   * Hex color "#RRGGBB" (exactly 7)
+   */
+  HexColor: 7,
+
+  /**
+   * Custom term label, e.g. "IE1 – Intensive English" (max 50)
+   */
+  TermLabel: 50,
+
+  /**
+   * Curriculum decision reference, e.g. "89/QĐ-ĐHQT.07.03.2022" (max 100)
+   */
+  DecisionRef: 100,
+
+  /**
+   * Lecturer academic title, e.g. "PGS.TS" (max 30)
+   */
+  LecturerTitle: 30,
+
+  /**
+   * Elective group code, e.g. "CS1" (max 30)
+   */
+  ElectiveGroup: 30,
+
+  /**
+   * Course comment content (max 2000)
+   */
+  CourseCommentContent: 2000,
+
+  /**
+   * Free-text note on a comment report or a course result (max 500)
+   */
+  ShortNote: 500,
 } as const;

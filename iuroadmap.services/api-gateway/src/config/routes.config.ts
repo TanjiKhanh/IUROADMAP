@@ -15,11 +15,22 @@ export const GATEWAY_ROUTES: RouteMapping[] = [
     target: ServiceUrls.MENTOR_SERVICE,
   },
   {
-    prefixes: ['users'],
+    prefixes: ['users', 'user'],
     target: ServiceUrls.USER_SERVICE,
   },
   {
-    prefixes: ['roadmaps', 'admin', 'courses', 'departments', 'explore'],
+    // Roadmap v2: catalog, curriculum by year, learner overlay, course offerings, comments
+    prefixes: [
+      'admin',
+      'courses',
+      'course-categories',
+      'course-comments',
+      'departments',
+      'explore',
+      'lecturers',
+      'majors',
+      'student-roadmaps',
+    ],
     target: ServiceUrls.ROADMAP_SERVICE,
   },
 ];

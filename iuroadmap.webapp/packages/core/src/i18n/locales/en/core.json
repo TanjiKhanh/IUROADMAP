@@ -21,5 +21,22 @@
     "forbidden": "You do not have permission to access this page.",
     "notFound": "The requested resource was not found.",
     "generic": "An unexpected error occurred. Please try again."
+  },
+  "yupGlobal": {
+    "required": "This field is required",
+    "invalidType": "Invalid value",
+    "string": {
+      "min": "Must be at least ${min} characters",
+      "max": "Must be at most ${max} characters",
+      "url": "Enter a valid URL",
+      "uuid": "Enter a valid UUID"
+    },
+    "number": {
+      "min": "Must be at least ${min}",
+      "max": "Must be at most ${max}"
+    },
+    "email": {
+      "invalid": "Enter a valid email address"
+    }
   }
 }

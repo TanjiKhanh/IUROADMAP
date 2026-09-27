@@ -11,11 +11,20 @@ import * as zod from 'zod';
 /**
  * @summary Create a new user
  */
+export const usersControllerCreateBodyEmailMax = 100;
+
+export const usersControllerCreateBodyPasswordMin = 6;
+export const usersControllerCreateBodyPasswordMax = 30;
+
+export const usersControllerCreateBodyNameMax = 100;
+
+
+
 export const UsersControllerCreateBody = zod.object({
-  "email": zod.string().describe('Email address'),
-  "password": zod.string().describe('Password (min 6 characters)'),
-  "name": zod.string().optional().describe('Full name'),
-  "roleId": zod.string().describe('Role ID to assign')
+  "email": zod.string().email().max(usersControllerCreateBodyEmailMax).describe('Email address'),
+  "password": zod.string().min(usersControllerCreateBodyPasswordMin).max(usersControllerCreateBodyPasswordMax).describe('Password (min 6 characters)'),
+  "name": zod.string().min(1).max(usersControllerCreateBodyNameMax).describe('Full name'),
+  "roleId": zod.string().uuid().describe('Role ID to assign')
 })
 
 export const UsersControllerCreateResponse = zod.object({

@@ -13,13 +13,44 @@ AUTH quản lý toàn bộ vòng đời xác thực người dùng: đăng ký, 
 
 ## 3. Submodules
 
-| Submodule | Mô tả | URL |
+### 3.1. Authentication Module (`/api/v1/auth`)
+Quản lý luồng đăng nhập, đăng ký, phiên làm việc và tài khoản cá nhân.
+
+| Endpoint | Method | Mô tả |
 |---|---|---|
-| **Login** | Đăng nhập hệ thống | `/api/v1/auth/login` |
-| **Register** | Đăng ký tài khoản mới (Learner / Mentor) | `/api/v1/auth/register` |
-| **Role Management** | CRUD Roles (Admin only) | `/api/v1/iam/Role/GetByIndex` |
-| **Permission Management** | CRUD Permissions (Admin only) | `/api/v1/iam/Permission/GetByIndex` |
-| **Password Reset** | Quên mật khẩu (token-based) | `/api/v1/auth/forgot-password` |
+| `/register/learner` | `POST` | Đăng ký tài khoản học viên |
+| `/register/mentor` | `POST` | Đăng ký tài khoản mentor (cần duyệt) |
+| `/login` | `POST` | Đăng nhập hệ thống (trả về JWT) |
+| `/logout` | `POST` | Đăng xuất |
+| `/forgot-password`| `POST` | Yêu cầu cấp lại mật khẩu (nhận 6-digit code) |
+| `/reset-password` | `POST` | Đặt lại mật khẩu mới |
+| `/me` | `GET` | Lấy thông tin profile user hiện tại (thông qua JWT) |
+| `/:id` | `GET` | Lấy thông tin user bằng ID |
+
+### 3.2. IAM - Roles Module (`/api/v1/iam/Role`)
+Quản lý nhóm quyền (Role) và danh sách quyền hạn (Permission) - dành cho Admin.
+
+| Endpoint | Method | Mô tả |
+|---|---|---|
+| `/GetByIndex` | `GET` | Phân trang danh sách Roles |
+| `/getById/:id` | `GET` | Xem chi tiết một Role |
+| `/create` | `POST` | Tạo Role mới (kèm mảng permissions) |
+| `/update` | `POST` | Cập nhật Role và permissions |
+| `/delete/:id` | `POST` | Xóa Role |
+| `/GetAllPermission`| `GET` | Lấy toàn bộ danh sách Permissions hệ thống |
+| `/ForDropdown` | `GET` | Dữ liệu Roles rút gọn để hiển thị dropdown |
+
+### 3.3. IAM - Users Module (`/api/v1/iam/User`)
+Quản lý User Directory, thực hiện các thao tác CRUD lên danh sách người dùng - dành cho Admin/Superadmin.
+
+| Endpoint | Method | Mô tả |
+|---|---|---|
+| `/GetByIndex` | `GET` | Phân trang danh sách Users |
+| `/getById/:id` | `GET` | Xem chi tiết một User |
+| `/create` | `POST` | Tạo User thủ công (Admin) |
+| `/update` | `POST` | Cập nhật thông tin User |
+| `/softDelete/:id` | `POST` | Khóa User (chuyển status thành BANNED) |
+| `/delete/:id` | `POST` | Xóa cứng User khỏi database (Superadmin) |
 
 ## 4. Actors
 
@@ -66,17 +97,15 @@ stateDiagram-v2
 
 ### Flow 1 — User Registration (UC-01)
 
-1. Guest gọi endpoint `/api/v1/auth/register`.
-2. Chọn role: `LEARNER` hoặc `MENTOR`.
-3. Fill form: `email`, `password`, `confirmPassword`.
+1. Guest gọi endpoint `/api/v1/auth/register/learner` hoặc `/api/v1/auth/register/mentor`.
+2. Truyền payload tương ứng `LearnerRegisterRequestDto` hoặc `MentorRegisterRequestDto`.
+3. Fill form: `email`, `password`, `name`, ...
 4. System validate:
-   - Email format (`@IsEmail()`).
-   - Password match.
+   - Email format.
    - Email uniqueness against `users` table.
-5. Backend hash password (`bcrypt`, work factor ≥ 10).
-6. Insert `users` record với role tương ứng.
-7. Issue JWT tokens (access: 1h, refresh: 7d).
-8. Redirect to Dashboard (`/dashboard`).
+5. Backend hash password (`bcrypt`, work factor = 10).
+6. Insert `users` record với role tương ứng (`LEARNER` được tạo mặc định nếu chưa có). Nếu là mentor, sẽ kích hoạt `RegisterMentorSaga` để xử lý thêm profile mentor.
+7. Trả về thông tin user an toàn (không chứa mật khẩu). Sau đó client có thể redirect to Login.
 
 **Alternative Flows:**
 - **A1** – Email đã tồn tại → `"Email already exists"`.
@@ -91,15 +120,18 @@ stateDiagram-v2
 4. Generate JWT payload:
    ```json
    {
-     "sub": 105,
+     "sub": "user-uuid",
+     "userId": "user-uuid",
      "email": "admin@iuroadmap.com",
      "role": "ADMIN",
      "permissions": ["roadmap:read", "roadmap:write", "user:manage", "configuration:manage"],
+     "deptId": null,
+     "job": null,
      "iat": 1723528255,
      "exp": 1723614655
    }
    ```
-5. Return Bearer token, redirect to Dashboard.
+5. Return Bearer access_token (hết hạn trong 24h), redirect to Dashboard.
 
 **Alternative Flows:**
 - **A1** – Invalid credentials → `"Invalid email or password"` (không tiết lộ field nào sai).
@@ -108,19 +140,28 @@ stateDiagram-v2
 ### Flow 3 — Dynamic Role Management (Admin)
 
 1. Admin → View Roles (`GET /api/v1/iam/Role/GetByIndex`).
-2. **Create Role**: name, description → `POST /api/v1/iam/Role/create`.
-3. **Map Permissions**: Assign permissions to role (many-to-many) → `POST /api/v1/iam/Role/permissions`.
-4. **Edit/Delete Role**: `POST /api/v1/iam/Role/update` & `POST /api/v1/iam/Role/delete/:id`.
-5. Thay đổi reflect trong JWT payload ở lần login kế tiếp.
+2. **View Permissions**: `GET /api/v1/iam/Role/GetAllPermission`.
+3. **Create Role**: name, permissions (gán lúc tạo) → `POST /api/v1/iam/Role/create`.
+4. **Edit Role**: cập nhật name, permissions → `POST /api/v1/iam/Role/update`.
+5. **Delete Role**: `POST /api/v1/iam/Role/delete/:id`.
+6. Thay đổi reflect trong JWT payload ở lần login kế tiếp của user.
 
 ### Flow 4 — Password Reset
 
 1. User → forgot password view.
 2. Fill email → `POST /api/v1/auth/forgot-password`.
-3. Backend: generate `resetPasswordToken` + `resetPasswordExpires`.
-4. Send email with reset link.
-5. User click link → fill new password → `POST /api/v1/auth/reset-password`.
-6. Validate token + update password hash.
+3. Backend: generate mã code 6 số ngẫu nhiên (`resetPasswordToken`) + `resetPasswordExpires` (15 phút).
+4. Send email containing the 6-digit code.
+5. User nhập mã code + new password → `POST /api/v1/auth/reset-password`.
+6. Validate token (còn hạn) + update password hash + xóa token cũ.
+
+### Flow 5 — User Directory Management (Admin/Superadmin)
+
+1. Admin → View Users (`GET /api/v1/iam/User/GetByIndex`).
+2. **View Detail**: `GET /api/v1/iam/User/getById/:id`.
+3. **Create/Update User**: `POST /api/v1/iam/User/create` & `POST /api/v1/iam/User/update`.
+4. **Soft Delete (Ban)**: `POST /api/v1/iam/User/softDelete/:id` → Đổi AccountStatus thành BANNED (JWT token hiện tại của user sẽ bị chặn).
+5. **Hard Delete**: `POST /api/v1/iam/User/delete/:id` (Chỉ Superadmin thực hiện).
 
 ## 7. Database Schema
 

@@ -135,42 +135,133 @@ exports.Prisma.MAJOR_ROADMAPSScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
   name: 'name',
-  total_credits: 'total_credits',
   description: 'description',
   department_id: 'department_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
 
-exports.Prisma.COURSE_NODESScalarFieldEnum = {
+exports.Prisma.COURSE_CATEGORIESScalarFieldEnum = {
   id: 'id',
-  roadmap_id: 'roadmap_id',
-  slug: 'slug',
+  code: 'code',
   name: 'name',
-  coords: 'coords',
-  credits: 'credits',
+  fill_color: 'fill_color',
+  border_color: 'border_color',
+  sort_order: 'sort_order',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.COURSESScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  theory_credits: 'theory_credits',
+  lab_credits: 'lab_credits',
+  category_id: 'category_id',
+  grading_mode: 'grading_mode',
+  counts_toward_gpa: 'counts_toward_gpa',
+  counts_toward_credits: 'counts_toward_credits',
   description: 'description',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
 
-exports.Prisma.COURSE_NODE_PREREQUISITESScalarFieldEnum = {
+exports.Prisma.COURSE_OFFERINGSScalarFieldEnum = {
   id: 'id',
-  course_node_id: 'course_node_id',
-  prerequisite_node_id: 'prerequisite_node_id',
+  course_id: 'course_id',
+  academic_year: 'academic_year',
+  status: 'status',
+  student_guide: 'student_guide',
+  syllabus_url: 'syllabus_url',
+  weight_process: 'weight_process',
+  weight_midterm: 'weight_midterm',
+  weight_final: 'weight_final',
+  has_project: 'has_project',
+  project_description: 'project_description',
+  copied_from_id: 'copied_from_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
 
+exports.Prisma.LECTURERSScalarFieldEnum = {
+  id: 'id',
+  full_name: 'full_name',
+  title: 'title',
+  department_id: 'department_id',
+  email: 'email',
+  status: 'status',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.COURSE_OFFERING_LECTURERSScalarFieldEnum = {
+  id: 'id',
+  offering_id: 'offering_id',
+  lecturer_id: 'lecturer_id',
+  role: 'role',
+  term_in_year: 'term_in_year'
+};
+
+exports.Prisma.ROADMAP_VERSIONSScalarFieldEnum = {
+  id: 'id',
+  roadmap_id: 'roadmap_id',
+  cohort_year: 'cohort_year',
+  revision_no: 'revision_no',
+  total_credits: 'total_credits',
+  decision_ref: 'decision_ref',
+  status: 'status',
+  revision: 'revision',
+  published_at: 'published_at',
+  published_by: 'published_by',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.ROADMAP_TERMSScalarFieldEnum = {
+  id: 'id',
+  version_id: 'version_id',
+  term_key: 'term_key',
+  order_index: 'order_index',
+  kind: 'kind',
+  semester_no: 'semester_no'
+};
+
+exports.Prisma.ROADMAP_NODESScalarFieldEnum = {
+  id: 'id',
+  version_id: 'version_id',
+  node_key: 'node_key',
+  term_id: 'term_id',
+  row_index: 'row_index',
+  kind: 'kind',
+  course_id: 'course_id',
+  slot_label: 'slot_label',
+  slot_theory_credits: 'slot_theory_credits',
+  slot_lab_credits: 'slot_lab_credits',
+  elective_group: 'elective_group',
+  choice_group: 'choice_group',
+  condition: 'condition'
+};
+
+exports.Prisma.ROADMAP_EDGESScalarFieldEnum = {
+  id: 'id',
+  version_id: 'version_id',
+  edge_key: 'edge_key',
+  source_node_id: 'source_node_id',
+  target_node_id: 'target_node_id',
+  type: 'type'
+};
+
 exports.Prisma.COURSE_TOPICS_NODEScalarFieldEnum = {
   id: 'id',
-  course_node_id: 'course_node_id',
+  offering_id: 'offering_id',
   slug: 'slug',
   title: 'title',
   description: 'description',
   coords: 'coords',
   learning_objectives: 'learning_objectives',
   resources_url: 'resources_url',
+  estimated_hours: 'estimated_hours',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -180,6 +271,120 @@ exports.Prisma.COURSE_TOPICS_EDGEScalarFieldEnum = {
   source_topic_id: 'source_topic_id',
   target_topic_id: 'target_topic_id',
   created_at: 'created_at'
+};
+
+exports.Prisma.STUDENT_ROADMAPSScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  roadmap_id: 'roadmap_id',
+  version_id: 'version_id',
+  status: 'status',
+  revision: 'revision',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.STUDENT_TERM_DELTASScalarFieldEnum = {
+  id: 'id',
+  student_roadmap_id: 'student_roadmap_id',
+  term_key: 'term_key',
+  origin: 'origin',
+  kind: 'kind',
+  after_term_key: 'after_term_key',
+  custom_label: 'custom_label',
+  academic_year: 'academic_year',
+  term_in_year: 'term_in_year'
+};
+
+exports.Prisma.STUDENT_NODE_DELTASScalarFieldEnum = {
+  id: 'id',
+  student_roadmap_id: 'student_roadmap_id',
+  node_key: 'node_key',
+  origin: 'origin',
+  term_key: 'term_key',
+  row_order: 'row_order',
+  course_id: 'course_id',
+  custom_code: 'custom_code',
+  custom_name: 'custom_name',
+  custom_theory_credits: 'custom_theory_credits',
+  custom_lab_credits: 'custom_lab_credits',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.STUDENT_EDGE_DELTASScalarFieldEnum = {
+  id: 'id',
+  student_roadmap_id: 'student_roadmap_id',
+  edge_key: 'edge_key',
+  source_node_key: 'source_node_key',
+  target_node_key: 'target_node_key',
+  type: 'type'
+};
+
+exports.Prisma.STUDENT_COURSE_RESULTSScalarFieldEnum = {
+  id: 'id',
+  student_roadmap_id: 'student_roadmap_id',
+  node_key: 'node_key',
+  status: 'status',
+  weight_process: 'weight_process',
+  weight_midterm: 'weight_midterm',
+  weight_final: 'weight_final',
+  score_process: 'score_process',
+  score_midterm: 'score_midterm',
+  score_final: 'score_final',
+  total_score: 'total_score',
+  is_passed: 'is_passed',
+  note: 'note',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.COURSE_COMMENTSScalarFieldEnum = {
+  id: 'id',
+  course_id: 'course_id',
+  parent_id: 'parent_id',
+  user_id: 'user_id',
+  academic_year: 'academic_year',
+  author_display_name: 'author_display_name',
+  content: 'content',
+  status: 'status',
+  pending_report_count: 'pending_report_count',
+  edited_at: 'edited_at',
+  moderated_by: 'moderated_by',
+  moderated_at: 'moderated_at',
+  moderation_reason: 'moderation_reason',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.COURSE_COMMENT_REPORTSScalarFieldEnum = {
+  id: 'id',
+  comment_id: 'comment_id',
+  reporter_id: 'reporter_id',
+  reason: 'reason',
+  note: 'note',
+  status: 'status',
+  created_at: 'created_at'
+};
+
+exports.Prisma.GRADE_SCALESScalarFieldEnum = {
+  id: 'id',
+  letter: 'letter',
+  min_score: 'min_score',
+  max_score: 'max_score',
+  grade_point: 'grade_point',
+  is_passing: 'is_passing',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.ACADEMIC_CLASSIFICATIONSScalarFieldEnum = {
+  id: 'id',
+  label_key: 'label_key',
+  min_gpa100: 'min_gpa100',
+  max_gpa100: 'max_gpa100',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.SortOrder = {
@@ -207,15 +412,116 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.GradingMode = exports.$Enums.GradingMode = {
+  SCORE: 'SCORE',
+  PASS_FAIL: 'PASS_FAIL'
+};
 
+exports.OfferingStatus = exports.$Enums.OfferingStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED'
+};
+
+exports.LecturerStatus = exports.$Enums.LecturerStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  RETIRED: 'RETIRED'
+};
+
+exports.LecturerRole = exports.$Enums.LecturerRole = {
+  LECTURER: 'LECTURER',
+  TA: 'TA'
+};
+
+exports.TermInYear = exports.$Enums.TermInYear = {
+  SEMESTER_1: 'SEMESTER_1',
+  SEMESTER_2: 'SEMESTER_2',
+  SUMMER: 'SUMMER'
+};
+
+exports.RoadmapVersionStatus = exports.$Enums.RoadmapVersionStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
+};
+
+exports.TermKind = exports.$Enums.TermKind = {
+  REGULAR: 'REGULAR',
+  SUMMER: 'SUMMER',
+  ELECTIVE_POOL: 'ELECTIVE_POOL'
+};
+
+exports.RoadmapNodeKind = exports.$Enums.RoadmapNodeKind = {
+  COURSE: 'COURSE',
+  ELECTIVE_SLOT: 'ELECTIVE_SLOT'
+};
+
+exports.RelationType = exports.$Enums.RelationType = {
+  PREREQUISITE: 'PREREQUISITE',
+  PREVIOUS: 'PREVIOUS',
+  COREQUISITE: 'COREQUISITE'
+};
+
+exports.StudentRoadmapStatus = exports.$Enums.StudentRoadmapStatus = {
+  ENROLLED: 'ENROLLED',
+  COMPLETED: 'COMPLETED',
+  DROPPED: 'DROPPED'
+};
+
+exports.DeltaOrigin = exports.$Enums.DeltaOrigin = {
+  BASE: 'BASE',
+  CUSTOM: 'CUSTOM'
+};
+
+exports.CourseResultStatus = exports.$Enums.CourseResultStatus = {
+  IN_PROGRESS: 'IN_PROGRESS',
+  GRADED: 'GRADED'
+};
+
+exports.CommentStatus = exports.$Enums.CommentStatus = {
+  VISIBLE: 'VISIBLE',
+  FLAGGED: 'FLAGGED',
+  HIDDEN: 'HIDDEN',
+  DELETED: 'DELETED'
+};
+
+exports.CommentReportReason = exports.$Enums.CommentReportReason = {
+  SPAM: 'SPAM',
+  OFFENSIVE: 'OFFENSIVE',
+  OFF_TOPIC: 'OFF_TOPIC',
+  MISINFORMATION: 'MISINFORMATION',
+  OTHER: 'OTHER'
+};
+
+exports.CommentReportStatus = exports.$Enums.CommentReportStatus = {
+  PENDING: 'PENDING',
+  REVIEWED: 'REVIEWED',
+  DISMISSED: 'DISMISSED'
+};
 
 exports.Prisma.ModelName = {
   DEPARTMENTS: 'DEPARTMENTS',
   MAJOR_ROADMAPS: 'MAJOR_ROADMAPS',
-  COURSE_NODES: 'COURSE_NODES',
-  COURSE_NODE_PREREQUISITES: 'COURSE_NODE_PREREQUISITES',
+  COURSE_CATEGORIES: 'COURSE_CATEGORIES',
+  COURSES: 'COURSES',
+  COURSE_OFFERINGS: 'COURSE_OFFERINGS',
+  LECTURERS: 'LECTURERS',
+  COURSE_OFFERING_LECTURERS: 'COURSE_OFFERING_LECTURERS',
+  ROADMAP_VERSIONS: 'ROADMAP_VERSIONS',
+  ROADMAP_TERMS: 'ROADMAP_TERMS',
+  ROADMAP_NODES: 'ROADMAP_NODES',
+  ROADMAP_EDGES: 'ROADMAP_EDGES',
   COURSE_TOPICS_NODE: 'COURSE_TOPICS_NODE',
-  COURSE_TOPICS_EDGE: 'COURSE_TOPICS_EDGE'
+  COURSE_TOPICS_EDGE: 'COURSE_TOPICS_EDGE',
+  STUDENT_ROADMAPS: 'STUDENT_ROADMAPS',
+  STUDENT_TERM_DELTAS: 'STUDENT_TERM_DELTAS',
+  STUDENT_NODE_DELTAS: 'STUDENT_NODE_DELTAS',
+  STUDENT_EDGE_DELTAS: 'STUDENT_EDGE_DELTAS',
+  STUDENT_COURSE_RESULTS: 'STUDENT_COURSE_RESULTS',
+  COURSE_COMMENTS: 'COURSE_COMMENTS',
+  COURSE_COMMENT_REPORTS: 'COURSE_COMMENT_REPORTS',
+  GRADE_SCALES: 'GRADE_SCALES',
+  ACADEMIC_CLASSIFICATIONS: 'ACADEMIC_CLASSIFICATIONS'
 };
 
 /**

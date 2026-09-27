@@ -2,7 +2,9 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "prisma:generate": {
-      "cache": false
+      "inputs": ["prisma/schema.prisma"],
+      "outputs": ["src/generated/**"],
+      "cache": true
     },
     "gen:api": {
       "dependsOn": ["^build"],

@@ -11,8 +11,12 @@ import * as zod from 'zod';
 /**
  * @summary Create a new role (Admin only)
  */
+export const rolesControllerCreateBodyNameMax = 100;
+
+
+
 export const RolesControllerCreateBody = zod.object({
-  "name": zod.string().describe('The name of the role'),
+  "name": zod.string().min(1).max(rolesControllerCreateBodyNameMax).describe('The name of the role'),
   "description": zod.string().optional().describe('A short description of the role'),
   "permissionIds": zod.array(zod.string()).optional().describe('List of permission IDs associated with this role')
 })

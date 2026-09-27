@@ -25,11 +25,15 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  CreateAdminTopicEdgeDto,
-  CreateAdminTopicNodeDto,
-  UpdateAdminCourseNodeMetaDto,
-  UpdateAdminTopicCoordsDto,
-  UpdateAdminTopicNodeDto
+  CourseBriefResponse,
+  CourseCreateRequest,
+  CourseDetailResponse,
+  CourseResponse,
+  CourseUpdateRequest,
+  CoursesControllerForDropdownParams,
+  CoursesControllerGetByIndex200,
+  CoursesControllerGetByIndexParams,
+  SuccessResponse
 } from '../../models';
 
 
@@ -51,44 +55,256 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   return result;
 };
 
-export type coursesControllerGetCoursesResponse200 = {
-  data: void
-  status: 200
+export type coursesControllerCreateResponse201 = {
+  data: CourseResponse
+  status: 201
 }
 
-export type coursesControllerGetCoursesResponse401 = {
+export type coursesControllerCreateResponse401 = {
   data: void
   status: 401
 }
 
-export type coursesControllerGetCoursesResponse403 = {
+export type coursesControllerCreateResponse403 = {
   data: void
   status: 403
 }
 
-export type coursesControllerGetCoursesResponseSuccess = (coursesControllerGetCoursesResponse200) & {
+export type coursesControllerCreateResponse409 = {
+  data: void
+  status: 409
+}
+
+export type coursesControllerCreateResponseSuccess = (coursesControllerCreateResponse201) & {
   headers: Headers;
 };
-export type coursesControllerGetCoursesResponseError = (coursesControllerGetCoursesResponse401 | coursesControllerGetCoursesResponse403) & {
+export type coursesControllerCreateResponseError = (coursesControllerCreateResponse401 | coursesControllerCreateResponse403 | coursesControllerCreateResponse409) & {
   headers: Headers;
 };
 
-export type coursesControllerGetCoursesResponse = (coursesControllerGetCoursesResponseSuccess | coursesControllerGetCoursesResponseError)
+export type coursesControllerCreateResponse = (coursesControllerCreateResponseSuccess | coursesControllerCreateResponseError)
 
-export const getCoursesControllerGetCoursesUrl = () => {
-
-
+export const getCoursesControllerCreateUrl = () => {
 
 
-  return `/api/v1/admin/courses`
+
+
+  return `/api/v1/courses/create`
 }
 
 /**
- * @summary Get list of all courses for Admin
+ * @summary Create a course in the shared catalog
  */
-export const coursesControllerGetCourses = async ( options?: RequestInit): Promise<coursesControllerGetCoursesResponse> => {
+export const coursesControllerCreate = async (courseCreateRequest: CourseCreateRequest, options?: RequestInit): Promise<coursesControllerCreateResponse> => {
 
-  const res = await fetch(getCoursesControllerGetCoursesUrl(),
+  const res = await fetch(getCoursesControllerCreateUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(courseCreateRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: coursesControllerCreateResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as coursesControllerCreateResponse
+}
+
+
+
+
+
+export const getCoursesControllerCreateMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerCreate>>, TError,{data: CourseCreateRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof coursesControllerCreate>>, TError,{data: CourseCreateRequest}, TContext> => {
+
+const mutationKey = ['coursesControllerCreate'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coursesControllerCreate>>, {data: CourseCreateRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  coursesControllerCreate(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CoursesControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof coursesControllerCreate>>>
+    export type CoursesControllerCreateMutationBody = CourseCreateRequest
+    export type CoursesControllerCreateMutationError = void
+
+    /**
+ * @summary Create a course in the shared catalog
+ */
+export const useCoursesControllerCreate = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerCreate>>, TError,{data: CourseCreateRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof coursesControllerCreate>>,
+        TError,
+        {data: CourseCreateRequest},
+        TContext
+      > => {
+      return useMutation(getCoursesControllerCreateMutationOptions(options), queryClient);
+    }
+    export type coursesControllerUpdateResponse200 = {
+  data: CourseResponse
+  status: 200
+}
+
+export type coursesControllerUpdateResponse401 = {
+  data: void
+  status: 401
+}
+
+export type coursesControllerUpdateResponse403 = {
+  data: void
+  status: 403
+}
+
+export type coursesControllerUpdateResponse409 = {
+  data: void
+  status: 409
+}
+
+export type coursesControllerUpdateResponseSuccess = (coursesControllerUpdateResponse200) & {
+  headers: Headers;
+};
+export type coursesControllerUpdateResponseError = (coursesControllerUpdateResponse401 | coursesControllerUpdateResponse403 | coursesControllerUpdateResponse409) & {
+  headers: Headers;
+};
+
+export type coursesControllerUpdateResponse = (coursesControllerUpdateResponseSuccess | coursesControllerUpdateResponseError)
+
+export const getCoursesControllerUpdateUrl = () => {
+
+
+
+
+  return `/api/v1/courses/update`
+}
+
+/**
+ * @summary Update a course
+ */
+export const coursesControllerUpdate = async (courseUpdateRequest: CourseUpdateRequest, options?: RequestInit): Promise<coursesControllerUpdateResponse> => {
+
+  const res = await fetch(getCoursesControllerUpdateUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(courseUpdateRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: coursesControllerUpdateResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as coursesControllerUpdateResponse
+}
+
+
+
+
+
+export const getCoursesControllerUpdateMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdate>>, TError,{data: CourseUpdateRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdate>>, TError,{data: CourseUpdateRequest}, TContext> => {
+
+const mutationKey = ['coursesControllerUpdate'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coursesControllerUpdate>>, {data: CourseUpdateRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  coursesControllerUpdate(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CoursesControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof coursesControllerUpdate>>>
+    export type CoursesControllerUpdateMutationBody = CourseUpdateRequest
+    export type CoursesControllerUpdateMutationError = void
+
+    /**
+ * @summary Update a course
+ */
+export const useCoursesControllerUpdate = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdate>>, TError,{data: CourseUpdateRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof coursesControllerUpdate>>,
+        TError,
+        {data: CourseUpdateRequest},
+        TContext
+      > => {
+      return useMutation(getCoursesControllerUpdateMutationOptions(options), queryClient);
+    }
+    export type coursesControllerGetByIdResponse200 = {
+  data: CourseDetailResponse
+  status: 200
+}
+
+export type coursesControllerGetByIdResponse401 = {
+  data: void
+  status: 401
+}
+
+export type coursesControllerGetByIdResponse403 = {
+  data: void
+  status: 403
+}
+
+export type coursesControllerGetByIdResponseSuccess = (coursesControllerGetByIdResponse200) & {
+  headers: Headers;
+};
+export type coursesControllerGetByIdResponseError = (coursesControllerGetByIdResponse401 | coursesControllerGetByIdResponse403) & {
+  headers: Headers;
+};
+
+export type coursesControllerGetByIdResponse = (coursesControllerGetByIdResponseSuccess | coursesControllerGetByIdResponseError)
+
+export const getCoursesControllerGetByIdUrl = (id: number,) => {
+
+
+
+
+  return `/api/v1/courses/getById/${id}`
+}
+
+/**
+ * @summary Get a course with the curricula that use it
+ */
+export const coursesControllerGetById = async (id: number, options?: RequestInit): Promise<coursesControllerGetByIdResponse> => {
+
+  const res = await fetch(getCoursesControllerGetByIdUrl(id),
   {
     ...options,
     method: 'GET'
@@ -100,77 +316,77 @@ export const coursesControllerGetCourses = async ( options?: RequestInit): Promi
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: coursesControllerGetCoursesResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as coursesControllerGetCoursesResponse
+  const data: coursesControllerGetByIdResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as coursesControllerGetByIdResponse
 }
 
 
 
 
 
-export const getCoursesControllerGetCoursesQueryKey = () => {
+export const getCoursesControllerGetByIdQueryKey = (id: number,) => {
     return [
-    `/api/v1/admin/courses`
+    `/api/v1/courses/getById/${id}`
     ] as const;
     }
 
 
-export const getCoursesControllerGetCoursesQueryOptions = <TData = Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError = void>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError, TData>>, fetch?: RequestInit}
+export const getCoursesControllerGetByIdQueryOptions = <TData = Awaited<ReturnType<typeof coursesControllerGetById>>, TError = void>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetById>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getCoursesControllerGetCoursesQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getCoursesControllerGetByIdQueryKey(id);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof coursesControllerGetCourses>>> = ({ signal }) => coursesControllerGetCourses({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof coursesControllerGetById>>> = ({ signal }) => coursesControllerGetById(id, { signal, ...fetchOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type CoursesControllerGetCoursesQueryResult = NonNullable<Awaited<ReturnType<typeof coursesControllerGetCourses>>>
-export type CoursesControllerGetCoursesQueryError = void
+export type CoursesControllerGetByIdQueryResult = NonNullable<Awaited<ReturnType<typeof coursesControllerGetById>>>
+export type CoursesControllerGetByIdQueryError = void
 
 
-export function useCoursesControllerGetCourses<TData = Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError = void>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError, TData>> & Pick<
+export function useCoursesControllerGetById<TData = Awaited<ReturnType<typeof coursesControllerGetById>>, TError = void>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetById>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof coursesControllerGetCourses>>,
+          Awaited<ReturnType<typeof coursesControllerGetById>>,
           TError,
-          Awaited<ReturnType<typeof coursesControllerGetCourses>>
+          Awaited<ReturnType<typeof coursesControllerGetById>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCoursesControllerGetCourses<TData = Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError, TData>> & Pick<
+export function useCoursesControllerGetById<TData = Awaited<ReturnType<typeof coursesControllerGetById>>, TError = void>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetById>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof coursesControllerGetCourses>>,
+          Awaited<ReturnType<typeof coursesControllerGetById>>,
           TError,
-          Awaited<ReturnType<typeof coursesControllerGetCourses>>
+          Awaited<ReturnType<typeof coursesControllerGetById>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCoursesControllerGetCourses<TData = Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError, TData>>, fetch?: RequestInit}
+export function useCoursesControllerGetById<TData = Awaited<ReturnType<typeof coursesControllerGetById>>, TError = void>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetById>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get list of all courses for Admin
+ * @summary Get a course with the curricula that use it
  */
 
-export function useCoursesControllerGetCourses<TData = Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError = void>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourses>>, TError, TData>>, fetch?: RequestInit}
+export function useCoursesControllerGetById<TData = Awaited<ReturnType<typeof coursesControllerGetById>>, TError = void>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetById>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getCoursesControllerGetCoursesQueryOptions(options)
+  const queryOptions = getCoursesControllerGetByIdQueryOptions(id,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -182,122 +398,51 @@ export function useCoursesControllerGetCourses<TData = Awaited<ReturnType<typeof
 
 
 
-export type coursesControllerUpdateCourseMetaResponse200 = {
-  data: void
+export type coursesControllerGetByIndexResponse200 = {
+  data: CoursesControllerGetByIndex200
   status: 200
 }
 
-export type coursesControllerUpdateCourseMetaResponseSuccess = (coursesControllerUpdateCourseMetaResponse200) & {
+export type coursesControllerGetByIndexResponse401 = {
+  data: void
+  status: 401
+}
+
+export type coursesControllerGetByIndexResponse403 = {
+  data: void
+  status: 403
+}
+
+export type coursesControllerGetByIndexResponseSuccess = (coursesControllerGetByIndexResponse200) & {
   headers: Headers;
 };
-;
+export type coursesControllerGetByIndexResponseError = (coursesControllerGetByIndexResponse401 | coursesControllerGetByIndexResponse403) & {
+  headers: Headers;
+};
 
-export type coursesControllerUpdateCourseMetaResponse = (coursesControllerUpdateCourseMetaResponseSuccess)
+export type coursesControllerGetByIndexResponse = (coursesControllerGetByIndexResponseSuccess | coursesControllerGetByIndexResponseError)
 
-export const getCoursesControllerUpdateCourseMetaUrl = (courseNodeId: number,) => {
+export const getCoursesControllerGetByIndexUrl = (params?: CoursesControllerGetByIndexParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
-
-
-  return `/api/v1/admin/courses/${courseNodeId}`
-}
-
-/**
- * @summary Update course node metadata
- */
-export const coursesControllerUpdateCourseMeta = async (courseNodeId: number,
-    updateAdminCourseNodeMetaDto: UpdateAdminCourseNodeMetaDto, options?: RequestInit): Promise<coursesControllerUpdateCourseMetaResponse> => {
-
-  const res = await fetch(getCoursesControllerUpdateCourseMetaUrl(courseNodeId),
-  {
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(updateAdminCourseNodeMetaDto)
-  }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: coursesControllerUpdateCourseMetaResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as coursesControllerUpdateCourseMetaResponse
-}
-
-
-
-
-
-export const getCoursesControllerUpdateCourseMetaMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdateCourseMeta>>, TError,{courseNodeId: number;data: UpdateAdminCourseNodeMetaDto}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdateCourseMeta>>, TError,{courseNodeId: number;data: UpdateAdminCourseNodeMetaDto}, TContext> => {
-
-const mutationKey = ['coursesControllerUpdateCourseMeta'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coursesControllerUpdateCourseMeta>>, {courseNodeId: number;data: UpdateAdminCourseNodeMetaDto}> = (props) => {
-          const {courseNodeId,data} = props ?? {};
-
-          return  coursesControllerUpdateCourseMeta(courseNodeId,data,fetchOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CoursesControllerUpdateCourseMetaMutationResult = NonNullable<Awaited<ReturnType<typeof coursesControllerUpdateCourseMeta>>>
-    export type CoursesControllerUpdateCourseMetaMutationBody = UpdateAdminCourseNodeMetaDto
-    export type CoursesControllerUpdateCourseMetaMutationError = unknown
-
-    /**
- * @summary Update course node metadata
- */
-export const useCoursesControllerUpdateCourseMeta = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdateCourseMeta>>, TError,{courseNodeId: number;data: UpdateAdminCourseNodeMetaDto}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof coursesControllerUpdateCourseMeta>>,
-        TError,
-        {courseNodeId: number;data: UpdateAdminCourseNodeMetaDto},
-        TContext
-      > => {
-      return useMutation(getCoursesControllerUpdateCourseMetaMutationOptions(options), queryClient);
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
     }
-    export type coursesControllerGetCourseTopicsGraphResponse200 = {
-  data: void
-  status: 200
-}
+  });
 
-export type coursesControllerGetCourseTopicsGraphResponseSuccess = (coursesControllerGetCourseTopicsGraphResponse200) & {
-  headers: Headers;
-};
-;
+  const stringifiedParams = normalizedParams.toString();
 
-export type coursesControllerGetCourseTopicsGraphResponse = (coursesControllerGetCourseTopicsGraphResponseSuccess)
-
-export const getCoursesControllerGetCourseTopicsGraphUrl = (courseNodeId: number,) => {
-
-
-
-
-  return `/api/v1/admin/courses/${courseNodeId}/topics-graph`
+  return stringifiedParams.length > 0 ? `/api/v1/courses/GetByIndex?${stringifiedParams}` : `/api/v1/courses/GetByIndex`
 }
 
 /**
- * @summary Get course topics micro-graph for Admin
+ * @summary Paginated list of courses (filter by keyword, category, major, grading mode)
  */
-export const coursesControllerGetCourseTopicsGraph = async (courseNodeId: number, options?: RequestInit): Promise<coursesControllerGetCourseTopicsGraphResponse> => {
+export const coursesControllerGetByIndex = async (params?: CoursesControllerGetByIndexParams, options?: RequestInit): Promise<coursesControllerGetByIndexResponse> => {
 
-  const res = await fetch(getCoursesControllerGetCourseTopicsGraphUrl(courseNodeId),
+  const res = await fetch(getCoursesControllerGetByIndexUrl(params),
   {
     ...options,
     method: 'GET'
@@ -309,77 +454,77 @@ export const coursesControllerGetCourseTopicsGraph = async (courseNodeId: number
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: coursesControllerGetCourseTopicsGraphResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as coursesControllerGetCourseTopicsGraphResponse
+  const data: coursesControllerGetByIndexResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as coursesControllerGetByIndexResponse
 }
 
 
 
 
 
-export const getCoursesControllerGetCourseTopicsGraphQueryKey = (courseNodeId: number,) => {
+export const getCoursesControllerGetByIndexQueryKey = (params?: CoursesControllerGetByIndexParams,) => {
     return [
-    `/api/v1/admin/courses/${courseNodeId}/topics-graph`
+    `/api/v1/courses/GetByIndex`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getCoursesControllerGetCourseTopicsGraphQueryOptions = <TData = Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError = unknown>(courseNodeId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError, TData>>, fetch?: RequestInit}
+export const getCoursesControllerGetByIndexQueryOptions = <TData = Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError = void>(params?: CoursesControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getCoursesControllerGetCourseTopicsGraphQueryKey(courseNodeId);
+  const queryKey =  queryOptions?.queryKey ?? getCoursesControllerGetByIndexQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>> = ({ signal }) => coursesControllerGetCourseTopicsGraph(courseNodeId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof coursesControllerGetByIndex>>> = ({ signal }) => coursesControllerGetByIndex(params, { signal, ...fetchOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, enabled: courseNodeId !== null && courseNodeId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type CoursesControllerGetCourseTopicsGraphQueryResult = NonNullable<Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>>
-export type CoursesControllerGetCourseTopicsGraphQueryError = unknown
+export type CoursesControllerGetByIndexQueryResult = NonNullable<Awaited<ReturnType<typeof coursesControllerGetByIndex>>>
+export type CoursesControllerGetByIndexQueryError = void
 
 
-export function useCoursesControllerGetCourseTopicsGraph<TData = Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError = unknown>(
- courseNodeId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError, TData>> & Pick<
+export function useCoursesControllerGetByIndex<TData = Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError = void>(
+ params: undefined |  CoursesControllerGetByIndexParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>,
+          Awaited<ReturnType<typeof coursesControllerGetByIndex>>,
           TError,
-          Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>
+          Awaited<ReturnType<typeof coursesControllerGetByIndex>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCoursesControllerGetCourseTopicsGraph<TData = Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError = unknown>(
- courseNodeId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError, TData>> & Pick<
+export function useCoursesControllerGetByIndex<TData = Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError = void>(
+ params?: CoursesControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>,
+          Awaited<ReturnType<typeof coursesControllerGetByIndex>>,
           TError,
-          Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>
+          Awaited<ReturnType<typeof coursesControllerGetByIndex>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCoursesControllerGetCourseTopicsGraph<TData = Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError = unknown>(
- courseNodeId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError, TData>>, fetch?: RequestInit}
+export function useCoursesControllerGetByIndex<TData = Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError = void>(
+ params?: CoursesControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get course topics micro-graph for Admin
+ * @summary Paginated list of courses (filter by keyword, category, major, grading mode)
  */
 
-export function useCoursesControllerGetCourseTopicsGraph<TData = Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError = unknown>(
- courseNodeId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetCourseTopicsGraph>>, TError, TData>>, fetch?: RequestInit}
+export function useCoursesControllerGetByIndex<TData = Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError = void>(
+ params?: CoursesControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getCoursesControllerGetCourseTopicsGraphQueryOptions(courseNodeId,options)
+  const queryOptions = getCoursesControllerGetByIndexQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -391,219 +536,49 @@ export function useCoursesControllerGetCourseTopicsGraph<TData = Awaited<ReturnT
 
 
 
-export type coursesControllerCreateTopicNodeResponse201 = {
-  data: void
-  status: 201
-}
-
-export type coursesControllerCreateTopicNodeResponseSuccess = (coursesControllerCreateTopicNodeResponse201) & {
-  headers: Headers;
-};
-;
-
-export type coursesControllerCreateTopicNodeResponse = (coursesControllerCreateTopicNodeResponseSuccess)
-
-export const getCoursesControllerCreateTopicNodeUrl = (courseNodeId: number,) => {
-
-
-
-
-  return `/api/v1/admin/courses/${courseNodeId}/topics`
-}
-
-/**
- * @summary Create a topic node under a course node
- */
-export const coursesControllerCreateTopicNode = async (courseNodeId: number,
-    createAdminTopicNodeDto: CreateAdminTopicNodeDto, options?: RequestInit): Promise<coursesControllerCreateTopicNodeResponse> => {
-
-  const res = await fetch(getCoursesControllerCreateTopicNodeUrl(courseNodeId),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(createAdminTopicNodeDto)
-  }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: coursesControllerCreateTopicNodeResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as coursesControllerCreateTopicNodeResponse
-}
-
-
-
-
-
-export const getCoursesControllerCreateTopicNodeMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerCreateTopicNode>>, TError,{courseNodeId: number;data: CreateAdminTopicNodeDto}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof coursesControllerCreateTopicNode>>, TError,{courseNodeId: number;data: CreateAdminTopicNodeDto}, TContext> => {
-
-const mutationKey = ['coursesControllerCreateTopicNode'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coursesControllerCreateTopicNode>>, {courseNodeId: number;data: CreateAdminTopicNodeDto}> = (props) => {
-          const {courseNodeId,data} = props ?? {};
-
-          return  coursesControllerCreateTopicNode(courseNodeId,data,fetchOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CoursesControllerCreateTopicNodeMutationResult = NonNullable<Awaited<ReturnType<typeof coursesControllerCreateTopicNode>>>
-    export type CoursesControllerCreateTopicNodeMutationBody = CreateAdminTopicNodeDto
-    export type CoursesControllerCreateTopicNodeMutationError = unknown
-
-    /**
- * @summary Create a topic node under a course node
- */
-export const useCoursesControllerCreateTopicNode = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerCreateTopicNode>>, TError,{courseNodeId: number;data: CreateAdminTopicNodeDto}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof coursesControllerCreateTopicNode>>,
-        TError,
-        {courseNodeId: number;data: CreateAdminTopicNodeDto},
-        TContext
-      > => {
-      return useMutation(getCoursesControllerCreateTopicNodeMutationOptions(options), queryClient);
-    }
-    export type coursesControllerUpdateTopicNodeResponse200 = {
-  data: void
+export type coursesControllerForDropdownResponse200 = {
+  data: CourseBriefResponse[]
   status: 200
 }
 
-export type coursesControllerUpdateTopicNodeResponseSuccess = (coursesControllerUpdateTopicNodeResponse200) & {
-  headers: Headers;
-};
-;
-
-export type coursesControllerUpdateTopicNodeResponse = (coursesControllerUpdateTopicNodeResponseSuccess)
-
-export const getCoursesControllerUpdateTopicNodeUrl = (courseNodeId: number,
-    topicId: number,) => {
-
-
-
-
-  return `/api/v1/admin/courses/${courseNodeId}/topics/${topicId}`
-}
-
-/**
- * @summary Update a topic node
- */
-export const coursesControllerUpdateTopicNode = async (courseNodeId: number,
-    topicId: number,
-    updateAdminTopicNodeDto: UpdateAdminTopicNodeDto, options?: RequestInit): Promise<coursesControllerUpdateTopicNodeResponse> => {
-
-  const res = await fetch(getCoursesControllerUpdateTopicNodeUrl(courseNodeId,topicId),
-  {
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(updateAdminTopicNodeDto)
-  }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: coursesControllerUpdateTopicNodeResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as coursesControllerUpdateTopicNodeResponse
-}
-
-
-
-
-
-export const getCoursesControllerUpdateTopicNodeMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdateTopicNode>>, TError,{courseNodeId: number;topicId: number;data: UpdateAdminTopicNodeDto}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdateTopicNode>>, TError,{courseNodeId: number;topicId: number;data: UpdateAdminTopicNodeDto}, TContext> => {
-
-const mutationKey = ['coursesControllerUpdateTopicNode'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coursesControllerUpdateTopicNode>>, {courseNodeId: number;topicId: number;data: UpdateAdminTopicNodeDto}> = (props) => {
-          const {courseNodeId,topicId,data} = props ?? {};
-
-          return  coursesControllerUpdateTopicNode(courseNodeId,topicId,data,fetchOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CoursesControllerUpdateTopicNodeMutationResult = NonNullable<Awaited<ReturnType<typeof coursesControllerUpdateTopicNode>>>
-    export type CoursesControllerUpdateTopicNodeMutationBody = UpdateAdminTopicNodeDto
-    export type CoursesControllerUpdateTopicNodeMutationError = unknown
-
-    /**
- * @summary Update a topic node
- */
-export const useCoursesControllerUpdateTopicNode = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdateTopicNode>>, TError,{courseNodeId: number;topicId: number;data: UpdateAdminTopicNodeDto}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof coursesControllerUpdateTopicNode>>,
-        TError,
-        {courseNodeId: number;topicId: number;data: UpdateAdminTopicNodeDto},
-        TContext
-      > => {
-      return useMutation(getCoursesControllerUpdateTopicNodeMutationOptions(options), queryClient);
-    }
-    export type coursesControllerDeleteTopicNodeResponse204 = {
+export type coursesControllerForDropdownResponse401 = {
   data: void
-  status: 204
+  status: 401
 }
 
-export type coursesControllerDeleteTopicNodeResponseSuccess = (coursesControllerDeleteTopicNodeResponse204) & {
+export type coursesControllerForDropdownResponseSuccess = (coursesControllerForDropdownResponse200) & {
   headers: Headers;
 };
-;
+export type coursesControllerForDropdownResponseError = (coursesControllerForDropdownResponse401) & {
+  headers: Headers;
+};
 
-export type coursesControllerDeleteTopicNodeResponse = (coursesControllerDeleteTopicNodeResponseSuccess)
+export type coursesControllerForDropdownResponse = (coursesControllerForDropdownResponseSuccess | coursesControllerForDropdownResponseError)
 
-export const getCoursesControllerDeleteTopicNodeUrl = (courseNodeId: number,
-    topicId: number,) => {
+export const getCoursesControllerForDropdownUrl = (params?: CoursesControllerForDropdownParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/v1/admin/courses/${courseNodeId}/topics/${topicId}`
+  return stringifiedParams.length > 0 ? `/api/v1/courses/ForDropdown?${stringifiedParams}` : `/api/v1/courses/ForDropdown`
 }
 
 /**
- * @summary Delete a topic node
+ * @summary Courses for the canvas sidebar and the learner course picker
  */
-export const coursesControllerDeleteTopicNode = async (courseNodeId: number,
-    topicId: number, options?: RequestInit): Promise<coursesControllerDeleteTopicNodeResponse> => {
+export const coursesControllerForDropdown = async (params?: CoursesControllerForDropdownParams, options?: RequestInit): Promise<coursesControllerForDropdownResponse> => {
 
-  const res = await fetch(getCoursesControllerDeleteTopicNodeUrl(courseNodeId,topicId),
+  const res = await fetch(getCoursesControllerForDropdownUrl(params),
   {
     ...options,
-    method: 'DELETE'
+    method: 'GET'
 
 
   }
@@ -612,271 +587,134 @@ export const coursesControllerDeleteTopicNode = async (courseNodeId: number,
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: coursesControllerDeleteTopicNodeResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as coursesControllerDeleteTopicNodeResponse
+  const data: coursesControllerForDropdownResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as coursesControllerForDropdownResponse
 }
 
 
 
 
 
-export const getCoursesControllerDeleteTopicNodeMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerDeleteTopicNode>>, TError,{courseNodeId: number;topicId: number}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof coursesControllerDeleteTopicNode>>, TError,{courseNodeId: number;topicId: number}, TContext> => {
-
-const mutationKey = ['coursesControllerDeleteTopicNode'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coursesControllerDeleteTopicNode>>, {courseNodeId: number;topicId: number}> = (props) => {
-          const {courseNodeId,topicId} = props ?? {};
-
-          return  coursesControllerDeleteTopicNode(courseNodeId,topicId,fetchOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CoursesControllerDeleteTopicNodeMutationResult = NonNullable<Awaited<ReturnType<typeof coursesControllerDeleteTopicNode>>>
-
-    export type CoursesControllerDeleteTopicNodeMutationError = unknown
-
-    /**
- * @summary Delete a topic node
- */
-export const useCoursesControllerDeleteTopicNode = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerDeleteTopicNode>>, TError,{courseNodeId: number;topicId: number}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof coursesControllerDeleteTopicNode>>,
-        TError,
-        {courseNodeId: number;topicId: number},
-        TContext
-      > => {
-      return useMutation(getCoursesControllerDeleteTopicNodeMutationOptions(options), queryClient);
+export const getCoursesControllerForDropdownQueryKey = (params?: CoursesControllerForDropdownParams,) => {
+    return [
+    `/api/v1/courses/ForDropdown`, ...(params ? [params] : [])
+    ] as const;
     }
-    export type coursesControllerUpdateTopicCoordsResponse200 = {
-  data: void
+
+
+export const getCoursesControllerForDropdownQueryOptions = <TData = Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError = void>(params?: CoursesControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCoursesControllerForDropdownQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof coursesControllerForDropdown>>> = ({ signal }) => coursesControllerForDropdown(params, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CoursesControllerForDropdownQueryResult = NonNullable<Awaited<ReturnType<typeof coursesControllerForDropdown>>>
+export type CoursesControllerForDropdownQueryError = void
+
+
+export function useCoursesControllerForDropdown<TData = Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError = void>(
+ params: undefined |  CoursesControllerForDropdownParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof coursesControllerForDropdown>>,
+          TError,
+          Awaited<ReturnType<typeof coursesControllerForDropdown>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCoursesControllerForDropdown<TData = Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError = void>(
+ params?: CoursesControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof coursesControllerForDropdown>>,
+          TError,
+          Awaited<ReturnType<typeof coursesControllerForDropdown>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCoursesControllerForDropdown<TData = Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError = void>(
+ params?: CoursesControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Courses for the canvas sidebar and the learner course picker
+ */
+
+export function useCoursesControllerForDropdown<TData = Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError = void>(
+ params?: CoursesControllerForDropdownParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof coursesControllerForDropdown>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCoursesControllerForDropdownQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type coursesControllerDeleteResponse200 = {
+  data: SuccessResponse
   status: 200
 }
 
-export type coursesControllerUpdateTopicCoordsResponseSuccess = (coursesControllerUpdateTopicCoordsResponse200) & {
-  headers: Headers;
-};
-;
-
-export type coursesControllerUpdateTopicCoordsResponse = (coursesControllerUpdateTopicCoordsResponseSuccess)
-
-export const getCoursesControllerUpdateTopicCoordsUrl = (courseNodeId: number,
-    topicId: number,) => {
-
-
-
-
-  return `/api/v1/admin/courses/${courseNodeId}/topics/${topicId}/coords`
-}
-
-/**
- * @summary Update coordinates of a topic node
- */
-export const coursesControllerUpdateTopicCoords = async (courseNodeId: number,
-    topicId: number,
-    updateAdminTopicCoordsDto: UpdateAdminTopicCoordsDto, options?: RequestInit): Promise<coursesControllerUpdateTopicCoordsResponse> => {
-
-  const res = await fetch(getCoursesControllerUpdateTopicCoordsUrl(courseNodeId,topicId),
-  {
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(updateAdminTopicCoordsDto)
-  }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: coursesControllerUpdateTopicCoordsResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as coursesControllerUpdateTopicCoordsResponse
-}
-
-
-
-
-
-export const getCoursesControllerUpdateTopicCoordsMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdateTopicCoords>>, TError,{courseNodeId: number;topicId: number;data: UpdateAdminTopicCoordsDto}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdateTopicCoords>>, TError,{courseNodeId: number;topicId: number;data: UpdateAdminTopicCoordsDto}, TContext> => {
-
-const mutationKey = ['coursesControllerUpdateTopicCoords'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coursesControllerUpdateTopicCoords>>, {courseNodeId: number;topicId: number;data: UpdateAdminTopicCoordsDto}> = (props) => {
-          const {courseNodeId,topicId,data} = props ?? {};
-
-          return  coursesControllerUpdateTopicCoords(courseNodeId,topicId,data,fetchOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CoursesControllerUpdateTopicCoordsMutationResult = NonNullable<Awaited<ReturnType<typeof coursesControllerUpdateTopicCoords>>>
-    export type CoursesControllerUpdateTopicCoordsMutationBody = UpdateAdminTopicCoordsDto
-    export type CoursesControllerUpdateTopicCoordsMutationError = unknown
-
-    /**
- * @summary Update coordinates of a topic node
- */
-export const useCoursesControllerUpdateTopicCoords = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerUpdateTopicCoords>>, TError,{courseNodeId: number;topicId: number;data: UpdateAdminTopicCoordsDto}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof coursesControllerUpdateTopicCoords>>,
-        TError,
-        {courseNodeId: number;topicId: number;data: UpdateAdminTopicCoordsDto},
-        TContext
-      > => {
-      return useMutation(getCoursesControllerUpdateTopicCoordsMutationOptions(options), queryClient);
-    }
-    export type coursesControllerCreateTopicEdgeResponse201 = {
+export type coursesControllerDeleteResponse401 = {
   data: void
-  status: 201
+  status: 401
 }
 
-export type coursesControllerCreateTopicEdgeResponseSuccess = (coursesControllerCreateTopicEdgeResponse201) & {
-  headers: Headers;
-};
-;
-
-export type coursesControllerCreateTopicEdgeResponse = (coursesControllerCreateTopicEdgeResponseSuccess)
-
-export const getCoursesControllerCreateTopicEdgeUrl = (courseNodeId: number,) => {
-
-
-
-
-  return `/api/v1/admin/courses/${courseNodeId}/topics-edges`
-}
-
-/**
- * @summary Create an edge connecting two topic nodes
- */
-export const coursesControllerCreateTopicEdge = async (courseNodeId: number,
-    createAdminTopicEdgeDto: CreateAdminTopicEdgeDto, options?: RequestInit): Promise<coursesControllerCreateTopicEdgeResponse> => {
-
-  const res = await fetch(getCoursesControllerCreateTopicEdgeUrl(courseNodeId),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(createAdminTopicEdgeDto)
-  }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: coursesControllerCreateTopicEdgeResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as coursesControllerCreateTopicEdgeResponse
-}
-
-
-
-
-
-export const getCoursesControllerCreateTopicEdgeMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerCreateTopicEdge>>, TError,{courseNodeId: number;data: CreateAdminTopicEdgeDto}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof coursesControllerCreateTopicEdge>>, TError,{courseNodeId: number;data: CreateAdminTopicEdgeDto}, TContext> => {
-
-const mutationKey = ['coursesControllerCreateTopicEdge'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coursesControllerCreateTopicEdge>>, {courseNodeId: number;data: CreateAdminTopicEdgeDto}> = (props) => {
-          const {courseNodeId,data} = props ?? {};
-
-          return  coursesControllerCreateTopicEdge(courseNodeId,data,fetchOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type CoursesControllerCreateTopicEdgeMutationResult = NonNullable<Awaited<ReturnType<typeof coursesControllerCreateTopicEdge>>>
-    export type CoursesControllerCreateTopicEdgeMutationBody = CreateAdminTopicEdgeDto
-    export type CoursesControllerCreateTopicEdgeMutationError = unknown
-
-    /**
- * @summary Create an edge connecting two topic nodes
- */
-export const useCoursesControllerCreateTopicEdge = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerCreateTopicEdge>>, TError,{courseNodeId: number;data: CreateAdminTopicEdgeDto}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof coursesControllerCreateTopicEdge>>,
-        TError,
-        {courseNodeId: number;data: CreateAdminTopicEdgeDto},
-        TContext
-      > => {
-      return useMutation(getCoursesControllerCreateTopicEdgeMutationOptions(options), queryClient);
-    }
-    export type coursesControllerDeleteTopicEdgeResponse204 = {
+export type coursesControllerDeleteResponse403 = {
   data: void
-  status: 204
+  status: 403
 }
 
-export type coursesControllerDeleteTopicEdgeResponseSuccess = (coursesControllerDeleteTopicEdgeResponse204) & {
+export type coursesControllerDeleteResponse409 = {
+  data: void
+  status: 409
+}
+
+export type coursesControllerDeleteResponseSuccess = (coursesControllerDeleteResponse200) & {
   headers: Headers;
 };
-;
+export type coursesControllerDeleteResponseError = (coursesControllerDeleteResponse401 | coursesControllerDeleteResponse403 | coursesControllerDeleteResponse409) & {
+  headers: Headers;
+};
 
-export type coursesControllerDeleteTopicEdgeResponse = (coursesControllerDeleteTopicEdgeResponseSuccess)
+export type coursesControllerDeleteResponse = (coursesControllerDeleteResponseSuccess | coursesControllerDeleteResponseError)
 
-export const getCoursesControllerDeleteTopicEdgeUrl = (courseNodeId: number,
-    edgeId: number,) => {
-
+export const getCoursesControllerDeleteUrl = (id: number,) => {
 
 
 
-  return `/api/v1/admin/courses/${courseNodeId}/topics-edges/${edgeId}`
+
+  return `/api/v1/courses/delete/${id}`
 }
 
 /**
- * @summary Delete a topic edge
+ * @summary Delete a course (blocked while referenced)
  */
-export const coursesControllerDeleteTopicEdge = async (courseNodeId: number,
-    edgeId: number, options?: RequestInit): Promise<coursesControllerDeleteTopicEdgeResponse> => {
+export const coursesControllerDelete = async (id: number, options?: RequestInit): Promise<coursesControllerDeleteResponse> => {
 
-  const res = await fetch(getCoursesControllerDeleteTopicEdgeUrl(courseNodeId,edgeId),
+  const res = await fetch(getCoursesControllerDeleteUrl(id),
   {
     ...options,
-    method: 'DELETE'
+    method: 'POST'
 
 
   }
@@ -885,19 +723,19 @@ export const coursesControllerDeleteTopicEdge = async (courseNodeId: number,
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: coursesControllerDeleteTopicEdgeResponse['data'] = body ? JSON.parse(body) : undefined
-  return { data, status: res.status, headers: res.headers } as coursesControllerDeleteTopicEdgeResponse
+  const data: coursesControllerDeleteResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as coursesControllerDeleteResponse
 }
 
 
 
 
 
-export const getCoursesControllerDeleteTopicEdgeMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerDeleteTopicEdge>>, TError,{courseNodeId: number;edgeId: number}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof coursesControllerDeleteTopicEdge>>, TError,{courseNodeId: number;edgeId: number}, TContext> => {
+export const getCoursesControllerDeleteMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerDelete>>, TError,{id: number}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof coursesControllerDelete>>, TError,{id: number}, TContext> => {
 
-const mutationKey = ['coursesControllerDeleteTopicEdge'];
+const mutationKey = ['coursesControllerDelete'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -907,10 +745,10 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coursesControllerDeleteTopicEdge>>, {courseNodeId: number;edgeId: number}> = (props) => {
-          const {courseNodeId,edgeId} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof coursesControllerDelete>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
 
-          return  coursesControllerDeleteTopicEdge(courseNodeId,edgeId,fetchOptions)
+          return  coursesControllerDelete(id,fetchOptions)
         }
 
 
@@ -920,20 +758,20 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type CoursesControllerDeleteTopicEdgeMutationResult = NonNullable<Awaited<ReturnType<typeof coursesControllerDeleteTopicEdge>>>
+    export type CoursesControllerDeleteMutationResult = NonNullable<Awaited<ReturnType<typeof coursesControllerDelete>>>
 
-    export type CoursesControllerDeleteTopicEdgeMutationError = unknown
+    export type CoursesControllerDeleteMutationError = void
 
     /**
- * @summary Delete a topic edge
+ * @summary Delete a course (blocked while referenced)
  */
-export const useCoursesControllerDeleteTopicEdge = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerDeleteTopicEdge>>, TError,{courseNodeId: number;edgeId: number}, TContext>, fetch?: RequestInit}
+export const useCoursesControllerDelete = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof coursesControllerDelete>>, TError,{id: number}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof coursesControllerDeleteTopicEdge>>,
+        Awaited<ReturnType<typeof coursesControllerDelete>>,
         TError,
-        {courseNodeId: number;edgeId: number},
+        {id: number},
         TContext
       > => {
-      return useMutation(getCoursesControllerDeleteTopicEdgeMutationOptions(options), queryClient);
+      return useMutation(getCoursesControllerDeleteMutationOptions(options), queryClient);
     }

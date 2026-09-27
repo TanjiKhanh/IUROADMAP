@@ -31,9 +31,13 @@ export class AppModule implements NestModule {
       .apply(AuthMiddleware)
       .forRoutes(
         'v1/users/*',
+        'v1/user/*',    // user-service endpoints under /user/roadmaps/*
         'v1/mentor-profiles/*',
         'v1/admin/*', // Downstream service checks if x-user-role === ADMIN
+        'v1/student-roadmaps/*', // learner roadmap (owner checked by roadmap-service)
       );
+    // Not listed on purpose (the services guard them per endpoint):
+    // explore/* is public, course-comments/* and catalog GETs mix public and signed-in endpoints.
 
     // 4. Dynamic Proxy Routing
     for (const route of GATEWAY_ROUTES) {

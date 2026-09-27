@@ -25,12 +25,14 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
-  CreateDepartmentDto,
-  DepartmentResponseDto,
+  DepartmentCreateRequest,
+  DepartmentResponse,
+  DepartmentUpdateRequest,
   DepartmentsControllerForDropdownParams,
+  DepartmentsControllerGetByIndex200,
   DepartmentsControllerGetByIndexParams,
   DropdownItemDto,
-  UpdateDepartmentDto
+  SuccessResponse
 } from '../../models';
 
 
@@ -53,8 +55,18 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
 };
 
 export type departmentsControllerCreateResponse201 = {
-  data: DepartmentResponseDto
+  data: DepartmentResponse
   status: 201
+}
+
+export type departmentsControllerCreateResponse401 = {
+  data: void
+  status: 401
+}
+
+export type departmentsControllerCreateResponse403 = {
+  data: void
+  status: 403
 }
 
 export type departmentsControllerCreateResponse409 = {
@@ -65,7 +77,7 @@ export type departmentsControllerCreateResponse409 = {
 export type departmentsControllerCreateResponseSuccess = (departmentsControllerCreateResponse201) & {
   headers: Headers;
 };
-export type departmentsControllerCreateResponseError = (departmentsControllerCreateResponse409) & {
+export type departmentsControllerCreateResponseError = (departmentsControllerCreateResponse401 | departmentsControllerCreateResponse403 | departmentsControllerCreateResponse409) & {
   headers: Headers;
 };
 
@@ -80,16 +92,16 @@ export const getDepartmentsControllerCreateUrl = () => {
 }
 
 /**
- * @summary Create a new department
+ * @summary Create a department
  */
-export const departmentsControllerCreate = async (createDepartmentDto: CreateDepartmentDto, options?: RequestInit): Promise<departmentsControllerCreateResponse> => {
+export const departmentsControllerCreate = async (departmentCreateRequest: DepartmentCreateRequest, options?: RequestInit): Promise<departmentsControllerCreateResponse> => {
 
   const res = await fetch(getDepartmentsControllerCreateUrl(),
   {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(createDepartmentDto)
+    body: JSON.stringify(departmentCreateRequest)
   }
 )
 
@@ -105,8 +117,8 @@ export const departmentsControllerCreate = async (createDepartmentDto: CreateDep
 
 
 export const getDepartmentsControllerCreateMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerCreate>>, TError,{data: CreateDepartmentDto}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerCreate>>, TError,{data: CreateDepartmentDto}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerCreate>>, TError,{data: DepartmentCreateRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerCreate>>, TError,{data: DepartmentCreateRequest}, TContext> => {
 
 const mutationKey = ['departmentsControllerCreate'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
@@ -118,7 +130,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof departmentsControllerCreate>>, {data: CreateDepartmentDto}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof departmentsControllerCreate>>, {data: DepartmentCreateRequest}> = (props) => {
           const {data} = props ?? {};
 
           return  departmentsControllerCreate(data,fetchOptions)
@@ -132,36 +144,41 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type DepartmentsControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof departmentsControllerCreate>>>
-    export type DepartmentsControllerCreateMutationBody = CreateDepartmentDto
+    export type DepartmentsControllerCreateMutationBody = DepartmentCreateRequest
     export type DepartmentsControllerCreateMutationError = void
 
     /**
- * @summary Create a new department
+ * @summary Create a department
  */
 export const useDepartmentsControllerCreate = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerCreate>>, TError,{data: CreateDepartmentDto}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerCreate>>, TError,{data: DepartmentCreateRequest}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof departmentsControllerCreate>>,
         TError,
-        {data: CreateDepartmentDto},
+        {data: DepartmentCreateRequest},
         TContext
       > => {
       return useMutation(getDepartmentsControllerCreateMutationOptions(options), queryClient);
     }
     export type departmentsControllerUpdateResponse200 = {
-  data: DepartmentResponseDto
+  data: DepartmentResponse
   status: 200
 }
 
-export type departmentsControllerUpdateResponse404 = {
+export type departmentsControllerUpdateResponse401 = {
   data: void
-  status: 404
+  status: 401
+}
+
+export type departmentsControllerUpdateResponse403 = {
+  data: void
+  status: 403
 }
 
 export type departmentsControllerUpdateResponseSuccess = (departmentsControllerUpdateResponse200) & {
   headers: Headers;
 };
-export type departmentsControllerUpdateResponseError = (departmentsControllerUpdateResponse404) & {
+export type departmentsControllerUpdateResponseError = (departmentsControllerUpdateResponse401 | departmentsControllerUpdateResponse403) & {
   headers: Headers;
 };
 
@@ -176,16 +193,16 @@ export const getDepartmentsControllerUpdateUrl = () => {
 }
 
 /**
- * @summary Update an existing department
+ * @summary Update a department
  */
-export const departmentsControllerUpdate = async (updateDepartmentDto: UpdateDepartmentDto, options?: RequestInit): Promise<departmentsControllerUpdateResponse> => {
+export const departmentsControllerUpdate = async (departmentUpdateRequest: DepartmentUpdateRequest, options?: RequestInit): Promise<departmentsControllerUpdateResponse> => {
 
   const res = await fetch(getDepartmentsControllerUpdateUrl(),
   {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(updateDepartmentDto)
+    body: JSON.stringify(departmentUpdateRequest)
   }
 )
 
@@ -201,8 +218,8 @@ export const departmentsControllerUpdate = async (updateDepartmentDto: UpdateDep
 
 
 export const getDepartmentsControllerUpdateMutationOptions = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerUpdate>>, TError,{data: UpdateDepartmentDto}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerUpdate>>, TError,{data: UpdateDepartmentDto}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerUpdate>>, TError,{data: DepartmentUpdateRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerUpdate>>, TError,{data: DepartmentUpdateRequest}, TContext> => {
 
 const mutationKey = ['departmentsControllerUpdate'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
@@ -214,7 +231,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof departmentsControllerUpdate>>, {data: UpdateDepartmentDto}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof departmentsControllerUpdate>>, {data: DepartmentUpdateRequest}> = (props) => {
           const {data} = props ?? {};
 
           return  departmentsControllerUpdate(data,fetchOptions)
@@ -228,36 +245,41 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type DepartmentsControllerUpdateMutationResult = NonNullable<Awaited<ReturnType<typeof departmentsControllerUpdate>>>
-    export type DepartmentsControllerUpdateMutationBody = UpdateDepartmentDto
+    export type DepartmentsControllerUpdateMutationBody = DepartmentUpdateRequest
     export type DepartmentsControllerUpdateMutationError = void
 
     /**
- * @summary Update an existing department
+ * @summary Update a department
  */
 export const useDepartmentsControllerUpdate = <TError = void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerUpdate>>, TError,{data: UpdateDepartmentDto}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerUpdate>>, TError,{data: DepartmentUpdateRequest}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof departmentsControllerUpdate>>,
         TError,
-        {data: UpdateDepartmentDto},
+        {data: DepartmentUpdateRequest},
         TContext
       > => {
       return useMutation(getDepartmentsControllerUpdateMutationOptions(options), queryClient);
     }
     export type departmentsControllerGetByIdResponse200 = {
-  data: DepartmentResponseDto
+  data: DepartmentResponse
   status: 200
 }
 
-export type departmentsControllerGetByIdResponse404 = {
+export type departmentsControllerGetByIdResponse401 = {
   data: void
-  status: 404
+  status: 401
+}
+
+export type departmentsControllerGetByIdResponse403 = {
+  data: void
+  status: 403
 }
 
 export type departmentsControllerGetByIdResponseSuccess = (departmentsControllerGetByIdResponse200) & {
   headers: Headers;
 };
-export type departmentsControllerGetByIdResponseError = (departmentsControllerGetByIdResponse404) & {
+export type departmentsControllerGetByIdResponseError = (departmentsControllerGetByIdResponse401 | departmentsControllerGetByIdResponse403) & {
   headers: Headers;
 };
 
@@ -272,7 +294,7 @@ export const getDepartmentsControllerGetByIdUrl = (id: number,) => {
 }
 
 /**
- * @summary Get department by ID
+ * @summary Get a department by id
  */
 export const departmentsControllerGetById = async (id: number, options?: RequestInit): Promise<departmentsControllerGetByIdResponse> => {
 
@@ -350,7 +372,7 @@ export function useDepartmentsControllerGetById<TData = Awaited<ReturnType<typeo
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get department by ID
+ * @summary Get a department by id
  */
 
 export function useDepartmentsControllerGetById<TData = Awaited<ReturnType<typeof departmentsControllerGetById>>, TError = void>(
@@ -371,16 +393,28 @@ export function useDepartmentsControllerGetById<TData = Awaited<ReturnType<typeo
 
 
 export type departmentsControllerGetByIndexResponse200 = {
-  data: void
+  data: DepartmentsControllerGetByIndex200
   status: 200
+}
+
+export type departmentsControllerGetByIndexResponse401 = {
+  data: void
+  status: 401
+}
+
+export type departmentsControllerGetByIndexResponse403 = {
+  data: void
+  status: 403
 }
 
 export type departmentsControllerGetByIndexResponseSuccess = (departmentsControllerGetByIndexResponse200) & {
   headers: Headers;
 };
-;
+export type departmentsControllerGetByIndexResponseError = (departmentsControllerGetByIndexResponse401 | departmentsControllerGetByIndexResponse403) & {
+  headers: Headers;
+};
 
-export type departmentsControllerGetByIndexResponse = (departmentsControllerGetByIndexResponseSuccess)
+export type departmentsControllerGetByIndexResponse = (departmentsControllerGetByIndexResponseSuccess | departmentsControllerGetByIndexResponseError)
 
 export const getDepartmentsControllerGetByIndexUrl = (params?: DepartmentsControllerGetByIndexParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -398,7 +432,7 @@ export const getDepartmentsControllerGetByIndexUrl = (params?: DepartmentsContro
 }
 
 /**
- * @summary Get paginated list of departments
+ * @summary Paginated list of departments
  */
 export const departmentsControllerGetByIndex = async (params?: DepartmentsControllerGetByIndexParams, options?: RequestInit): Promise<departmentsControllerGetByIndexResponse> => {
 
@@ -414,7 +448,7 @@ export const departmentsControllerGetByIndex = async (params?: DepartmentsContro
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: departmentsControllerGetByIndexResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: departmentsControllerGetByIndexResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as departmentsControllerGetByIndexResponse
 }
 
@@ -429,7 +463,7 @@ export const getDepartmentsControllerGetByIndexQueryKey = (params?: DepartmentsC
     }
 
 
-export const getDepartmentsControllerGetByIndexQueryOptions = <TData = Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError = unknown>(params?: DepartmentsControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
+export const getDepartmentsControllerGetByIndexQueryOptions = <TData = Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError = void>(params?: DepartmentsControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -448,10 +482,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type DepartmentsControllerGetByIndexQueryResult = NonNullable<Awaited<ReturnType<typeof departmentsControllerGetByIndex>>>
-export type DepartmentsControllerGetByIndexQueryError = unknown
+export type DepartmentsControllerGetByIndexQueryError = void
 
 
-export function useDepartmentsControllerGetByIndex<TData = Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError = unknown>(
+export function useDepartmentsControllerGetByIndex<TData = Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError = void>(
  params: undefined |  DepartmentsControllerGetByIndexParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof departmentsControllerGetByIndex>>,
@@ -461,7 +495,7 @@ export function useDepartmentsControllerGetByIndex<TData = Awaited<ReturnType<ty
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useDepartmentsControllerGetByIndex<TData = Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError = unknown>(
+export function useDepartmentsControllerGetByIndex<TData = Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError = void>(
  params?: DepartmentsControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof departmentsControllerGetByIndex>>,
@@ -471,15 +505,15 @@ export function useDepartmentsControllerGetByIndex<TData = Awaited<ReturnType<ty
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useDepartmentsControllerGetByIndex<TData = Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError = unknown>(
+export function useDepartmentsControllerGetByIndex<TData = Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError = void>(
  params?: DepartmentsControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get paginated list of departments
+ * @summary Paginated list of departments
  */
 
-export function useDepartmentsControllerGetByIndex<TData = Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError = unknown>(
+export function useDepartmentsControllerGetByIndex<TData = Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError = void>(
  params?: DepartmentsControllerGetByIndexParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof departmentsControllerGetByIndex>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -524,7 +558,7 @@ export const getDepartmentsControllerForDropdownUrl = (params?: DepartmentsContr
 }
 
 /**
- * @summary Get departments for dropdown selection
+ * @summary Departments for dropdowns (public: used by Explore filters)
  */
 export const departmentsControllerForDropdown = async (params?: DepartmentsControllerForDropdownParams, options?: RequestInit): Promise<departmentsControllerForDropdownResponse> => {
 
@@ -602,7 +636,7 @@ export function useDepartmentsControllerForDropdown<TData = Awaited<ReturnType<t
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Get departments for dropdown selection
+ * @summary Departments for dropdowns (public: used by Explore filters)
  */
 
 export function useDepartmentsControllerForDropdown<TData = Awaited<ReturnType<typeof departmentsControllerForDropdown>>, TError = unknown>(
@@ -623,13 +657,18 @@ export function useDepartmentsControllerForDropdown<TData = Awaited<ReturnType<t
 
 
 export type departmentsControllerDeleteResponse200 = {
-  data: void
+  data: SuccessResponse
   status: 200
 }
 
-export type departmentsControllerDeleteResponse404 = {
+export type departmentsControllerDeleteResponse401 = {
   data: void
-  status: 404
+  status: 401
+}
+
+export type departmentsControllerDeleteResponse403 = {
+  data: void
+  status: 403
 }
 
 export type departmentsControllerDeleteResponse409 = {
@@ -640,7 +679,7 @@ export type departmentsControllerDeleteResponse409 = {
 export type departmentsControllerDeleteResponseSuccess = (departmentsControllerDeleteResponse200) & {
   headers: Headers;
 };
-export type departmentsControllerDeleteResponseError = (departmentsControllerDeleteResponse404 | departmentsControllerDeleteResponse409) & {
+export type departmentsControllerDeleteResponseError = (departmentsControllerDeleteResponse401 | departmentsControllerDeleteResponse403 | departmentsControllerDeleteResponse409) & {
   headers: Headers;
 };
 
@@ -655,7 +694,7 @@ export const getDepartmentsControllerDeleteUrl = (id: number,) => {
 }
 
 /**
- * @summary Delete a department
+ * @summary Delete a department (blocked while it has majors or lecturers)
  */
 export const departmentsControllerDelete = async (id: number, options?: RequestInit): Promise<departmentsControllerDeleteResponse> => {
 
@@ -671,7 +710,7 @@ export const departmentsControllerDelete = async (id: number, options?: RequestI
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: departmentsControllerDeleteResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: departmentsControllerDeleteResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as departmentsControllerDeleteResponse
 }
 
@@ -711,7 +750,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
     export type DepartmentsControllerDeleteMutationError = void
 
     /**
- * @summary Delete a department
+ * @summary Delete a department (blocked while it has majors or lecturers)
  */
 export const useDepartmentsControllerDelete = <TError = void,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof departmentsControllerDelete>>, TError,{id: number}, TContext>, fetch?: RequestInit}

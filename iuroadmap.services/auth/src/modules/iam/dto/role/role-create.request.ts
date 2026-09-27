@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsArray, IsOptional, IsUUID, MaxLength } from 'cl
 import { EntityConstant } from '@iuroadmap/shared';
 
 export class RoleCreateRequest {
-  @ApiProperty({ description: 'The name of the role', example: 'EDITOR' })
+  @ApiProperty({ description: 'The name of the role', example: 'EDITOR', minLength: 1, maxLength: EntityConstant.ShortString })
   @IsString()
   @IsNotEmpty()
   @MaxLength(EntityConstant.ShortString)

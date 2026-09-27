@@ -1,40 +1,42 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { HttpExceptionFilter, ResponseInterceptor } from '@iuroadmap/shared';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
+  // Same routing as auth: the gateway forwards /api/v1/<prefix>/... unchanged.
+  app.setGlobalPrefix('api', { exclude: ['health'] });
+  app.enableVersioning({ type: VersioningType.URI });
+
   const config = new DocumentBuilder()
     .setTitle('IUROADMAP Roadmap Service')
-    .setDescription('Academic Roadmap & Content Management Service API')
-    .setVersion('1.0')
+    .setDescription('Curriculum by year, course catalog, student roadmap overlay and grades (Roadmap v2)')
+    .setVersion('2.0')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  // 1. Enable Global Validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
+      transformOptions: { enableImplicitConversion: true },
     }),
   );
+  // Error bodies: { status, code, message, ... }; success bodies: { status, data, timestamp, path }
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
-  // 2. Enable CORS
   app.enableCors();
 
-  // 3. Start Server
   const port = process.env.PORT || 4100;
   await app.listen(port, '0.0.0.0');
-
   logger.log(`🚀 Roadmap Service is running on port ${port}`);
 }
 bootstrap();

@@ -1,0 +1,67 @@
+{
+  "config": {
+    "common": {
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "back": "Quay lại",
+      "add": "Thêm",
+      "edit": "Chỉnh sửa",
+      "delete": "Xóa",
+      "search": "Tìm kiếm",
+      "actions": "Thao tác",
+      "noData": "Không có dữ liệu",
+      "failedToLoad": "Tải dữ liệu thất bại",
+      "success": "Thành công",
+      "id": "Mã",
+      "notAvailable": "Không có"
+    },
+    "department": {
+      "info": "Thông tin khoa",
+      "create": "Tạo khoa",
+      "edit": "Chỉnh sửa khoa",
+      "name": "Tên khoa",
+      "slug": "Slug",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Mô tả ngắn...",
+      "namePlaceholder": "Ví dụ: Khoa Khoa học máy tính",
+      "slugPlaceholder": "Ví dụ: computer-science",
+      "list": "Khoa",
+      "created": "Tạo khoa thành công",
+      "updated": "Cập nhật khoa thành công",
+      "createFailed": "Tạo khoa thất bại",
+      "updateFailed": "Cập nhật khoa thất bại",
+      "loadFailed": "Tải khoa thất bại"
+    },
+    "role": {
+      "info": "Thông tin vai trò",
+      "permissionMatrix": "Ma trận quyền",
+      "name": "Tên vai trò",
+      "list": "Vai trò",
+      "createFailed": "Tạo vai trò thất bại"
+    },
+    "user": {
+      "info": "Thông tin chung",
+      "create": "Tạo",
+      "edit": "Chỉnh sửa",
+      "fullName": "Họ và tên",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "subscriptionTier": "Gói đăng ký",
+      "subscriptionExpiresAt": "Ngày hết hạn gói",
+      "createdAt": "Ngày tạo",
+      "list": "Người dùng",
+      "searchPlaceholder": "Tìm theo từ khóa",
+      "rolePlaceholder": "Chọn vai trò",
+      "viewDetail": "Xem chi tiết",
+      "active": "ĐANG HOẠT ĐỘNG",
+      "pendingApproval": "CHỜ DUYỆT",
+      "banned": "BỊ KHÓA",
+      "rejected": "TỪ CHỐI",
+      "free": "MIỄN PHÍ",
+      "vip": "VIP",
+      "pro": "PRO"
+    }
+  }
+}

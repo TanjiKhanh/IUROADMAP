@@ -16,43 +16,60 @@ interface PublicPaths {
   forgotPassword: string;
 }
 
-interface DashboardPaths {
+interface DashBoardPaths {
+  root: string;
+}
+
+interface RoadMapPaths {
   root: string;
   explore: string;
   myCourses: string;
-  findMentors: string;
   roadmap: string;
   roadmapPreview: string;
   roadmapLegacy: string;
   microRoadmap: string;
 }
 
-interface AdminPaths {
+
+interface RolePaths {
   root: string;
-  roadmaps: string;
-  courses: string;
-  departments: string;
-  roadmapsDesign: string;
-  roadmapsDesignSlug: string;
-  courseTopicsDesign: string;
+  create: string;
+  edit: string;
 }
 
-interface MentorPaths {
-  applicationPending: string;
-  dashboard: string;
+interface UserPaths {
+  root: string;
+  create: string;
+  edit: string;
+  detail: string;
+  changePassword?: string;
 }
 
-interface LegacyPaths {
-  admin: string;
-  mentorDashboard: string;
+interface ConfigPaths {
+  root: string;
+  role: RolePaths;
+  user: UserPaths;
+  department: {
+    root: string;
+    create: string;
+    edit: string;
+  };
+  major: {
+    root: string;
+    create: string;
+    edit: string;
+  };
+  roadmap: {
+    designSlug: string;
+    courseTopics: string;
+  };
 }
 
 export interface WebPathsStructure {
   public: PublicPaths;
-  dashboard: DashboardPaths;
-  admin: AdminPaths;
-  mentor: MentorPaths;
-  legacy: LegacyPaths;
+  dashboard: DashBoardPaths;
+  roadmap: RoadMapPaths;
+  config: ConfigPaths;
 }
 
 export type MobilePathsStructure = WebPathsStructure;
@@ -71,30 +88,44 @@ export const webPaths: WebPathsStructure = {
   },
   dashboard: {
     root: '/dashboard',
-    explore: '/dashboard/explore',
-    myCourses: '/dashboard/my-courses',
-    findMentors: '/dashboard/find-mentors',
-    roadmap: '/dashboard/roadmap/:id',
-    roadmapPreview: '/dashboard/roadmap-preview/:slug',
-    roadmapLegacy: '/dashboard/roadmap-legacy/:id',
-    microRoadmap: '/dashboard/roadmap/:id/micro/:courseNodeId',
   },
-  admin: {
-    root: '/dashboard/admin',
-    roadmaps: '/dashboard/admin/roadmaps',
-    courses: '/dashboard/admin/courses',
-    departments: '/dashboard/admin/departments',
-    roadmapsDesign: '/dashboard/admin/roadmaps/design',
-    roadmapsDesignSlug: '/dashboard/admin/roadmaps/design/:slug',
-    courseTopicsDesign: '/dashboard/admin/courses/:courseNodeId/topics',
+  roadmap: {
+    root: '/roadmap',
+    explore: '/roadmap/explore',
+    myCourses: '/roadmap/my-courses',
+    roadmap: '/roadmap/:id',
+    roadmapPreview: '/roadmap-preview/:slug',
+    roadmapLegacy: '/roadmap-legacy/:id',
+    microRoadmap: '/roadmap/:id/micro/:courseNodeId',
   },
-  mentor: {
-    applicationPending: '/application-pending',
-    dashboard: '/dashboard/mentor',
-  },
-  legacy: {
-    admin: '/admin/*',
-    mentorDashboard: '/mentor-dashboard',
+  config: {
+    root: '/config',
+    role: {
+      root: '/config/roles',
+      create: '/config/roles/create',
+      edit: '/config/roles/:id/edit',
+    },
+    user: {
+      root: '/config/users',
+      create: '/config/users/create',
+      edit: '/config/users/:id/edit',
+      detail: '/config/users/:id',
+      changePassword: '/config/users/:id/change-password',
+    },
+    department: {
+      root: '/config/departments',
+      create: '/config/departments/create',
+      edit: '/config/departments/:id/edit',
+    },
+    major: {
+      root: '/config/majors',
+      create: '/config/majors/create',
+      edit: '/config/majors/:id/edit',
+    },
+    roadmap: {
+      designSlug: '/config/roadmaps/design/:slug',
+      courseTopics: '/config/courses/:courseNodeId/topics',
+    },
   },
 };
 

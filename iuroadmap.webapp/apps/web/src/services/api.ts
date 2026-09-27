@@ -1,6 +1,7 @@
 /// <reference types="vite/client" />
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { getAccessToken, setAccessToken } from '../auth/tokenStore';
+import { clearAuth, store } from '@iuroadmap/store';
 
 // =====================================
 // Axios Instance
@@ -63,6 +64,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest.url?.includes('/auth/login')) {
       console.warn('🔒 Session expired or unauthorized. Clearing session.');
       setAccessToken(null);
+      store.dispatch(clearAuth());
       if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
         window.location.href = '/login';
       }

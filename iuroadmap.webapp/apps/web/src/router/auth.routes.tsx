@@ -1,13 +1,21 @@
 import type { RouteObject } from 'react-router-dom';
 import { RoutePaths } from '@iuroadmap/core';
+import { AuthLayout } from '../layouts/authLayout';
 import Login from '../views/public/Login';
 import Register from '../views/public/Register';
 import ForgotPassword from '../views/public/ForgotPassword';
+import ResetPassword from '../views/public/ResetPassword';
 
 const authRoutes: RouteObject[] = [
-  { path: RoutePaths.web.public.login, element: <Login /> },
-  { path: RoutePaths.web.public.register, element: <Register /> },
-  { path: RoutePaths.web.public.forgotPassword, element: <ForgotPassword /> },
+  {
+    element: <AuthLayout />,
+    children: [
+      { path: RoutePaths.web.public.login, element: <Login /> },
+      { path: RoutePaths.web.public.register, element: <Register /> },
+      { path: RoutePaths.web.public.forgotPassword, element: <ForgotPassword /> },
+      { path: '/reset-password', element: <ResetPassword /> },
+    ],
+  },
 ];
 
 export default authRoutes;

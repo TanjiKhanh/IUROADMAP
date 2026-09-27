@@ -1,14 +1,21 @@
 import { appMenuConfig, IURoadmapMenu, IURoadmapMenuItem } from './menu';
-import { UserRole } from '../enums/roles';
 
-function filterItems(items: IURoadmapMenuItem[], userRoles: UserRole[], userPermissions: string[]): IURoadmapMenuItem[] {
+function filterItems(
+  items: IURoadmapMenuItem[],
+  userPermissions: string[],
+  isSuperAdmin: boolean,
+): IURoadmapMenuItem[] {
   return items.reduce<IURoadmapMenuItem[]>((acc, item) => {
-    const hasRole = !item.roles || item.roles.length === 0 || item.roles.some((role) => userRoles.includes(role as UserRole));
-    const hasPermission = !item.permissions || item.permissions.length === 0 || item.permissions.some((permission) => userPermissions.includes(permission));
+    const hasAccess =
+      isSuperAdmin ||
+      item.ignorePms ||
+      !item.roles ||
+      item.roles.length === 0 ||
+      item.roles.some((pms) => userPermissions.includes(pms));
 
-    if (hasRole && hasPermission) {
+    if (hasAccess) {
       if (item.children && item.children.length > 0) {
-        const filteredChildren = filterItems(item.children, userRoles, userPermissions);
+        const filteredChildren = filterItems(item.children, userPermissions, isSuperAdmin);
         // Only include parent if it has a valid path itself, OR it has accessible children
         if (filteredChildren.length > 0 || item.path) {
           acc.push({
@@ -25,14 +32,14 @@ function filterItems(items: IURoadmapMenuItem[], userRoles: UserRole[], userPerm
 }
 
 export function getProfileMenu(
-  userRoles: UserRole[],
+  userPermissions: string[],
   platform: 'web' | 'mobile' = 'web',
-  userPermissions: string[] = []
+  isSuperAdmin = false,
 ): IURoadmapMenu[] {
   const filteredMenu: IURoadmapMenu[] = [];
 
   for (const group of appMenuConfig) {
-    const accessibleItems = filterItems(group.items, userRoles, userPermissions);
+    const accessibleItems = filterItems(group.items, userPermissions, isSuperAdmin);
 
     if (accessibleItems.length > 0) {
       filteredMenu.push({

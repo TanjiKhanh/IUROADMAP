@@ -1,5 +1,7 @@
 # User Service Schema
 
+> ⚠️ **Deprecated từ Roadmap v2 (2026-09-26).** `USER_ROADMAPS_PROGRESS` và `USER_NODE_PROGRESS` bị thay bằng `STUDENT_ROADMAPS` + overlay + `STUDENT_COURSE_RESULTS` trong roadmap-service. Xem [`roadmap-schema.md`](roadmap-schema.md) và [`roadmap-v2-design.md`](../architecture/roadmap-v2-design.md) §10. Không phát triển thêm trên các bảng dưới đây.
+
 ```mermaid
 erDiagram
     USER_ROADMAPS_PROGRESS {

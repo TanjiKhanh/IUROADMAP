@@ -9,59 +9,88 @@ import * as zod from 'zod';
 
 
 /**
- * @summary Create a new department
+ * @summary Create a department
  */
+export const departmentsControllerCreateBodySlugMax = 100;
+
+export const departmentsControllerCreateBodyNameMax = 200;
+
+export const departmentsControllerCreateBodyDescriptionMax = 1000;
+
+
+
 export const DepartmentsControllerCreateBody = zod.object({
-  "slug": zod.string().describe('Department slug'),
-  "name": zod.string().describe('Department name'),
-  "description": zod.string().optional().describe('Department description')
+  "slug": zod.string().max(departmentsControllerCreateBodySlugMax).describe('Unique kebab-case slug'),
+  "name": zod.string().max(departmentsControllerCreateBodyNameMax).describe('Department name'),
+  "description": zod.string().max(departmentsControllerCreateBodyDescriptionMax).optional().describe('Description')
 })
 
 export const DepartmentsControllerCreateResponse = zod.object({
-  "id": zod.number().describe('Department ID'),
-  "slug": zod.string().describe('Department slug'),
-  "name": zod.string().describe('Department name'),
-  "description": zod.string().optional().describe('Department description'),
-  "created_at": zod.string().describe('Creation timestamp'),
-  "updated_at": zod.string().describe('Last update timestamp')
+  "id": zod.number(),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "majorCount": zod.number().describe('Number of majors in this department'),
+  "lecturerCount": zod.number().describe('Number of lecturers in this department'),
+  "canDelete": zod.boolean().describe('False while the department still has majors or lecturers (BR-RM-02)'),
+  "canUpdate": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
 })
 
 /**
- * @summary Update an existing department
+ * @summary Update a department
  */
+export const departmentsControllerUpdateBodySlugMax = 100;
+
+export const departmentsControllerUpdateBodyNameMax = 200;
+
+export const departmentsControllerUpdateBodyDescriptionMax = 1000;
+
+
+
 export const DepartmentsControllerUpdateBody = zod.object({
-  "slug": zod.string().optional().describe('Department slug'),
-  "name": zod.string().optional().describe('Department name'),
-  "description": zod.string().optional().describe('Department description')
+  "id": zod.number().describe('Department ID'),
+  "slug": zod.string().max(departmentsControllerUpdateBodySlugMax).optional().describe('Unique kebab-case slug'),
+  "name": zod.string().max(departmentsControllerUpdateBodyNameMax).optional().describe('Department name'),
+  "description": zod.string().max(departmentsControllerUpdateBodyDescriptionMax).optional().describe('Description')
 })
 
 export const DepartmentsControllerUpdateResponse = zod.object({
-  "id": zod.number().describe('Department ID'),
-  "slug": zod.string().describe('Department slug'),
-  "name": zod.string().describe('Department name'),
-  "description": zod.string().optional().describe('Department description'),
-  "created_at": zod.string().describe('Creation timestamp'),
-  "updated_at": zod.string().describe('Last update timestamp')
+  "id": zod.number(),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "majorCount": zod.number().describe('Number of majors in this department'),
+  "lecturerCount": zod.number().describe('Number of lecturers in this department'),
+  "canDelete": zod.boolean().describe('False while the department still has majors or lecturers (BR-RM-02)'),
+  "canUpdate": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
 })
 
 /**
- * @summary Get department by ID
+ * @summary Get a department by id
  */
 export const DepartmentsControllerGetByIdParams = zod.object({
-  "id": zod.number().describe('Department ID')
+  "id": zod.number()
 })
 
 export const DepartmentsControllerGetByIdResponse = zod.object({
-  "id": zod.number().describe('Department ID'),
-  "slug": zod.string().describe('Department slug'),
-  "name": zod.string().describe('Department name'),
-  "description": zod.string().optional().describe('Department description'),
-  "created_at": zod.string().describe('Creation timestamp'),
-  "updated_at": zod.string().describe('Last update timestamp')
+  "id": zod.number(),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "majorCount": zod.number().describe('Number of majors in this department'),
+  "lecturerCount": zod.number().describe('Number of lecturers in this department'),
+  "canDelete": zod.boolean().describe('False while the department still has majors or lecturers (BR-RM-02)'),
+  "canUpdate": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
 })
 
 /**
- * @summary Get paginated list of departments
+ * @summary Paginated list of departments
  */
 export const departmentsControllerGetByIndexQueryRowsPerPageDefault = 20;
 export const departmentsControllerGetByIndexQueryCurrentPageDefault = 1;
@@ -69,17 +98,34 @@ export const departmentsControllerGetByIndexQueryCurrentPageDefault = 1;
 export const DepartmentsControllerGetByIndexQueryParams = zod.object({
   "rowsPerPage": zod.number().default(departmentsControllerGetByIndexQueryRowsPerPageDefault).describe('Number of rows per page'),
   "currentPage": zod.number().default(departmentsControllerGetByIndexQueryCurrentPageDefault).describe('Current page number'),
-  "keyword": zod.string().optional().describe('Search keyword'),
-  "sortOrder": zod.enum(['asc', 'desc']).optional(),
-  "sortBy": zod.string().optional(),
-  "pageSize": zod.number().optional(),
-  "page": zod.number().optional()
+  "keyword": zod.string().optional().describe('Search keyword')
 })
 
-export const DepartmentsControllerGetByIndexResponse = zod.unknown()
+export const departmentsControllerGetByIndexResponseOneCurrentPageDefault = 1;
+
+export const DepartmentsControllerGetByIndexResponse = zod.object({
+  "rowsPerPage": zod.number().describe('Number of rows per page'),
+  "currentPage": zod.number().default(departmentsControllerGetByIndexResponseOneCurrentPageDefault).describe('Current page number'),
+  "totalRows": zod.number().describe('Total number of rows'),
+  "datas": zod.array(zod.array()).optional().describe('Array of data items'),
+  "totalPage": zod.number().describe('Total number of pages')
+}).and(zod.object({
+  "datas": zod.array(zod.object({
+  "id": zod.number(),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "description": zod.string().optional(),
+  "majorCount": zod.number().describe('Number of majors in this department'),
+  "lecturerCount": zod.number().describe('Number of lecturers in this department'),
+  "canDelete": zod.boolean().describe('False while the department still has majors or lecturers (BR-RM-02)'),
+  "canUpdate": zod.boolean(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})).optional()
+}))
 
 /**
- * @summary Get departments for dropdown selection
+ * @summary Departments for dropdowns (public: used by Explore filters)
  */
 export const DepartmentsControllerForDropdownQueryParams = zod.object({
   "keyword": zod.string().optional(),
@@ -96,11 +142,13 @@ export const DepartmentsControllerForDropdownResponseItem = zod.object({
 export const DepartmentsControllerForDropdownResponse = zod.array(DepartmentsControllerForDropdownResponseItem)
 
 /**
- * @summary Delete a department
+ * @summary Delete a department (blocked while it has majors or lecturers)
  */
 export const DepartmentsControllerDeleteParams = zod.object({
-  "id": zod.number().describe('Department ID')
+  "id": zod.number()
 })
 
-export const DepartmentsControllerDeleteResponse = zod.unknown()
+export const DepartmentsControllerDeleteResponse = zod.object({
+  "success": zod.boolean()
+})
 
