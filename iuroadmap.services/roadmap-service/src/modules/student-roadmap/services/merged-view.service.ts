@@ -187,6 +187,9 @@ export class MergedViewService {
       canHaveResult: n.canHaveResult,
       state: n.state as any,
       result: n.result ? this.toResult(n) : undefined,
+      choiceGroup: n.branch?.group,
+      condition: n.branch?.condition,
+      branchActive: n.branchActive ?? undefined,
     };
   }
 

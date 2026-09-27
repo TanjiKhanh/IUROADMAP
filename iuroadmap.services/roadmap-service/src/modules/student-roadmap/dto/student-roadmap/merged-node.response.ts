@@ -59,4 +59,15 @@ export class MergedNodeResponse {
 
   @ApiPropertyOptional({ type: CourseResultResponse })
   result?: CourseResultResponse;
+
+  @ApiPropertyOptional({ description: 'Conditional branch group of the curriculum (FR-RDM.07.4)', example: 'HK8' })
+  choiceGroup?: string;
+
+  @ApiPropertyOptional({ description: 'Branch condition', example: 'CUM_GPA100>=70' })
+  condition?: string;
+
+  @ApiPropertyOptional({
+    description: 'Branch node: true when the condition holds for the cumulative GPA before its term, false when not; empty without GPA',
+  })
+  branchActive?: boolean;
 }

@@ -132,13 +132,16 @@ export function rebaseOverlay(
     state.nodes.set(d.nodeKey, { ...d, termKey: termExists(d.termKey) ? d.termKey : firstRegular });
   }
 
-  // Learner relations follow remapped nodes; dangling ones are dropped.
+  // Learner relations follow remapped nodes (also untouched curriculum nodes whose key changed
+  // but whose course is still there); dangling ones are dropped.
+  const followKey = (key: string): string => {
+    const mapped = resultKeyMap.get(key) ?? remappedKey(preview, key);
+    if (mapped !== key || newNodes.has(key)) return mapped;
+    const course = oldNodes.get(key)?.courseId;
+    return (course !== null && course !== undefined ? newNodeByCourse.get(course) : undefined) ?? key;
+  };
   for (const e of deltas.edges.values()) {
-    state.edges.set(e.edgeKey, {
-      ...e,
-      sourceKey: resultKeyMap.get(e.sourceKey) ?? remappedKey(preview, e.sourceKey),
-      targetKey: resultKeyMap.get(e.targetKey) ?? remappedKey(preview, e.targetKey),
-    });
+    state.edges.set(e.edgeKey, { ...e, sourceKey: followKey(e.sourceKey), targetKey: followKey(e.targetKey) });
   }
   const visible = new Set(mergeRoadmap(newBase, state).nodes.map((n) => n.nodeKey));
   for (const [key, e] of state.edges) {

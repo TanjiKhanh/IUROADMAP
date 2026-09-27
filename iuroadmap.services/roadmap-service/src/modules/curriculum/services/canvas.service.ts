@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ErrorCodes, findCycle, termCreditSummary } from '@iuroadmap/shared';
+import { ErrorCodes, branchFieldsProblem, findCycle, termCreditSummary } from '@iuroadmap/shared';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ApiErrors, handlePrismaError } from '../../../common/api-errors';
 import { RoadmapNodeKindEnum, TermKindEnum } from '../../../common/enums';
@@ -164,6 +164,9 @@ export class CanvasService {
       } else if (!n.slotLabel) {
         throw invalid('An ELECTIVE_SLOT node needs a label', { nodeKey: n.nodeKey });
       }
+      // Conditional branch (FR-RDM.07.4): group and "CUM_GPA100>=n" / "<n" condition go together
+      const branchProblem = branchFieldsProblem(n.choiceGroup, n.condition);
+      if (branchProblem) throw invalid(`Invalid conditional branch: ${branchProblem}`, { nodeKey: n.nodeKey, problem: branchProblem });
     }
     if (courseIds.size) {
       const found = await this.prisma.cOURSES.count({ where: { id: { in: [...courseIds.keys()] } } });

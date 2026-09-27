@@ -17,7 +17,7 @@ Prerequisites
 
 Important env variables
 - JWT_SECRET - secret for JWT verification used by AuthGuard
-- ADMIN_DATABASE_URL (or DATABASE_URL) - Postgres connection string for admin DB
+- ROADMAP_DATABASE_URL - Postgres connection string for the roadmap DB
 - PORT - service port (default in examples: 4100)
 
 Quick start (local - dev)

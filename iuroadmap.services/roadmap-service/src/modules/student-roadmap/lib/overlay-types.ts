@@ -28,6 +28,10 @@ export interface BaseNode {
   slotTheoryCredits: number | null;
   slotLabCredits: number | null;
   electiveGroup: string | null;
+  /** Conditional branch group (FR-RDM.07.4) */
+  choiceGroup?: string | null;
+  /** "CUM_GPA100>=70" / "CUM_GPA100<70" */
+  condition?: string | null;
 }
 
 export interface BaseEdge {
@@ -116,6 +120,8 @@ export interface MergedNode {
   /** Base elective slot definition (kept even when filled) */
   slot: { label: string; theoryCredits: number; labCredits: number; electiveGroup: string | null } | null;
   electiveGroup: string | null;
+  /** Curriculum conditional branch this node belongs to */
+  branch: { group: string; condition: string } | null;
 }
 
 export interface MergedEdge {

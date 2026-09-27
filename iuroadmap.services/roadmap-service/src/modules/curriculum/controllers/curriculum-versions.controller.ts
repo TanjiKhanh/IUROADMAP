@@ -4,6 +4,8 @@ import { CurrentUser } from '@iuroadmap/shared';
 import { AdminOnly } from '../../../common/auth.decorators';
 import { SuccessResponse } from '../../../common/success.response';
 import { CurriculumVersionsService } from '../services/curriculum-versions.service';
+import { OverlayStatsService } from '../services/overlay-stats.service';
+import { OverlayStatsResponse } from '../dto/overlay-stats';
 import {
   CurriculumValidationResponse,
   CurriculumVersionCreateRequest,
@@ -15,7 +17,10 @@ import {
 @ApiTags('Admin Curriculum')
 @Controller({ version: '1' })
 export class CurriculumVersionsController {
-  constructor(private readonly versionsService: CurriculumVersionsService) {}
+  constructor(
+    private readonly versionsService: CurriculumVersionsService,
+    private readonly overlayStats: OverlayStatsService,
+  ) {}
 
   @Get('admin/roadmaps/:roadmapId/versions')
   @AdminOnly()
@@ -59,6 +64,15 @@ export class CurriculumVersionsController {
     @Body() dto: CurriculumVersionUpdateRequest,
   ): Promise<CurriculumVersionResponse> {
     return this.versionsService.update(id, dto);
+  }
+
+  @Get('admin/roadmap-versions/:id/overlay-stats')
+  @AdminOnly()
+  @ApiOperation({ summary: 'How learners adapt this curriculum: moved, added and chosen courses (FR-RDM.07.5)' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, type: OverlayStatsResponse })
+  async overlayStatistics(@Param('id', ParseIntPipe) id: number): Promise<OverlayStatsResponse> {
+    return this.overlayStats.getStats(id);
   }
 
   @Get('admin/roadmap-versions/:id/validate')

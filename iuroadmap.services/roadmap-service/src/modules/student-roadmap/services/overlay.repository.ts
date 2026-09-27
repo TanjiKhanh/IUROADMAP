@@ -28,6 +28,8 @@ export class OverlayRepository {
         slotTheoryCredits: n.slotTheoryCredits,
         slotLabCredits: n.slotLabCredits,
         electiveGroup: n.electiveGroup,
+        choiceGroup: n.choiceGroup,
+        condition: n.condition,
       })),
       edges: structure.edges.map((e) => ({ ...e })),
     };

@@ -64,6 +64,7 @@ export function mergeRoadmap(base: BaseStructure, deltas: DeltaState): MergedRoa
             }
           : null,
       electiveGroup: n.electiveGroup,
+      branch: n.choiceGroup && n.condition ? { group: n.choiceGroup, condition: n.condition } : null,
     });
   }
 
@@ -89,6 +90,7 @@ export function mergeRoadmap(base: BaseStructure, deltas: DeltaState): MergedRoa
             : null,
         slot: null,
         electiveGroup: null,
+        branch: null,
       });
       continue;
     }

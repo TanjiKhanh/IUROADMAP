@@ -6,9 +6,11 @@ import {
   ResultsSummary,
   checkPlacement,
   estimateAcademicYear,
+  evaluateBranch,
   evaluateResult,
   findCycle,
   layoutColumn,
+  parseBranchCondition,
   progressPercent,
   summarizeResults,
 } from '@iuroadmap/shared';
@@ -52,6 +54,11 @@ export interface DerivedNode extends MergedNode {
   letter?: string;
   gradePoint?: number;
   result?: ResultRow;
+  /**
+   * Conditional branch node: whether its condition holds for the cumulative GPA of the terms
+   * before it (FR-LRN.06.7); null when there is no GPA yet or the node is not in a branch.
+   */
+  branchActive: boolean | null;
 }
 
 export interface DerivedTerm extends MergedTerm {
@@ -131,6 +138,7 @@ export function deriveRoadmap(input: DeriveInput): DerivedRoadmap {
       countsTowardCredits: course?.countsTowardCredits ?? true,
       canHaveResult,
       state: 'PLANNED',
+      branchActive: null,
     };
     const result = results.get(n.nodeKey);
     if (result && canHaveResult) {
@@ -146,8 +154,12 @@ export function deriveRoadmap(input: DeriveInput): DerivedRoadmap {
 
   const terms: DerivedTerm[] = [];
   const cumulativeInputs: CourseResultInput[] = [];
+  /** Cumulative GPA100 of the terms before each term (what a branch is decided on) */
+  const gpaBefore = new Map<string, number | null>();
+  let lastCumulativeGpa: number | null = null;
   let plannedCredits = 0;
   for (const term of merged.terms) {
+    gpaBefore.set(term.termKey, lastCumulativeGpa);
     const inTerm = nodes.filter((n) => n.termKey === term.termKey);
     const isPool = term.kind === 'ELECTIVE_POOL';
     let courseCredits = 0;
@@ -176,9 +188,15 @@ export function deriveRoadmap(input: DeriveInput): DerivedRoadmap {
       summary: isPool ? null : summarizeResults(termInputs, grades, classifications),
       cumulative: isPool ? null : summarizeResults(cumulativeInputs, grades, classifications),
     });
+    if (!isPool) lastCumulativeGpa = terms[terms.length - 1].cumulative?.gpa100 ?? lastCumulativeGpa;
   }
 
   const overall = summarizeResults(cumulativeInputs, grades, classifications);
+  for (const n of nodes) {
+    if (!n.branch) continue;
+    const isPoolNode = merged.terms.find((t) => t.termKey === n.termKey)?.kind === 'ELECTIVE_POOL';
+    n.branchActive = evaluateBranch(parseBranchCondition(n.branch.condition), isPoolNode ? overall.gpa100 : gpaBefore.get(n.termKey) ?? null);
+  }
   const hints: Hint[] = [];
   for (const v of checkPlacement(
     merged.terms.map((t) => ({ key: t.termKey, kind: t.kind })),

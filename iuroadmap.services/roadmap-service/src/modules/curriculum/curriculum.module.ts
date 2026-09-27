@@ -4,10 +4,11 @@ import { CanvasController } from './controllers/canvas.controller';
 import { CurriculumVersionsService } from './services/curriculum-versions.service';
 import { CanvasService } from './services/canvas.service';
 import { VersionStructureService } from './services/version-structure.service';
+import { OverlayStatsService } from './services/overlay-stats.service';
 
 @Module({
   controllers: [CurriculumVersionsController, CanvasController],
-  providers: [CurriculumVersionsService, CanvasService, VersionStructureService],
+  providers: [CurriculumVersionsService, CanvasService, VersionStructureService, OverlayStatsService],
   exports: [CurriculumVersionsService, CanvasService, VersionStructureService],
 })
 export class CurriculumModule {}

@@ -15,6 +15,7 @@ import { CourseOfferingModule } from './modules/course-offering/course-offering.
 import { StudentRoadmapModule } from './modules/student-roadmap/student-roadmap.module';
 import { ExploreModule } from './modules/explore/explore.module';
 import { CourseCommentModule } from './modules/course-comment/course-comment.module';
+import { UserDataModule } from './modules/user-data/user-data.module';
 import { HealthController } from './health.controller';
 
 @Module({
@@ -31,6 +32,7 @@ import { HealthController } from './health.controller';
     StudentRoadmapModule,
     ExploreModule,
     CourseCommentModule,
+    UserDataModule,
   ],
   controllers: [HealthController],
 })
