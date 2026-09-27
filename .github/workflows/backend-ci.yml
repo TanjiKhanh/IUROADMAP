@@ -1,0 +1,128 @@
+# Backend CI: production build + unit tests of the changed services.
+#   - Runs on its own for pull requests into dev or main.
+#   - Called by backend-dev.yml (Render) and backend-prod.yml (Railway) before they deploy;
+#     its `services` output tells them what to deploy.
+# A change in @iuroadmap/shared, package.json or package-lock.json selects every service.
+# Setup of both platforms: iuroadmap.infra/deploy/README.md
+
+name: Backend CI
+
+on:
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - 'iuroadmap.services/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/backend-*.yml'
+  workflow_call:
+    inputs:
+      services:
+        description: '"all", a comma separated list, or empty for the services changed by the push'
+        type: string
+        default: ''
+    outputs:
+      services:
+        description: 'JSON array of { name, key } for the services that passed (name = folder, key = NAME_IN_CAPS)'
+        value: ${{ jobs.changes.outputs.services }}
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  # A newer push to a PR replaces the older run; runs called by a deploy workflow never cancel each other
+  group: ${{ github.event_name == 'pull_request' && format('backend-ci-{0}', github.ref) || format('backend-ci-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Folder names under iuroadmap.services/ (= Render / Railway service names)
+  ALL_SERVICES: '["auth","api-gateway","roadmap-service","mentor-service","user-service"]'
+
+jobs:
+  changes:
+    name: Detect changed services
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.select.outputs.services }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: ${{ !inputs.services }}
+        with:
+          filters: |
+            shared:
+              - 'iuroadmap.services/shared/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - '.github/workflows/backend-*.yml'
+            auth:
+              - 'iuroadmap.services/auth/**'
+            api-gateway:
+              - 'iuroadmap.services/api-gateway/**'
+            roadmap-service:
+              - 'iuroadmap.services/roadmap-service/**'
+            mentor-service:
+              - 'iuroadmap.services/mentor-service/**'
+            user-service:
+              - 'iuroadmap.services/user-service/**'
+
+      - name: Select services
+        id: select
+        env:
+          INPUT: ${{ inputs.services }}
+          CHANGES: ${{ steps.filter.outputs.changes || '[]' }}
+        run: |
+          if [ "$INPUT" = "all" ]; then
+            NAMES="$ALL_SERVICES"
+          elif [ -n "$INPUT" ]; then
+            # keep only known service names from the comma separated input
+            NAMES=$(jq -cn --arg input "$INPUT" --argjson all "$ALL_SERVICES" \
+              '$input | split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(. as $s | $all | index($s)))')
+          elif echo "$CHANGES" | jq -e 'index("shared")' > /dev/null; then
+            NAMES="$ALL_SERVICES"
+          else
+            NAMES=$(echo "$CHANGES" | jq -c 'map(select(. != "shared"))')
+          fi
+          # key: "api-gateway" -> "API_GATEWAY", used to pick per-service secrets
+          SERVICES=$(echo "$NAMES" | jq -c 'map({ name: ., key: (ascii_upcase | gsub("-"; "_")) })')
+          echo "services=$SERVICES" >> "$GITHUB_OUTPUT"
+          echo "Services: $NAMES" >> "$GITHUB_STEP_SUMMARY"
+
+  build-test:
+    name: Build & test (${{ matrix.service.name }})
+    needs: changes
+    if: needs.changes.outputs.services != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJSON(needs.changes.outputs.services) }}
+    env:
+      HUSKY: 0
+    defaults:
+      run:
+        working-directory: iuroadmap.services/${{ matrix.service.name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install (service + @iuroadmap/shared + root build tools)
+        working-directory: .
+        run: npm ci --workspace=iuroadmap.services/${{ matrix.service.name }} --include-workspace-root --no-audit --no-fund
+
+      - name: Generate Prisma client
+        if: hashFiles(format('iuroadmap.services/{0}/prisma/schema.prisma', matrix.service.name)) != ''
+        run: npx prisma generate
+
+      - name: Build (same as the Docker image)
+        run: npm run build:prod
+
+      - name: Unit tests
+        run: npm run test:unit

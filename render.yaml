@@ -1,0 +1,136 @@
+# Render Blueprint: "dev" stage of the backend (free web services, branch dev).
+# Deploys are triggered by .github/workflows/backend-dev.yml through deploy hooks, after CI passes,
+# so autoDeploy is off. Production runs on Railway (railway.json in each service folder).
+# Setup: iuroadmap.infra/deploy/README.md
+#
+# - Free instances sleep after ~15 min without traffic; the first request then takes up to about a minute.
+# - Services call each other through their public onrender.com URLs (the *_SERVICE_URL variables).
+# - `sync: false` values are asked for in the dashboard when the Blueprint is created.
+# - Free plans have no pre-deploy step, so each container runs `prisma migrate deploy` before starting.
+
+envVarGroups:
+  - name: iuroadmap-dev-shared
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Must be identical in every service: generated once for the group
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MENTOR_SERVICE_API_KEY
+        generateValue: true
+      - key: ROADMAP_SERVICE_API_KEY
+        generateValue: true
+
+services:
+  - type: web
+    name: iuroadmap-auth-dev
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: dev
+    dockerContext: .
+    dockerfilePath: ./iuroadmap.services/auth/Dockerfile
+    dockerCommand: sh -c "npm run prisma:migrate && node dist/auth/src/main.js"
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - fromGroup: iuroadmap-dev-shared
+      - key: AUTH_DATABASE_URL
+        sync: false
+      - key: AUTH_DIRECT_URL
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USER
+        sync: false
+      - key: MAIL_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: MENTOR_SERVICE_URL
+        sync: false
+      - key: ROADMAP_SERVICE_URL
+        sync: false
+
+  - type: web
+    name: iuroadmap-api-gateway-dev
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: dev
+    dockerContext: .
+    dockerfilePath: ./iuroadmap.services/api-gateway/Dockerfile
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - fromGroup: iuroadmap-dev-shared
+      - key: AUTH_SERVICE_URL
+        sync: false
+      - key: USER_SERVICE_URL
+        sync: false
+      - key: MENTOR_SERVICE_URL
+        sync: false
+      - key: ROADMAP_SERVICE_URL
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+
+  - type: web
+    name: iuroadmap-roadmap-service-dev
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: dev
+    dockerContext: .
+    dockerfilePath: ./iuroadmap.services/roadmap-service/Dockerfile
+    dockerCommand: sh -c "npm run prisma:migrate && node dist/roadmap-service/src/main.js"
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - fromGroup: iuroadmap-dev-shared
+      - key: ROADMAP_DATABASE_URL
+        sync: false
+      - key: MENTOR_SERVICE_URL
+        sync: false
+
+  - type: web
+    name: iuroadmap-mentor-service-dev
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: dev
+    dockerContext: .
+    dockerfilePath: ./iuroadmap.services/mentor-service/Dockerfile
+    dockerCommand: sh -c "npm run prisma:migrate && node dist/mentor-service/src/main.js"
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - fromGroup: iuroadmap-dev-shared
+      - key: MENTOR_DATABASE_URL
+        sync: false
+      - key: ROADMAP_SERVICE_URL
+        sync: false
+
+  - type: web
+    name: iuroadmap-user-service-dev
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: dev
+    dockerContext: .
+    dockerfilePath: ./iuroadmap.services/user-service/Dockerfile
+    dockerCommand: sh -c "npm run prisma:migrate && node dist/user-service/src/main.js"
+    healthCheckPath: /health
+    autoDeploy: false
+    envVars:
+      - fromGroup: iuroadmap-dev-shared
+      - key: USER_DATABASE_URL
+        sync: false
+      - key: ROADMAP_SERVICE_URL
+        sync: false
+      - key: MENTOR_SERVICE_URL
+        sync: false

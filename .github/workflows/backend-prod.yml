@@ -1,0 +1,86 @@
+# Backend CD → Railway, "production" environment.
+#   - Push to main: Backend CI for the changed services, then `railway up` for each one.
+#   - Manual run:   pick services ("all" or "auth,api-gateway").
+# Every service of the run must pass CI: a half-broken commit is never deployed.
+# Railway runs `prisma migrate deploy` before each deploy (preDeployCommand in railway.json).
+# Setup: iuroadmap.infra/deploy/README.md
+
+name: Backend CD (production → Railway)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'iuroadmap.services/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/backend-*.yml'
+  workflow_dispatch:
+    inputs:
+      services:
+        description: '"all" or a comma separated list (auth,api-gateway,roadmap-service,mentor-service,user-service)'
+        required: true
+        default: all
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: backend-deploy-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/backend-ci.yml
+    with:
+      services: ${{ github.event.inputs.services }}
+
+  deploy:
+    name: Deploy ${{ matrix.service.name }} → Railway production
+    needs: ci
+    if: needs.ci.outputs.services != '[]'
+    runs-on: ubuntu-latest
+    # Add "Required reviewers" to this GitHub environment to approve each production deploy
+    environment: production
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJSON(needs.ci.outputs.services) }}
+    env:
+      # Project token of the Railway project, created for its "production" environment
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy (build on Railway with iuroadmap.services/${{ matrix.service.name }}/railway.json)
+        # Uploads the repository (without .gitignore'd files); --ci streams the build logs and fails with the build
+        run: railway up --ci --service "${{ matrix.service.name }}"
+
+  smoke:
+    name: Smoke test (gateway /health)
+    needs: deploy
+    # Set the repository variable PROD_GATEWAY_URL (public URL of api-gateway) to enable it
+    if: vars.PROD_GATEWAY_URL != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for the gateway to answer
+        env:
+          URL: ${{ vars.PROD_GATEWAY_URL }}
+        run: |
+          # The build is done; the new containers still need to start and pass their health checks
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$URL/health" || true)
+            echo "attempt $i: $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "Gateway did not answer 200 on $URL/health" >&2
+          exit 1

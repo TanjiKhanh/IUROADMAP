@@ -1,21 +1,33 @@
-node_modules
+# Build context = repository root, for the backend Dockerfiles (iuroadmap.services/<service>/Dockerfile)
+# and the web one (iuroadmap.webapp/apps/web/Dockerfile).
+# Nested folders need the **/ prefix: a bare pattern only matches at the context root.
+
+# Installed / built output (the image installs and builds its own)
+**/node_modules
+**/dist
+**/build
+**/coverage
+**/.turbo
+**/*.tsbuildinfo
 npm-debug.log
+
+# Secrets: variables come from Railway (or --env-file), never from the image
+**/.env
+**/.env.*
+
+# Not needed by any image
 .git
-.gitignore
-README.md
-.env
-.env.local
-.env.*.local
-.DS_Store
-dist
-build
-coverage
+.github
+.husky
 .vscode
 .idea
-*.swp
-*.swo
-*~
-.nyc_output
-.cache
-yarn.lock
-.yarn
+.claude
+.agent
+agent
+_bmad
+_bmad-output
+iuroadmap.docs
+iuroadmap.webapp/tests
+test-results
+**/*.log
+**/.DS_Store

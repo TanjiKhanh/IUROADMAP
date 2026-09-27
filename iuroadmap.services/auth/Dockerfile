@@ -1,46 +1,38 @@
-# services/auth/Dockerfile
-# Recommended multi-stage Dockerfile for NestJS + Prisma (Debian-slim)
-FROM node:18-bullseye-slim AS builder
-ENV NODE_ENV=development
+# iuroadmap.services/auth/Dockerfile
+# Build context = repository root (npm workspaces: this service + @iuroadmap/shared):
+#   docker build -f iuroadmap.services/auth/Dockerfile -t iuroadmap-auth .
+# Render dev (render.yaml at the repo root) and Railway production (railway.json here) build it the same way.
+
+FROM node:20-bookworm-slim AS builder
 WORKDIR /app
-
-# Install build deps required by some native modules & Prisma generation
+# openssl: Prisma engines; python3/make/g++: native modules (bcrypt) when no prebuilt binary fits
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends python3 build-essential git ca-certificates \
+  && apt-get install -y --no-install-recommends openssl ca-certificates python3 make g++ \
   && rm -rf /var/lib/apt/lists/*
+# The root "prepare" script runs husky; no git hooks inside the image
+ENV HUSKY=0
 
-# Copy package files and prisma schema early for caching
-COPY package*.json ./
-COPY prisma ./prisma/
+# Manifests first: the install layer is reused until a package.json or the lockfile changes
+COPY package.json package-lock.json ./
+COPY iuroadmap.services/shared/package.json iuroadmap.services/shared/
+COPY iuroadmap.services/auth/package.json iuroadmap.services/auth/
+# This service + @iuroadmap/shared + the root build tools (typescript, tsc-alias)
+RUN npm ci --workspace=iuroadmap.services/auth --include-workspace-root --no-audit --no-fund
 
-# Install dependencies
-RUN npm ci
-
-# Copy the rest and build
-COPY . .
-
-# Generate Prisma client after source copy so custom output path is always present
-RUN npx prisma generate || true
-RUN npm run build
+COPY iuroadmap.services/shared iuroadmap.services/shared
+COPY iuroadmap.services/auth iuroadmap.services/auth
+WORKDIR /app/iuroadmap.services/auth
+RUN npx prisma generate && npm run build:prod
 
 # ---- runtime ----
-FROM node:18-bullseye-slim AS runner
+FROM node:20-bookworm-slim AS runner
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV=production
-WORKDIR /app
-
-# Create non-root user
-RUN useradd --user-group --create-home --shell /bin/false appuser
-
-# Copy only necessary files from builder
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/src/generated ./dist/generated
-
-USER appuser
-
-
+# node_modules stay complete: the Railway pre-deploy step runs `prisma migrate deploy` (Prisma CLI is a dev dependency)
+COPY --from=builder /app /app
+WORKDIR /app/iuroadmap.services/auth
+USER node
 EXPOSE 3000
-# Start the NestJS app; ensure the entry file path matches your build output
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/auth/src/main.js"]

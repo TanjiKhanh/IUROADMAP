@@ -1,0 +1,61 @@
+# Backend CD → Render, "dev" stage (free instances, see render.yaml).
+#   - Push to dev: Backend CI for the changed services, then the Render deploy hook of each one.
+#   - Manual run:  pick services ("all" or "auth,api-gateway").
+# Every service of the run must pass CI: a half-broken commit is never deployed.
+# Render runs `prisma migrate deploy` when each container starts (dockerCommand in render.yaml).
+# Setup: iuroadmap.infra/deploy/README.md
+
+name: Backend CD (dev → Render)
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'iuroadmap.services/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/backend-*.yml'
+  workflow_dispatch:
+    inputs:
+      services:
+        description: '"all" or a comma separated list (auth,api-gateway,roadmap-service,mentor-service,user-service)'
+        required: true
+        default: all
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: backend-deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/backend-ci.yml
+    with:
+      services: ${{ github.event.inputs.services }}
+
+  deploy:
+    name: Deploy ${{ matrix.service.name }} → Render dev
+    needs: ci
+    if: needs.ci.outputs.services != '[]'
+    runs-on: ubuntu-latest
+    environment: dev
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJSON(needs.ci.outputs.services) }}
+    steps:
+      - name: Trigger the Render deploy hook
+        env:
+          # One secret per service in the GitHub environment "dev", e.g. RENDER_DEPLOY_HOOK_API_GATEWAY
+          HOOK: ${{ secrets[format('RENDER_DEPLOY_HOOK_{0}', matrix.service.key)] }}
+          SECRET_NAME: RENDER_DEPLOY_HOOK_${{ matrix.service.key }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::Secret $SECRET_NAME is missing in the GitHub environment 'dev'"
+            exit 1
+          fi
+          curl --fail --silent --show-error -X POST "$HOOK" > /dev/null
+          echo "Render is building ${{ matrix.service.name }} from the latest commit of dev" >> "$GITHUB_STEP_SUMMARY"

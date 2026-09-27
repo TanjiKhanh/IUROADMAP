@@ -30,7 +30,8 @@ async function bootstrap() {
 
   const PORT = process.env.PORT || 4000;
   
-  await app.listen(PORT , "0.0.0.0");
+  // HOST=:: on Railway: its private network (*.railway.internal) needs an IPv6 listener
+  await app.listen(PORT, process.env.HOST || '0.0.0.0');
   
   logger.log(`🚀 User Service running on port ${PORT}`);
 }

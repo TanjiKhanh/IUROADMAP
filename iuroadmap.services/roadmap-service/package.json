@@ -17,6 +17,8 @@
     "build": "tsc",
     "clean": "node -e \"require('fs').rmSync('dist', {recursive: true, force: true})\"",
     "prebuild": "npm run clean",
+    "build:prod": "npm run clean && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && node -e \"require('fs').cpSync('src/generated','dist/roadmap-service/src/generated',{recursive:true})\"",
+    "start:prod": "node dist/roadmap-service/src/main.js",
     "# ========== LINTING & FORMATTING =========": "",
     "lint": "eslint src --ext .ts --max-warnings 0",
     "lint:fix": "eslint src --ext .ts --fix",
