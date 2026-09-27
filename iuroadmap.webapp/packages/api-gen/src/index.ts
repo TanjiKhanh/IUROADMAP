@@ -23,7 +23,6 @@ export * from './generated/endpoints/majors/majors';
 export * from './generated/endpoints/mentor-profile/mentor-profile';
 export * from './generated/endpoints/mentor-search/mentor-search';
 export * from './generated/endpoints/student-roadmaps/student-roadmaps';
-export * from './generated/endpoints/user-roadmaps/user-roadmaps';
 
 // TypeScript model interfaces
 export * from './generated/models';
@@ -50,4 +49,3 @@ export * as MajorsZod from './generated/zod/majors/majors.zod';
 export * as MentorProfileZod from './generated/zod/mentor-profile/mentor-profile.zod';
 export * as MentorSearchZod from './generated/zod/mentor-search/mentor-search.zod';
 export * as StudentRoadmapsZod from './generated/zod/student-roadmaps/student-roadmaps.zod';
-export * as UserRoadmapsZod from './generated/zod/user-roadmaps/user-roadmaps.zod';

@@ -18,16 +18,23 @@ interface PublicPaths {
 
 interface DashBoardPaths {
   root: string;
+  findMentors: string;
 }
 
 interface RoadMapPaths {
   root: string;
-  explore: string;
-  myCourses: string;
-  roadmap: string;
+  /** Explore published curricula (FL-LRN-02) */
+  exploreRoadmaps: string;
+  /** Read-only preview of a major's curriculum: ?cohortYear= */
   roadmapPreview: string;
-  roadmapLegacy: string;
-  microRoadmap: string;
+  /** Course Explorer (FL-LRN-11) */
+  exploreCourses: string;
+  /** Course page: ?academicYear= */
+  courseDetail: string;
+  /** Topics of a course for an academic year (micro roadmap) */
+  courseTopics: string;
+  myRoadmaps: string;
+  myRoadmap: string;
 }
 
 
@@ -45,6 +52,12 @@ interface UserPaths {
   changePassword?: string;
 }
 
+interface CrudPaths {
+  root: string;
+  create: string;
+  edit: string;
+}
+
 interface ConfigPaths {
   root: string;
   role: RolePaths;
@@ -54,15 +67,18 @@ interface ConfigPaths {
     create: string;
     edit: string;
   };
-  major: {
+  major: CrudPaths & { detail: string };
+  courseCategory: CrudPaths;
+  course: CrudPaths;
+  lecturer: CrudPaths;
+  courseOffering: {
     root: string;
-    create: string;
     edit: string;
+    topics: string;
   };
-  roadmap: {
-    designSlug: string;
-    courseTopics: string;
-  };
+  curriculumCanvas: string;
+  grading: string;
+  commentModeration: string;
 }
 
 export interface WebPathsStructure {
@@ -88,15 +104,17 @@ export const webPaths: WebPathsStructure = {
   },
   dashboard: {
     root: '/dashboard',
+    findMentors: '/dashboard/find-mentors',
   },
   roadmap: {
     root: '/roadmap',
-    explore: '/roadmap/explore',
-    myCourses: '/roadmap/my-courses',
-    roadmap: '/roadmap/:id',
-    roadmapPreview: '/roadmap-preview/:slug',
-    roadmapLegacy: '/roadmap-legacy/:id',
-    microRoadmap: '/roadmap/:id/micro/:courseNodeId',
+    exploreRoadmaps: '/roadmap/explore',
+    roadmapPreview: '/roadmap/explore/:majorSlug',
+    exploreCourses: '/roadmap/courses',
+    courseDetail: '/roadmap/courses/:courseId',
+    courseTopics: '/roadmap/courses/:courseId/topics',
+    myRoadmaps: '/roadmap/my',
+    myRoadmap: '/roadmap/my/:id',
   },
   config: {
     root: '/config',
@@ -121,11 +139,31 @@ export const webPaths: WebPathsStructure = {
       root: '/config/majors',
       create: '/config/majors/create',
       edit: '/config/majors/:id/edit',
+      detail: '/config/majors/:id',
     },
-    roadmap: {
-      designSlug: '/config/roadmaps/design/:slug',
-      courseTopics: '/config/courses/:courseNodeId/topics',
+    courseCategory: {
+      root: '/config/course-categories',
+      create: '/config/course-categories/create',
+      edit: '/config/course-categories/:id/edit',
     },
+    course: {
+      root: '/config/courses',
+      create: '/config/courses/create',
+      edit: '/config/courses/:id/edit',
+    },
+    lecturer: {
+      root: '/config/lecturers',
+      create: '/config/lecturers/create',
+      edit: '/config/lecturers/:id/edit',
+    },
+    courseOffering: {
+      root: '/config/course-offerings',
+      edit: '/config/course-offerings/:id',
+      topics: '/config/course-offerings/:id/topics',
+    },
+    curriculumCanvas: '/config/curricula/:versionId/canvas',
+    grading: '/config/grading',
+    commentModeration: '/config/comment-moderation',
   },
 };
 

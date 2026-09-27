@@ -134,6 +134,85 @@ export const CurriculumVersionsControllerUpdateResponse = zod.object({
 })
 
 /**
+ * @summary How learners adapt this curriculum: moved, added and chosen courses (FR-RDM.07.5)
+ */
+export const CurriculumVersionsControllerOverlayStatisticsParams = zod.object({
+  "id": zod.number()
+})
+
+export const CurriculumVersionsControllerOverlayStatisticsResponse = zod.object({
+  "versionId": zod.number(),
+  "learnerCount": zod.number().describe('Roadmaps on this curriculum (all statuses)'),
+  "terms": zod.array(zod.object({
+  "termKey": zod.string().uuid(),
+  "kind": zod.enum(['REGULAR', 'SUMMER', 'ELECTIVE_POOL']),
+  "semesterNo": zod.number().optional().describe('REGULAR only')
+})).describe('Curriculum terms, to label term keys'),
+  "movedCourses": zod.array(zod.object({
+  "nodeKey": zod.string().uuid(),
+  "course": zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "theoryCredits": zod.number(),
+  "labCredits": zod.number(),
+  "categoryCode": zod.string(),
+  "fillColor": zod.string(),
+  "borderColor": zod.string(),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']),
+  "countsTowardGpa": zod.boolean(),
+  "countsTowardCredits": zod.boolean()
+}).optional(),
+  "slotLabel": zod.string().optional().describe('Label of an elective slot'),
+  "fromTermKey": zod.string().uuid().describe('Curriculum term of the course'),
+  "learnerCount": zod.number().describe('Learners who moved it'),
+  "targets": zod.array(zod.object({
+  "termKey": zod.string().uuid(),
+  "isCustomTerm": zod.boolean().describe('A term the learner added (not in the curriculum)'),
+  "learnerCount": zod.number()
+})).describe('Where they moved it, most chosen first')
+})).describe('Curriculum courses moved to another term, most moved first'),
+  "addedCourses": zod.array(zod.object({
+  "course": zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "theoryCredits": zod.number(),
+  "labCredits": zod.number(),
+  "categoryCode": zod.string(),
+  "fillColor": zod.string(),
+  "borderColor": zod.string(),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']),
+  "countsTowardGpa": zod.boolean(),
+  "countsTowardCredits": zod.boolean()
+}),
+  "learnerCount": zod.number()
+})).describe('Catalog courses learners add, most added first'),
+  "slotChoices": zod.array(zod.object({
+  "nodeKey": zod.string().uuid(),
+  "slotLabel": zod.string(),
+  "choices": zod.array(zod.object({
+  "course": zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "name": zod.string(),
+  "theoryCredits": zod.number(),
+  "labCredits": zod.number(),
+  "categoryCode": zod.string(),
+  "fillColor": zod.string(),
+  "borderColor": zod.string(),
+  "gradingMode": zod.enum(['SCORE', 'PASS_FAIL']),
+  "countsTowardGpa": zod.boolean(),
+  "countsTowardCredits": zod.boolean()
+}),
+  "learnerCount": zod.number()
+}))
+})).describe('Courses chosen for each elective slot'),
+  "customCourseLearners": zod.number().describe('Learners who added a course outside the catalog'),
+  "insertedTermLearners": zod.number().describe('Learners who inserted at least one term (e.g. Intensive English before semester 1)')
+})
+
+/**
  * @summary Run the publish validator without publishing
  */
 export const CurriculumVersionsControllerValidateParams = zod.object({

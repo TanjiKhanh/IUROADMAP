@@ -7,6 +7,7 @@ import { JwtGuard, CurrentUser, IJwtPayload } from '@iuroadmap/shared';
 
 // Request DTOs
 import { LoginRequestDto } from '../dto/requests/login.request.dto';
+import { GoogleLoginRequestDto } from '../dto/requests/google-login.request.dto';
 import { LearnerRegisterRequestDto } from '../dto/requests/learner-register.request.dto';
 import { MentorRegisterRequestDto } from '../dto/requests/mentor-register.request.dto';
 import { ForgotPasswordRequestDto, ResetPasswordRequestDto } from '../dto/requests/forgot-password.request.dto';
@@ -66,9 +67,21 @@ export class AuthenticationController {
   ) {
     const result = await this.authService.login(dto);
 
-    return { 
+    return {
       access_token: result.access_token
     };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('google')
+  @ApiOperation({ summary: 'Sign in with Google; creates a learner account on the first visit (returns JWT token)' })
+  @ApiBody({ type: GoogleLoginRequestDto })
+  @ApiOkResponse({ type: AuthLoginResponseDto, description: 'Successful login' })
+  @ApiResponse({ status: 401, description: 'Invalid Google token or unverified email' })
+  @ApiResponse({ status: 403, description: 'Account suspended or rejected' })
+  @ApiResponse({ status: 503, description: 'GOOGLE_CLIENT_ID is not configured' })
+  async loginWithGoogle(@Body() dto: GoogleLoginRequestDto): Promise<AuthLoginResponseDto> {
+    return this.authService.loginWithGoogle(dto);
   }
 
   // 4. LOGOUT

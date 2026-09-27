@@ -31,7 +31,6 @@ export class AppModule implements NestModule {
       .apply(AuthMiddleware)
       .forRoutes(
         'v1/users/*',
-        'v1/user/*',    // user-service endpoints under /user/roadmaps/*
         'v1/mentor-profiles/*',
         'v1/admin/*', // Downstream service checks if x-user-role === ADMIN
         'v1/student-roadmaps/*', // learner roadmap (owner checked by roadmap-service)

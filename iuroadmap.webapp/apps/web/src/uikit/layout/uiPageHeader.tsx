@@ -8,7 +8,7 @@ export interface UiPageHeaderProps {
 
 export const UiPageHeader: React.FC<UiPageHeaderProps> = ({ title, action }) => {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
       <UiTitle level={4} style={{ margin: 0 }}>{title}</UiTitle>
       {action ? <div>{action}</div> : null}
     </div>

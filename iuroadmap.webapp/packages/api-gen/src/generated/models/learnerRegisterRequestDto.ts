@@ -5,7 +5,6 @@
  * Unified OpenAPI Specification for IUROADMAP Microservices Network
  * OpenAPI spec version: 1.0
  */
-import type { LearnerRegisterRequestDtoRole } from './learnerRegisterRequestDtoRole';
 
 export interface LearnerRegisterRequestDto {
   /** The email address of the learner */
@@ -14,6 +13,4 @@ export interface LearnerRegisterRequestDto {
   password: string;
   /** Full name of the learner */
   name?: string;
-  /** Role of the user */
-  role?: LearnerRegisterRequestDtoRole;
 }

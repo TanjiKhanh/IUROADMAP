@@ -15,6 +15,7 @@ export const authKeys = {
     registerNow: 'auth.login.registerNow',
     errorEmptyFields: 'auth.login.errorEmptyFields',
     errorLoginFailed: 'auth.login.errorLoginFailed',
+    googleFailed: 'auth.login.googleFailed',
   },
   register: {
     createAccountTitle: 'auth.register.createAccountTitle',

@@ -14,8 +14,7 @@ import * as zod from 'zod';
 export const AuthenticationControllerRegisterBody = zod.object({
   "email": zod.string().describe('The email address of the learner'),
   "password": zod.string().describe('The account password (minimum 6 characters)'),
-  "name": zod.string().optional().describe('Full name of the learner'),
-  "role": zod.enum(['STUDENT']).optional().describe('Role of the user')
+  "name": zod.string().optional().describe('Full name of the learner')
 })
 
 export const AuthenticationControllerRegisterResponse = zod.void()
@@ -46,6 +45,21 @@ export const AuthenticationControllerLoginBody = zod.object({
 })
 
 export const AuthenticationControllerLoginResponse = zod.object({
+  "access_token": zod.string().describe('JWT Access token')
+})
+
+/**
+ * @summary Sign in with Google; creates a learner account on the first visit (returns JWT token)
+ */
+export const authenticationControllerLoginWithGoogleBodyIdTokenMax = 4096;
+
+
+
+export const AuthenticationControllerLoginWithGoogleBody = zod.object({
+  "idToken": zod.string().max(authenticationControllerLoginWithGoogleBodyIdTokenMax).describe('Google ID token (the \"credential\" returned by Google Identity Services)')
+})
+
+export const AuthenticationControllerLoginWithGoogleResponse = zod.object({
   "access_token": zod.string().describe('JWT Access token')
 })
 

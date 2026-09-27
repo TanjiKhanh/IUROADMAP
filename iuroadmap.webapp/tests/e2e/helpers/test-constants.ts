@@ -14,6 +14,15 @@ export const ROUTES = {
     roles: '/config/roles',
     roleCreate: '/config/roles/create',
     roleEdit: (id: string) => `/config/roles/${id}/edit`,
+    majorDetail: (id: number) => `/config/majors/${id}`,
+    curriculumCanvas: (versionId: number) => `/config/curricula/${versionId}/canvas`,
+  },
+  roadmap: {
+    exploreRoadmaps: '/roadmap/explore',
+    exploreCourses: '/roadmap/courses',
+    courseDetail: (courseId: number) => `/roadmap/courses/${courseId}`,
+    myRoadmaps: '/roadmap/my',
+    myRoadmap: (id: number) => `/roadmap/my/${id}`,
   },
 } as const;
 

@@ -194,7 +194,10 @@ export const StudentRoadmapsControllerGetResponse = zod.object({
   "note": zod.string().optional(),
   "letter": zod.string().optional().describe('Derived letter (or P\/F)'),
   "gradePoint": zod.number().optional().describe('Derived grade point (4 scale)')
-}).optional()
+}).optional(),
+  "choiceGroup": zod.string().optional().describe('Conditional branch group of the curriculum (FR-RDM.07.4)'),
+  "condition": zod.string().optional().describe('Branch condition'),
+  "branchActive": zod.boolean().optional().describe('Branch node: true when the condition holds for the cumulative GPA before its term, false when not; empty without GPA')
 })),
   "edges": zod.array(zod.object({
   "edgeKey": zod.string().uuid(),
@@ -357,7 +360,10 @@ export const StudentRoadmapsControllerChangesResponse = zod.object({
   "note": zod.string().optional(),
   "letter": zod.string().optional().describe('Derived letter (or P\/F)'),
   "gradePoint": zod.number().optional().describe('Derived grade point (4 scale)')
-}).optional()
+}).optional(),
+  "choiceGroup": zod.string().optional().describe('Conditional branch group of the curriculum (FR-RDM.07.4)'),
+  "condition": zod.string().optional().describe('Branch condition'),
+  "branchActive": zod.boolean().optional().describe('Branch node: true when the condition holds for the cumulative GPA before its term, false when not; empty without GPA')
 })),
   "edges": zod.array(zod.object({
   "edgeKey": zod.string().uuid(),
@@ -494,7 +500,10 @@ export const StudentRoadmapsControllerResetResponse = zod.object({
   "note": zod.string().optional(),
   "letter": zod.string().optional().describe('Derived letter (or P\/F)'),
   "gradePoint": zod.number().optional().describe('Derived grade point (4 scale)')
-}).optional()
+}).optional(),
+  "choiceGroup": zod.string().optional().describe('Conditional branch group of the curriculum (FR-RDM.07.4)'),
+  "condition": zod.string().optional().describe('Branch condition'),
+  "branchActive": zod.boolean().optional().describe('Branch node: true when the condition holds for the cumulative GPA before its term, false when not; empty without GPA')
 })),
   "edges": zod.array(zod.object({
   "edgeKey": zod.string().uuid(),
@@ -913,7 +922,10 @@ export const StudentRoadmapsControllerUpgradeResponse = zod.object({
   "note": zod.string().optional(),
   "letter": zod.string().optional().describe('Derived letter (or P\/F)'),
   "gradePoint": zod.number().optional().describe('Derived grade point (4 scale)')
-}).optional()
+}).optional(),
+  "choiceGroup": zod.string().optional().describe('Conditional branch group of the curriculum (FR-RDM.07.4)'),
+  "condition": zod.string().optional().describe('Branch condition'),
+  "branchActive": zod.boolean().optional().describe('Branch node: true when the condition holds for the cumulative GPA before its term, false when not; empty without GPA')
 })),
   "edges": zod.array(zod.object({
   "edgeKey": zod.string().uuid(),

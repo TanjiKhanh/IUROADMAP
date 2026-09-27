@@ -5,6 +5,7 @@
  * Unified OpenAPI Specification for IUROADMAP Microservices Network
  * OpenAPI spec version: 1.0
  */
+import type { PaginationResponseDatasItem } from './paginationResponseDatasItem';
 
 export interface PaginationResponse {
   /** Number of rows per page */
@@ -14,7 +15,7 @@ export interface PaginationResponse {
   /** Total number of rows */
   totalRows: number;
   /** Array of data items */
-  datas?: unknown[][];
+  datas?: PaginationResponseDatasItem[];
   /** Total number of pages */
   totalPage: number;
 }

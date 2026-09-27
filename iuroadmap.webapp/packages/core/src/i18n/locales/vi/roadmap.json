@@ -1,0 +1,119 @@
+{
+  "roadmap": {
+    "term": {
+      "semester": "Học kỳ {n}",
+      "summer": "Hè",
+      "electivePool": "Tự chọn",
+      "estimatedYear": "~{year}",
+      "inYear": {
+        "SEMESTER_1": "HK1 {year}",
+        "SEMESTER_2": "HK2 {year}",
+        "SUMMER": "Hè {year}"
+      }
+    },
+    "relation": {
+      "PREREQUISITE": "Tiên quyết",
+      "PREVIOUS": "Học trước",
+      "COREQUISITE": "Song hành",
+      "PREREQUISITEHelp": "Học B sau khi đã qua A (nét liền, có mũi tên)",
+      "PREVIOUSHelp": "Học B sau A, không cần qua A (nét đứt, có mũi tên)",
+      "COREQUISITEHelp": "Học A trước hoặc cùng kỳ với B (không mũi tên)",
+      "coreqShort": "song hành",
+      "custom": "Do bạn thêm",
+      "chooseType": "Loại quan hệ",
+      "reverse": "Đảo chiều",
+      "blocked": {
+        "cycle": "Quan hệ này sẽ tạo vòng lặp",
+        "duplicate": "Hai môn này đã có quan hệ",
+        "self": "Một môn không thể quan hệ với chính nó"
+      }
+    },
+    "gradingMode": {
+      "SCORE": "Chấm điểm (0–100)",
+      "PASS_FAIL": "Đạt / Không đạt"
+    },
+    "versionStatus": {
+      "DRAFT": "Nháp",
+      "PUBLISHED": "Đã ban hành",
+      "ARCHIVED": "Lưu trữ"
+    },
+    "classification": {
+      "excellent": "Xuất sắc",
+      "veryGood": "Giỏi",
+      "good": "Khá",
+      "averageGood": "Trung bình khá",
+      "ordinary": "Trung bình",
+      "weak": "Yếu"
+    },
+    "canvas": {
+      "title": "{major} · CTĐT {year}",
+      "unsaved": "Chưa lưu",
+      "saved": "Đã lưu",
+      "undo": "Hoàn tác",
+      "redo": "Làm lại",
+      "reload": "Tải lại",
+      "readOnlyHint": "CTĐT này đã ban hành nên không sửa được. Muốn thay đổi, hãy ban hành lại từ trang ngành.",
+      "saveBeforePublish": "Hãy lưu thay đổi trước",
+      "targetTerm": "Thêm vào",
+      "addSemester": "Thêm học kỳ",
+      "adminHint": "Kéo môn từ danh mục; thả vào giữa hai môn để chèn. Nối chấm phải của A với chấm trái của B.",
+      "selection": "Đang chọn",
+      "newTerm": "＋ Kỳ mới",
+      "insertSemesterAfter": "Chèn học kỳ phía sau",
+      "insertSummerAfter": "Chèn kỳ hè phía sau",
+      "moveLeft": "Dời sang trái",
+      "moveRight": "Dời sang phải",
+      "removeTerm": "Xoá cột",
+      "removeCourse": "Bỏ khỏi CTĐT",
+      "freeElective": "Tự chọn tự do",
+      "slotGroup": "Nhóm {group}"
+    },
+    "catalog": {
+      "title": "Danh mục môn",
+      "search": "Mã hoặc tên, Enter",
+      "hint": "Kéo môn vào một cột",
+      "onCanvas": "Đã thêm",
+      "add": "Thêm vào cột đang chọn",
+      "more": "Còn {count} môn — hãy lọc thêm"
+    },
+    "slot": {
+      "title": "Ô tự chọn",
+      "add": "Thêm ô tự chọn",
+      "edit": "Sửa ô tự chọn",
+      "label": "Nhãn",
+      "labelRequired": "Ô tự chọn cần có nhãn",
+      "group": "Nhóm tự chọn",
+      "groupPlaceholder": "Để trống = tự chọn tự do",
+      "poolGroup": "Nhóm tự chọn",
+      "poolGroupPlaceholder": "Chỉ dùng cho môn trong kho tự chọn"
+    },
+    "issue": {
+      "title": "Lỗi và cảnh báo",
+      "none": "Không có lỗi — có thể ban hành",
+      "summary": "{errors} lỗi · {warnings} cảnh báo",
+      "severity": {
+        "ERROR": "Lỗi",
+        "WARNING": "Cảnh báo"
+      },
+      "CYCLE": "Quan hệ tạo vòng lặp: {courses}",
+      "PLACEMENT": "Sai thứ tự học kỳ: {courses}",
+      "COURSE_MISSING": "Có ô môn học chưa gắn môn",
+      "SLOT_CREDITS_MISSING": "Ô tự chọn {courses} chưa có tín chỉ",
+      "EMPTY_CURRICULUM": "CTĐT chưa có môn nào",
+      "TOTAL_CREDITS_MISMATCH": "Tổng tín chỉ {actual} ≠ yêu cầu {expected}",
+      "TERM_CREDITS_EXCEEDED": "{term}: {actual} tín chỉ (tối đa {max})"
+    },
+    "results": {
+      "headerGpa": "{gpa100} · {gpa4}"
+    },
+    "branch": {
+      "title": "Nhánh điều kiện",
+      "gte": "GPA ≥ {n}",
+      "lt": "GPA < {n}",
+      "groupPlaceholder": "Nhóm, VD: HK8",
+      "apply": "Áp dụng",
+      "clear": "Bỏ nhánh",
+      "hint": "Các môn cùng nhóm nhưng khác điều kiện là các lựa chọn thay thế; sinh viên thấy nhánh phù hợp với GPA tích luỹ (hệ 100)."
+    }
+  }
+}

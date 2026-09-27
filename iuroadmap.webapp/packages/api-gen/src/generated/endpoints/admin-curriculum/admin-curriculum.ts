@@ -30,6 +30,7 @@ import type {
   CurriculumVersionPublishRequest,
   CurriculumVersionResponse,
   CurriculumVersionUpdateRequest,
+  OverlayStatsResponse,
   SuccessResponse
 } from '../../models';
 
@@ -528,7 +529,138 @@ export const useCurriculumVersionsControllerUpdate = <TError = void,
       > => {
       return useMutation(getCurriculumVersionsControllerUpdateMutationOptions(options), queryClient);
     }
-    export type curriculumVersionsControllerValidateResponse200 = {
+    export type curriculumVersionsControllerOverlayStatisticsResponse200 = {
+  data: OverlayStatsResponse
+  status: 200
+}
+
+export type curriculumVersionsControllerOverlayStatisticsResponse401 = {
+  data: void
+  status: 401
+}
+
+export type curriculumVersionsControllerOverlayStatisticsResponse403 = {
+  data: void
+  status: 403
+}
+
+export type curriculumVersionsControllerOverlayStatisticsResponseSuccess = (curriculumVersionsControllerOverlayStatisticsResponse200) & {
+  headers: Headers;
+};
+export type curriculumVersionsControllerOverlayStatisticsResponseError = (curriculumVersionsControllerOverlayStatisticsResponse401 | curriculumVersionsControllerOverlayStatisticsResponse403) & {
+  headers: Headers;
+};
+
+export type curriculumVersionsControllerOverlayStatisticsResponse = (curriculumVersionsControllerOverlayStatisticsResponseSuccess | curriculumVersionsControllerOverlayStatisticsResponseError)
+
+export const getCurriculumVersionsControllerOverlayStatisticsUrl = (id: number,) => {
+
+
+
+
+  return `/api/v1/admin/roadmap-versions/${id}/overlay-stats`
+}
+
+/**
+ * @summary How learners adapt this curriculum: moved, added and chosen courses (FR-RDM.07.5)
+ */
+export const curriculumVersionsControllerOverlayStatistics = async (id: number, options?: RequestInit): Promise<curriculumVersionsControllerOverlayStatisticsResponse> => {
+
+  const res = await fetch(getCurriculumVersionsControllerOverlayStatisticsUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: curriculumVersionsControllerOverlayStatisticsResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as curriculumVersionsControllerOverlayStatisticsResponse
+}
+
+
+
+
+
+export const getCurriculumVersionsControllerOverlayStatisticsQueryKey = (id: number,) => {
+    return [
+    `/api/v1/admin/roadmap-versions/${id}/overlay-stats`
+    ] as const;
+    }
+
+
+export const getCurriculumVersionsControllerOverlayStatisticsQueryOptions = <TData = Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError = void>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCurriculumVersionsControllerOverlayStatisticsQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>> = ({ signal }) => curriculumVersionsControllerOverlayStatistics(id, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CurriculumVersionsControllerOverlayStatisticsQueryResult = NonNullable<Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>>
+export type CurriculumVersionsControllerOverlayStatisticsQueryError = void
+
+
+export function useCurriculumVersionsControllerOverlayStatistics<TData = Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError = void>(
+ id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>,
+          TError,
+          Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCurriculumVersionsControllerOverlayStatistics<TData = Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError = void>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>,
+          TError,
+          Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCurriculumVersionsControllerOverlayStatistics<TData = Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError = void>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary How learners adapt this curriculum: moved, added and chosen courses (FR-RDM.07.5)
+ */
+
+export function useCurriculumVersionsControllerOverlayStatistics<TData = Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError = void>(
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof curriculumVersionsControllerOverlayStatistics>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCurriculumVersionsControllerOverlayStatisticsQueryOptions(id,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+export type curriculumVersionsControllerValidateResponse200 = {
   data: CurriculumValidationResponse
   status: 200
 }

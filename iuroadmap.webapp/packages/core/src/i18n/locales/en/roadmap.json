@@ -1,0 +1,119 @@
+{
+  "roadmap": {
+    "term": {
+      "semester": "Semester {n}",
+      "summer": "Summer",
+      "electivePool": "Elective",
+      "estimatedYear": "~{year}",
+      "inYear": {
+        "SEMESTER_1": "Sem 1 {year}",
+        "SEMESTER_2": "Sem 2 {year}",
+        "SUMMER": "Summer {year}"
+      }
+    },
+    "relation": {
+      "PREREQUISITE": "Prerequisite",
+      "PREVIOUS": "Previous",
+      "COREQUISITE": "Co-requisite",
+      "PREREQUISITEHelp": "B after passing A (solid line, arrow)",
+      "PREVIOUSHelp": "B after taking A, passing not required (dashed line, arrow)",
+      "COREQUISITEHelp": "A before or in the same semester as B (no arrow)",
+      "coreqShort": "co-req",
+      "custom": "Added by you",
+      "chooseType": "Relation type",
+      "reverse": "Reverse",
+      "blocked": {
+        "cycle": "This relation would create a cycle",
+        "duplicate": "These two courses already have a relation",
+        "self": "A course cannot relate to itself"
+      }
+    },
+    "gradingMode": {
+      "SCORE": "Score (0–100)",
+      "PASS_FAIL": "Pass / fail"
+    },
+    "versionStatus": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived"
+    },
+    "classification": {
+      "excellent": "Excellent",
+      "veryGood": "Very good",
+      "good": "Good",
+      "averageGood": "Fairly good",
+      "ordinary": "Average",
+      "weak": "Weak"
+    },
+    "canvas": {
+      "title": "{major} · curriculum {year}",
+      "unsaved": "Unsaved changes",
+      "saved": "Saved",
+      "undo": "Undo",
+      "redo": "Redo",
+      "reload": "Reload",
+      "readOnlyHint": "This curriculum is published and cannot be edited. Re-issue it from the major page to change it.",
+      "saveBeforePublish": "Save your changes first",
+      "targetTerm": "Add to",
+      "addSemester": "Add semester",
+      "adminHint": "Drag courses from the catalog; drop between two courses to insert. Connect the right handle of A to the left handle of B.",
+      "selection": "Selection",
+      "newTerm": "＋ New term",
+      "insertSemesterAfter": "Insert semester after",
+      "insertSummerAfter": "Insert summer after",
+      "moveLeft": "Move left",
+      "moveRight": "Move right",
+      "removeTerm": "Remove column",
+      "removeCourse": "Remove from curriculum",
+      "freeElective": "Free elective",
+      "slotGroup": "Group {group}"
+    },
+    "catalog": {
+      "title": "Course catalog",
+      "search": "Code or name, Enter",
+      "hint": "Drag a course onto a column",
+      "onCanvas": "Added",
+      "add": "Add to the chosen column",
+      "more": "{count} more — refine the search"
+    },
+    "slot": {
+      "title": "Elective slot",
+      "add": "Add elective slot",
+      "edit": "Edit elective slot",
+      "label": "Label",
+      "labelRequired": "A slot needs a label",
+      "group": "Elective group",
+      "groupPlaceholder": "Empty = free elective",
+      "poolGroup": "Elective group",
+      "poolGroupPlaceholder": "Only for courses in the elective pool"
+    },
+    "issue": {
+      "title": "Issues",
+      "none": "No issue — ready to publish",
+      "summary": "{errors} errors · {warnings} warnings",
+      "severity": {
+        "ERROR": "Error",
+        "WARNING": "Warning"
+      },
+      "CYCLE": "Relations form a cycle: {courses}",
+      "PLACEMENT": "Wrong semester order: {courses}",
+      "COURSE_MISSING": "A course node has no course",
+      "SLOT_CREDITS_MISSING": "Elective slot {courses} has no credits",
+      "EMPTY_CURRICULUM": "The curriculum has no course",
+      "TOTAL_CREDITS_MISMATCH": "Planned credits {actual} ≠ required {expected}",
+      "TERM_CREDITS_EXCEEDED": "{term}: {actual} credits (max {max})"
+    },
+    "results": {
+      "headerGpa": "{gpa100} · {gpa4}"
+    },
+    "branch": {
+      "title": "Conditional branch",
+      "gte": "GPA ≥ {n}",
+      "lt": "GPA < {n}",
+      "groupPlaceholder": "Group, e.g. HK8",
+      "apply": "Apply",
+      "clear": "Remove",
+      "hint": "Courses of one group with different conditions are alternatives; learners see the one matching their cumulative GPA (100 scale)."
+    }
+  }
+}

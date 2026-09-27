@@ -12,7 +12,9 @@
     "test:e2e:config": "playwright test e2e/specs/config --project=e2e",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "test:api:roadmap": "playwright test api/learner api/config/course-catalog.spec.ts api/config/course-offering.spec.ts api/config/curriculum.spec.ts api/config/department-major-delete.spec.ts api/config/grading.spec.ts --project=api",
+    "test:e2e:roadmap": "playwright test e2e/specs/config/curriculum-canvas.spec.ts e2e/specs/learner --project=e2e"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.1",

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { appColors } from '../providers/theme';
 import { UiAppLayout, UiButton, UiContent, UiHeader, UiIcon, UiSider } from '../uikit';
@@ -20,6 +20,17 @@ import {
  */
 export function DesktopLayout() {
   const [collapsed, setCollapsed] = useState(false);
+
+  // Only UiContent scrolls. If the document could scroll too, a tooltip portaled to <body>
+  // near the right edge shows a page scrollbar that shifts the table under the cursor.
+  useEffect(() => {
+    const { style } = document.body;
+    const previous = style.overflow;
+    style.overflow = 'hidden';
+    return () => {
+      style.overflow = previous;
+    };
+  }, []);
 
   return (
     <UiAppLayout hasSider style={{ height: '100vh', overflow: 'hidden' }}>
@@ -96,7 +107,7 @@ export function DesktopLayout() {
             <LanguageSwitcher />
           </div>
         </UiHeader>
-        <UiContent style={{ padding: 20, background: appColors.surface, overflow: 'auto', flex: 1 }}>
+        <UiContent style={{ padding: 20, background: appColors.surface, overflow: 'auto', scrollbarGutter: 'stable', flex: 1 }}>
           <Outlet />
         </UiContent>
       </UiAppLayout>

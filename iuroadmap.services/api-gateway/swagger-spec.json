@@ -113,6 +113,47 @@
         ]
       }
     },
+    "/api/v1/auth/google": {
+      "post": {
+        "operationId": "AuthenticationController_loginWithGoogle",
+        "summary": "Sign in with Google; creates a learner account on the first visit (returns JWT token)",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthLoginResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid Google token or unverified email"
+          },
+          "403": {
+            "description": "Account suspended or rejected"
+          },
+          "503": {
+            "description": "GOOGLE_CLIENT_ID is not configured"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
     "/api/v1/auth/logout": {
       "post": {
         "operationId": "AuthenticationController_logout",
@@ -1048,164 +1089,6 @@
         },
         "tags": [
           "Mentor - Search"
-        ]
-      }
-    },
-    "/api/v1/user/roadmaps/enroll": {
-      "post": {
-        "operationId": "UserRoadmapsController_enroll",
-        "summary": "Enroll a user in a roadmap",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EnrollRoadmapDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successfully enrolled in roadmap",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EnrollRoadmapResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request / Validation Error"
-          }
-        },
-        "tags": [
-          "User - Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/user/roadmaps/{userRoadmapId}/overview": {
-      "get": {
-        "operationId": "UserRoadmapsController_getOverview",
-        "summary": "Get overview of a specific user roadmap",
-        "parameters": [
-          {
-            "name": "userRoadmapId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the user roadmap",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Roadmap overview retrieved successfully"
-          },
-          "404": {
-            "description": "Roadmap not found"
-          }
-        },
-        "tags": [
-          "User - Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/user/roadmaps/{userRoadmapId}/courses/{courseNodeId}": {
-      "patch": {
-        "operationId": "UserRoadmapsController_updateCourseProgress",
-        "summary": "Update status and progress of a course node in user roadmap",
-        "parameters": [
-          {
-            "name": "userRoadmapId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the user roadmap",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "courseNodeId",
-            "required": true,
-            "in": "path",
-            "description": "ID of the course node",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "status": {
-                    "type": "string",
-                    "enum": [
-                      "AVAILABLE",
-                      "IN_PROGRESS",
-                      "COMPLETED"
-                    ]
-                  },
-                  "creditsEarned": {
-                    "type": "number"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Course progress updated successfully"
-          },
-          "404": {
-            "description": "Course node not found"
-          }
-        },
-        "tags": [
-          "User - Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/api/v1/user/roadmaps/my": {
-      "get": {
-        "operationId": "UserRoadmapsController_getMyRoadmaps",
-        "summary": "Get all summaries of roadmaps enrolled by current user",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "User roadmaps summaries retrieved successfully"
-          }
-        },
-        "tags": [
-          "User - Roadmaps"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
         ]
       }
     },
@@ -3137,6 +3020,48 @@
           },
           "409": {
             "description": "ROADMAP_VERSION_IMMUTABLE"
+          }
+        },
+        "tags": [
+          "Admin Curriculum"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/roadmap-versions/{id}/overlay-stats": {
+      "get": {
+        "operationId": "CurriculumVersionsController_overlayStatistics",
+        "summary": "How learners adapt this curriculum: moved, added and chosen courses (FR-RDM.07.5)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverlayStatsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token"
+          },
+          "403": {
+            "description": "Admin role required"
           }
         },
         "tags": [
@@ -5895,14 +5820,6 @@
             "type": "string",
             "description": "Full name of the learner",
             "example": "John Doe"
-          },
-          "role": {
-            "type": "string",
-            "description": "Role of the user",
-            "enum": [
-              "STUDENT"
-            ],
-            "example": "STUDENT"
           }
         },
         "required": [
@@ -6009,6 +5926,20 @@
         },
         "required": [
           "access_token"
+        ]
+      },
+      "GoogleLoginRequestDto": {
+        "type": "object",
+        "properties": {
+          "idToken": {
+            "type": "string",
+            "description": "Google ID token (the \"credential\" returned by Google Identity Services)",
+            "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6...",
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "idToken"
         ]
       },
       "ForgotPasswordRequestDto": {
@@ -6555,105 +6486,6 @@
           }
         }
       },
-      "EnrollRoadmapDto": {
-        "type": "object",
-        "properties": {
-          "userId": {
-            "type": "number",
-            "description": "User ID",
-            "example": 1
-          },
-          "roadmapId": {
-            "type": "number",
-            "description": "Roadmap ID to enroll in",
-            "example": 101
-          },
-          "totalCreditsRequired": {
-            "type": "number",
-            "description": "Total credits required for roadmap completion",
-            "example": 130
-          },
-          "courseNodeIds": {
-            "description": "List of all course node IDs included in this roadmap",
-            "example": [
-              1,
-              2,
-              3
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "userId",
-          "roadmapId",
-          "totalCreditsRequired",
-          "courseNodeIds"
-        ]
-      },
-      "EnrollRoadmapResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Enrollment ID",
-            "example": 1
-          },
-          "user_id": {
-            "type": "number",
-            "description": "User ID",
-            "example": 1
-          },
-          "roadmap_id": {
-            "type": "number",
-            "description": "Roadmap ID",
-            "example": 101
-          },
-          "enrollment_status": {
-            "type": "string",
-            "description": "Enrollment status",
-            "example": "IN_PROGRESS"
-          },
-          "completion_percentage": {
-            "type": "number",
-            "description": "Completion percentage",
-            "example": 0
-          },
-          "total_credits_earned": {
-            "type": "number",
-            "description": "Total credits earned so far",
-            "example": 0
-          },
-          "total_credits_required": {
-            "type": "number",
-            "description": "Total credits required for roadmap",
-            "example": 130
-          },
-          "created_at": {
-            "type": "string",
-            "description": "Creation timestamp",
-            "example": "2026-07-11T00:00:00.000Z"
-          },
-          "updated_at": {
-            "type": "string",
-            "description": "Update timestamp",
-            "example": "2026-07-11T00:00:00.000Z"
-          }
-        },
-        "required": [
-          "id",
-          "user_id",
-          "roadmap_id",
-          "enrollment_status",
-          "completion_percentage",
-          "total_credits_earned",
-          "total_credits_required",
-          "created_at",
-          "updated_at"
-        ]
-      },
       "DepartmentCreateRequest": {
         "type": "object",
         "properties": {
@@ -6784,7 +6616,7 @@
             "description": "Array of data items",
             "type": "array",
             "items": {
-              "type": "array"
+              "type": "object"
             }
           },
           "totalPage": {
@@ -7930,6 +7762,193 @@
           }
         }
       },
+      "TermKind": {
+        "type": "string",
+        "enum": [
+          "REGULAR",
+          "SUMMER",
+          "ELECTIVE_POOL"
+        ]
+      },
+      "OverlayStatTermResponse": {
+        "type": "object",
+        "properties": {
+          "termKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/TermKind"
+          },
+          "semesterNo": {
+            "type": "number",
+            "description": "REGULAR only"
+          }
+        },
+        "required": [
+          "termKey",
+          "kind"
+        ]
+      },
+      "OverlayMoveTargetResponse": {
+        "type": "object",
+        "properties": {
+          "termKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isCustomTerm": {
+            "type": "boolean",
+            "description": "A term the learner added (not in the curriculum)"
+          },
+          "learnerCount": {
+            "type": "number",
+            "example": 12
+          }
+        },
+        "required": [
+          "termKey",
+          "isCustomTerm",
+          "learnerCount"
+        ]
+      },
+      "OverlayMovedCourseResponse": {
+        "type": "object",
+        "properties": {
+          "nodeKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course": {
+            "$ref": "#/components/schemas/CourseBriefResponse"
+          },
+          "slotLabel": {
+            "type": "string",
+            "description": "Label of an elective slot"
+          },
+          "fromTermKey": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Curriculum term of the course"
+          },
+          "learnerCount": {
+            "type": "number",
+            "description": "Learners who moved it",
+            "example": 37
+          },
+          "targets": {
+            "description": "Where they moved it, most chosen first",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlayMoveTargetResponse"
+            }
+          }
+        },
+        "required": [
+          "nodeKey",
+          "fromTermKey",
+          "learnerCount",
+          "targets"
+        ]
+      },
+      "OverlayCourseCountResponse": {
+        "type": "object",
+        "properties": {
+          "course": {
+            "$ref": "#/components/schemas/CourseBriefResponse"
+          },
+          "learnerCount": {
+            "type": "number",
+            "example": 8
+          }
+        },
+        "required": [
+          "course",
+          "learnerCount"
+        ]
+      },
+      "OverlaySlotChoiceResponse": {
+        "type": "object",
+        "properties": {
+          "nodeKey": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slotLabel": {
+            "type": "string",
+            "example": "Elective CS1"
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlayCourseCountResponse"
+            }
+          }
+        },
+        "required": [
+          "nodeKey",
+          "slotLabel",
+          "choices"
+        ]
+      },
+      "OverlayStatsResponse": {
+        "type": "object",
+        "properties": {
+          "versionId": {
+            "type": "number"
+          },
+          "learnerCount": {
+            "type": "number",
+            "description": "Roadmaps on this curriculum (all statuses)"
+          },
+          "terms": {
+            "description": "Curriculum terms, to label term keys",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlayStatTermResponse"
+            }
+          },
+          "movedCourses": {
+            "description": "Curriculum courses moved to another term, most moved first",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlayMovedCourseResponse"
+            }
+          },
+          "addedCourses": {
+            "description": "Catalog courses learners add, most added first",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlayCourseCountResponse"
+            }
+          },
+          "slotChoices": {
+            "description": "Courses chosen for each elective slot",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OverlaySlotChoiceResponse"
+            }
+          },
+          "customCourseLearners": {
+            "type": "number",
+            "description": "Learners who added a course outside the catalog"
+          },
+          "insertedTermLearners": {
+            "type": "number",
+            "description": "Learners who inserted at least one term (e.g. Intensive English before semester 1)"
+          }
+        },
+        "required": [
+          "versionId",
+          "learnerCount",
+          "terms",
+          "movedCourses",
+          "addedCourses",
+          "slotChoices",
+          "customCourseLearners",
+          "insertedTermLearners"
+        ]
+      },
       "CurriculumIssueCode": {
         "type": "string",
         "enum": [
@@ -8020,14 +8039,6 @@
             "default": false
           }
         }
-      },
-      "TermKind": {
-        "type": "string",
-        "enum": [
-          "REGULAR",
-          "SUMMER",
-          "ELECTIVE_POOL"
-        ]
       },
       "CanvasTermResponse": {
         "type": "object",
@@ -9314,6 +9325,20 @@
           },
           "result": {
             "$ref": "#/components/schemas/CourseResultResponse"
+          },
+          "choiceGroup": {
+            "type": "string",
+            "description": "Conditional branch group of the curriculum (FR-RDM.07.4)",
+            "example": "HK8"
+          },
+          "condition": {
+            "type": "string",
+            "description": "Branch condition",
+            "example": "CUM_GPA100>=70"
+          },
+          "branchActive": {
+            "type": "boolean",
+            "description": "Branch node: true when the condition holds for the cumulative GPA before its term, false when not; empty without GPA"
           }
         },
         "required": [

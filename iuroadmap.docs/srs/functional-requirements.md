@@ -38,7 +38,7 @@ srs/
 ├── prd-ai-chatbot-rag.md
 └── features/                           ← Chi tiết FR theo module
     ├── _OVERVIEW.md                    ← Bản đồ flow tổng quan
-    ├── FL-AUTH-authentication-rbac.md  ← ★ Chi tiết (11 sub-flows)
+    ├── FL-AUTH-authentication-rbac.md  ← ★ Chi tiết (12 sub-flows)
     ├── FL-LRN-learner-portal.md       ← ★ Chi tiết v2 (12 sub-flows)
     ├── FL-RDM-roadmap-management.md   ← ★ Chi tiết v2 (11 sub-flows)
     ├── FL-LR-lecturer-review.md       ← Stub
@@ -79,7 +79,7 @@ srs/
 
 **File:** [`features/FL-AUTH-authentication-rbac.md`](features/FL-AUTH-authentication-rbac.md)
 
-11 sub-flows chi tiết:
+12 sub-flows chi tiết:
 
 | Sub-flow | Tên | Trạng thái |
 |---|---|---|
@@ -95,8 +95,9 @@ srs/
 | FL-AUTH-09 | Cấm / Mở khóa User | ✅ |
 | FL-AUTH-10 | Đăng xuất & Session | ✅ |
 | FL-AUTH-11 | Cross-cutting (Guard, Audit, Profile) | ✅/🆕 |
+| FL-AUTH-12 | Đăng nhập / Đăng ký bằng Google | ✅ Should |
 
-**Tổng:** 70+ FR chi tiết, 12 Business Rules, Permission Matrix với 12 permissions × 6 groups.
+**Tổng:** 70+ FR chi tiết, 13 Business Rules, Permission Matrix với 12 permissions × 6 groups.
 
 ---
 

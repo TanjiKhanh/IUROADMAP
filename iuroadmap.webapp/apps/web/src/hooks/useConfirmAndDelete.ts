@@ -1,23 +1,28 @@
 import { Modal } from 'antd';
+import { useTranslation } from './useTranslation';
+import { apiErrorMessage } from '../api/apiResult';
 
 export interface UseConfirmAndDeleteProps {
   mutateAsync: (args: any) => Promise<any>;
   onError?: (message: string) => void;
+  onSuccess?: () => void;
 }
 
-export function useConfirmAndDelete({ mutateAsync, onError }: UseConfirmAndDeleteProps) {
+export function useConfirmAndDelete({ mutateAsync, onError, onSuccess }: UseConfirmAndDeleteProps) {
+  const { t } = useTranslation();
   return (args: any) => {
     Modal.confirm({
-      title: 'Are you sure you want to delete this record?',
-      content: 'This action cannot be undone.',
-      okText: 'Delete',
+      title: t('config.common.confirmDeleteTitle'),
+      content: t('config.common.confirmDeleteContent'),
+      okText: t('config.common.delete'),
       okType: 'danger',
-      cancelText: 'Cancel',
+      cancelText: t('config.common.cancel'),
       onOk: async () => {
         try {
           await mutateAsync(args);
-        } catch (error: any) {
-          onError?.(error?.response?.data?.message ?? error?.message ?? 'Failed to delete');
+          onSuccess?.();
+        } catch (error: unknown) {
+          onError?.(apiErrorMessage(error, t, t('config.common.deleteFailed')));
         }
       },
     });

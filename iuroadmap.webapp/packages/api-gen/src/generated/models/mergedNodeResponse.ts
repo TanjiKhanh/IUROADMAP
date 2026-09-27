@@ -39,4 +39,10 @@ export interface MergedNodeResponse {
   canHaveResult: boolean;
   state: NodeState;
   result?: CourseResultResponse;
+  /** Conditional branch group of the curriculum (FR-RDM.07.4) */
+  choiceGroup?: string;
+  /** Branch condition */
+  condition?: string;
+  /** Branch node: true when the condition holds for the cumulative GPA before its term, false when not; empty without GPA */
+  branchActive?: boolean;
 }

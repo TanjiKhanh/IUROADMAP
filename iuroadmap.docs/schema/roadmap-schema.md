@@ -4,7 +4,7 @@
 > **Last Updated:** 2026-09-26
 > **Thay đổi 2.1:** CTĐT theo năm (`cohort_year`, `revision_no`, `total_credits` ở version); `COURSE_CATEGORIES`; `COURSE_OFFERINGS` + `LECTURERS` (môn theo năm học, topic theo offering); `grading_mode` (`PASS_FAIL` cho IE); bình luận môn học; overlay chỉ thêm/dời (bỏ `is_removed`), `row_order` số thực; kỳ có năm học có cấu trúc; user id là UUID.
 > **Trạng thái:** 📝 Target schema, **chưa migrate**. Prisma hiện tại vẫn là v1 (xem [§ Bảng v1 bị thay thế](#bảng-v1-bị-thay-thế)).
-> **Service:** `roadmap-service`, DB `ROADMAP_DATABASE_URL` (theo `ADMIN_DATABASE_URL` hiện tại)
+> **Service:** `roadmap-service`, DB `ROADMAP_DATABASE_URL`
 > **Thiết kế & lý do:** [`architecture/roadmap-v2-design.md`](../architecture/roadmap-v2-design.md)
 
 Quy ước đặt tên giữ theo style đang có của service: model `UPPER_SNAKE`, cột `snake_case`, `@@map` chữ thường.

@@ -11,7 +11,7 @@
   "scripts": {
     "# ========== DEVELOPMENT =========": "",
     "start": "node dist/main.js",
-    "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts && open http://localhost:3000/api-gateway/swagger",
     "start:debug": "node --inspect-brk dist/main.js",
     "# ========== BUILD =========": "",
     "build": "tsc",

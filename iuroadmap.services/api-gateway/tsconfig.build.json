@@ -1,0 +1,20 @@
+{
+  // Production build: compiles this service together with @iuroadmap/shared (consumed as TS source),
+  // then tsc-alias rewrites the "@iuroadmap/shared" imports to relative paths so plain `node` can run it.
+  // Output: dist/api-gateway/src/main.js + dist/shared/src/**
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "./dist",
+    "incremental": false,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "types": ["node"],
+    "paths": {
+      "@iuroadmap/shared": ["../shared/src"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "src/generated", "**/*.spec.ts", "**/*.test.ts", "**/__tests__/**"]
+}

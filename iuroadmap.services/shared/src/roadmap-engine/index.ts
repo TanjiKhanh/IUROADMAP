@@ -8,3 +8,5 @@ export * from './row-layout';
 export * from './term-order';
 export * from './grading';
 export * from './offering-resolver';
+export * from './branch';
+export * from './overlay-stats';

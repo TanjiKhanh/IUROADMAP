@@ -1,14 +1,14 @@
 {
   "navigation": {
-      "root": "Trang chủ",
-      "roadmapGroup": "Lộ trình",
-      "mentorshipGroup": "Cố vấn",
-      "config": "Cấu hình hệ thống",
+    "root": "Trang chủ",
+    "roadmapGroup": "Lộ trình",
+    "mentorshipGroup": "Cố vấn",
+    "config": "Cấu hình hệ thống",
     "overview": "Tổng quan",
     "features": "Tính năng",
     "administration": "Quản trị",
     "dashboard": "Tổng quan",
-      "major": "Chuyên ngành",
+    "major": "Chuyên ngành",
     "roadmap": "Lộ trình",
     "courses": "Khóa học",
     "mentorship": "Cố vấn",
@@ -22,6 +22,14 @@
     "findMentors": "Tìm cố vấn",
     "chatWithMentors": "Trò chuyện với cố vấn",
     "mentorHub": "Trung tâm cố vấn",
-    "departments": "Phòng ban"
+    "departments": "Phòng ban",
+    "exploreRoadmaps": "Khám phá CTĐT",
+    "exploreCourses": "Tra cứu môn học",
+    "courseCategories": "Nhóm môn",
+    "catalogCourses": "Môn học",
+    "lecturers": "Giảng viên",
+    "courseOfferings": "Môn theo năm học",
+    "grading": "Thang điểm",
+    "commentModeration": "Kiểm duyệt bình luận"
   }
 }

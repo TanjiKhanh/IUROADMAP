@@ -1,0 +1,31 @@
+/* Nodes pushed down by an insertion slide into place (design §4.2). */
+.semester-canvas .react-flow__node.semester-canvas-node--settle {
+  transition: transform 160ms ease;
+}
+
+.semester-canvas .react-flow__node-lane,
+.semester-canvas .react-flow__node-phantom {
+  cursor: default;
+}
+
+.semester-canvas .react-flow__node-course {
+  cursor: grab;
+}
+
+.semester-canvas .react-flow__node-course.dragging {
+  cursor: grabbing;
+}
+
+.semester-canvas--readonly .react-flow__node-course {
+  cursor: pointer;
+}
+
+.semester-canvas--drop-target {
+  outline: 2px dashed #60a5fa;
+  outline-offset: -2px;
+}
+
+/* Branch frames are drawn behind the courses and never catch the pointer. */
+.semester-canvas .react-flow__node-branch {
+  pointer-events: none;
+}

@@ -3,11 +3,17 @@ import * as i18n from '@iuroadmap/core';
 
 type Language = 'en' | 'vi';
 
+/** Values for `{name}` placeholders, e.g. t('roadmap.term.semester', { n: 4 }). */
+export type TranslationParams = Record<string, string | number>;
+
 interface TranslationContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (keyPath: string | undefined) => string;
+  t: (keyPath: string | undefined, params?: TranslationParams) => string;
 }
+
+const interpolate = (text: string, params?: TranslationParams): string =>
+  params ? text.replace(/\{(\w+)\}/g, (match, name) => (name in params ? String(params[name]) : match)) : text;
 
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
 
@@ -35,11 +41,12 @@ export const TranslationProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('app_language', lang);
   };
 
-  const t = (keyPath: string | undefined): string => {
+  const t = (keyPath: string | undefined, params?: TranslationParams): string => {
     if (!keyPath) return '';
 
     const translations = language === 'en' ? i18n.translations.en : i18n.translations.vi;
-    const result = getNestedValue(translations, keyPath);
+    const found = getNestedValue(translations, keyPath) ?? getNestedValue(i18n.translations.en, keyPath);
+    const result = found === undefined ? undefined : interpolate(found, params);
     
     // Debug: Log first time we see a navigation key
     if (keyPath.startsWith('navigation.') && !result) {

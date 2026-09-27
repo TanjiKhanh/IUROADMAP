@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
+import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { DepartmentsZod, type CreateDepartmentDto } from '@iuroadmap/api-gen';
+import { DepartmentsZod, type DepartmentCreateRequest } from '@iuroadmap/api-gen';
 import { UiForm, UiRow, UiCol, UiCard, UiInputField, UiTextAreaField, UiFormActions } from '../../../../uikit';
 import { useTranslation } from '../../../../hooks/useTranslation';
 
-export type DepartmentFormValues = CreateDepartmentDto;
+export type DepartmentFormValues = DepartmentCreateRequest;
 
 export interface DepartmentFormProps {
   defaultValues?: Partial<DepartmentFormValues>;
@@ -33,7 +33,7 @@ export function DepartmentForm({
     mode: 'onSubmit',
     reValidateMode: 'onChange',
   });
-  const { handleSubmit, reset, control, formState: { errors } } = form;
+  const { handleSubmit, reset, control } = form;
 
   useEffect(() => {
     if (defaultValues) reset({ ...emptyDefaults(), ...defaultValues } as DepartmentFormValues);

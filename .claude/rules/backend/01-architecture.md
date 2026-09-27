@@ -22,11 +22,14 @@ iuroadmap.services/<service>/
 
 Reference: `auth/src/modules/iam/` (controller `roles.controller.ts`, service `roles.service.ts`, DTOs `dto/role/`).
 
-**Legacy code (do not copy, migrate when touched):** `auth/src/modules/users/`, `roadmap-service/src/modules/roadmap/` (`controller/` singular, `*.dto.ts`, snake_case filenames), and `mentor-service/*/repositories/`.
+Roadmap v2 modules of `roadmap-service` (`department`, `major`, `course-catalog`, …) follow the same pattern; pure logic that must be unit-tested without a database sits in `modules/<module>/lib/` (e.g. `student-roadmap/lib/merge.ts`).
+
+**Legacy code (do not copy, migrate when touched):** `auth/src/modules/users/` and `mentor-service/*/repositories/`.
 
 ## Boundaries
 
-- Each service owns its Prisma schema. **Never query another service's DB.** For cross-service calls, use the HTTP clients in `@iuroadmap/shared/src/clients/*` (or the saga helpers in `shared/src/saga`).
+- Each service owns its Prisma schema. **Never query another service's DB.** For cross-service calls, use the HTTP clients in `@iuroadmap/shared/src/clients/*` (`mentor-client`, `roadmap-client`) or the saga helpers in `shared/src/saga`.
+- Service-to-service endpoints live under `internal/*`: no gateway prefix, `@ApiExcludeController()` so they stay out of the FE Swagger, and an API-key check (`x-api-key`; roadmap-service: `InternalApiKeyGuard` + `ROADMAP_SERVICE_API_KEY`). Example: auth deleting a user calls `roadmap-client.purgeUser()`.
 - `api-gateway` has no business logic. It verifies the JWT (`middlewares/auth.middleware.ts`), then proxies requests by URL prefix according to `config/routes.config.ts`. A new top-level controller path needs a prefix entry there.
 - Swagger for the FE is exported from the gateway (`npm run gen:spec`), so every endpoint needs full `@nestjs/swagger` decorators.
 
@@ -40,8 +43,11 @@ Reference: `auth/src/modules/iam/` (controller `roles.controller.ts`, service `r
 | Constants | `EntityConstant` (lengths), `AppConstant` (`RoleName`, `Pagination`, `PMSGroup`, `DateFormat`), `CacheTtl`, error constants |
 | Enums | `Role`, `AccountStatus`, `PMS` + `APP_PERMISSIONS`, enrollment enums |
 | Global | `ResponseInterceptor` wraps every response as `{ status, data, timestamp, path }`; `HttpExceptionFilter`; `CustomValidationPipe` |
+| Roadmap logic | `roadmap-engine` (pure TS: `findCycle`, `checkPlacement`, `validateCurriculum`, `layoutColumn` / `orderForSlot`, `computeTotal` / `summarizeResults`, `resolveOffering`). Used by roadmap-service **and** the web app |
 
-After you change `shared`, rebuild it (`npm run build --workspace=@iuroadmap/shared`) before the services see the change.
+`shared` is consumed from source (`main: ./src/index.ts`), so services see a change without a rebuild.
+
+Two dependency-free subpaths exist for the web app (never import NestJS there): `@iuroadmap/shared/roadmap-engine` and `@iuroadmap/shared/constants` (`AppConstant`, `EntityConstant`, `ErrorCodes`). Business rules that both sides need (DAG, semester order, grading) live once in `roadmap-engine`, with unit tests in `roadmap-service/test/roadmap-engine/`.
 
 ## Hard rules
 
