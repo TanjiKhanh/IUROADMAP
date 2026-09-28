@@ -36,7 +36,8 @@ async function bootstrap() {
   app.enableCors();
 
   const port = process.env.PORT || 4100;
-  await app.listen(port, '0.0.0.0');
+  // HOST=:: on Railway: its private network (*.railway.internal) needs an IPv6 listener
+  await app.listen(port, process.env.HOST || '0.0.0.0');
   logger.log(`🚀 Roadmap Service is running on port ${port}`);
 }
 bootstrap();

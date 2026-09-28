@@ -8,4 +8,12 @@ export const MenuIconsMobile = {
   GRADUATION: 'school',
   USERS: 'account-group',
   MESSAGE: 'message',
+  COMPASS: 'compass',
+  LIBRARY: 'bookshelf',
+  PALETTE: 'palette',
+  TEACHER: 'human-male-board',
+  CALENDAR: 'calendar-range',
+  AWARD: 'trophy-award',
+  SHIELD: 'shield-check',
+  ROUTE: 'map-marker-path',
 } as const;

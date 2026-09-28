@@ -8,4 +8,12 @@ export const MenuIconsWeb = {
   graduationCap: 'lucide-graduation-cap',
   users: 'lucide-users',
   messageCircle: 'lucide-message-circle',
+  compass: 'lucide-compass',
+  library: 'lucide-library',
+  palette: 'lucide-palette',
+  presentation: 'lucide-presentation',
+  calendarRange: 'lucide-calendar-range',
+  award: 'lucide-award',
+  shieldCheck: 'lucide-shield-check',
+  route: 'lucide-route',
 } as const;

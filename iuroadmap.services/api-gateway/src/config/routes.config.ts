@@ -15,7 +15,8 @@ export const GATEWAY_ROUTES: RouteMapping[] = [
     target: ServiceUrls.MENTOR_SERVICE,
   },
   {
-    prefixes: ['users', 'user'],
+    // 'user' (v1 /user/roadmaps/*) was removed: learner roadmaps are 'student-roadmaps' (roadmap-service)
+    prefixes: ['users'],
     target: ServiceUrls.USER_SERVICE,
   },
   {

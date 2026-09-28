@@ -7,11 +7,12 @@ import ForgotPassword from '../views/public/ForgotPassword';
 import ResetPassword from '../views/public/ResetPassword';
 
 const authRoutes: RouteObject[] = [
+  // Login and register draw their own light background (.auth-page), without the dark auth layout
+  { path: RoutePaths.web.public.login, element: <Login /> },
+  { path: RoutePaths.web.public.register, element: <Register /> },
   {
     element: <AuthLayout />,
     children: [
-      { path: RoutePaths.web.public.login, element: <Login /> },
-      { path: RoutePaths.web.public.register, element: <Register /> },
       { path: RoutePaths.web.public.forgotPassword, element: <ForgotPassword /> },
       { path: '/reset-password', element: <ResetPassword /> },
     ],

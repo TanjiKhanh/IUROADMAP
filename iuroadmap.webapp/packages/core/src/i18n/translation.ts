@@ -16,7 +16,7 @@ export const Translations = {
   },
   sidebar: {
     dashboard: 'navigation.dashboard',
-      major: 'navigation.major',
+    major: 'navigation.major',
     roadmap: 'navigation.roadmap',
     courses: 'navigation.courses',
     mentorship: 'navigation.mentorship',
@@ -31,6 +31,14 @@ export const Translations = {
     chatWithMentors: 'navigation.chatWithMentors',
     mentorHub: 'navigation.mentorHub',
     departments: 'navigation.departments',
+    exploreRoadmaps: 'navigation.exploreRoadmaps',
+    exploreCourses: 'navigation.exploreCourses',
+    courseCategories: 'navigation.courseCategories',
+    catalogCourses: 'navigation.catalogCourses',
+    lecturers: 'navigation.lecturers',
+    courseOfferings: 'navigation.courseOfferings',
+    grading: 'navigation.grading',
+    commentModeration: 'navigation.commentModeration',
   },
   navigation: {
     root: 'navigation.root',

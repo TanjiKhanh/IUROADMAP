@@ -23,7 +23,10 @@ enum NodeProgressStatus {
   COMPLETED
 }
 
-// ================= USER PROGRESS =================
+// ================= USER PROGRESS (v1, no longer used) =================
+// Roadmap v2 (D5): learner roadmaps live in roadmap-service (student_roadmaps + overlay + results)
+// and the v1 API of this service was removed. These tables are only kept until the service gets
+// its first real model (Prisma cannot generate a client without models); drop them then.
 
 model USER_ROADMAPS_PROGRESS {
   id                      Int                   @id @default(autoincrement())

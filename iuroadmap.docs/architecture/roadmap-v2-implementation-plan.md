@@ -7,6 +7,26 @@
 
 ---
 
+## Trạng thái (cập nhật 2026-09-26)
+
+| Phase | Trạng thái | Đã có | Còn thiếu |
+|---|---|---|---|
+| P0 | ✅ | `roadmap-engine` + hằng số, mã lỗi; subpath `@iuroadmap/shared/constants` cho web; `.gitignore` không bỏ qua migration. Unit test `roadmap-service/test/` (145 test) **tái hiện đúng 2 bảng điểm** (85.0 / 3.45 / 20 / Giỏi; 73.9 / 2.97 / 15 / Khá) | — |
+| P1 | ✅ | Schema, migration, seed, module master data, gateway. Web: khoa, ngành, nhóm môn, môn học, giảng viên, thang điểm + xếp loại | Chạy Playwright `api/config/*` trên DB thật |
+| P2 | ✅ | Module `curriculum`; unit test vòng đời T1–T6 | — |
+| P3 | ✅ | `components/semester-canvas/*` (lane, node, 3 kiểu edge, kéo chèn giữa, thả từ sidebar, khung nhánh điều kiện), `curriculumCanvasPage` (undo/redo, Ctrl+S, lỗi / cảnh báo trực tiếp), `majorDetailPage` + tab CTĐT, `createDraftModal`, `publishDialog`. E2E `curriculum-canvas.spec.ts` | Chạy E2E |
+| P4 | ✅ | Module `student-roadmap`, `explore-roadmaps`; unit test merge, apply-ops (chuẩn hoá, BR-LRN-08) | — |
+| P5 | ✅ | Explore CTĐT, preview, clone; My Roadmaps; My Roadmap (sửa cục bộ, gộp op khi lưu, kéo vào khe tạo kỳ, gợi ý tính trực tiếp). E2E `my-roadmap.spec.ts` | Chạy E2E |
+| P6 | ✅ | `termResultsDrawer` (tổng, điểm chữ, TB kỳ tính trực tiếp bằng engine), `summaryBar` | — |
+| P7 | ✅ | Rebase (unit test: không mất điểm), `upgradePreviewDialog`. **Nhánh điều kiện**: kiểm tra `choice_group` + `condition` khi lưu canvas, merged view đánh dấu nhánh theo GPA tích luỹ của các kỳ trước (`branchActive`), canvas vẽ khung nhánh và làm mờ nhánh không phù hợp, admin sửa nhánh trong inspector. **Thống kê overlay** (FR-RDM.07.5): `GET admin/roadmap-versions/:id/overlay-stats` + drawer "Thống kê" ở tab CTĐT | — |
+| P8 | ✅ | Bình luận (trả lời 1 cấp, sửa, xoá, báo cáo), kiểm duyệt (ẩn có lý do, giữ lại, khôi phục) | — |
+| P9 | ✅ | Môn theo năm học (admin: thông tin, giảng viên, topic, sao chép năm), Course Explorer, trang môn (đổi năm học, lùi về năm gần nhất), micro roadmap theo năm. E2E `course-explorer.spec.ts` | Chạy E2E |
+| P10 | 🟡 | Xoá view v1 trên web; xoá API v1 `/user/roadmaps/*` (module user-service, prefix `user` ở gateway, hook api-gen), `UserClient` / `AdminClient` và kiểu v1 trong shared. Xoá user: auth gọi `roadmap-client` → `POST /api/v1/internal/users/:userId/purge` (xoá roadmap, ẩn danh hoá bình luận; khoá `ROADMAP_SERVICE_API_KEY`) | Drop bảng `user_roadmaps`, `user_node_progress` (**chưa làm**: Prisma không sinh client khi schema không còn model; cần quyết định tương lai của user-service) |
+
+Kiểm thử: 145 unit test backend chạy xanh. Playwright đã viết nhưng chưa chạy (cần service + DB): API v2 46 test (`npm run test:api:roadmap`), E2E 7 test (`npm run test:e2e:roadmap`) trong `iuroadmap.webapp/tests`. Lưu ý: `.gitignore` đang bỏ qua `*.spec.ts`, nên các file test chưa được commit.
+
+---
+
 ## 0. Cần chốt trước khi code
 
 | # | Vấn đề | Hiện trạng | Đề xuất |

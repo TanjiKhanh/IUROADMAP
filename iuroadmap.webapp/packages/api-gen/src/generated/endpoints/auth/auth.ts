@@ -27,6 +27,7 @@ import type {
 import type {
   AuthLoginResponseDto,
   ForgotPasswordRequestDto,
+  GoogleLoginRequestDto,
   LearnerRegisterRequestDto,
   LoginRequestDto,
   MentorRegisterRequestDto,
@@ -350,6 +351,112 @@ export const useAuthenticationControllerLogin = <TError = void,
         TContext
       > => {
       return useMutation(getAuthenticationControllerLoginMutationOptions(options), queryClient);
+    }
+    export type authenticationControllerLoginWithGoogleResponse200 = {
+  data: AuthLoginResponseDto
+  status: 200
+}
+
+export type authenticationControllerLoginWithGoogleResponse401 = {
+  data: void
+  status: 401
+}
+
+export type authenticationControllerLoginWithGoogleResponse403 = {
+  data: void
+  status: 403
+}
+
+export type authenticationControllerLoginWithGoogleResponse503 = {
+  data: void
+  status: 503
+}
+
+export type authenticationControllerLoginWithGoogleResponseSuccess = (authenticationControllerLoginWithGoogleResponse200) & {
+  headers: Headers;
+};
+export type authenticationControllerLoginWithGoogleResponseError = (authenticationControllerLoginWithGoogleResponse401 | authenticationControllerLoginWithGoogleResponse403 | authenticationControllerLoginWithGoogleResponse503) & {
+  headers: Headers;
+};
+
+export type authenticationControllerLoginWithGoogleResponse = (authenticationControllerLoginWithGoogleResponseSuccess | authenticationControllerLoginWithGoogleResponseError)
+
+export const getAuthenticationControllerLoginWithGoogleUrl = () => {
+
+
+
+
+  return `/api/v1/auth/google`
+}
+
+/**
+ * @summary Sign in with Google; creates a learner account on the first visit (returns JWT token)
+ */
+export const authenticationControllerLoginWithGoogle = async (googleLoginRequestDto: GoogleLoginRequestDto, options?: RequestInit): Promise<authenticationControllerLoginWithGoogleResponse> => {
+
+  const res = await fetch(getAuthenticationControllerLoginWithGoogleUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(googleLoginRequestDto)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: authenticationControllerLoginWithGoogleResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as authenticationControllerLoginWithGoogleResponse
+}
+
+
+
+
+
+export const getAuthenticationControllerLoginWithGoogleMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerLoginWithGoogle>>, TError,{data: GoogleLoginRequestDto}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerLoginWithGoogle>>, TError,{data: GoogleLoginRequestDto}, TContext> => {
+
+const mutationKey = ['authenticationControllerLoginWithGoogle'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authenticationControllerLoginWithGoogle>>, {data: GoogleLoginRequestDto}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authenticationControllerLoginWithGoogle(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthenticationControllerLoginWithGoogleMutationResult = NonNullable<Awaited<ReturnType<typeof authenticationControllerLoginWithGoogle>>>
+    export type AuthenticationControllerLoginWithGoogleMutationBody = GoogleLoginRequestDto
+    export type AuthenticationControllerLoginWithGoogleMutationError = void
+
+    /**
+ * @summary Sign in with Google; creates a learner account on the first visit (returns JWT token)
+ */
+export const useAuthenticationControllerLoginWithGoogle = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerLoginWithGoogle>>, TError,{data: GoogleLoginRequestDto}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authenticationControllerLoginWithGoogle>>,
+        TError,
+        {data: GoogleLoginRequestDto},
+        TContext
+      > => {
+      return useMutation(getAuthenticationControllerLoginWithGoogleMutationOptions(options), queryClient);
     }
     export type authenticationControllerLogoutResponse204 = {
   data: void

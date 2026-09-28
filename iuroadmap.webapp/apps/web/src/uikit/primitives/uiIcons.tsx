@@ -16,4 +16,5 @@ export {
   UserOutlined as UiUserIcon,
   LockOutlined as UiLockIcon,
   MailOutlined as UiMailIcon,
+  CloseOutlined as UiCloseIcon,
 } from '@ant-design/icons';

@@ -10,7 +10,9 @@ export class PaginationResponse<T> {
   @ApiProperty({ description: 'Total number of rows', example: 100 })
   totalRows!: number;
 
-  @ApiPropertyOptional({ description: 'Array of data items', isArray: true })
+  // `type: Object` makes the items `{ type: object }`; without it Swagger emits `items: { type: array }`,
+  // which Orval turns into an invalid `zod.array(zod.array())`. Endpoints narrow `datas` with ApiPaginatedResponse.
+  @ApiPropertyOptional({ description: 'Array of data items', isArray: true, type: Object })
   datas?: T[];
 
   @ApiProperty({ description: 'Total number of pages', example: 5 })

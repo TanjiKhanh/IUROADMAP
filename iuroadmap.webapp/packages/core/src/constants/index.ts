@@ -5,3 +5,4 @@ export * from './iconsMobile';
 export * from './iconsWeb';
 export * from './navigation';
 export * from './routes';
+export * from './roadmapCanvas';

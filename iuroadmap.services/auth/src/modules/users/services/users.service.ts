@@ -1,7 +1,7 @@
 import { Injectable, Logger, ConflictException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/prisma/prisma.service';
 import { Prisma, User, AccountStatus } from '../../../generated/prisma-client';
-import { getPaginationAsync, PaginationResponse } from '@iuroadmap/shared';
+import { getPaginationAsync, PaginationResponse, RoadmapClientService } from '@iuroadmap/shared';
 import { 
   UserCreateRequest, 
   UserUpdateRequest, 
@@ -15,7 +15,10 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly roadmapClient: RoadmapClientService,
+  ) {}
 
   // --------------------------------------------------------
   // Legacy / Internal Methods (Used by AuthenticationService)
@@ -123,7 +126,15 @@ export class UsersService {
     }
   }
 
+  /**
+   * Hard delete (BR-CFG-05). The user's data in roadmap-service goes first (roadmaps deleted,
+   * comments anonymized, roadmap-schema § Xoá user): if that call fails the user is kept, so no
+   * orphan data is left behind.
+   */
   async delete(id: string): Promise<void> {
+    const exists = await this.prisma.user.findUnique({ where: { id }, select: { id: true } });
+    if (!exists) throw new NotFoundException(`User with ID ${id} not found`);
+    await this.roadmapClient.purgeUser(id);
     try {
       await this.prisma.user.delete({
         where: { id },

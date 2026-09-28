@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from '../../hooks/useTranslation';
 import { features, RoutePaths } from '@iuroadmap/core';
-import { authService } from '../../services/auth.service';
+import { useAuthenticationControllerResetPassword } from '@iuroadmap/api-gen';
+import { apiErrorMessage } from '../../api/apiResult';
 import logo from '../../assets/images/logo-gupjob-primary.png';
 
 import { useForm } from 'react-hook-form';
@@ -29,6 +30,7 @@ export default function ResetPassword() {
     const token = searchParams.get('token') || '';
     const { toast, toastContextHolder } = useToast();
     const [submitted, setSubmitted] = useState(false);
+    const { mutateAsync: resetPassword } = useAuthenticationControllerResetPassword();
 
     const { control, handleSubmit, formState: { isSubmitting } } = useForm<ResetFormValues>({
         resolver: zodResolver(resetSchema),
@@ -42,11 +44,11 @@ export default function ResetPassword() {
         }
 
         try {
-            await authService.resetPassword({ token, newPassword: data.password });
+            await resetPassword({ data: { token, newPassword: data.password } });
             setSubmitted(true);
             setTimeout(() => navigate(RoutePaths.web.public.login), 3000);
-        } catch (err: any) {
-            toast.error(err.response?.data?.message || err.message || 'Failed to reset password');
+        } catch (err: unknown) {
+            toast.error(apiErrorMessage(err, t, 'Failed to reset password'));
         }
     };
 

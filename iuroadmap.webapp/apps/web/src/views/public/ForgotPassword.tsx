@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../hooks/useTranslation';
 import { features, RoutePaths } from '@iuroadmap/core';
-import { authService } from '../../services/auth.service';
+import { useAuthenticationControllerForgotPassword } from '@iuroadmap/api-gen';
+import { apiErrorMessage } from '../../api/apiResult';
 import logo from '../../assets/images/logo-gupjob-primary.png';
 
 import { useForm } from 'react-hook-form';
@@ -23,6 +24,7 @@ export default function ForgotPassword() {
     const navigate = useNavigate();
     const { toast, toastContextHolder } = useToast();
     const [submitted, setSubmitted] = useState(false);
+    const { mutateAsync: forgotPassword } = useAuthenticationControllerForgotPassword();
 
     const { control, handleSubmit, formState: { isSubmitting } } = useForm<ForgotFormValues>({
         resolver: zodResolver(forgotSchema),
@@ -31,10 +33,10 @@ export default function ForgotPassword() {
 
     const onSubmit = async (data: ForgotFormValues) => {
         try {
-            await authService.forgotPassword(data.email);
+            await forgotPassword({ data: { email: data.email } });
             setSubmitted(true);
-        } catch (err: any) {
-            toast.error(err.response?.data?.message || err.message || 'Failed to request password reset');
+        } catch (err: unknown) {
+            toast.error(apiErrorMessage(err, t, 'Failed to request password reset'));
         }
     };
 
@@ -65,7 +67,7 @@ export default function ForgotPassword() {
                             <UiInputField control={control} name="email" label={t(authKeys.login.email)} placeholder="Enter your email address" />
 
                             <UiButton type="primary" htmlType="submit" loading={isSubmitting} block size="large" style={{ marginTop: '1rem' }}>
-                                {isSubmitting ? t(authKeys.login.processing) : t(authKeys.forgotPassword.submitBtn)}
+                                {isSubmitting ? t(authKeys.login.processing) : t(authKeys.forgotPassword.sendLinkBtn)}
                             </UiButton>
                         </UiForm>
 

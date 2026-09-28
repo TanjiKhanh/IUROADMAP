@@ -31,7 +31,8 @@ async function bootstrap() {
 
   const port = parseInt(process.env.PORT ?? '4001', 10);
   
-  await app.listen(port , "0.0.0.0");
+  // HOST=:: on Railway: its private network (*.railway.internal) needs an IPv6 listener
+  await app.listen(port, process.env.HOST || '0.0.0.0');
   
   console.log(`🚀 Mentor Service is running on: http://localhost:${port}`);
 }

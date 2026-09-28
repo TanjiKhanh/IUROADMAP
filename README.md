@@ -238,6 +238,9 @@ REFRESH_TOKEN_SECRET=your-refresh-secret
 REFRESH_TOKEN_EXPIRE=30d
 PORT=4000
 MENTOR_SERVICE_API_KEY=internal-api-key
+# Deleting a user purges their roadmaps / anonymizes their comments in roadmap-service
+ROADMAP_SERVICE_URL=http://localhost:4100
+ROADMAP_SERVICE_API_KEY=internal-roadmap-key
 
 # Email settings (for password reset)
 SMTP_HOST=smtp.gmail.com
@@ -252,6 +255,11 @@ NODE_ENV=development
 DATABASE_URL=postgresql://user:password@localhost:5432/gupjob
 JWT_SECRET=your-secret-key
 PORT=4200
+```
+
+**services/roadmap-service/.env** (internal calls; same value as in auth):
+```env
+ROADMAP_SERVICE_API_KEY=internal-roadmap-key
 ```
 
 **frontend/.env**:

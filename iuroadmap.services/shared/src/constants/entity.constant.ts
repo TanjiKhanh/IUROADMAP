@@ -66,6 +66,11 @@ export const EntityConstant = {
    */
   Email: 100,
 
+  /**
+   * Signed token from an identity provider, e.g. a Google ID token (max 4096)
+   */
+  ExternalToken: 4096,
+
   // ================= Roadmap v2 =================
 
   /**

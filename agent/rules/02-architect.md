@@ -25,6 +25,10 @@ IUROADMAP is designed as a microservices platform. Currently, the **auth-service
   - `AccountStatus` enum — `ACTIVE`, `PENDING_APPROVAL`, `BANNED`, `REJECTED`
   - `PMS` enum + `APP_PERMISSIONS` — static permission registry with group mapping
   - `AppConstant.PMSGroup` — permission group name constants
+  - `roadmap-engine` — pure roadmap rules shared with the web app (DAG, semester order, row layout, grading / GPA, offering by year)
+- Consumed from source (`main: ./src/index.ts`): no rebuild needed after a change
+- Dependency-free subpaths for the web app: `@iuroadmap/shared/roadmap-engine`, `@iuroadmap/shared/constants`
+- Service clients: `mentor-client`, `roadmap-client` (internal `internal/*` endpoints, `x-api-key`, hidden from the gateway and Swagger)
 
 ## Response Envelope
 All API responses are automatically wrapped by `ResponseInterceptor`:
@@ -37,8 +41,10 @@ All API responses are automatically wrapped by `ResponseInterceptor`:
 }
 ```
 
+## Roadmap service (active)
+- `roadmap-service` — departments, majors, course catalog, lecturers, course offerings, curricula by year (semester canvas), student roadmaps (overlay), grading, course comments. Design: `iuroadmap.docs/architecture/roadmap-v2-design.md`
+
 ## Planned Services (Not Yet Active)
 - `api-gateway` — Public-facing gateway (routing to backend services)
-- `roadmap-service` — Core domain: Departments, Majors, Courses, Roadmaps
 - `user-service` — User profile data, configurations
 - `mentor-service` — Mentorship matching, scheduling, sessions

@@ -2,6 +2,7 @@ export { translations, getTranslation, features } from "./i18n";
 export * from "./menus";
 export * from "./types";
 export * from "./constants/routes";
+export * from "./constants/roadmapCanvas";
 export * from "./enums";
 export * from "./auth";
 

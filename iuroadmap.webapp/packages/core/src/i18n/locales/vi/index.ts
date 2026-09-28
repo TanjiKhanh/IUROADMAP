@@ -7,6 +7,8 @@ import mentor from './mentor.json';
 import admin from './admin-portal.json';
 import permission from './permission.json';
 import config from './config.json';
+import roadmap from './roadmap.json';
+import errors from './errors.json';
 
 export default {
   ...core,
@@ -18,4 +20,6 @@ export default {
   admin,
   ...permission,
   ...config,
+  ...roadmap,
+  ...errors,
 };

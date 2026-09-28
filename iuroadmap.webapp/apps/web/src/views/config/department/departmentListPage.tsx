@@ -1,137 +1,78 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   useDepartmentsControllerGetByIndex,
   useDepartmentsControllerDelete,
-  type DepartmentResponseDto,
+  type DepartmentResponse,
 } from '@iuroadmap/api-gen';
 import { RoutePaths } from '@iuroadmap/core';
-import {
-  UiTable,
-  UiButton,
-  UiTooltip,
-  UiSpace,
-  UiColumnsType,
-  UiEditIcon,
-  UiDeleteIcon,
-  UiPageHeader
-} from '../../../uikit';
+import { UiTable, UiColumnsType, useToast } from '../../../uikit';
 import { useConfirmAndDelete } from '../../../hooks/useConfirmAndDelete';
-import { useListUrlState } from '../../../hooks/useListUrlState';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { unwrapData } from '../../../api/apiResult';
+import { ConfigListShell } from '../shared/configListShell';
+import { KeywordFilter } from '../shared/keywordFilter';
+import { RowActions } from '../shared/rowActions';
+import { useConfigListState } from '../shared/useConfigListState';
 
 const PAGE_SIZE = 20;
 
-interface DepartmentFilter {
-  keyword?: string | null;
-}
+type DepartmentFilter = { keyword?: string };
 
 interface DepartmentListData {
-  datas: DepartmentResponseDto[];
+  datas: DepartmentResponse[];
   totalRows: number;
-}
-
-const DEFAULT_FILTER: DepartmentFilter = {
-  keyword: null,
-};
-
-function filterToParams(filter: DepartmentFilter, page: number): Record<string, string> {
-  const out: Record<string, string> = {};
-  if (filter.keyword) out.keyword = filter.keyword;
-  if (page > 1) out.page = String(page);
-  return out;
-}
-
-function filterFromParams(params: URLSearchParams): {
-  filter: DepartmentFilter;
-  page: number;
-} {
-  return {
-    filter: {
-      keyword: params.get('keyword'),
-    },
-    page: Number(params.get('page') ?? '1') || 1,
-  };
 }
 
 export function DepartmentListPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { toast, toastContextHolder } = useToast();
+  const queryClient = useQueryClient();
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   const { mutateAsync: remove } = useDepartmentsControllerDelete();
-  const onDelete = useConfirmAndDelete({ mutateAsync: remove });
-
-  const { filter, page, applyFilter, changePage } = useListUrlState<DepartmentFilter>({
-    defaultFilter: DEFAULT_FILTER,
-    toParams: filterToParams,
-    fromParams: filterFromParams,
+  const onDelete = useConfirmAndDelete({
+    mutateAsync: remove,
+    onError: setErrorMessage,
+    onSuccess: () => {
+      toast.success(t('config.common.deleted'));
+      queryClient.invalidateQueries();
+    },
   });
+
+  const { filter, page, applyFilter, changePage } = useConfigListState<DepartmentFilter>({ keyword: 'string' });
 
   const { data: raw, isLoading } = useDepartmentsControllerGetByIndex({
     currentPage: page,
     rowsPerPage: PAGE_SIZE,
-    keyword: filter.keyword ?? undefined,
+    keyword: filter.keyword,
   });
 
-  const data = (raw?.data as any)?.data as DepartmentListData | undefined;
+  const data = unwrapData<DepartmentListData>(raw);
   const rows = data?.datas ?? [];
   const totalRows = data?.totalRows ?? 0;
 
-  const columns = useMemo<UiColumnsType<DepartmentResponseDto>>(
+  const columns = useMemo<UiColumnsType<DepartmentResponse>>(
     () => [
-      {
-        key: 'id',
-        title: t('config.common.id'),
-        dataIndex: 'id',
-        width: 80,
-      },
-      {
-        key: 'name',
-        title: t('config.department.name'),
-        dataIndex: 'name',
-        render: (text) => <strong>{text}</strong>,
-      },
-      {
-        key: 'slug',
-        title: 'Slug',
-        dataIndex: 'slug',
-        render: (text) => <code>{text}</code>,
-      },
-      {
-        key: 'description',
-        title: t('config.department.description'),
-        dataIndex: 'description',
-        ellipsis: true,
-      },
+      { key: 'name', title: t('config.department.name'), dataIndex: 'name', render: (text) => <strong>{text}</strong> },
+      { key: 'slug', title: t('config.department.slug'), dataIndex: 'slug', render: (text) => <code>{text}</code> },
+      { key: 'majorCount', title: t('config.department.majorCount'), dataIndex: 'majorCount', align: 'right', width: 110 },
+      { key: 'lecturerCount', title: t('config.department.lecturerCount'), dataIndex: 'lecturerCount', align: 'right', width: 130 },
+      { key: 'description', title: t('config.department.description'), dataIndex: 'description', ellipsis: true },
       {
         key: 'actions',
         title: t('config.common.actions'),
         align: 'right',
-        width: 120,
+        width: 110,
         render: (_v, row) => (
-          <UiSpace>
-            <UiTooltip title={t('config.common.edit')}>
-              <UiButton
-                size='small'
-                type='text'
-                icon={<UiEditIcon />}
-                onClick={() =>
-                  navigate(
-                    RoutePaths.web.config.department.edit.replace(':id', String(row.id))
-                  )
-                }
-              />
-            </UiTooltip>
-            <UiTooltip title={t('config.common.delete')}>
-              <UiButton
-                size='small'
-                type='text'
-                danger
-                icon={<UiDeleteIcon />}
-                onClick={() => onDelete({ id: row.id })}
-              />
-            </UiTooltip>
-          </UiSpace>
+          <RowActions
+            onEdit={() => navigate(RoutePaths.web.config.department.edit.replace(':id', String(row.id)))}
+            onDelete={() => onDelete({ id: row.id })}
+            canDelete={row.canDelete}
+            deleteBlockedReason={t('errors.DEPARTMENT_HAS_MAJORS')}
+          />
         ),
       },
     ],
@@ -139,27 +80,30 @@ export function DepartmentListPage() {
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <UiPageHeader 
-        title={t('config.department.list')} 
-        action={<UiButton type="primary" onClick={() => navigate(RoutePaths.web.config.department.create)}>{t('config.common.add')}</UiButton>} 
-      />
-
-      <div style={{ flex: 1, backgroundColor: '#fff', borderRadius: 8, padding: 16 }}>
+    <>
+      {toastContextHolder}
+      <ConfigListShell
+        title={t('config.department.list')}
+        onAdd={() => navigate(RoutePaths.web.config.department.create)}
+        errorMessage={errorMessage}
+        onCloseError={() => setErrorMessage(undefined)}
+        filters={
+          <KeywordFilter
+            value={filter.keyword}
+            placeholder={t('config.common.searchPlaceholder')}
+            onSearch={(keyword) => applyFilter({ keyword })}
+          />
+        }
+      >
         <UiTable
           columns={columns}
           dataSource={rows}
-          rowKey='id'
+          rowKey="id"
           loading={isLoading}
           scroll={{ x: 'max-content' }}
-          pagination={{
-            current: page,
-            pageSize: PAGE_SIZE,
-            total: totalRows,
-            onChange: (next) => changePage(next),
-          }}
+          pagination={{ current: page, pageSize: PAGE_SIZE, total: totalRows, onChange: (next) => changePage(next) }}
         />
-      </div>
-    </div>
+      </ConfigListShell>
+    </>
   );
 }

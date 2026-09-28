@@ -17,9 +17,9 @@ AI-powered career roadmap platform (learners, mentors, lecturers, admins). npm w
 |---|---|---|---|
 | `api-gateway` | 8080 | Proxy + JWT check + merged Swagger (`swagger:export`) | — |
 | `auth` | 3000 | Login/register, users, IAM (roles, permissions) | `auth`, `iam` |
-| `user-service` | 4000 | User profile data | `users` |
+| `user-service` | 4000 | Reserved for user profile data (the v1 learner flow moved to roadmap-service; its 2 tables are kept until the first real model) | `users` |
 | `mentor-service` | 4001 | Mentor profiles, mentor search | `mentors`, `mentor-profiles` |
-| `roadmap-service` | 4100 | Departments, majors, courses, roadmap graphs | `roadmaps`, `admin`, `courses`, `departments`, `explore` |
+| `roadmap-service` | 4100 | Departments, majors, course catalog, lecturers, course offerings, curricula by year (semester canvas), student roadmaps, grading, course comments | `admin`, `courses`, `course-categories`, `course-comments`, `departments`, `explore`, `lecturers`, `majors`, `student-roadmaps` |
 | `shared` | — | `@iuroadmap/shared`: guards, decorators, `PMS`, `AppConstant`, `EntityConstant`, pagination, interceptors | — |
 
 A new controller path prefix must be added to `api-gateway/src/config/routes.config.ts`.
@@ -41,8 +41,8 @@ The frontend never hand-writes validation or API calls. If a rule is missing, fi
 
 ## Canonical reference modules (copy these)
 
-- **Backend:** `iuroadmap.services/auth/src/modules/iam/` (Role). Legacy, do not copy: `auth/src/modules/users/`, `roadmap-service` `*.dto.ts` files, and the `mentor-service` repository layer.
-- **Web:** `iuroadmap.webapp/apps/web/src/views/config/role/` and `config/department/`.
+- **Backend:** `iuroadmap.services/auth/src/modules/iam/` (Role); in roadmap-service `modules/course-catalog/` (CRUD) and `modules/student-roadmap/` (pure `lib/` + services). Legacy, do not copy: `auth/src/modules/users/` and the `mentor-service` repository layer.
+- **Web:** `iuroadmap.webapp/apps/web/src/views/config/role/`, `config/department/` and `config/course/`. Semester canvas: `components/semester-canvas/`.
 
 ## Business rules = source of truth
 
@@ -66,8 +66,9 @@ Roadmap and learner work follows **Roadmap v2**: semester lanes, curriculum vers
 
 - `npm run dev`: all services + web (Turbo). `npm run web:dev`: web only.
 - `npm run gen:api`: export gateway Swagger, then regenerate `@iuroadmap/api-gen`.
+- `npm run build --workspace=@iuroadmap/core`: rebuild `@iuroadmap/core` (the web app reads its `dist/`) after changing routes, menus or i18n.
 - `npm run build` / `npm run lint`
-- Per service (`cd iuroadmap.services/<svc>`): `npm run start:dev`, `npm run build`, `npm run test:unit` (`*.unit.spec.ts`), `npx prisma migrate dev --name <Name>`
+- Per service (`cd iuroadmap.services/<svc>`): `npm run start:dev`, `npm run build`, `npm run test:unit` (`*.unit.spec.ts`; roadmap-service keeps them in `test/`), `npx prisma migrate dev --name <Name>`
 - Playwright (`cd iuroadmap.webapp/tests`): `npm run test:api`, `npm run test:e2e`
 
 ## General conventions

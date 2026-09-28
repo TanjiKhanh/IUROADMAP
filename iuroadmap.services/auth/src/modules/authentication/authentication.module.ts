@@ -14,7 +14,7 @@ import { UsersModule } from '../users/users.module';
 
 // Infrastructure
 import { PrismaModule } from '../../infrastructure/prisma/prisma.module';
-import { AdminClientModule, UserClientModule, MentorClientModule } from '@iuroadmap/shared';
+import { MentorClientModule } from '@iuroadmap/shared';
 
 @Module({
   imports: [
@@ -22,8 +22,6 @@ import { AdminClientModule, UserClientModule, MentorClientModule } from '@iuroad
     PassportModule.register({ defaultStrategy: 'jwt' }),
     PrismaModule,
     UsersModule,
-    AdminClientModule,
-    UserClientModule,
     MentorClientModule,
 
     JwtModule.registerAsync({

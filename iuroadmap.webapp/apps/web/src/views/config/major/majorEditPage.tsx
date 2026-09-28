@@ -1,66 +1,58 @@
-import React, { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useMajorsControllerGetById, useMajorsControllerUpdate, type MajorResponse } from '@iuroadmap/api-gen';
 import { RoutePaths } from '@iuroadmap/core';
-import {
-  useMajorsControllerGetMajorBySlug,
-  useMajorsControllerUpdateMajor,
-} from '@iuroadmap/api-gen';
-import { UiCard, UiPageHeader, useToast } from '../../../uikit';
-import { MajorForm, MajorFormValues } from './components/majorForm';
+import { UiCard, UiResult, UiSkeleton, useToast } from '../../../uikit';
+import { MajorForm, type MajorFormValues } from './components/majorForm';
+import { useTranslation } from '../../../hooks/useTranslation';
+import { apiErrorMessage, unwrapData } from '../../../api/apiResult';
 
 export function MajorEditPage() {
   const navigate = useNavigate();
-  const { id: slug } = useParams<{ id: string }>();
+  const { t } = useTranslation();
+  const { id = '' } = useParams<{ id: string }>();
+  const numericId = Number(id);
   const { toast, toastContextHolder } = useToast();
+  const { mutateAsync: update, isPending } = useMajorsControllerUpdate();
 
-  const { data: rawMajor, isLoading: isFetching } = useMajorsControllerGetMajorBySlug(slug ?? '', {
-    query: {
-      enabled: !!slug,
-    },
+  const { data: raw, isLoading, isError } = useMajorsControllerGetById(numericId, {
+    query: { enabled: Boolean(id) && !isNaN(numericId) },
   });
-  
-  const { mutateAsync: updateMajor, isPending: isUpdating } = useMajorsControllerUpdateMajor();
+  const record = unwrapData<MajorResponse>(raw);
 
-  const major = rawMajor?.data as any;
+  const defaults = useMemo<Partial<MajorFormValues> | undefined>(() => {
+    if (!record) return undefined;
+    return {
+      name: record.name,
+      slug: record.slug,
+      departmentId: record.departmentId,
+      description: record.description ?? '',
+    };
+  }, [record]);
 
-  const handleSubmit = async (values: MajorFormValues) => {
-    try {
-      await updateMajor({
-        slug: slug ?? '',
-        data: values,
-      });
-      toast.success('Major roadmap metadata updated successfully');
-      navigate(RoutePaths.web.config.major.root);
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to update major metadata');
-    }
-  };
+  if (isLoading) return <UiSkeleton active paragraph={{ rows: 6 }} />;
+  if (isError || !record) return <UiResult status="error" title={t('config.common.failedToLoad')} />;
 
-  if (isFetching && !major) {
-    return <div>Loading...</div>;
-  }
-
-  if (!major) {
-    return <div>Major not found</div>;
-  }
+  const backToDetail = () => navigate(RoutePaths.web.config.major.detail.replace(':id', String(numericId)));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxWidth: 600 }}>
+    <UiCard title={t('config.major.edit')} style={{ margin: '0 auto', maxWidth: 800 }}>
       {toastContextHolder}
-      <UiPageHeader title={`Edit Major Roadmap: ${major.name}`} />
-      
-      <UiCard>
-        <MajorForm
-          initialValues={{
-            name: major.name,
-            description: major.description || '',
-            totalCreditsRequired: major.totalCreditsRequired,
-          }}
-          onSubmit={handleSubmit}
-          isLoading={isUpdating}
-          onCancel={() => navigate(RoutePaths.web.config.major.root)}
-        />
-      </UiCard>
-    </div>
+      <MajorForm
+        defaultValues={defaults}
+        loading={isPending}
+        submitLabel={t('config.common.save')}
+        onCancel={backToDetail}
+        onSubmit={async (values) => {
+          try {
+            await update({ data: { ...values, id: numericId } });
+            toast.success(t('config.common.success'));
+            backToDetail();
+          } catch (err: unknown) {
+            toast.error(apiErrorMessage(err, t, t('config.major.updateFailed')));
+          }
+        }}
+      />
+    </UiCard>
   );
 }

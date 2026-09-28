@@ -1,153 +1,186 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useTranslation } from '../../hooks/useTranslation';
-import { features, RoutePaths } from '@iuroadmap/core';
-import logo from '../../assets/images/logo-gupjob-primary.png';
-
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-
-import {
-    UiButton,
-    UiCard,
-    UiForm,
-    UiIcon,
-    UiInputField,
-    UiSpace,
-    useToast,
-} from '../../uikit';
-import { useBreakpoint } from '../../hooks/useBreakpoint';
-
 import { useDispatch, useSelector } from 'react-redux';
+import { features, RoutePaths } from '@iuroadmap/core';
 import { selectIsAuthenticated, setAccessToken } from '@iuroadmap/store';
 import type { RootState } from '@iuroadmap/store';
-import { authenticationControllerLogin } from '@iuroadmap/api-gen';
+import { useAuthenticationControllerLogin, type AuthLoginResponseDto } from '@iuroadmap/api-gen';
+import { useTranslation } from '../../hooks/useTranslation';
+import { apiErrorMessage, unwrapData } from '../../api/apiResult';
+import { setAccessToken as persistAccessToken } from '../../auth/tokenStore';
+import { GOOGLE_SIGN_IN_ENABLED, GoogleSignInButton } from '../../components/auth/GoogleSignInButton';
+
+// Import logo
+import logo from '../../assets/images/logo-gupjob-primary.png';
 
 const authKeys = features.auth.keys;
 
-const loginSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(1),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-
-const DEFAULT_VALUES: LoginFormValues = { email: '', password: '' };
-
-interface LocationStateWithFrom {
-    from?: string;
+interface LoginLocationState {
+  /** Page to return to after signing in (set by ProtectedRoute) */
+  from?: string;
+  /** Message from the registration page */
+  message?: string;
 }
 
 export default function Login() {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const dispatch = useDispatch();
-    const authenticated = useSelector((state: RootState) => selectIsAuthenticated(state));
-    const { t } = useTranslation();
-    const { isMobile } = useBreakpoint();
-    const { toast, toastContextHolder } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { t } = useTranslation();
+  const authenticated = useSelector((state: RootState) => selectIsAuthenticated(state));
+  const { mutateAsync: login, isPending: isLoading } = useAuthenticationControllerLogin();
 
-    const form = useForm<LoginFormValues>({
-        resolver: zodResolver(loginSchema),
-        defaultValues: DEFAULT_VALUES,
-        mode: 'onTouched',
+  const locationState = location.state as LoginLocationState | null;
+  const redirectTarget = locationState?.from ?? RoutePaths.web.dashboard.root;
+
+  // State manage form
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+
+  // State manage show/hide password
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  // Signed in (now or from a stored token): leave the login page
+  useEffect(() => {
+    if (authenticated) {
+      navigate(redirectTarget, { replace: true });
+    }
+  }, [authenticated, navigate, redirectTarget]);
+
+  // Check if coming from registration
+  useEffect(() => {
+    if (locationState?.message) {
+      setSuccess(locationState.message);
+    }
+  }, [locationState?.message]);
+
+  // Handle input changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
     });
+    if (error) setError(null);
+    if (success) setSuccess(null);
+  };
 
-    const redirectTarget = (location.state as LocationStateWithFrom | null)?.from ?? RoutePaths.web.dashboard.root;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
 
-    useEffect(() => {
-        if (authenticated) {
-            navigate(redirectTarget, { replace: true });
-        }
-    }, [authenticated, navigate, redirectTarget]);
+    if (!formData.email || !formData.password) {
+      setError(t(authKeys.login.errorEmptyFields));
+      return;
+    }
 
-    const onSubmit = form.handleSubmit(async (values) => {
-        try {
-            const res = await authenticationControllerLogin(values);
-            // Backend wraps response: { status, data: { access_token }, timestamp, path }
-            // API generator wraps that as { data: <body>, status, headers }
-            const token = (res.data as any)?.data?.access_token;
+    try {
+      const token = unwrapData<AuthLoginResponseDto>(await login({ data: formData }))?.access_token;
+      if (!token) {
+        setError(t(authKeys.login.errorLoginFailed));
+        return;
+      }
+      persistAccessToken(token);
+      // The redirect happens in the effect above once the store is authenticated
+      dispatch(setAccessToken(token));
+    } catch (err: unknown) {
+      setError(apiErrorMessage(err, t, t(authKeys.login.errorLoginFailed)));
+    }
+  };
 
-            if (res.status === 200 && token) {
-                localStorage.setItem('iuroadmap.web.token', token);
-                dispatch(setAccessToken(token));
-                toast.success('Logged in successfully');
-            } else {
-                toast.error(t(authKeys.login.errorLoginFailed));
-            }
-        } catch (error: any) {
-            toast.error(error.message || t(authKeys.login.errorLoginFailed));
-        }
-    });
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <Link to="/">
+          <img src={logo} alt="GUPJOB Logo" className="auth-logo" />
+        </Link>
+        <h1 className="auth-title">{t(authKeys.login.welcomeTitle)}</h1>
+        <p className="auth-sub">{t(authKeys.login.welcomeSub)}</p>
 
-    return (
-        <div className="auth-page">
-            {toastContextHolder}
-            <UiCard
-                style={{
-                    width: isMobile ? '100%' : 420,
-                    maxWidth: 460,
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                    border: 'none',
-                }}>
-                <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                    <img
-                        src={logo}
-                        alt='Logo'
-                        width={72}
-                        height={72}
-                        style={{ display: 'inline-block', borderRadius: 16, marginBottom: 8 }}
-                    />
-                    <div style={{ fontSize: 18, fontWeight: 600 }}>{t(authKeys.login.welcomeTitle)}</div>
-                    <div style={{ color: '#888', marginTop: 4 }}>{t(authKeys.login.welcomeSub)}</div>
-                </div>
+        {error && (
+          <div className="auth-error">
+            <span>⚠️ {error}</span>
+          </div>
+        )}
 
-                <UiForm onFinish={() => onSubmit()}>
-                    <UiSpace direction='vertical' size='medium' style={{ width: '100%' }}>
-                        <UiInputField<LoginFormValues>
-                            name='email'
-                            control={form.control}
-                            label={t(authKeys.login.email)}
-                            placeholder={t(authKeys.login.emailPlaceholder)}
-                            prefix={<UiIcon name="Mail" size={18} />}
-                            autoComplete='username'
-                            autoFocus
-                            required
-                        />
-                        <UiInputField<LoginFormValues>
-                            name='password'
-                            control={form.control}
-                            type='password'
-                            label={t(authKeys.login.password)}
-                            placeholder={t(authKeys.login.passwordPlaceholder)}
-                            prefix={<UiIcon name="Lock" size={18} />}
-                            autoComplete='current-password'
-                            required
-                        />
+        {success && (
+          <div style={{ backgroundColor: '#d4edda', border: '1px solid #c3e6cb', color: '#155724', padding: '12px 16px', borderRadius: '4px', marginBottom: '1rem', fontSize: '0.95rem' }}>
+            <span>✅ {success}</span>
+          </div>
+        )}
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: -8 }}>
-                            <Link to={RoutePaths.web.public.forgotPassword} style={{ fontSize: 14 }}>
-                                {t(authKeys.login.forgotPassword)}
-                            </Link>
-                        </div>
+        <form className="auth-form" onSubmit={handleSubmit}>
 
-                        <UiButton
-                            type='primary'
-                            size='large'
-                            htmlType='submit'
-                            block
-                            loading={form.formState.isSubmitting}>
-                            {t(authKeys.login.loginBtn)}
-                        </UiButton>
-                    </UiSpace>
-                </UiForm>
+          <label>
+            {t(authKeys.login.email)}
+            <input
+              type="email"
+              name="email"
+              placeholder={t(authKeys.login.emailPlaceholder)}
+              value={formData.email}
+              onChange={handleChange}
+              autoComplete="username"
+              required
+            />
+          </label>
 
-                <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #f0f0f0', textAlign: 'center', fontSize: 14 }}>
-                    {t(authKeys.login.noAccount)}{' '}
-                    <Link to={RoutePaths.web.public.register}>{t(authKeys.login.registerNow)}</Link>
-                </div>
-            </UiCard>
+          <label>
+            {t(authKeys.login.password)}
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                autoComplete="current-password"
+                required
+              />
+
+              {/* Show / hide password */}
+              <span
+                className="password-toggle-icon"
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? t(authKeys.login.hidePassword) : t(authKeys.login.showPassword)}
+              >
+                {showPassword ? "🔓" : "🔒"}
+              </span>
+            </div>
+          </label>
+
+          <div className="auth-row">
+            <Link to={RoutePaths.web.public.forgotPassword} className="link-muted">
+              {t(authKeys.login.forgotPassword)}
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn--primary"
+            disabled={isLoading}
+          >
+            {isLoading ? t(authKeys.login.processing) : t(authKeys.login.loginBtn)}
+          </button>
+        </form>
+
+        {GOOGLE_SIGN_IN_ENABLED && (
+          <>
+            <div style={{ textAlign: 'center', margin: '1rem 0', color: '#94a3b8', fontSize: '0.875rem' }}>
+              {t(authKeys.register.or)}
+            </div>
+            <GoogleSignInButton text="signin_with" onError={setError} />
+          </>
+        )}
+
+        <div className="auth-footer">
+          {t(authKeys.login.noAccount)} <Link to={RoutePaths.web.public.register}>{t(authKeys.login.registerNow)}</Link>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

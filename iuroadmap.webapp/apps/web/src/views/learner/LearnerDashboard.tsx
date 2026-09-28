@@ -9,47 +9,53 @@ import {
     ChevronRight,
     Flame,
 } from 'lucide-react';
-import { userService, UserRoadmapSummary } from '../../services/user.service';
+import { RoutePaths } from '@iuroadmap/core';
+import { useStudentRoadmapsControllerMy, type StudentRoadmapSummaryResponse } from '@iuroadmap/api-gen';
+import { unwrapData } from '../../api/apiResult';
 import '../../styles/userDashboard.css';
 
 const COURSES_PER_PAGE = 3;
 
+/** Card data from a Roadmap v2 student roadmap: progress is counted in credits */
+interface DashboardRoadmap {
+    id: number;
+    title: string;
+    progressPercent: number;
+    creditsPassed: number;
+    totalCredits: number;
+}
+
+const toDashboardRoadmap = (r: StudentRoadmapSummaryResponse): DashboardRoadmap => ({
+    id: r.id,
+    title: r.majorName,
+    // progressPercent can exceed 100 (extra credits)
+    progressPercent: Math.min(100, r.summary.progressPercent),
+    creditsPassed: r.summary.creditsPassed,
+    totalCredits: r.summary.totalCredits,
+});
+
+const myRoadmapPath = (id: number) => RoutePaths.web.roadmap.myRoadmap.replace(':id', String(id));
+
 export default function LearnerDashboard() {
-    const [roadmaps, setRoadmaps] = useState<UserRoadmapSummary[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { data: raw, isLoading: loading } = useStudentRoadmapsControllerMy();
     const [currentPage, setCurrentPage] = useState(1);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchRoadmaps = async () => {
-            try {
-                const data = await userService.getMyRoadmaps();
-                if (Array.isArray(data)) {
-                    const sorted = [...data].sort(
-                        (a, b) => (b.progressPercent || 0) - (a.progressPercent || 0)
-                    );
-                    setRoadmaps(sorted);
-                } else {
-                    setRoadmaps([]);
-                }
-            } catch (error) {
-                console.error("Failed to load dashboard:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchRoadmaps();
-    }, []);
-
-    const safeRoadmaps = useMemo(() => roadmaps || [], [roadmaps]);
+    const safeRoadmaps = useMemo(
+        () =>
+            (unwrapData<StudentRoadmapSummaryResponse[]>(raw) ?? [])
+                .map(toDashboardRoadmap)
+                .sort((a, b) => b.progressPercent - a.progressPercent),
+        [raw],
+    );
 
     const totalProgress =
         safeRoadmaps.length > 0
-            ? Math.round(safeRoadmaps.reduce((acc, r) => acc + (r.progressPercent || 0), 0) / safeRoadmaps.length)
+            ? Math.round(safeRoadmaps.reduce((acc, r) => acc + r.progressPercent, 0) / safeRoadmaps.length)
             : 0;
 
-    const totalCompletedNodes = safeRoadmaps.reduce((acc, r) => acc + (r.completedNodes || 0), 0);
-    const totalNodesAllMaps = safeRoadmaps.reduce((acc, r) => acc + (r.totalNodes || 0), 0);
+    const totalCompletedNodes = safeRoadmaps.reduce((acc, r) => acc + r.creditsPassed, 0);
+    const totalNodesAllMaps = safeRoadmaps.reduce((acc, r) => acc + r.totalCredits, 0);
 
     const totalPages = Math.max(1, Math.ceil(safeRoadmaps.length / COURSES_PER_PAGE));
 
@@ -94,7 +100,7 @@ export default function LearnerDashboard() {
                         <div className="progress-mini-fill" style={{ width: `${totalProgress}%` }} />
                     </div>
                     <p className="learner-stat-sub">
-                        {totalCompletedNodes} of {totalNodesAllMaps} skills verified
+                        {totalCompletedNodes} of {totalNodesAllMaps} credits passed
                     </p>
                 </div>
 
@@ -143,7 +149,7 @@ export default function LearnerDashboard() {
                         {safeRoadmaps.length === 0 ? (
                             <div className="roadmap-card empty-state">
                                 <p>No active courses. Start one today!</p>
-                                <button onClick={() => navigate('/dashboard/explore')} className="btn-continue">Explore</button>
+                                <button onClick={() => navigate(RoutePaths.web.roadmap.exploreRoadmaps)} className="btn-continue">Explore</button>
                             </div>
                         ) : (
                             <>
@@ -183,11 +189,7 @@ export default function LearnerDashboard() {
 
                                                 <button
                                                     className="btn-continue"
-                                                    onClick={() =>
-                                                        navigate(`/dashboard/roadmap/${roadmap.id}`, {
-                                                            state: { roadmapTitle: roadmap.title },
-                                                        })
-                                                    }
+                                                    onClick={() => navigate(myRoadmapPath(roadmap.id))}
                                                 >
                                                     Continue
                                                 </button>
@@ -196,11 +198,7 @@ export default function LearnerDashboard() {
                                             <div className="roadmap-footer roadmap-footer-available">
                                                 <button
                                                     className="btn-start-link"
-                                                    onClick={() =>
-                                                        navigate(`/dashboard/roadmap/${roadmap.id}`, {
-                                                            state: { roadmapTitle: roadmap.title },
-                                                        })
-                                                    }
+                                                    onClick={() => navigate(myRoadmapPath(roadmap.id))}
                                                 >
                                                     Start Learning
                                                 </button>

@@ -1,8 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PaginatedResponse, MentorProfile, MentorStats } from '../../services/mentor.service';
 import { mentorSearchControllerGetStats, mentorSearchControllerFindAll } from '@iuroadmap/api-gen';
 import '../../styles/findMentors.css';
+
+// The generated MentorProfileResponseDto types `bio` as an object and the stats endpoint has no
+// response schema, so the shapes this page reads are declared here until the Swagger is fixed.
+interface MentorProfile {
+    userId: number;
+    bio?: string;
+    industry?: string;
+    skills: string[];
+}
+
+interface MentorStats {
+    totalMentors: number;
+    byIndustry: Array<{ industry: string; count: number }>;
+}
 
 export default function FindMentors() {
     const [mentors, setMentors] = useState<MentorProfile[]>([]);

@@ -1,8 +1,8 @@
 # FL-AUTH — Authentication & Role-Based Access Control
 
 > **Module:** AUTH — Xác thực & Phân quyền
-> **Version:** 2.0
-> **Last Updated:** 2026-08-31
+> **Version:** 2.1
+> **Last Updated:** 2026-09-27
 > **Status:** ✅ Implemented (core) + 🔲 Planned (enhancements)
 
 ---
@@ -37,6 +37,7 @@
 | **FL-AUTH-09** | Cấm / Mở khóa User | Admin ban/unban | `ACTIVE` ↔ `BANNED` | Admin | UC-AUTH-09 | `/iam/User/softDelete`, `/unban` |
 | **FL-AUTH-10** | Đăng xuất & Session | User click logout | — | Authenticated User | UC-AUTH-10 | `POST /auth/logout` |
 | **FL-AUTH-11** | Cross-cutting Auth (Guard, Audit, Profile) | Mọi request | — | System | — | `/auth/me` |
+| **FL-AUTH-12** | Đăng nhập / Đăng ký bằng Google | Guest bấm nút Google | *(new)* → `ACTIVE` (lần đầu) | Guest | — | `POST /auth/google` |
 
 ---
 
@@ -100,7 +101,7 @@ erDiagram
 | FR-AUTH.01.1 | Guest gửi form đăng ký với payload `LearnerRegisterRequestDto`: `email` (bắt buộc, format email), `password` (bắt buộc), `confirmPassword` (bắt buộc, phải khớp `password`), `name` (bắt buộc). | Must | UC-AUTH-01, 00-auth Flow 1 |
 | FR-AUTH.01.2 | Hệ thống validate: (a) email format hợp lệ; (b) email **unique** trên toàn bảng `User` — nếu trùng trả `"Email already exists"` (`409 CONFLICT`); (c) `password === confirmPassword`. | Must | BR-AUTH-01, EF-01 |
 | FR-AUTH.01.3 | Password PHẢI được hash bằng `bcrypt` với work factor **≥ 10** trước khi lưu. Không lưu plaintext. | Must | BR-AUTH-02 |
-| FR-AUTH.01.4 | Insert bản ghi `User` với: `status = ACTIVE`, `roleId = <LEARNER role ID>` (lookup `Role.name = 'LEARNER'`), `subscriptionTier = FREE`. | Must | 00-auth Flow 1 |
+| FR-AUTH.01.4 | Insert bản ghi `User` với: `status = ACTIVE`, `roleId = <LEARNER role ID>` (lookup `Role.name = 'LEARNER'`), `subscriptionTier = FREE`. Client **không** gửi `role`; request có field `role` bị từ chối `400` (whitelist validation). | Must | 00-auth Flow 1 |
 | FR-AUTH.01.5 | Trả về thông tin user **không chứa password hash** (sanitized response). | Must | security |
 | FR-AUTH.01.6 | Nếu Role `LEARNER` chưa tồn tại trong DB → trả lỗi `500 INTERNAL_SERVER_ERROR` (role phải được seed trước). | Must | seed.ts |
 | FR-AUTH.01.7 | Password PHẢI đáp ứng policy: tối thiểu **8 ký tự**, chứa ít nhất **1 chữ hoa**, **1 chữ thường**, **1 số**. Không đạt → trả lỗi validation kèm chi tiết vi phạm. | Should | security best practice |
@@ -411,6 +412,29 @@ Dữ liệu seeded vào bảng `PermissionGroup` + `Permission`:
 
 ---
 
+## FL-AUTH-12 — Đăng nhập / Đăng ký bằng Google
+
+**Mục đích:** Guest đăng nhập bằng tài khoản Google thay vì mật khẩu. Lần đầu dùng Google mà email chưa có trong hệ thống thì tự tạo tài khoản Learner.
+**Actor:** Guest. **Transition:** T1 (*(new)* → `ACTIVE`) khi tạo tài khoản mới. **API:** `POST /api/v1/auth/google`.
+
+| FR ID | Yêu cầu | Ưu tiên | Nguồn |
+|---|---|---|---|
+| FR-AUTH.12.1 | Trang Login và Register hiển thị nút Google (Google Identity Services): "Sign in with Google" ở Login, "Sign up with Google" ở Register, ngôn ngữ theo ngôn ngữ đang chọn. Nút và dòng "HOẶC" chỉ hiện khi web cấu hình `VITE_GOOGLE_CLIENT_ID`. | Should | yêu cầu 2026-09 |
+| FR-AUTH.12.2 | Client gửi Google ID token (`credential` do Google trả về) qua `POST /api/v1/auth/google` với payload `GoogleLoginRequestDto`: `idToken` (bắt buộc, tối đa `EntityConstant.ExternalToken` = 4096 ký tự). | Should | yêu cầu 2026-09 |
+| FR-AUTH.12.3 | Backend verify ID token với Google (chữ ký, hạn dùng, `aud` = `GOOGLE_CLIENT_ID` của auth-service). Token không hợp lệ hoặc email chưa được Google xác minh (`email_verified = false`) → `401 "Invalid Google account"`. Auth-service chưa cấu hình `GOOGLE_CLIENT_ID` → `503 "Google sign-in is not configured"`. | Should | security |
+| FR-AUTH.12.4 | Email đã có tài khoản → đăng nhập vào **đúng tài khoản đó** (không tạo mới, không đổi role hay trạng thái). | Should | BR-AUTH-13 |
+| FR-AUTH.12.5 | Email chưa có tài khoản → tạo `User` với `status = ACTIVE`, role `LEARNER`, `name` = tên trên Google, `password` = bcrypt hash của chuỗi ngẫu nhiên (không ai biết). Muốn đăng nhập bằng mật khẩu, user đặt mật khẩu qua FL-AUTH-04. Google **không** tạo tài khoản Mentor, Admin hay Superadmin (BR-AUTH-04). | Should | BR-AUTH-13, FR-AUTH.01.4 |
+| FR-AUTH.12.6 | Kiểm tra `User.status` giống FR-AUTH.03.3: `BANNED` → `403 "Account has been suspended"`, `REJECTED` → `403 "Account application was rejected"`. | Should | BR-AUTH-05 |
+| FR-AUTH.12.7 | Thành công trả `{ access_token }` cùng định dạng FL-AUTH-03 (JWT payload theo FR-AUTH.03.4). Client lưu token rồi chuyển về trang đang mở dở, hoặc Dashboard. | Should | 00-auth Flow 2 |
+
+**Alternative Flows:**
+- **AF-01** — User đóng cửa sổ Google hoặc Google báo lỗi → hiện "Đăng nhập bằng Google thất bại. Vui lòng thử lại." (i18n `auth.login.googleFailed`).
+- **AF-02** — Token không hợp lệ / email chưa xác minh → `401`, hiện thông báo lỗi của backend.
+
+**Cấu hình:** tạo OAuth Client ID loại *Web application* trên Google Cloud (Authorized JavaScript origins = địa chỉ web), rồi đặt cùng một giá trị vào `GOOGLE_CLIENT_ID` (auth-service `.env`) và `VITE_GOOGLE_CLIENT_ID` (web `.env`). Không cần client secret hay redirect URI.
+
+---
+
 ## Business Rules tổng hợp
 
 | Rule ID | Rule | Liên quan |
@@ -427,6 +451,7 @@ Dữ liệu seeded vào bảng `PermissionGroup` + `Permission`:
 | **BR-AUTH-10** | Account lockout: 5 failed attempts → 15 min lock. | FR-AUTH.03.8 |
 | **BR-AUTH-11** | Forgot-password token: 6-digit, 15 min expiry, 1 active at a time. | FR-AUTH.04.1, FR-AUTH.04.6 |
 | **BR-AUTH-12** | Reject mentor requires mandatory reason. | FR-AUTH.08.4 |
+| **BR-AUTH-13** | Google sign-in chỉ chấp nhận email đã được Google xác minh; tài khoản được nhận diện theo email; tài khoản tạo mới qua Google luôn là `LEARNER` / `ACTIVE`. | FR-AUTH.12.3, FR-AUTH.12.4, FR-AUTH.12.5 |
 
 ---
 
@@ -445,6 +470,7 @@ Dữ liệu seeded vào bảng `PermissionGroup` + `Permission`:
 | FL-AUTH-09 | T5, T6 | softDelete, unban | UC-AUTH-09 | BR-05 |
 | FL-AUTH-10 | — | `POST /auth/logout` | UC-AUTH-10 | — |
 | FL-AUTH-11 | mọi | `/auth/me`, guard middleware | — | BR-03, 05, 06 |
+| FL-AUTH-12 | T1 (tài khoản mới) | `POST /auth/google` | — | BR-04, 05, 13 |
 
 ---
 

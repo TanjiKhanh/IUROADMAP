@@ -1,7 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsString, MinLength, MaxLength, IsIn, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsString, MinLength, MaxLength, IsNotEmpty } from 'class-validator';
 import { EntityConstant } from '@iuroadmap/shared';
 
+/** Self sign-up always creates a LEARNER account, so the client does not send a role. */
 export class LearnerRegisterRequestDto {
   @ApiProperty({
     description: 'The email address of the learner',
@@ -28,13 +29,4 @@ export class LearnerRegisterRequestDto {
   @IsNotEmpty()
   @IsString({ message: 'Name must be a string' })
   name?: string;
-
-  @ApiPropertyOptional({
-    description: 'Role of the user',
-    enum: ['STUDENT'],
-    example: 'STUDENT',
-  })
-  @IsNotEmpty()
-  @IsIn(['STUDENT'], { message: 'Role must be one of STUDENT' })
-  role?: string;
 }

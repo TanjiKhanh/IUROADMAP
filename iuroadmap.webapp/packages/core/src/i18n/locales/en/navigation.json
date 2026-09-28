@@ -1,14 +1,14 @@
 {
   "navigation": {
-      "root": "Dashboard",
-      "roadmapGroup": "Roadmap",
-      "mentorshipGroup": "Mentorship",
-      "config": "System Configuration",
+    "root": "Dashboard",
+    "roadmapGroup": "Roadmap",
+    "mentorshipGroup": "Mentorship",
+    "config": "System Configuration",
     "overview": "Overview",
     "features": "Features",
     "administration": "Administration",
     "dashboard": "Dashboard",
-      "major": "Major",
+    "major": "Major",
     "roadmap": "Roadmap",
     "courses": "Courses",
     "mentorship": "Mentorship",
@@ -16,12 +16,20 @@
     "users": "Users",
     "roles": "Roles",
     "exploreMajors": "Explore Majors",
-    "myRoadmaps": "My Roadmaps",
+    "myRoadmaps": "My roadmaps",
     "manageRoadmaps": "Manage Roadmaps",
     "manageCourses": "Manage Courses",
     "findMentors": "Find Mentors",
     "chatWithMentors": "Chat with Mentors",
     "mentorHub": "Mentor Hub",
-    "departments": "Departments"
+    "departments": "Departments",
+    "exploreRoadmaps": "Explore curricula",
+    "exploreCourses": "Course explorer",
+    "courseCategories": "Course categories",
+    "catalogCourses": "Courses",
+    "lecturers": "Lecturers",
+    "courseOfferings": "Course offerings",
+    "grading": "Grading",
+    "commentModeration": "Comment moderation"
   }
 }

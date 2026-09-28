@@ -1,52 +1,38 @@
-# Place at services/mentor/Dockerfile
+# iuroadmap.services/mentor-service/Dockerfile
+# Build context = repository root (npm workspaces: this service + @iuroadmap/shared):
+#   docker build -f iuroadmap.services/mentor-service/Dockerfile -t iuroadmap-mentor-service .
+# Render dev (render.yaml at the repo root) and Railway production (railway.json here) build it the same way.
 
-# ---- Builder ----
-FROM node:18-bullseye-slim AS builder
-ENV NODE_ENV=development
+FROM node:20-bookworm-slim AS builder
 WORKDIR /app
-
-# Install build deps (git, python, make/g++, required by some native modules)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  python3 \
-  build-essential \
-  git \
-  ca-certificates \
+# openssl: Prisma engines; python3/make/g++: native modules (bcrypt) when no prebuilt binary fits
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates python3 make g++ \
   && rm -rf /var/lib/apt/lists/*
+# The root "prepare" script runs husky; no git hooks inside the image
+ENV HUSKY=0
 
-# Copy package files and install dependencies
-COPY package*.json ./
-COPY prisma ./prisma/
-RUN npm ci --only=production=false
+# Manifests first: the install layer is reused until a package.json or the lockfile changes
+COPY package.json package-lock.json ./
+COPY iuroadmap.services/shared/package.json iuroadmap.services/shared/
+COPY iuroadmap.services/mentor-service/package.json iuroadmap.services/mentor-service/
+# This service + @iuroadmap/shared + the root build tools (typescript, tsc-alias)
+RUN npm ci --workspace=iuroadmap.services/mentor-service --include-workspace-root --no-audit --no-fund
 
-# Generate prisma client (if you use Prisma)
-# If using different Prisma schema location change accordingly
-RUN npx prisma generate || true
+COPY iuroadmap.services/shared iuroadmap.services/shared
+COPY iuroadmap.services/mentor-service iuroadmap.services/mentor-service
+WORKDIR /app/iuroadmap.services/mentor-service
+RUN npx prisma generate && npm run build:prod
 
-# Copy source and build
-COPY . .
-RUN npm run build
-
-# ---- Runtime ----
-FROM node:18-bullseye-slim AS runner
+# ---- runtime ----
+FROM node:20-bookworm-slim AS runner
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV=production
-WORKDIR /app
-
-# Create non-root user
-RUN useradd --user-group --create-home --shell /bin/false appuser
-
-# Copy production dependencies and built files from builder
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/src/generated ./dist/src/generated
-
-# Drop privileges
-USER appuser
-
-EXPOSE 4000
-
-# Use a healthcheck (optional)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD ["node", "-e", "require('./dist/main').health ? process.exit(0) : process.exit(1)"] || true
-
-CMD ["node", "dist/src/main.js"]
+# node_modules stay complete: the Railway pre-deploy step runs `prisma migrate deploy` (Prisma CLI is a dev dependency)
+COPY --from=builder /app /app
+WORKDIR /app/iuroadmap.services/mentor-service
+USER node
+EXPOSE 4001
+CMD ["node", "dist/mentor-service/src/main.js"]

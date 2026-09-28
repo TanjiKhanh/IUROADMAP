@@ -162,7 +162,9 @@ export const CoursesControllerGetByIndexResponse = zod.object({
   "rowsPerPage": zod.number().describe('Number of rows per page'),
   "currentPage": zod.number().default(coursesControllerGetByIndexResponseOneCurrentPageDefault).describe('Current page number'),
   "totalRows": zod.number().describe('Total number of rows'),
-  "datas": zod.array(zod.array()).optional().describe('Array of data items'),
+  "datas": zod.array(zod.object({
+
+}).passthrough()).optional().describe('Array of data items'),
   "totalPage": zod.number().describe('Total number of pages')
 }).and(zod.object({
   "datas": zod.array(zod.object({

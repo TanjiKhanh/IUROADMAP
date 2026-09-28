@@ -1,11 +1,9 @@
 # ==========================================
 # 🔒 Environment Variables & Secrets
 # ==========================================
+# Only production env files stay out of git; local ones (.env.local, .env.*.local) are committed
 .env
-.env.local
-.env.*.local
-.env.development.local
-.env.test.local
+.env.production
 .env.production.local
 
 # ==========================================
@@ -118,10 +116,6 @@ dist/
 # ==========================================
 # 🔙 Backend-Specific (NestJS/Node)
 # ==========================================
-.env
-.env.development
-.env.test
-.env.production
 dist/
 node_modules/
 *.pid
