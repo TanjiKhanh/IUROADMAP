@@ -13,6 +13,10 @@ erDiagram
         DateTime subscriptionExpiresAt
         String resetPasswordToken
         DateTime resetPasswordExpires
+        DateTime emailVerifiedAt
+        String emailVerificationCode
+        DateTime emailVerificationExpires
+        Int emailVerificationAttempts
         DateTime createdAt
         DateTime updatedAt
     }
@@ -61,7 +65,7 @@ erDiagram
 | Cột | Kiểu | Khóa | Null | Mặc định | Mô tả |
 |---|---|---|---|---|---|
 | `id` | `String` | PK | N | `uuid()` | Khóa chính (UUID) |
-| `email` | `String` | UK | N | | Email đăng nhập (duy nhất toàn hệ thống) |
+| `email` | `String` | UK | N | | Email đăng nhập (duy nhất toàn hệ thống). Luôn lưu dạng đã `trim` + chữ thường (BR-AUTH-01); CHECK constraint `User_email_normalized_check` chặn mọi giá trị chưa chuẩn hoá |
 | `password` | `String` | — | N | | Mật khẩu (đã hash bcrypt, work factor ≥ 10) |
 | `name` | `String` | — | Y | | Tên hiển thị của người dùng |
 | `roleId` | `String` | FK | N | | FK tham chiếu đến `Role.id` |
@@ -70,6 +74,10 @@ erDiagram
 | `subscriptionExpiresAt` | `DateTime` | — | Y | | Ngày hết hạn gói cước VIP/PRO |
 | `resetPasswordToken` | `String` | — | Y | | Token cấp phát khi quên mật khẩu |
 | `resetPasswordExpires` | `DateTime` | — | Y | | Hạn sử dụng token quên mật khẩu |
+| `emailVerifiedAt` | `DateTime` | — | Y | | Thời điểm email được xác minh. `NULL` = tài khoản đăng ký bằng mật khẩu chưa nhập mã OTP, chưa được đăng nhập (FL-AUTH-13) |
+| `emailVerificationCode` | `String` | — | Y | | bcrypt hash của mã OTP 6 chữ số đang hiệu lực (không lưu mã gốc) |
+| `emailVerificationExpires` | `DateTime` | — | Y | | Hạn dùng của mã OTP (15 phút). Thời điểm gửi = hạn dùng − 15 phút, dùng để tính thời gian chờ gửi lại |
+| `emailVerificationAttempts` | `Int` | — | N | `0` | Số lần nhập sai mã hiện tại; đủ 5 lần thì mã bị huỷ, phải gửi mã mới |
 | `createdAt` | `DateTime` | — | N | `now()` | Thời điểm tạo |
 | `updatedAt` | `DateTime` | — | N | `@updatedAt` | Thời điểm cập nhật cuối |
 
@@ -96,6 +104,23 @@ stateDiagram-v2
 | `PENDING_APPROVAL` | `REJECTED` | Reject Mentor | Admin | `BR-CFG-06`: rejection reason bắt buộc |
 | `ACTIVE` | `BANNED` | Suspend/Ban | Admin | `BR-CFG-04`: invalidate JWT ngay lập tức |
 | `BANNED` | `ACTIVE` | Unban | Admin | — |
+
+## Email verification
+`emailVerifiedAt` độc lập với `status`: một tài khoản có thể `ACTIVE` (learner) hoặc `PENDING_APPROVAL` (mentor) nhưng vẫn chưa xác minh email.
+
+| Cách tạo / sự kiện | `emailVerifiedAt` |
+|---|---|
+| Đăng ký learner / mentor bằng mật khẩu | `NULL`, gửi mã OTP |
+| Nhập đúng mã OTP (`POST /auth/verify-email`) | `now()` |
+| Đặt lại mật khẩu qua mã quên mật khẩu | `now()` (mã được gửi tới email nên đã chứng minh sở hữu email) |
+| Đăng nhập Google (email đã được Google xác minh) | `now()`; nếu tài khoản chưa xác minh thì mật khẩu cũ bị thay bằng mật khẩu ngẫu nhiên |
+| Admin tạo qua IAM, seed | `now()` |
+| Tài khoản có trước migration `AddEmailVerification` | `createdAt` |
+
+## Migrations
+Auth được tạo bằng `db push` trước khi có migration. `20260928000000_Init` là baseline (đúng schema lúc đó), `20260928000100_AddEmailVerification` thêm các cột trên và chuẩn hoá email.
+- DB **mới**: `npx prisma migrate deploy`.
+- DB **đã có bảng** (tạo bằng `db push`, ví dụ production cũ): chạy **một lần** `npx prisma migrate resolve --applied 20260928000000_Init` trước, rồi mới `migrate deploy`.
 
 ## Delete Strategy
 - **Soft Delete**: Đổi `status` thành `BANNED` (Admin)

@@ -51,6 +51,8 @@ export class UsersService {
           name: dto.name,
           roleId: dto.roleId,
           status: AccountStatus.ACTIVE,
+          // An admin created this account, so there is no self sign-up to confirm
+          emailVerifiedAt: new Date(),
         },
       });
       return this.toResponse(record);

@@ -28,6 +28,17 @@ Migration (`prisma migrate deploy`):
 - **Railway:** bước pre-deploy trong `railway.json`.
 - **Render free:** không có bước pre-deploy, nên `dockerCommand` trong `render.yaml` chạy migration ngay trước khi start.
 
+**Auth: baseline một lần cho DB cũ.** Auth trước đây được tạo bằng `db push`, không có migration. Từ `20260928000000_Init` (baseline) và `20260928000100_AddEmailVerification` trở đi, auth dùng migration như các service khác. Với một DB auth **đã có bảng** mà chưa có bảng `_prisma_migrations`, chạy một lần ở máy (trỏ `AUTH_DATABASE_URL` / `AUTH_DIRECT_URL` tới DB đó) **trước** lần deploy đầu tiên:
+
+```bash
+cd iuroadmap.services/auth
+npx prisma migrate status                                   # "not managed by Prisma Migrate" = cần baseline
+npx prisma migrate resolve --applied 20260928000000_Init
+npx prisma migrate deploy                                   # áp dụng AddEmailVerification
+```
+
+Nếu bỏ bước này, `migrate deploy` sẽ lỗi vì `Init` tạo lại bảng đã có. DB mới tinh thì không cần: `migrate deploy` tạo đủ. DB dev dùng chung trên Supabase đã được baseline ngày 2026-09-28.
+
 Build thử ở máy (cần Docker): `docker build -f iuroadmap.services/auth/Dockerfile -t iuroadmap-auth .`
 
 ## Database: Supabase, 2 project

@@ -9,7 +9,7 @@ import * as zod from 'zod';
 
 
 /**
- * @summary Register a new learner user
+ * @summary Register a new learner user; a verification code is emailed and must be confirmed before login
  */
 export const AuthenticationControllerRegisterBody = zod.object({
   "email": zod.string().describe('The email address of the learner'),
@@ -17,10 +17,17 @@ export const AuthenticationControllerRegisterBody = zod.object({
   "name": zod.string().optional().describe('Full name of the learner')
 })
 
-export const AuthenticationControllerRegisterResponse = zod.void()
+export const AuthenticationControllerRegisterResponse = zod.object({
+  "id": zod.string().uuid().describe('New user ID'),
+  "email": zod.string().describe('Email the verification code was sent to (trimmed, lowercase)'),
+  "name": zod.string().optional().describe('Full name'),
+  "status": zod.enum(['PENDING_APPROVAL', 'ACTIVE', 'BANNED', 'REJECTED']).describe('ACTIVE for a learner, PENDING_APPROVAL for a mentor'),
+  "emailVerificationRequired": zod.boolean().describe('Always true: the account signs in only after POST \/auth\/verify-email'),
+  "resendAfterSeconds": zod.number().describe('Seconds before POST \/auth\/resend-verification accepts a request (0 when the first email could not be sent)')
+})
 
 /**
- * @summary Register a new mentor user
+ * @summary Register a new mentor user; a verification code is emailed and must be confirmed before login
  */
 export const AuthenticationControllerRegisterMentorBody = zod.object({
   "email": zod.string().describe('The email address of the mentor'),
@@ -34,7 +41,50 @@ export const AuthenticationControllerRegisterMentorBody = zod.object({
   "skills": zod.array(zod.string()).describe('Array of skill tags')
 })
 
-export const AuthenticationControllerRegisterMentorResponse = zod.void()
+export const AuthenticationControllerRegisterMentorResponse = zod.object({
+  "id": zod.string().uuid().describe('New user ID'),
+  "email": zod.string().describe('Email the verification code was sent to (trimmed, lowercase)'),
+  "name": zod.string().optional().describe('Full name'),
+  "status": zod.enum(['PENDING_APPROVAL', 'ACTIVE', 'BANNED', 'REJECTED']).describe('ACTIVE for a learner, PENDING_APPROVAL for a mentor'),
+  "emailVerificationRequired": zod.boolean().describe('Always true: the account signs in only after POST \/auth\/verify-email'),
+  "resendAfterSeconds": zod.number().describe('Seconds before POST \/auth\/resend-verification accepts a request (0 when the first email could not be sent)')
+})
+
+/**
+ * @summary Confirm the emailed code of a password sign-up; signs the user in (returns JWT token)
+ */
+export const authenticationControllerVerifyEmailBodyEmailMax = 100;
+
+export const authenticationControllerVerifyEmailBodyCodeMin = 6;
+export const authenticationControllerVerifyEmailBodyCodeMax = 6;
+
+
+export const authenticationControllerVerifyEmailBodyCodeRegExp = new RegExp('^[0-9]+$');
+
+
+export const AuthenticationControllerVerifyEmailBody = zod.object({
+  "email": zod.string().email().max(authenticationControllerVerifyEmailBodyEmailMax).describe('Email the code was sent to'),
+  "code": zod.string().min(authenticationControllerVerifyEmailBodyCodeMin).max(authenticationControllerVerifyEmailBodyCodeMax).regex(authenticationControllerVerifyEmailBodyCodeRegExp).describe('One-time code from the verification email')
+})
+
+export const AuthenticationControllerVerifyEmailResponse = zod.object({
+  "access_token": zod.string().describe('JWT Access token')
+})
+
+/**
+ * @summary Email a new verification code (same answer for unknown or already verified emails)
+ */
+export const authenticationControllerResendVerificationBodyEmailMax = 100;
+
+
+
+export const AuthenticationControllerResendVerificationBody = zod.object({
+  "email": zod.string().email().max(authenticationControllerResendVerificationBodyEmailMax).describe('Email of the account waiting for verification')
+})
+
+export const AuthenticationControllerResendVerificationResponse = zod.object({
+  "resendAfterSeconds": zod.number().describe('Seconds before another code can be requested')
+})
 
 /**
  * @summary User login (returns JWT token)

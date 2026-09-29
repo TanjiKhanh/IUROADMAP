@@ -71,6 +71,11 @@ export const EntityConstant = {
    */
   ExternalToken: 4096,
 
+  /**
+   * One-time email verification code, digits only (exactly 6)
+   */
+  VerificationCode: 6,
+
   // ================= Roadmap v2 =================
 
   /**

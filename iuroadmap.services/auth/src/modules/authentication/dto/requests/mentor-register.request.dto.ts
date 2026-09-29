@@ -10,7 +10,7 @@ import {
   IsUrl, 
   IsNotEmpty 
 } from 'class-validator';
-import { Role, EntityConstant } from '@iuroadmap/shared';
+import { Role, EntityConstant, NormalizeEmail } from '@iuroadmap/shared';
 
 export class MentorRegisterRequestDto {
   // --- AUTHENTICATION INFO ---
@@ -20,6 +20,7 @@ export class MentorRegisterRequestDto {
   })
   @IsEmail({}, { message: 'Invalid email format' })
   @MaxLength(EntityConstant.Email)
+  @NormalizeEmail()
   email: string;
 
   @ApiProperty({

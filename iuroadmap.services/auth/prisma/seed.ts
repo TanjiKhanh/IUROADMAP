@@ -6,7 +6,7 @@ import * as dotenv from 'dotenv';
 dotenv.config(); 
 
 import { PrismaClient } from '../src/generated/prisma-client';
-import { APP_PERMISSIONS, PMS, AppConstant } from '@iuroadmap/shared';
+import { APP_PERMISSIONS, PMS, AppConstant, normalizeEmail } from '@iuroadmap/shared';
 
 const prisma = new PrismaClient();
 
@@ -81,7 +81,9 @@ async function main() {
 
   console.log('Roles and Permissions seeded.');
 
-  const adminEmail = process.env.SEED_ADMIN_EMAIL || 'admin@iuroadmap.com';
+  const adminEmail = normalizeEmail(process.env.SEED_ADMIN_EMAIL || 'admin@iuroadmap.com');
+  // Seeded accounts sign in without the email verification step
+  const emailVerifiedAt = new Date();
   let adminPassword = process.env.SEED_ADMIN_PASSWORD;
   if (!adminPassword) {
     adminPassword = 'password123'; 
@@ -97,6 +99,7 @@ async function main() {
       name: 'System Administrator',
       role: { connect: { name: AppConstant.RoleName.Admin } },
       status: 'ACTIVE',
+      emailVerifiedAt,
     },
     create: {
       email: adminEmail,
@@ -104,28 +107,29 @@ async function main() {
       name: 'System Administrator',
       role: { connect: { name: AppConstant.RoleName.Admin } },
       status: 'ACTIVE',
+      emailVerifiedAt,
     },
   });
   console.log(`Upserted admin user: ${admin.email}`);
 
   const superadmin = await prisma.user.upsert({
     where: { email: 'superadmin@iuroadmap.com' },
-    update: { password: hashed, name: 'System Superadmin', role: { connect: { name: AppConstant.RoleName.SuperAdmin } }, status: 'ACTIVE' },
-    create: { email: 'superadmin@iuroadmap.com', password: hashed, name: 'System Superadmin', role: { connect: { name: AppConstant.RoleName.SuperAdmin } }, status: 'ACTIVE' },
+    update: { password: hashed, name: 'System Superadmin', role: { connect: { name: AppConstant.RoleName.SuperAdmin } }, status: 'ACTIVE', emailVerifiedAt },
+    create: { email: 'superadmin@iuroadmap.com', password: hashed, name: 'System Superadmin', role: { connect: { name: AppConstant.RoleName.SuperAdmin } }, status: 'ACTIVE', emailVerifiedAt },
   });
   console.log(`Upserted superadmin user: ${superadmin.email}`);
 
   const learner = await prisma.user.upsert({
     where: { email: 'learner@iuroadmap.com' },
-    update: { password: hashed, name: 'Test Learner', role: { connect: { name: AppConstant.RoleName.Learner } }, status: 'ACTIVE' },
-    create: { email: 'learner@iuroadmap.com', password: hashed, name: 'Test Learner', role: { connect: { name: AppConstant.RoleName.Learner } }, status: 'ACTIVE' },
+    update: { password: hashed, name: 'Test Learner', role: { connect: { name: AppConstant.RoleName.Learner } }, status: 'ACTIVE', emailVerifiedAt },
+    create: { email: 'learner@iuroadmap.com', password: hashed, name: 'Test Learner', role: { connect: { name: AppConstant.RoleName.Learner } }, status: 'ACTIVE', emailVerifiedAt },
   });
   console.log(`Upserted learner user: ${learner.email}`);
 
   const mentor = await prisma.user.upsert({
     where: { email: 'mentor@iuroadmap.com' },
-    update: { password: hashed, name: 'Test Mentor', role: { connect: { name: AppConstant.RoleName.Mentor } }, status: 'ACTIVE' },
-    create: { email: 'mentor@iuroadmap.com', password: hashed, name: 'Test Mentor', role: { connect: { name: AppConstant.RoleName.Mentor } }, status: 'ACTIVE' },
+    update: { password: hashed, name: 'Test Mentor', role: { connect: { name: AppConstant.RoleName.Mentor } }, status: 'ACTIVE', emailVerifiedAt },
+    create: { email: 'mentor@iuroadmap.com', password: hashed, name: 'Test Mentor', role: { connect: { name: AppConstant.RoleName.Mentor } }, status: 'ACTIVE', emailVerifiedAt },
   });
   console.log(`Upserted mentor user: ${mentor.email}`);
 
@@ -154,16 +158,18 @@ async function main() {
           role: { connect: { name: roleName } }, 
           status: status as any, 
           subscriptionTier: tier as any,
-          subscriptionExpiresAt: expiresAt
+          subscriptionExpiresAt: expiresAt,
+          emailVerifiedAt,
         },
-        create: { 
+        create: {
           email, 
           password: hashed, 
           name: `Test User ${i}`, 
           role: { connect: { name: roleName } }, 
           status: status as any,
           subscriptionTier: tier as any,
-          subscriptionExpiresAt: expiresAt
+          subscriptionExpiresAt: expiresAt,
+          emailVerifiedAt,
         },
       })
     );

@@ -32,6 +32,14 @@
     "ALREADY_REPORTED": "You already reported this comment",
     "MODERATION_REASON_REQUIRED": "A reason is required",
     "FORBIDDEN": "You are not allowed to do this",
-    "NOT_FOUND": "Not found"
+    "NOT_FOUND": "Not found",
+    "EMAIL_ALREADY_EXISTS": "This email is already registered. Sign in, or use \"Forgot password\" if it is your email.",
+    "EMAIL_NOT_VERIFIED": "Please verify your email before signing in",
+    "EMAIL_ALREADY_VERIFIED": "This email is already verified. Please sign in.",
+    "VERIFICATION_CODE_INVALID": "The code is incorrect",
+    "VERIFICATION_CODE_EXPIRED": "The code has expired. Please send a new code.",
+    "VERIFICATION_TOO_MANY_ATTEMPTS": "Too many wrong codes. Please send a new code.",
+    "VERIFICATION_RESEND_TOO_SOON": "Please wait a moment before sending a new code",
+    "EMAIL_DELIVERY_FAILED": "The email could not be sent. Please try again later."
   }
 }

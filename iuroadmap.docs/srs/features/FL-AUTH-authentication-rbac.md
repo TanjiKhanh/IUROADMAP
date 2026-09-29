@@ -1,8 +1,8 @@
 # FL-AUTH — Authentication & Role-Based Access Control
 
 > **Module:** AUTH — Xác thực & Phân quyền
-> **Version:** 2.1
-> **Last Updated:** 2026-09-27
+> **Version:** 2.2
+> **Last Updated:** 2026-09-28
 > **Status:** ✅ Implemented (core) + 🔲 Planned (enhancements)
 
 ---
@@ -38,6 +38,7 @@
 | **FL-AUTH-10** | Đăng xuất & Session | User click logout | — | Authenticated User | UC-AUTH-10 | `POST /auth/logout` |
 | **FL-AUTH-11** | Cross-cutting Auth (Guard, Audit, Profile) | Mọi request | — | System | — | `/auth/me` |
 | **FL-AUTH-12** | Đăng nhập / Đăng ký bằng Google | Guest bấm nút Google | *(new)* → `ACTIVE` (lần đầu) | Guest | — | `POST /auth/google` |
+| **FL-AUTH-13** | Xác minh email bằng mã OTP | Đăng ký bằng mật khẩu xong, hoặc đăng nhập khi chưa xác minh | `emailVerifiedAt`: `NULL` → thời điểm xác minh | Guest | — | `POST /auth/verify-email`, `/auth/resend-verification` |
 
 ---
 
@@ -99,15 +100,16 @@ erDiagram
 | FR ID | Yêu cầu | Ưu tiên | Nguồn |
 |---|---|---|---|
 | FR-AUTH.01.1 | Guest gửi form đăng ký với payload `LearnerRegisterRequestDto`: `email` (bắt buộc, format email), `password` (bắt buộc), `confirmPassword` (bắt buộc, phải khớp `password`), `name` (bắt buộc). | Must | UC-AUTH-01, 00-auth Flow 1 |
-| FR-AUTH.01.2 | Hệ thống validate: (a) email format hợp lệ; (b) email **unique** trên toàn bảng `User` — nếu trùng trả `"Email already exists"` (`409 CONFLICT`); (c) `password === confirmPassword`. | Must | BR-AUTH-01, EF-01 |
+| FR-AUTH.01.2 | Hệ thống validate: (a) email format hợp lệ, sau khi đã `trim` + đổi về chữ thường; (b) email **unique** trên toàn bảng `User` — nếu trùng trả `409 EMAIL_ALREADY_EXISTS`; (c) `password === confirmPassword`. | Must | BR-AUTH-01, EF-01 |
 | FR-AUTH.01.3 | Password PHẢI được hash bằng `bcrypt` với work factor **≥ 10** trước khi lưu. Không lưu plaintext. | Must | BR-AUTH-02 |
 | FR-AUTH.01.4 | Insert bản ghi `User` với: `status = ACTIVE`, `roleId = <LEARNER role ID>` (lookup `Role.name = 'LEARNER'`), `subscriptionTier = FREE`. Client **không** gửi `role`; request có field `role` bị từ chối `400` (whitelist validation). | Must | 00-auth Flow 1 |
-| FR-AUTH.01.5 | Trả về thông tin user **không chứa password hash** (sanitized response). | Must | security |
+| FR-AUTH.01.5 | Trả về `201` + `RegistrationResponse` `{ id, email, name, status, emailVerificationRequired: true, resendAfterSeconds }`: **không** có token, password hash hay mã xác minh. | Must | security, FL-AUTH-13 |
 | FR-AUTH.01.6 | Nếu Role `LEARNER` chưa tồn tại trong DB → trả lỗi `500 INTERNAL_SERVER_ERROR` (role phải được seed trước). | Must | seed.ts |
 | FR-AUTH.01.7 | Password PHẢI đáp ứng policy: tối thiểu **8 ký tự**, chứa ít nhất **1 chữ hoa**, **1 chữ thường**, **1 số**. Không đạt → trả lỗi validation kèm chi tiết vi phạm. | Should | security best practice |
+| FR-AUTH.01.8 | Tài khoản mới có `emailVerifiedAt = NULL` và được gửi mã xác minh (FL-AUTH-13). Chưa nhập đúng mã thì **chưa đăng nhập được** (FR-AUTH.03.9). Web chuyển sang trang `/verify-email?email=`. | Must | BR-AUTH-14 |
 
 **Alternative Flows:**
-- **AF-01** — Email đã tồn tại → `409 "Email already exists"`.
+- **AF-01** — Email đã tồn tại (không phân biệt hoa thường) → `409 EMAIL_ALREADY_EXISTS`; web gợi ý đăng nhập hoặc dùng "Quên mật khẩu".
 - **AF-02** — Password không match confirm → `400 "Password does not match"`.
 - **AF-03** — Fields bắt buộc trống → `400 "Please fill in all required fields"`.
 
@@ -125,6 +127,7 @@ erDiagram
 | FR-AUTH.02.3 | Insert `User` với `status = PENDING_APPROVAL`, `roleId = <MENTOR role ID>`. Kích hoạt `RegisterMentorSaga` để xử lý thêm mentor profile data. | Must | 00-auth Flow 1 |
 | FR-AUTH.02.4 | User `PENDING_APPROVAL` có thể đăng nhập nhưng **KHÔNG thể truy cập Mentor Portal** (gate check: `status === APPROVED`). Chỉ xem được trang chờ duyệt. | Must | FR-MNT-06, 05-mentor §6 |
 | FR-AUTH.02.5 | Hệ thống gửi thông báo cho Admin khi có mentor application mới chờ duyệt. | Should | UX |
+| FR-AUTH.02.6 | Giống FR-AUTH.01.5 và FR-AUTH.01.8: trả `RegistrationResponse`, gửi mã xác minh; mentor chỉ đăng nhập (và thấy trang chờ duyệt) sau khi xác minh email. | Must | BR-AUTH-14 |
 
 ---
 
@@ -142,6 +145,7 @@ erDiagram
 | FR-AUTH.03.5 | Access token expiry: **24 giờ** (configurable). | Must | BR-AUTH-03 |
 | FR-AUTH.03.6 | Trả về response: `{ accessToken: string, user: UserSanitized }`. | Must | 00-auth Flow 2 |
 | FR-AUTH.03.7 | Unauthenticated access vào protected route → redirect to Login + `"Please log in to continue"` (`401`). | Must | 00-auth Flow 2, AF-02 |
+| FR-AUTH.03.9 | Email trong request được `trim` + đổi về chữ thường trước khi tra cứu. Sau khi mật khẩu đúng và status hợp lệ (FR-AUTH.03.2, 03.3): nếu `emailVerifiedAt = NULL` → `403 EMAIL_NOT_VERIFIED` kèm `email`. Kiểm tra này nằm **sau** bước so mật khẩu để người lạ không dò được trạng thái của một email. Web chuyển sang `/verify-email?email=`. | Must | BR-AUTH-01, BR-AUTH-14 |
 
 
 ---
@@ -160,6 +164,7 @@ erDiagram
 | FR-AUTH.04.5 | Thành công: hash mật khẩu mới (`bcrypt`), update `User.password`, xóa `resetPasswordToken` + `resetPasswordExpires` (set `null`). | Must | 00-auth Flow 4 |
 | FR-AUTH.04.6 | Mỗi lần request forgot-password → **ghi đè** token cũ (chỉ 1 token active tại mọi thời điểm). | Must | security |
 | FR-AUTH.04.7 | Rate limit: tối đa **3 lần request forgot-password / email / giờ**. Vượt → `429 "Too many requests"`. | Should | security |
+| FR-AUTH.04.8 | Mã đặt lại được gửi qua email, nên đặt lại thành công cũng **xác minh email**: `emailVerifiedAt` được set nếu đang `NULL`, mã xác minh đang chờ bị xoá. Đây là cách chủ thật của email lấy lại tài khoản bị người khác đăng ký trước. | Must | BR-AUTH-14 |
 
 ---
 
@@ -422,8 +427,8 @@ Dữ liệu seeded vào bảng `PermissionGroup` + `Permission`:
 | FR-AUTH.12.1 | Trang Login và Register hiển thị nút Google (Google Identity Services): "Sign in with Google" ở Login, "Sign up with Google" ở Register, ngôn ngữ theo ngôn ngữ đang chọn. Nút và dòng "HOẶC" chỉ hiện khi web cấu hình `VITE_GOOGLE_CLIENT_ID`. | Should | yêu cầu 2026-09 |
 | FR-AUTH.12.2 | Client gửi Google ID token (`credential` do Google trả về) qua `POST /api/v1/auth/google` với payload `GoogleLoginRequestDto`: `idToken` (bắt buộc, tối đa `EntityConstant.ExternalToken` = 4096 ký tự). | Should | yêu cầu 2026-09 |
 | FR-AUTH.12.3 | Backend verify ID token với Google (chữ ký, hạn dùng, `aud` = `GOOGLE_CLIENT_ID` của auth-service). Token không hợp lệ hoặc email chưa được Google xác minh (`email_verified = false`) → `401 "Invalid Google account"`. Auth-service chưa cấu hình `GOOGLE_CLIENT_ID` → `503 "Google sign-in is not configured"`. | Should | security |
-| FR-AUTH.12.4 | Email đã có tài khoản → đăng nhập vào **đúng tài khoản đó** (không tạo mới, không đổi role hay trạng thái). | Should | BR-AUTH-13 |
-| FR-AUTH.12.5 | Email chưa có tài khoản → tạo `User` với `status = ACTIVE`, role `LEARNER`, `name` = tên trên Google, `password` = bcrypt hash của chuỗi ngẫu nhiên (không ai biết). Muốn đăng nhập bằng mật khẩu, user đặt mật khẩu qua FL-AUTH-04. Google **không** tạo tài khoản Mentor, Admin hay Superadmin (BR-AUTH-04). | Should | BR-AUTH-13, FR-AUTH.01.4 |
+| FR-AUTH.12.4 | Email (đã chuẩn hoá chữ thường) đã có tài khoản → đăng nhập vào **đúng tài khoản đó** (không tạo mới, không đổi role hay trạng thái). Nếu tài khoản đó **chưa xác minh email** (đăng ký bằng mật khẩu, chưa nhập mã): set `emailVerifiedAt`, xoá mã đang chờ và **thay mật khẩu bằng chuỗi ngẫu nhiên**, vì người đặt mật khẩu đó chưa từng chứng minh sở hữu email (chống chiếm tài khoản trước). Chủ tài khoản đặt mật khẩu mới qua FL-AUTH-04. | Should | BR-AUTH-13, BR-AUTH-14 |
+| FR-AUTH.12.5 | Email chưa có tài khoản → tạo `User` với `status = ACTIVE`, role `LEARNER`, `name` = tên trên Google, `emailVerifiedAt = now()`, `password` = bcrypt hash của chuỗi ngẫu nhiên (không ai biết). Muốn đăng nhập bằng mật khẩu, user đặt mật khẩu qua FL-AUTH-04. Google **không** tạo tài khoản Mentor, Admin hay Superadmin (BR-AUTH-04). | Should | BR-AUTH-13, FR-AUTH.01.4 |
 | FR-AUTH.12.6 | Kiểm tra `User.status` giống FR-AUTH.03.3: `BANNED` → `403 "Account has been suspended"`, `REJECTED` → `403 "Account application was rejected"`. | Should | BR-AUTH-05 |
 | FR-AUTH.12.7 | Thành công trả `{ access_token }` cùng định dạng FL-AUTH-03 (JWT payload theo FR-AUTH.03.4). Client lưu token rồi chuyển về trang đang mở dở, hoặc Dashboard. | Should | 00-auth Flow 2 |
 
@@ -435,11 +440,34 @@ Dữ liệu seeded vào bảng `PermissionGroup` + `Permission`:
 
 ---
 
+## FL-AUTH-13 — Xác minh email bằng mã OTP
+
+**Mục đích:** Tài khoản đăng ký bằng mật khẩu (FL-AUTH-01, FL-AUTH-02) phải chứng minh sở hữu email trước khi đăng nhập, để không ai đăng ký được bằng email của người khác rồi chiếm tài khoản khi chủ thật đăng nhập bằng Google.
+**Actor:** Guest. **Cột:** `User.emailVerifiedAt`, `emailVerificationCode`, `emailVerificationExpires`, `emailVerificationAttempts` ([auth-schema](../../schema/auth-schema.md)). **API:** `POST /api/v1/auth/verify-email`, `POST /api/v1/auth/resend-verification`. **Web:** `/verify-email?email=`.
+
+| FR ID | Yêu cầu | Ưu tiên | Nguồn |
+|---|---|---|---|
+| FR-AUTH.13.1 | Mã gồm `EntityConstant.VerificationCode` = **6 chữ số**, sinh bằng CSPRNG (`crypto.randomInt`). DB chỉ lưu **bcrypt hash** của mã, không lưu mã gốc. Hạn dùng `AppConstant.EmailVerification.CodeTtlMinutes` = **15 phút**. Mỗi lần gửi mã mới thì mã cũ mất hiệu lực và bộ đếm nhập sai về 0 (chỉ 1 mã hiệu lực). | Must | BR-AUTH-14 |
+| FR-AUTH.13.2 | Mã được gửi qua email (`MAIL_*`). Khi đăng ký mà gửi email thất bại: tài khoản vẫn được tạo, response có `resendAfterSeconds = 0`, web báo lỗi gửi email và cho gửi lại ngay. Khi gửi lại mà thất bại: mã vừa tạo bị xoá, trả `503 EMAIL_DELIVERY_FAILED`. Môi trường không phải production và chưa đặt `MAIL_HOST`: không gửi email mà ghi mã vào log (mức WARN) để dev thử được. | Must | ops |
+| FR-AUTH.13.3 | `POST /auth/verify-email` nhận `VerifyEmailRequest` `{ email, code }`: email được `trim` + đổi chữ thường; `code` đúng 6 chữ số, sai định dạng → `400` validation. | Must | BR-AUTH-01 |
+| FR-AUTH.13.4 | Thứ tự kiểm tra: (a) email không tồn tại → `400 VERIFICATION_CODE_INVALID`; (b) đã xác minh → `400 EMAIL_ALREADY_VERIFIED`; (c) không có mã đang chờ, hoặc mã đã hết hạn → `400 VERIFICATION_CODE_EXPIRED`; (d) đã sai `AppConstant.EmailVerification.MaxAttempts` = **5** lần → `429 VERIFICATION_TOO_MANY_ATTEMPTS` (kể cả khi nhập đúng); (e) mã sai → tăng bộ đếm, `400 VERIFICATION_CODE_INVALID` kèm `attemptsLeft`. | Must | BR-AUTH-14 |
+| FR-AUTH.13.5 | Mã đúng → `emailVerifiedAt = now()`, xoá mã đang chờ, kiểm tra status như FR-AUTH.03.3 (`BANNED` / `REJECTED` → `403`), rồi trả `{ access_token }` như FL-AUTH-03: người dùng **được đăng nhập luôn**. | Must | UX |
+| FR-AUTH.13.6 | `POST /auth/resend-verification` nhận `{ email }`. Email không tồn tại hoặc đã xác minh → vẫn trả `200 { resendAfterSeconds: 60 }` (không dò được tài khoản). Còn trong `AppConstant.EmailVerification.ResendCooldownSeconds` = **60 giây** kể từ lần gửi trước → `429 VERIFICATION_RESEND_TOO_SOON` kèm `retryAfterSeconds`. Ngược lại gửi mã mới (FR-AUTH.13.1). | Must | security |
+| FR-AUTH.13.7 | Trang `/verify-email?email=`: mở từ trang Đăng ký (sau khi đăng ký) và trang Đăng nhập (khi nhận `EMAIL_NOT_VERIFIED`). Có ô nhập mã (bàn phím số, `autocomplete=one-time-code`), nút "Xác minh và đăng nhập", nút "gửi mã mới" có đếm ngược. Mọi chuỗi qua i18n `auth.verifyEmail.*`, lỗi qua `errors.<CODE>`. | Must | UX |
+| FR-AUTH.13.8 | Không cần bước này: tài khoản tạo qua Google (FR-AUTH.12.5), do Admin tạo qua IAM (FL-AUTH-07), tạo bằng seed / `admin:bootstrap`, và mọi tài khoản đã có trước migration `AddEmailVerification` (được đánh dấu xác minh theo `createdAt`). | Must | BR-AUTH-14 |
+
+**Alternative Flows:**
+- **AF-01** — Không thấy email → bấm "gửi mã mới" sau khi hết đếm ngược; kiểm tra thư rác.
+- **AF-02** — Mã hết hạn hoặc sai 5 lần → gửi mã mới rồi nhập lại.
+- **AF-03** — Người khác đã đăng ký bằng email của mình (chưa xác minh) → chủ email dùng "Quên mật khẩu" (FR-AUTH.04.8) hoặc đăng nhập Google (FR-AUTH.12.4); mật khẩu của người kia mất hiệu lực.
+
+---
+
 ## Business Rules tổng hợp
 
 | Rule ID | Rule | Liên quan |
 |---|---|---|
-| **BR-AUTH-01** | Email unique across platform (case-insensitive). | FR-AUTH.01.2, FR-AUTH.02.2 |
+| **BR-AUTH-01** | Email unique across platform (case-insensitive). Email luôn được `trim` + đổi chữ thường ở mọi API nhận email (register, login, forgot-password, verify, IAM tạo user) và khi đọc từ Google; DB có CHECK constraint `User_email_normalized_check`. | FR-AUTH.01.2, FR-AUTH.02.2, FR-AUTH.03.9 |
 | **BR-AUTH-02** | Password hash bcrypt work factor ≥ 10. | FR-AUTH.01.3 |
 | **BR-AUTH-03** | Access token expiry: 24h. | FR-AUTH.03.5 |
 | **BR-AUTH-04** | Admin/Superadmin role KHÔNG thể đăng ký công khai — chỉ Admin tạo qua IAM. | FR-AUTH.07.3 |
@@ -452,6 +480,7 @@ Dữ liệu seeded vào bảng `PermissionGroup` + `Permission`:
 | **BR-AUTH-11** | Forgot-password token: 6-digit, 15 min expiry, 1 active at a time. | FR-AUTH.04.1, FR-AUTH.04.6 |
 | **BR-AUTH-12** | Reject mentor requires mandatory reason. | FR-AUTH.08.4 |
 | **BR-AUTH-13** | Google sign-in chỉ chấp nhận email đã được Google xác minh; tài khoản được nhận diện theo email; tài khoản tạo mới qua Google luôn là `LEARNER` / `ACTIVE`. | FR-AUTH.12.3, FR-AUTH.12.4, FR-AUTH.12.5 |
+| **BR-AUTH-14** | Tài khoản đăng ký bằng mật khẩu chỉ đăng nhập được sau khi chứng minh sở hữu email bằng mã OTP (6 số, 15 phút, tối đa 5 lần sai, gửi lại sau 60 giây). Mã quên mật khẩu và Google cũng là bằng chứng sở hữu email nên cũng xác minh email; khi Google xác minh một tài khoản chưa xác minh thì mật khẩu cũ bị vô hiệu. | FR-AUTH.01.8, FR-AUTH.02.6, FR-AUTH.03.9, FR-AUTH.04.8, FR-AUTH.12.4, FL-AUTH-13 |
 
 ---
 
@@ -459,10 +488,10 @@ Dữ liệu seeded vào bảng `PermissionGroup` + `Permission`:
 
 | Sub-flow | Transition | API chính | Use case | BR chính |
 |---|---|---|---|---|
-| FL-AUTH-01 | T1 | `POST /auth/register/learner` | UC-AUTH-01 | BR-01, 02, 09 |
-| FL-AUTH-02 | T2 | `POST /auth/register/mentor` | UC-AUTH-02 | BR-01, 02, 09 |
-| FL-AUTH-03 | — | `POST /auth/login` | UC-AUTH-03 | BR-03, 05, 06, 10 |
-| FL-AUTH-04 | — | `POST /auth/forgot-password`, `/reset-password` | UC-AUTH-04 | BR-02, 11 |
+| FL-AUTH-01 | T1 | `POST /auth/register/learner` | UC-AUTH-01 | BR-01, 02, 09, 14 |
+| FL-AUTH-02 | T2 | `POST /auth/register/mentor` | UC-AUTH-02 | BR-01, 02, 09, 14 |
+| FL-AUTH-03 | — | `POST /auth/login` | UC-AUTH-03 | BR-01, 03, 05, 06, 10, 14 |
+| FL-AUTH-04 | — | `POST /auth/forgot-password`, `/reset-password` | UC-AUTH-04 | BR-01, 02, 11, 14 |
 | FL-AUTH-05 | — | `POST /auth/change-password` | UC-AUTH-05 | BR-02, 09 |
 | FL-AUTH-06 | — | `/iam/Role/*` | UC-AUTH-06 | BR-04, 07 |
 | FL-AUTH-07 | T1–T6 (indirect) | `/iam/User/*` | UC-AUTH-07 | BR-04, 08 |
@@ -470,7 +499,8 @@ Dữ liệu seeded vào bảng `PermissionGroup` + `Permission`:
 | FL-AUTH-09 | T5, T6 | softDelete, unban | UC-AUTH-09 | BR-05 |
 | FL-AUTH-10 | — | `POST /auth/logout` | UC-AUTH-10 | — |
 | FL-AUTH-11 | mọi | `/auth/me`, guard middleware | — | BR-03, 05, 06 |
-| FL-AUTH-12 | T1 (tài khoản mới) | `POST /auth/google` | — | BR-04, 05, 13 |
+| FL-AUTH-12 | T1 (tài khoản mới) | `POST /auth/google` | — | BR-01, 04, 05, 13, 14 |
+| FL-AUTH-13 | — | `POST /auth/verify-email`, `/auth/resend-verification` | — | BR-01, 05, 14 |
 
 ---
 

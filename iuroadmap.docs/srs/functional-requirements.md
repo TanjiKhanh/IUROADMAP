@@ -96,6 +96,7 @@ srs/
 | FL-AUTH-10 | Đăng xuất & Session | ✅ |
 | FL-AUTH-11 | Cross-cutting (Guard, Audit, Profile) | ✅/🆕 |
 | FL-AUTH-12 | Đăng nhập / Đăng ký bằng Google | ✅ Should |
+| FL-AUTH-13 | Xác minh email bằng mã OTP sau khi đăng ký bằng mật khẩu | ✅ Must |
 
 **Tổng:** 70+ FR chi tiết, 13 Business Rules, Permission Matrix với 12 permissions × 6 groups.
 

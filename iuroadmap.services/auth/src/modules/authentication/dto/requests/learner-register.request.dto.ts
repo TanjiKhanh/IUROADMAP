@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEmail, IsString, MinLength, MaxLength, IsNotEmpty } from 'class-validator';
-import { EntityConstant } from '@iuroadmap/shared';
+import { EntityConstant, NormalizeEmail } from '@iuroadmap/shared';
 
 /** Self sign-up always creates a LEARNER account, so the client does not send a role. */
 export class LearnerRegisterRequestDto {
@@ -10,6 +10,7 @@ export class LearnerRegisterRequestDto {
   })
   @IsEmail({}, { message: 'Invalid email format' })
   @MaxLength(EntityConstant.Email)
+  @NormalizeEmail()
   email: string;
 
   @ApiProperty({

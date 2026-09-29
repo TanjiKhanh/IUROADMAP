@@ -20,6 +20,8 @@ Quản lý luồng đăng nhập, đăng ký, phiên làm việc và tài khoả
 |---|---|---|
 | `/register/learner` | `POST` | Đăng ký tài khoản học viên |
 | `/register/mentor` | `POST` | Đăng ký tài khoản mentor (cần duyệt) |
+| `/verify-email` | `POST` | Nhập mã 6 số gửi qua email sau khi đăng ký; đúng mã thì đăng nhập luôn (trả về JWT) |
+| `/resend-verification` | `POST` | Gửi lại mã xác minh email (cách nhau ít nhất 60 giây) |
 | `/login` | `POST` | Đăng nhập hệ thống (trả về JWT) |
 | `/logout` | `POST` | Đăng xuất |
 | `/forgot-password`| `POST` | Yêu cầu cấp lại mật khẩu (nhận 6-digit code) |
@@ -101,14 +103,15 @@ stateDiagram-v2
 2. Truyền payload tương ứng `LearnerRegisterRequestDto` hoặc `MentorRegisterRequestDto`.
 3. Fill form: `email`, `password`, `name`, ...
 4. System validate:
-   - Email format.
-   - Email uniqueness against `users` table.
+   - Email được `trim` + đổi chữ thường, rồi kiểm tra format.
+   - Email uniqueness against `users` table (không phân biệt hoa thường).
 5. Backend hash password (`bcrypt`, work factor = 10).
-6. Insert `users` record với role tương ứng (`LEARNER` được tạo mặc định nếu chưa có). Nếu là mentor, sẽ kích hoạt `RegisterMentorSaga` để xử lý thêm profile mentor.
-7. Trả về thông tin user an toàn (không chứa mật khẩu). Sau đó client có thể redirect to Login.
+6. Insert `users` record với role tương ứng (`LEARNER` được tạo mặc định nếu chưa có), `emailVerifiedAt = NULL`. Nếu là mentor, sẽ kích hoạt `RegisterMentorSaga` để xử lý thêm profile mentor.
+7. Gửi email chứa mã 6 số (hết hạn sau 15 phút). Trả về thông tin user an toàn (không chứa mật khẩu, không chứa mã) kèm `emailVerificationRequired: true`. Client chuyển sang trang `/verify-email?email=`.
+8. User nhập mã → `POST /api/v1/auth/verify-email`. Đúng mã: email được xác minh và user **được đăng nhập luôn** (nhận JWT). Sai tối đa 5 lần; hết hạn hoặc sai quá 5 lần thì bấm gửi lại mã (`POST /api/v1/auth/resend-verification`, cách nhau ≥ 60 giây).
 
 **Alternative Flows:**
-- **A1** – Email đã tồn tại → `"Email already exists"`.
+- **A1** – Email đã tồn tại → `409 EMAIL_ALREADY_EXISTS`. Nếu đó là email của mình mà người khác đã đăng ký trước (chưa xác minh), dùng "Quên mật khẩu" hoặc đăng nhập Google: email được xác minh và mật khẩu của người kia mất hiệu lực.
 - **A2** – Password không match → `"Password does not match"`.
 - **A3** – Fields trống → `"Please fill in all required fields"`.
 
@@ -116,7 +119,7 @@ stateDiagram-v2
 
 1. Guest gọi endpoint `/api/v1/auth/login`.
 2. Fill: `email`, `password`.
-3. System verify: email exists, `bcrypt.compare(password, hash)`.
+3. System verify: email exists (so sánh sau khi đã chuẩn hoá chữ thường), `bcrypt.compare(password, hash)`, status không phải `BANNED` / `REJECTED`, và email **đã xác minh**.
 4. Generate JWT payload:
    ```json
    {
@@ -136,6 +139,7 @@ stateDiagram-v2
 **Alternative Flows:**
 - **A1** – Invalid credentials → `"Invalid email or password"` (không tiết lộ field nào sai).
 - **A2** – Unauthenticated access protected route → redirect to Login + `"Please log in to continue"`.
+- **A3** – Đúng mật khẩu nhưng chưa xác minh email → `403 EMAIL_NOT_VERIFIED`; client chuyển sang `/verify-email?email=` để nhập mã hoặc gửi mã mới.
 
 ### Flow 3 — Dynamic Role Management (Admin)
 
@@ -153,7 +157,7 @@ stateDiagram-v2
 3. Backend: generate mã code 6 số ngẫu nhiên (`resetPasswordToken`) + `resetPasswordExpires` (15 phút).
 4. Send email containing the 6-digit code.
 5. User nhập mã code + new password → `POST /api/v1/auth/reset-password`.
-6. Validate token (còn hạn) + update password hash + xóa token cũ.
+6. Validate token (còn hạn) + update password hash + xóa token cũ. Mã được gửi qua email nên đặt lại thành công cũng đánh dấu email **đã xác minh**.
 
 ### Flow 5 — User Directory Management (Admin/Superadmin)
 

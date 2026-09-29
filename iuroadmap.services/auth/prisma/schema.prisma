@@ -50,6 +50,13 @@ model User {
   // Forgot Password
   resetPasswordToken   String?
   resetPasswordExpires DateTime?
+
+  // Email verification (FL-AUTH-13). A password sign-up can log in once emailVerifiedAt is set.
+  emailVerifiedAt           DateTime?
+  emailVerificationCode     String?   // bcrypt hash of the one-time code, never the code itself
+  emailVerificationExpires  DateTime?
+  emailVerificationAttempts Int       @default(0)
+
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 }

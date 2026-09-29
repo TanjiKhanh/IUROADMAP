@@ -5,9 +5,11 @@ import { features, RoutePaths } from '@iuroadmap/core';
 import { selectIsAuthenticated, setAccessToken } from '@iuroadmap/store';
 import type { RootState } from '@iuroadmap/store';
 import { useAuthenticationControllerLogin, type AuthLoginResponseDto } from '@iuroadmap/api-gen';
+import { ErrorCodes } from '@iuroadmap/shared/constants';
 import { useTranslation } from '../../hooks/useTranslation';
-import { apiErrorMessage, unwrapData } from '../../api/apiResult';
+import { apiErrorBody, apiErrorCode, apiErrorMessage, unwrapData } from '../../api/apiResult';
 import { setAccessToken as persistAccessToken } from '../../auth/tokenStore';
+import { verifyEmailUrl, type VerifyEmailLocationState } from '../../auth/verifyEmailLink';
 import { GOOGLE_SIGN_IN_ENABLED, GoogleSignInButton } from '../../components/auth/GoogleSignInButton';
 
 // Import logo
@@ -89,6 +91,13 @@ export default function Login() {
       // The redirect happens in the effect above once the store is authenticated
       dispatch(setAccessToken(token));
     } catch (err: unknown) {
+      // Right password, but the sign-up code was never entered (FL-AUTH-13)
+      if (apiErrorCode(err) === ErrorCodes.EMAIL_NOT_VERIFIED) {
+        const email = apiErrorBody(err)?.email;
+        const state: VerifyEmailLocationState = { message: t(authKeys.verifyEmail.notVerifiedMsg), messageType: 'warning' };
+        navigate(verifyEmailUrl(typeof email === 'string' ? email : formData.email), { state });
+        return;
+      }
       setError(apiErrorMessage(err, t, t(authKeys.login.errorLoginFailed)));
     }
   };
