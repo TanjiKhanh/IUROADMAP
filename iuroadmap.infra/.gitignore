@@ -1,0 +1,16 @@
+# Terraform: state and tfvars hold generated passwords, tokens and SMTP credentials
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform.tfstate.lock.info
+crash.log
+crash.*.log
+
+# Kubeconfigs fetched from the cluster / printed by Terraform
+kubeconfig*.yaml
+*.kubeconfig
+
+# Rendered by scripts/deploy.sh
+kubernetes/.release/

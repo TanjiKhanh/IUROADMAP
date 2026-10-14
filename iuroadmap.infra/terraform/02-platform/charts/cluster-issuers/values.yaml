@@ -1,0 +1,3 @@
+# Set by terraform/02-platform/main.tf
+email: ""
+ingressClassName: traefik

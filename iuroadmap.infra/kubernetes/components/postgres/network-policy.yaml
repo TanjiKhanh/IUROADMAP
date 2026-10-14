@@ -1,0 +1,19 @@
+# PostgreSQL: only the services that own a database, and the backup job
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["auth", "roadmap-service", "mentor-service", "user-service", "postgres-backup"]
+      ports:
+        - port: 5432

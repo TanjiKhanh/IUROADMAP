@@ -1,0 +1,173 @@
+# CD → Kubernetes (k3s) on the VPS: iuroadmap.infra/README.md
+#   - Push to dev  → environment dev  (namespace iuroadmap-dev)
+#   - Push to main → environment prod (namespace iuroadmap-prod)
+#   - Manual run:   pick the environment.
+# Pushes deploy only while the repository variable K8S_DEPLOY_ENABLED is "true", so this pipeline can run
+# side by side with the Render / Railway ones (backend-dev.yml / backend-prod.yml) until you switch.
+# Flow: Backend CI → build the 6 images (ghcr.io/<owner>/iuroadmap-<service>:<sha>) → SSH tunnel to the
+# cluster API → iuroadmap.infra/scripts/deploy.sh → smoke test.
+
+name: Deploy (Kubernetes on VPS)
+
+on:
+  push:
+    branches: [main, dev]
+    paths:
+      - 'iuroadmap.services/**'
+      - 'iuroadmap.webapp/apps/web/**'
+      - 'iuroadmap.webapp/packages/**'
+      - 'iuroadmap.infra/kubernetes/**'
+      - 'iuroadmap.infra/scripts/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/deploy-k8s.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy
+        type: choice
+        options: [dev, prod]
+        default: dev
+
+permissions:
+  contents: read
+  packages: write
+  pull-requests: read # needed by the called backend-ci.yml
+
+concurrency:
+  group: deploy-k8s-${{ github.event.inputs.environment || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    name: Resolve environment
+    if: github.event_name == 'workflow_dispatch' || vars.K8S_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.vars.outputs.environment }}
+      image_prefix: ${{ steps.vars.outputs.image_prefix }}
+      tag: ${{ steps.vars.outputs.tag }}
+    steps:
+      - id: vars
+        env:
+          INPUT_ENV: ${{ github.event.inputs.environment }}
+          REF: ${{ github.ref_name }}
+        run: |
+          if [ -n "$INPUT_ENV" ]; then ENV="$INPUT_ENV"
+          elif [ "$REF" = "main" ]; then ENV=prod
+          else ENV=dev; fi
+          # GHCR repository names must be lowercase
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "environment=$ENV" >> "$GITHUB_OUTPUT"
+          echo "image_prefix=ghcr.io/$OWNER/iuroadmap" >> "$GITHUB_OUTPUT"
+          echo "tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+          echo "Deploying \`${GITHUB_SHA::12}\` to **$ENV**" >> "$GITHUB_STEP_SUMMARY"
+
+  ci:
+    name: Backend CI
+    needs: setup
+    uses: ./.github/workflows/backend-ci.yml
+    with:
+      # push: only the changed services; manual run: all of them
+      services: ${{ github.event_name == 'workflow_dispatch' && 'all' || '' }}
+
+  build:
+    name: Image ${{ matrix.image.name }}
+    needs: [setup, ci]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        image:
+          - { name: auth, dockerfile: iuroadmap.services/auth/Dockerfile }
+          - { name: api-gateway, dockerfile: iuroadmap.services/api-gateway/Dockerfile }
+          - { name: roadmap-service, dockerfile: iuroadmap.services/roadmap-service/Dockerfile }
+          - { name: mentor-service, dockerfile: iuroadmap.services/mentor-service/Dockerfile }
+          - { name: user-service, dockerfile: iuroadmap.services/user-service/Dockerfile }
+          - { name: web, dockerfile: iuroadmap.webapp/apps/web/Dockerfile }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Every release tags all 6 images with the same commit; unchanged services rebuild from the layer cache
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.image.dockerfile }}
+          push: true
+          tags: ${{ needs.setup.outputs.image_prefix }}-${{ matrix.image.name }}:${{ needs.setup.outputs.tag }}
+          build-args: |
+            VITE_GOOGLE_CLIENT_ID=${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          cache-from: type=gha,scope=${{ matrix.image.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image.name }}
+
+  deploy:
+    name: Deploy → ${{ needs.setup.outputs.environment }}
+    needs: [setup, build]
+    runs-on: ubuntu-latest
+    # GitHub environments k8s-dev / k8s-prod hold the secrets below; add "Required reviewers" to k8s-prod
+    environment: k8s-${{ needs.setup.outputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Open an SSH tunnel to the Kubernetes API (port 6443 is not public)
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_USER: ${{ secrets.VPS_SSH_USER }}
+          VPS_SSH_PORT: ${{ secrets.VPS_SSH_PORT }}
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
+        run: |
+          for name in VPS_HOST VPS_SSH_USER VPS_SSH_PRIVATE_KEY VPS_SSH_KNOWN_HOSTS; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Secret $name is missing in the GitHub environment k8s-${{ needs.setup.outputs.environment }}"
+              exit 1
+            fi
+          done
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy_key -p "${VPS_SSH_PORT:-22}" \
+            -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 \
+            -fN -L 6443:127.0.0.1:6443 "$VPS_SSH_USER@$VPS_HOST"
+
+      - name: Kubeconfig of the ci-deployer ServiceAccount
+        env:
+          K8S_CI_KUBECONFIG: ${{ secrets.K8S_CI_KUBECONFIG }}
+        run: |
+          if [ -z "$K8S_CI_KUBECONFIG" ]; then
+            echo "::error::Secret K8S_CI_KUBECONFIG is missing (terraform output -raw ci_kubeconfig)"
+            exit 1
+          fi
+          printf '%s\n' "$K8S_CI_KUBECONFIG" > "$RUNNER_TEMP/kubeconfig"
+          chmod 600 "$RUNNER_TEMP/kubeconfig"
+          echo "KUBECONFIG=$RUNNER_TEMP/kubeconfig" >> "$GITHUB_ENV"
+
+      - name: Deploy
+        env:
+          IMAGE_PREFIX: ${{ needs.setup.outputs.image_prefix }}
+        run: |
+          kubectl version --client
+          bash iuroadmap.infra/scripts/deploy.sh "${{ needs.setup.outputs.environment }}" "${{ needs.setup.outputs.tag }}"
+
+      - name: Smoke test (https://<APP_HOST>/health)
+        # Set the environment variable APP_HOST (e.g. iuroadmap.example.com) to enable it
+        if: vars.APP_HOST != ''
+        env:
+          URL: https://${{ vars.APP_HOST }}
+        run: |
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$URL/health" || true)
+            echo "attempt $i: $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "::error::$URL/health did not answer 200"
+          exit 1

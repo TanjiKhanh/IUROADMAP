@@ -1,0 +1,22 @@
+# Copy to terraform.tfvars (git-ignored) and fill in.
+
+server = {
+  host = "203.0.113.10" # public IP of the VPS
+  user = "root"         # or a user with passwordless sudo
+  port = 22
+  # private_ip = "10.0.0.2"   # only when agents join over the provider's private network
+}
+
+# Extra worker nodes (optional). Each one: a VPS reachable with the same SSH key.
+agents = [
+  # { host = "203.0.113.11" },
+]
+
+ssh_private_key_path = "~/.ssh/id_ed25519"
+
+k3s_channel = "stable"
+# k3s_version = "v1.33.4+k3s1"   # pin an exact version once the cluster works
+
+configure_firewall = true
+# Reach the API directly from your own IP instead of the SSH tunnel (optional):
+# api_allowed_cidrs = ["198.51.100.7/32"]

@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Static React build served by nginx (iuroadmap.webapp/apps/web/Dockerfile). It calls the API on the
+# same origin (/api), which the Ingress sends to api-gateway: no runtime configuration needed.
+resources:
+  - deployment.yaml
+  - service.yaml

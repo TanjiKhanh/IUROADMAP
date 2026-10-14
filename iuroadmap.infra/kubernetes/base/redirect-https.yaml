@@ -1,0 +1,12 @@
+# HTTP → HTTPS for the app Ingress. Attached by the annotation
+#   traefik.ingress.kubernetes.io/router.middlewares: <namespace>-redirect-https@kubernetescrd
+# set in each overlay (Traefik prefixes the middleware name with its namespace).
+# cert-manager's HTTP-01 challenge uses its own Ingress, so it is never redirected.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-https
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true

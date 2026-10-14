@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cluster-issuers
+description: Let's Encrypt ClusterIssuers (staging + production) for cert-manager, HTTP-01 through the ingress controller.
+type: application
+version: 0.1.0

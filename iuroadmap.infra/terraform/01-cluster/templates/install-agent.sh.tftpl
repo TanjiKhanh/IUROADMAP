@@ -1,0 +1,30 @@
+#!/bin/sh
+# Rendered by terraform/01-cluster. Installs (or upgrades) a k3s agent that joins the server; safe to run again.
+set -eu
+# The script embeds the cluster token: delete it whatever happens
+trap 'rm -f "$0"' EXIT
+export DEBIAN_FRONTEND=noninteractive
+
+${firewall}
+
+# ---- k3s agent ----
+mkdir -p /etc/rancher/k3s
+umask 077
+cat > /etc/rancher/k3s/config.yaml <<'EOF'
+server: "https://${server_address}:6443"
+token: "${token}"
+%{ if node_ip != "" ~}
+node-ip: "${node_ip}"
+node-external-ip: "${node_external_ip}"
+%{ endif ~}
+EOF
+umask 022
+
+curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL="${k3s_channel}" INSTALL_K3S_VERSION="${k3s_version}" sh -s - agent
+
+if systemctl is-active --quiet k3s-agent; then
+  echo "k3s agent is running"
+else
+  echo "k3s agent is not running: journalctl -u k3s-agent" >&2
+  exit 1
+fi

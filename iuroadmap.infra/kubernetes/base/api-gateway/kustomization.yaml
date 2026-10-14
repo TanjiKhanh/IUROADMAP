@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+
+# Non-secret settings. JWT_SECRET comes from api-gateway-secrets (Terraform).
+# CORS_ORIGIN is set per environment (overlays/<env>/kustomization.yaml).
+configMapGenerator:
+  - name: api-gateway-config
+    literals:
+      - NODE_ENV=production
+      - PORT=8080
+      - AUTH_SERVICE_URL=http://auth:3000
+      - ROADMAP_SERVICE_URL=http://roadmap-service:4100
+      - MENTOR_SERVICE_URL=http://mentor-service:4001
+      - USER_SERVICE_URL=http://user-service:4000
+      - CORS_ORIGIN=https://iuroadmap.example.com
+      - NODE_OPTIONS=--max-old-space-size=384

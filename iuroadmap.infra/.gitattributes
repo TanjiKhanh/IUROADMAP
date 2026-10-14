@@ -1,0 +1,7 @@
+# Shell scripts and templates run on Linux (VPS, containers, CI): keep LF even on Windows checkouts
+# (core.autocrlf=true would otherwise add \r and break them).
+*.sh     text eol=lf
+*.tftpl  text eol=lf
+*.tf     text eol=lf
+*.yaml   text eol=lf
+*.yml    text eol=lf

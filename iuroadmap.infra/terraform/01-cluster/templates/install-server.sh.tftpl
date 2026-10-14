@@ -1,0 +1,49 @@
+#!/bin/sh
+# Rendered by terraform/01-cluster. Installs (or upgrades) the k3s server; safe to run again.
+set -eu
+# The script embeds the cluster token: delete it whatever happens
+trap 'rm -f "$0"' EXIT
+export DEBIAN_FRONTEND=noninteractive
+
+${firewall}
+
+# ---- k3s server ----
+mkdir -p /etc/rancher/k3s
+umask 077
+cat > /etc/rancher/k3s/config.yaml <<'EOF'
+token: "${token}"
+write-kubeconfig-mode: "0600"
+# Encrypt Secrets at rest in the datastore
+secrets-encryption: true
+tls-san:
+%{ for san in tls_sans ~}
+  - "${san}"
+%{ endfor ~}
+%{ if node_ip != "" ~}
+node-ip: "${node_ip}"
+node-external-ip: "${node_external_ip}"
+%{ endif ~}
+EOF
+umask 022
+
+curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL="${k3s_channel}" INSTALL_K3S_VERSION="${k3s_version}" sh -s - server
+
+# ---- Wait for the node to be Ready ----
+i=0
+until k3s kubectl get nodes --no-headers 2>/dev/null | grep -qw Ready; do
+  i=$((i + 1))
+  if [ "$i" -gt 60 ]; then
+    echo "k3s did not become Ready in 5 minutes: journalctl -u k3s" >&2
+    exit 1
+  fi
+  sleep 5
+done
+
+# ---- kubeconfig for the SSH user ----
+# Its server stays https://127.0.0.1:6443: use it through an SSH tunnel (see terraform output ssh_tunnel_command)
+home=$(getent passwd "${kube_user}" | cut -d: -f6)
+group=$(id -gn "${kube_user}")
+install -d -m 700 -o "${kube_user}" -g "$group" "$home/.kube"
+install -m 600 -o "${kube_user}" -g "$group" /etc/rancher/k3s/k3s.yaml "$home/.kube/config"
+
+k3s kubectl get nodes -o wide

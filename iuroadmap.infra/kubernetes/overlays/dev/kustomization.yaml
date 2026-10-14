@@ -1,0 +1,76 @@
+# dev environment → namespace iuroadmap-dev (created by terraform/02-platform), branch dev.
+# DOMAIN: replace dev.iuroadmap.example.com in the 3 places marked below.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: iuroadmap-dev
+
+resources:
+  - ../../base
+
+components:
+  - ../../components/postgres
+
+labels:
+  - pairs:
+      app.kubernetes.io/instance: iuroadmap-dev
+    includeSelectors: false
+
+configMapGenerator:
+  - name: api-gateway-config
+    behavior: merge
+    literals:
+      - CORS_ORIGIN=https://dev.iuroadmap.example.com # DOMAIN
+
+patches:
+  - target:
+      kind: Ingress
+      name: iuroadmap
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: dev.iuroadmap.example.com # DOMAIN
+      - op: replace
+        path: /spec/tls/0/hosts/0
+        value: dev.iuroadmap.example.com # DOMAIN
+      - op: add
+        path: /metadata/annotations/traefik.ingress.kubernetes.io~1router.middlewares
+        value: iuroadmap-dev-redirect-https@kubernetescrd
+      # Swagger UI of the gateway (dev only): https://<dev host>/docs
+      - op: add
+        path: /spec/rules/0/http/paths/0
+        value:
+          path: /docs
+          pathType: Prefix
+          backend:
+            service:
+              name: api-gateway
+              port:
+                name: http
+
+  # dev shares the VPS with prod: reserve less for it
+  - target:
+      kind: Deployment
+      labelSelector: app.kubernetes.io/component=backend
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests
+        value:
+          cpu: 25m
+          memory: 128Mi
+
+  - target:
+      kind: StatefulSet
+      name: postgres
+    patch: |-
+      - op: replace
+        path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+        value: 5Gi
+
+  - target:
+      kind: PersistentVolumeClaim
+      name: postgres-backups
+    patch: |-
+      - op: replace
+        path: /spec/resources/requests/storage
+        value: 5Gi

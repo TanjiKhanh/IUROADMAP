@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+
+# Non-secret settings. Secrets (JWT, database URL, API keys, SMTP) come from auth-secrets (Terraform).
+configMapGenerator:
+  - name: auth-config
+    literals:
+      - NODE_ENV=production
+      - PORT=3000
+      - MENTOR_SERVICE_URL=http://mentor-service:4001
+      - ROADMAP_SERVICE_URL=http://roadmap-service:4100
+      - NODE_OPTIONS=--max-old-space-size=384
+      - CHECKPOINT_DISABLE=1
+      - NPM_CONFIG_UPDATE_NOTIFIER=false

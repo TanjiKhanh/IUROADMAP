@@ -1,0 +1,132 @@
+# Each service only accepts traffic from the callers it actually has (k3s enforces NetworkPolicy).
+# Call graph: web/api ← Traefik; every backend ← api-gateway; internal/* calls through
+# @iuroadmap/shared mentor-client / roadmap-client:
+#   auth → mentor-service, roadmap-service
+#   roadmap-service → mentor-service
+#   mentor-service → roadmap-service
+#   user-service → mentor-service, roadmap-service
+# When a service starts calling another one, add the caller here or the request will time out.
+# Kubelet health probes come from the node and are always allowed. Egress is not restricted.
+
+# Nothing in the namespace accepts traffic unless a policy below allows it
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+---
+# Public entry points: Traefik (kube-system) → web, api-gateway
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: web-and-gateway-from-ingress
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: ["web", "api-gateway"]
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+      ports:
+        - port: 8080
+---
+# Let's Encrypt HTTP-01 challenge pods that cert-manager starts in this namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: acme-solver-from-ingress
+spec:
+  podSelector:
+    matchLabels:
+      acme.cert-manager.io/http01-solver: "true"
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: traefik
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: auth
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: auth
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: api-gateway
+      ports:
+        - port: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: user-service
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: user-service
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: api-gateway
+      ports:
+        - port: 4000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: roadmap-service
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: roadmap-service
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["api-gateway", "auth", "mentor-service", "user-service"]
+      ports:
+        - port: 4100
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mentor-service
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: mentor-service
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["api-gateway", "auth", "roadmap-service", "user-service"]
+      ports:
+        - port: 4001

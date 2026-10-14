@@ -1,0 +1,52 @@
+# Copy to terraform.tfvars (git-ignored) and fill in. Terraform generates every other secret
+# (JWT secret, internal API keys, database passwords) and keeps it in the state file.
+
+acme_email = "you@example.com"
+
+# GHCR pull access. Leave both empty if the packages are public.
+registry_username = "your-github-username"
+registry_password = "ghp_xxx" # classic PAT with read:packages
+
+environments = {
+  dev = {
+    quota = { requests_cpu = "1", requests_memory = "2Gi", limits_memory = "6Gi", requests_storage = "20Gi", pods = 20 }
+    mail = {
+      host = "smtp.gmail.com"
+      port = 587
+      user = "you@gmail.com"
+      from = "IUROADMAP Dev <you@gmail.com>"
+    }
+    google_client_id = "xxxxxxxx.apps.googleusercontent.com"
+  }
+
+  prod = {
+    quota = { requests_cpu = "3", requests_memory = "5Gi", limits_memory = "12Gi", requests_storage = "60Gi", pods = 40 }
+    mail = {
+      host = "smtp.gmail.com"
+      port = 587
+      user = "you@gmail.com"
+      from = "IUROADMAP <you@gmail.com>"
+    }
+    google_client_id = "xxxxxxxx.apps.googleusercontent.com"
+
+    # Keep the existing Supabase database instead of the in-cluster PostgreSQL:
+    # in_cluster_postgres = false
+  }
+}
+
+environment_secrets = {
+  dev  = { mail_password = "gmail-app-password" }
+  prod = { mail_password = "gmail-app-password" }
+
+  # With in_cluster_postgres = false:
+  # prod = {
+  #   mail_password = "..."
+  #   external_database_urls = {
+  #     auth        = "postgresql://...pooler...:6543/postgres?pgbouncer=true"
+  #     auth_direct = "postgresql://...:5432/postgres"
+  #     roadmap     = "postgresql://..."
+  #     mentor      = "postgresql://..."
+  #     user        = "postgresql://..."
+  #   }
+  # }
+}

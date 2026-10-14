@@ -1,0 +1,42 @@
+# One public host per environment (set in overlays/<env>):
+#   /api/*   → api-gateway (JWT check, then proxy to the service that owns the prefix)
+#   /health  → api-gateway health (smoke test)
+#   /*       → web (React SPA)
+# Only these two Services are reachable from outside; the other services stay internal.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: iuroadmap
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - iuroadmap.example.com
+      secretName: iuroadmap-tls
+  rules:
+    - host: iuroadmap.example.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  name: http
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  name: http

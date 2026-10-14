@@ -1,0 +1,22 @@
+{{- $issuers := dict
+      "letsencrypt-staging" "https://acme-staging-v02.api.letsencrypt.org/directory"
+      "letsencrypt-prod" "https://acme-v02.api.letsencrypt.org/directory" }}
+{{- range $name, $server := $issuers }}
+---
+# letsencrypt-staging: untrusted certificates but high rate limits, to test the setup
+# letsencrypt-prod: real certificates (the Ingress uses this one)
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ $name }}
+spec:
+  acme:
+    email: {{ required "email is required" $.Values.email | quote }}
+    server: {{ $server }}
+    privateKeySecretRef:
+      name: {{ $name }}-account-key
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: {{ $.Values.ingressClassName }}
+{{- end }}

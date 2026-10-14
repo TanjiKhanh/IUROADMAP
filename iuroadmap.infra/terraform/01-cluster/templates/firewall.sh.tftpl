@@ -1,0 +1,25 @@
+# ---- Firewall (ufw): only SSH, HTTP and HTTPS are public; the Kubernetes API (6443) stays private ----
+if ! command -v ufw >/dev/null 2>&1; then
+  if command -v apt-get >/dev/null 2>&1; then
+    apt-get update -qq && apt-get install -y -qq ufw
+  else
+    echo "Firewall: ufw not available on this OS, skipped. Restrict ports in your provider's firewall instead." >&2
+  fi
+fi
+if command -v ufw >/dev/null 2>&1; then
+  ufw default deny incoming
+  ufw default allow outgoing
+  ufw allow ${ssh_port}/tcp comment 'ssh'
+  ufw allow 80/tcp comment 'http (traefik)'
+  ufw allow 443/tcp comment 'https (traefik)'
+  # Required by k3s when ufw is on: pod and service networks
+  ufw allow from 10.42.0.0/16 comment 'k3s pods'
+  ufw allow from 10.43.0.0/16 comment 'k3s services'
+%{ for addr in node_addresses ~}
+  ufw allow from ${addr} comment 'k3s node'
+%{ endfor ~}
+%{ for cidr in api_allowed_cidrs ~}
+  ufw allow from ${cidr} to any port 6443 proto tcp comment 'kubernetes api'
+%{ endfor ~}
+  ufw --force enable
+fi

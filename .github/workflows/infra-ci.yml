@@ -1,0 +1,47 @@
+# Infra CI: pull requests that touch iuroadmap.infra/ must render and validate.
+#   - kubectl kustomize of both overlays (what scripts/deploy.sh applies)
+#   - terraform fmt + validate of both stages (no backend, no cluster needed)
+
+name: Infra CI
+
+on:
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - 'iuroadmap.infra/**'
+      - '.github/workflows/infra-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  kustomize:
+    name: Render overlays
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: kubectl kustomize
+        run: |
+          for env in dev prod; do
+            echo "::group::$env"
+            DRY_RUN=1 IMAGE_PREFIX=ghcr.io/example/iuroadmap bash iuroadmap.infra/scripts/deploy.sh "$env" ci-check > "/tmp/$env.yaml"
+            grep -c '^kind:' "/tmp/$env.yaml"
+            echo "::endgroup::"
+          done
+
+  terraform:
+    name: Terraform (${{ matrix.stage }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        stage: [01-cluster, 02-platform]
+    defaults:
+      run:
+        working-directory: iuroadmap.infra/terraform/${{ matrix.stage }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check -recursive ..
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate

@@ -166,9 +166,10 @@ IUROADMAP (monorepo root)
 │   ├── shared/                 # Shared backend utilities
 │   └── azure-pipeline/         # Azure CI/CD Pipelines
 │
-├── iuroadmap.infra/             # Infrastructure & Deployment
-│   ├── k8s/                    # Kubernetes manifests
-│   └── DOCKER_SETUP.md         # Docker documentation
+├── iuroadmap.infra/             # Infrastructure & Deployment (guide: iuroadmap.infra/README.md)
+│   ├── terraform/              # VPS → k3s cluster, then TLS / environments / secrets
+│   ├── kubernetes/             # Kustomize: one folder per service, dev + prod overlays
+│   └── scripts/deploy.sh       # Deploy an environment with an image tag
 │
 ├── iuroadmap.docs/              # Architecture & SRS Documentation
 │

@@ -1,5 +1,7 @@
 # Deploy backend: dev trên Render, production trên Railway
 
+> Deploy lên VPS bằng Kubernetes (k3s) + Terraform: xem [../README.md](../README.md).
+
 | Stage | Nhánh | Nền tảng | Pipeline | Cấu hình nền tảng |
 |---|---|---|---|---|
 | **dev** | `dev` | Render (gói free) | [`backend-dev.yml`](../../.github/workflows/backend-dev.yml) | [`render.yaml`](../../render.yaml) (Blueprint) |

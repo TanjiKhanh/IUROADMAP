@@ -1,0 +1,17 @@
+# In-cluster PostgreSQL for one environment: a database + user per service (database-per-service), a
+# persistent volume (k3s local-path) and a nightly pg_dump CronJob. Passwords: postgres-secrets (Terraform).
+# Using an external database (e.g. Supabase) instead: remove this component from the overlay and set
+# in_cluster_postgres = false in terraform/02-platform.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+  - statefulset.yaml
+  - service.yaml
+  - backup.yaml
+  - network-policy.yaml
+
+configMapGenerator:
+  - name: postgres-initdb
+    files:
+      - initdb/01-service-databases.sh
