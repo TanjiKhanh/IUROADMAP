@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
-import { EntityConstant } from '@iuroadmap/shared';
+import { EntityConstant, NormalizeEmail } from '@iuroadmap/shared';
 
 export class LoginRequestDto {
   @ApiProperty({
@@ -9,6 +9,7 @@ export class LoginRequestDto {
   })
   @IsEmail({}, { message: 'Invalid email format' })
   @MaxLength(EntityConstant.Email)
+  @NormalizeEmail()
   email: string;
 
   @ApiProperty({

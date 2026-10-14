@@ -31,8 +31,12 @@ import type {
   LearnerRegisterRequestDto,
   LoginRequestDto,
   MentorRegisterRequestDto,
+  RegistrationResponse,
+  ResendVerificationRequest,
+  ResendVerificationResponse,
   ResetPasswordRequestDto,
-  UserResponse
+  UserResponse,
+  VerifyEmailRequest
 } from '../../models';
 
 
@@ -55,7 +59,7 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
 };
 
 export type authenticationControllerRegisterResponse201 = {
-  data: void
+  data: RegistrationResponse
   status: 201
 }
 
@@ -87,7 +91,7 @@ export const getAuthenticationControllerRegisterUrl = () => {
 }
 
 /**
- * @summary Register a new learner user
+ * @summary Register a new learner user; a verification code is emailed and must be confirmed before login
  */
 export const authenticationControllerRegister = async (learnerRegisterRequestDto: LearnerRegisterRequestDto, options?: RequestInit): Promise<authenticationControllerRegisterResponse> => {
 
@@ -103,7 +107,7 @@ export const authenticationControllerRegister = async (learnerRegisterRequestDto
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: authenticationControllerRegisterResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: authenticationControllerRegisterResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as authenticationControllerRegisterResponse
 }
 
@@ -143,7 +147,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
     export type AuthenticationControllerRegisterMutationError = void
 
     /**
- * @summary Register a new learner user
+ * @summary Register a new learner user; a verification code is emailed and must be confirmed before login
  */
 export const useAuthenticationControllerRegister = <TError = void,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerRegister>>, TError,{data: LearnerRegisterRequestDto}, TContext>, fetch?: RequestInit}
@@ -156,7 +160,7 @@ export const useAuthenticationControllerRegister = <TError = void,
       return useMutation(getAuthenticationControllerRegisterMutationOptions(options), queryClient);
     }
     export type authenticationControllerRegisterMentorResponse201 = {
-  data: void
+  data: RegistrationResponse
   status: 201
 }
 
@@ -188,7 +192,7 @@ export const getAuthenticationControllerRegisterMentorUrl = () => {
 }
 
 /**
- * @summary Register a new mentor user
+ * @summary Register a new mentor user; a verification code is emailed and must be confirmed before login
  */
 export const authenticationControllerRegisterMentor = async (mentorRegisterRequestDto: MentorRegisterRequestDto, options?: RequestInit): Promise<authenticationControllerRegisterMentorResponse> => {
 
@@ -204,7 +208,7 @@ export const authenticationControllerRegisterMentor = async (mentorRegisterReque
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: authenticationControllerRegisterMentorResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: authenticationControllerRegisterMentorResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as authenticationControllerRegisterMentorResponse
 }
 
@@ -244,7 +248,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
     export type AuthenticationControllerRegisterMentorMutationError = void
 
     /**
- * @summary Register a new mentor user
+ * @summary Register a new mentor user; a verification code is emailed and must be confirmed before login
  */
 export const useAuthenticationControllerRegisterMentor = <TError = void,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerRegisterMentor>>, TError,{data: MentorRegisterRequestDto}, TContext>, fetch?: RequestInit}
@@ -256,6 +260,213 @@ export const useAuthenticationControllerRegisterMentor = <TError = void,
       > => {
       return useMutation(getAuthenticationControllerRegisterMentorMutationOptions(options), queryClient);
     }
+    export type authenticationControllerVerifyEmailResponse200 = {
+  data: AuthLoginResponseDto
+  status: 200
+}
+
+export type authenticationControllerVerifyEmailResponse400 = {
+  data: void
+  status: 400
+}
+
+export type authenticationControllerVerifyEmailResponse403 = {
+  data: void
+  status: 403
+}
+
+export type authenticationControllerVerifyEmailResponse429 = {
+  data: void
+  status: 429
+}
+
+export type authenticationControllerVerifyEmailResponseSuccess = (authenticationControllerVerifyEmailResponse200) & {
+  headers: Headers;
+};
+export type authenticationControllerVerifyEmailResponseError = (authenticationControllerVerifyEmailResponse400 | authenticationControllerVerifyEmailResponse403 | authenticationControllerVerifyEmailResponse429) & {
+  headers: Headers;
+};
+
+export type authenticationControllerVerifyEmailResponse = (authenticationControllerVerifyEmailResponseSuccess | authenticationControllerVerifyEmailResponseError)
+
+export const getAuthenticationControllerVerifyEmailUrl = () => {
+
+
+
+
+  return `/api/v1/auth/verify-email`
+}
+
+/**
+ * @summary Confirm the emailed code of a password sign-up; signs the user in (returns JWT token)
+ */
+export const authenticationControllerVerifyEmail = async (verifyEmailRequest: VerifyEmailRequest, options?: RequestInit): Promise<authenticationControllerVerifyEmailResponse> => {
+
+  const res = await fetch(getAuthenticationControllerVerifyEmailUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(verifyEmailRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: authenticationControllerVerifyEmailResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as authenticationControllerVerifyEmailResponse
+}
+
+
+
+
+
+export const getAuthenticationControllerVerifyEmailMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerVerifyEmail>>, TError,{data: VerifyEmailRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerVerifyEmail>>, TError,{data: VerifyEmailRequest}, TContext> => {
+
+const mutationKey = ['authenticationControllerVerifyEmail'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authenticationControllerVerifyEmail>>, {data: VerifyEmailRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authenticationControllerVerifyEmail(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthenticationControllerVerifyEmailMutationResult = NonNullable<Awaited<ReturnType<typeof authenticationControllerVerifyEmail>>>
+    export type AuthenticationControllerVerifyEmailMutationBody = VerifyEmailRequest
+    export type AuthenticationControllerVerifyEmailMutationError = void
+
+    /**
+ * @summary Confirm the emailed code of a password sign-up; signs the user in (returns JWT token)
+ */
+export const useAuthenticationControllerVerifyEmail = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerVerifyEmail>>, TError,{data: VerifyEmailRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authenticationControllerVerifyEmail>>,
+        TError,
+        {data: VerifyEmailRequest},
+        TContext
+      > => {
+      return useMutation(getAuthenticationControllerVerifyEmailMutationOptions(options), queryClient);
+    }
+    export type authenticationControllerResendVerificationResponse200 = {
+  data: ResendVerificationResponse
+  status: 200
+}
+
+export type authenticationControllerResendVerificationResponse429 = {
+  data: void
+  status: 429
+}
+
+export type authenticationControllerResendVerificationResponse503 = {
+  data: void
+  status: 503
+}
+
+export type authenticationControllerResendVerificationResponseSuccess = (authenticationControllerResendVerificationResponse200) & {
+  headers: Headers;
+};
+export type authenticationControllerResendVerificationResponseError = (authenticationControllerResendVerificationResponse429 | authenticationControllerResendVerificationResponse503) & {
+  headers: Headers;
+};
+
+export type authenticationControllerResendVerificationResponse = (authenticationControllerResendVerificationResponseSuccess | authenticationControllerResendVerificationResponseError)
+
+export const getAuthenticationControllerResendVerificationUrl = () => {
+
+
+
+
+  return `/api/v1/auth/resend-verification`
+}
+
+/**
+ * @summary Email a new verification code (same answer for unknown or already verified emails)
+ */
+export const authenticationControllerResendVerification = async (resendVerificationRequest: ResendVerificationRequest, options?: RequestInit): Promise<authenticationControllerResendVerificationResponse> => {
+
+  const res = await fetch(getAuthenticationControllerResendVerificationUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(resendVerificationRequest)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: authenticationControllerResendVerificationResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as authenticationControllerResendVerificationResponse
+}
+
+
+
+
+
+export const getAuthenticationControllerResendVerificationMutationOptions = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerResendVerification>>, TError,{data: ResendVerificationRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerResendVerification>>, TError,{data: ResendVerificationRequest}, TContext> => {
+
+const mutationKey = ['authenticationControllerResendVerification'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authenticationControllerResendVerification>>, {data: ResendVerificationRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authenticationControllerResendVerification(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthenticationControllerResendVerificationMutationResult = NonNullable<Awaited<ReturnType<typeof authenticationControllerResendVerification>>>
+    export type AuthenticationControllerResendVerificationMutationBody = ResendVerificationRequest
+    export type AuthenticationControllerResendVerificationMutationError = void
+
+    /**
+ * @summary Email a new verification code (same answer for unknown or already verified emails)
+ */
+export const useAuthenticationControllerResendVerification = <TError = void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authenticationControllerResendVerification>>, TError,{data: ResendVerificationRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authenticationControllerResendVerification>>,
+        TError,
+        {data: ResendVerificationRequest},
+        TContext
+      > => {
+      return useMutation(getAuthenticationControllerResendVerificationMutationOptions(options), queryClient);
+    }
     export type authenticationControllerLoginResponse200 = {
   data: AuthLoginResponseDto
   status: 200
@@ -266,10 +477,15 @@ export type authenticationControllerLoginResponse401 = {
   status: 401
 }
 
+export type authenticationControllerLoginResponse403 = {
+  data: void
+  status: 403
+}
+
 export type authenticationControllerLoginResponseSuccess = (authenticationControllerLoginResponse200) & {
   headers: Headers;
 };
-export type authenticationControllerLoginResponseError = (authenticationControllerLoginResponse401) & {
+export type authenticationControllerLoginResponseError = (authenticationControllerLoginResponse401 | authenticationControllerLoginResponse403) & {
   headers: Headers;
 };
 

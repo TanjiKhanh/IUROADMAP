@@ -14,6 +14,8 @@ interface PublicPaths {
   login: string;
   register: string;
   forgotPassword: string;
+  /** Enter the emailed code after a password sign-up (FL-AUTH-13): ?email= */
+  verifyEmail: string;
 }
 
 interface DashBoardPaths {
@@ -101,6 +103,7 @@ export const webPaths: WebPathsStructure = {
     login: '/login',
     register: '/register',
     forgotPassword: '/forgot-password',
+    verifyEmail: '/verify-email',
   },
   dashboard: {
     root: '/dashboard',

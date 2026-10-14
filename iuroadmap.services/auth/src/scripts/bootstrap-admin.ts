@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { PrismaClient, Role, AccountStatus } from '../generated/prisma-client';
+import { normalizeEmail } from '@iuroadmap/shared';
 
 async function bootstrapAdmin(): Promise<void> {
   const prisma = new PrismaClient();
@@ -26,25 +27,28 @@ async function bootstrapAdmin(): Promise<void> {
 
     for (const admin of admins) {
       const passwordHash = await bcrypt.hash(admin.password!, 12);
+      const email = normalizeEmail(admin.email!);
 
       await prisma.user.upsert({
-        where: { email: admin.email },
+        where: { email },
         update: {
           name: admin.name,
           password: passwordHash,
           role: { connect: { name: admin.roleName } },
           status: AccountStatus.ACTIVE,
+          emailVerifiedAt: new Date(),
         },
         create: {
-          email: admin.email!,
+          email,
           name: admin.name,
           password: passwordHash,
           role: { connect: { name: admin.roleName } },
           status: AccountStatus.ACTIVE,
+          emailVerifiedAt: new Date(),
         },
       });
 
-      console.log(`Admin account is ready: ${admin.email}`);
+      console.log(`Admin account is ready: ${email}`);
     }
   } finally {
     await prisma.$disconnect();

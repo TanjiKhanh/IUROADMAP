@@ -6,6 +6,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 
 import { AuthenticationController } from './controllers/authentication.controller';
 import { AuthenticationService } from './services/authentication.service';
+import { EmailVerificationService } from './services/email-verification.service';
 import { RegisterMentorSaga } from './sagas/register-mentor.saga';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
@@ -56,7 +57,7 @@ import { MentorClientModule } from '@iuroadmap/shared';
     }),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, RegisterMentorSaga, JwtStrategy],
+  providers: [AuthenticationService, EmailVerificationService, RegisterMentorSaga, JwtStrategy],
   exports: [AuthenticationService],
 })
 export class AuthenticationModule {}

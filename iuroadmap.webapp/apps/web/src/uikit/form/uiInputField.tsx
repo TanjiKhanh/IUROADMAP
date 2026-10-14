@@ -14,6 +14,9 @@ export interface UiInputFieldProps<TFieldValues extends FieldValues> {
   prefix?: ReactNode;
   autoComplete?: string;
   autoFocus?: boolean;
+  /** Virtual keyboard hint, e.g. "numeric" for one-time codes */
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
+  maxLength?: number;
 }
 
 export const UiInputField = <TFieldValues extends FieldValues>({
@@ -26,6 +29,8 @@ export const UiInputField = <TFieldValues extends FieldValues>({
   prefix,
   autoComplete,
   autoFocus,
+  inputMode,
+  maxLength,
 }: UiInputFieldProps<TFieldValues>) => {
   return (
     <Controller
@@ -41,7 +46,16 @@ export const UiInputField = <TFieldValues extends FieldValues>({
           {type === 'password' ? (
             <UiPasswordInput {...field} placeholder={placeholder} prefix={prefix} autoComplete={autoComplete} autoFocus={autoFocus} />
           ) : (
-            <UiInput {...field} type={type} placeholder={placeholder} prefix={prefix} autoComplete={autoComplete} autoFocus={autoFocus} />
+            <UiInput
+              {...field}
+              type={type}
+              placeholder={placeholder}
+              prefix={prefix}
+              autoComplete={autoComplete}
+              autoFocus={autoFocus}
+              inputMode={inputMode}
+              maxLength={maxLength}
+            />
           )}
         </UiFormItem>
       )}

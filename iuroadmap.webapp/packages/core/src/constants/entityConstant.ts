@@ -65,6 +65,11 @@ export const EntityConstant = {
    * Length is 100
    */
   Email: 100,
+
+  /**
+   * One-time email verification code, digits only (exactly 6)
+   */
+  VerificationCode: 6,
 } as const;
 
 export type EntityConstantKey = keyof typeof EntityConstant;

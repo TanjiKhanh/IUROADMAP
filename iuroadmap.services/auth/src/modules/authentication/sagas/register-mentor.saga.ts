@@ -1,6 +1,6 @@
 import { Injectable, Logger, ConflictException, InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { SagaOrchestrator, SagaStep, AccountStatus, MentorClientService } from '@iuroadmap/shared';
+import { SagaOrchestrator, SagaStep, AccountStatus, MentorClientService, AppConstant, ErrorCodes } from '@iuroadmap/shared';
 import { UsersService } from '../../users/services/users.service';
 import { MentorRegisterRequestDto } from '../dto/requests/mentor-register.request.dto';
 
@@ -30,10 +30,10 @@ export class RegisterMentorSaga {
       execute: async (context) => {
         const existing = await this.usersService.findByEmail(context.dto.email);
         if (existing) {
-          throw new ConflictException('User already exists');
+          throw new ConflictException({ code: ErrorCodes.EMAIL_ALREADY_EXISTS, message: 'User already exists' });
         }
 
-        const hashed = await bcrypt.hash(context.dto.password, 10);
+        const hashed = await bcrypt.hash(context.dto.password, AppConstant.BcryptRounds);
         const created = await this.usersService.createUser({
           email: context.dto.email,
           password: hashed,

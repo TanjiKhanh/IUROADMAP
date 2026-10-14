@@ -1,12 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsEmail, IsOptional, IsUUID, MaxLength, MinLength } from 'class-validator';
-import { EntityConstant } from '@iuroadmap/shared';
+import { EntityConstant, NormalizeEmail } from '@iuroadmap/shared';
 
 export class UserCreateRequest {
   @ApiProperty({ description: 'Email address', example: 'user@iuroadmap.com', format: 'email', maxLength: EntityConstant.Email })
   @IsEmail()
   @IsNotEmpty()
   @MaxLength(EntityConstant.Email)
+  @NormalizeEmail()
   email!: string;
 
   @ApiProperty({ description: 'Password (min 6 characters)', example: 'SecurePass123', minLength: EntityConstant.PasswordMin, maxLength: EntityConstant.PasswordMax })

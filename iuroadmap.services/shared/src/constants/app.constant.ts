@@ -97,4 +97,17 @@ export const AppConstant = {
     /** Pending reports needed to auto-flag a comment (shared with FL-LR) */
     ReportThreshold: 3,
   },
+
+  /** bcrypt work factor for passwords and one-time codes (BR-AUTH-02: at least 10) */
+  BcryptRounds: 10,
+
+  /** Email verification after a password sign-up (FL-AUTH-13, BR-AUTH-14) */
+  EmailVerification: {
+    /** Minutes a code stays valid */
+    CodeTtlMinutes: 15,
+    /** Wrong entries allowed before the code is void and a new one must be requested */
+    MaxAttempts: 5,
+    /** Seconds before another code can be requested */
+    ResendCooldownSeconds: 60,
+  },
 } as const;

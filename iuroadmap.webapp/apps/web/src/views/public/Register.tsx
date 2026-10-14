@@ -5,13 +5,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { features, RoutePaths } from '@iuroadmap/core';
-import { EntityConstant } from '@iuroadmap/shared/constants';
-import { useAuthenticationControllerRegister } from '@iuroadmap/api-gen';
+import { EntityConstant, ErrorCodes } from '@iuroadmap/shared/constants';
+import { useAuthenticationControllerRegister, type RegistrationResponse } from '@iuroadmap/api-gen';
 import { selectIsAuthenticated } from '@iuroadmap/store';
 import type { RootState } from '@iuroadmap/store';
 
 import { useTranslation } from '../../hooks/useTranslation';
-import { apiErrorMessage } from '../../api/apiResult';
+import { apiErrorMessage, unwrapData } from '../../api/apiResult';
+import { verifyEmailUrl, type VerifyEmailLocationState } from '../../auth/verifyEmailLink';
 import logo from '../../assets/images/logo-gupjob-primary.png';
 import { GOOGLE_SIGN_IN_ENABLED, GoogleSignInButton } from '../../components/auth/GoogleSignInButton';
 import { UiButton, UiCard, UiForm, UiInputField, useToast } from '../../uikit';
@@ -51,9 +52,12 @@ export default function RegisterPage() {
 
     const onSubmit = handleSubmit(async (values) => {
         try {
-            // The backend always creates a LEARNER account
-            await registerLearner({ data: values });
-            navigate(RoutePaths.web.public.login, { state: { message: t(authKeys.register.successMsg) } });
+            // The backend always creates a LEARNER account, which signs in after the email code is confirmed
+            const result = unwrapData<RegistrationResponse>(await registerLearner({ data: values }));
+            const state: VerifyEmailLocationState = result?.resendAfterSeconds
+                ? { message: t(authKeys.verifyEmail.sentMsg), messageType: 'success', resendAfterSeconds: result.resendAfterSeconds }
+                : { message: t(`errors.${ErrorCodes.EMAIL_DELIVERY_FAILED}`), messageType: 'warning' };
+            navigate(verifyEmailUrl(result?.email ?? values.email), { state });
         } catch (err: unknown) {
             toast.error(apiErrorMessage(err, t, t(authKeys.register.failedMsg)));
         }
